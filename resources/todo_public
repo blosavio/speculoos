@@ -1,0 +1,69 @@
+### Speculoos to-do
+
+1. Construct a comprehensive test matrix of functions:
+
+	- w/ and w/o metadata,
+	- bare return values/collection return,
+	- zero/one/multiple arguments,
+	- specifications missing/empty/partially/fully-supplied,
+	- valid/invalid arguments
+
+	such that
+
+	```(-> f :with-meta :bare-return :zero-args :specs-partial :invalid-args)```
+
+	would extract a test function.
+
+2. Make function names consistent and symmetrical.
+	If one action exists on the 'scalar' side, ensure its mirror on the 'collection' side is consistent.
+	Also, make sure names of function validators are consistent.
+	In general, make sure all function names are meaningful and consistent.
+
+3. FUTURE CONCEPT: 'hooks' to apply an predicate whenever a condition occurs.
+	e.g., During collection validation, when any vector is encountered, check to see if the second element is :foo.
+	e.g., During scalar validation, when any integer is encountered and the predicate is tested, check if it's non-negative.
+
+4. Consider specifying and validating
+	protocols
+	multimethods
+	records
+	queues
+	atoms/swap!/reset!
+	agents/send/send-off
+	refs/alter
+
+5. Consider fully-qualified keywords (:net.speculoos/arg-scalar-spce) instead of pseudo-qualified keywords (:speculoos/arg-scalar-spec).
+
+6. Compare returning plain true/false, or a globally-qualified result, such as :speculoos/valid or :speculoos/invalid.
+
+7. Make function instrumenting more robust and repeatable, less sensitive to order of operations. Right now, invoking `instrument`/`unstrument` multiple times, or out of order contaminates, or irreoverably jams the REPL session.
+
+8. Test with CLJS, CLRL, Babashka
+
+9. Re-visit reduce-indexed and fn-in* implementations to improve performance.
+
+10. Considering renaming/new names:
+	valid? => no-invalids?
+	(new) all-valid?
+	(new) some-validations?
+
+
+### Speculoss to-don't
+
+1.  No required regular expression stuff, like this.
+	[42 "abc"]*
+	[99? "xyz"*]
+	{:a int?+ :b boolean?*}
+
+	This wrecks composability.
+	It seems like this would require patching the Reader.
+	People would have to learn _another_ mini-language.
+	Instead, keep Speculoos a lib.
+
+2. In fact, no new grammer nor DSL.
+
+3. No parser. Outside of project scope.
+
+4. No returned confomred values. fn-in* tools and paths should be enough.
+
+5. Type system.
