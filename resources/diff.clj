@@ -23,7 +23,7 @@
          [:h1.wide-title [:code "(diff spec.alpha speculoos)"]]
          [:p "My original goal for the Speculoos project was something like "
           [:br]
-          [:em "79.3% the power of spec, but at least the composition is simpler!"]
+          [:em "79.3% the power of spec, but maybe you'll find the composition is simpler!"]
           [:br]
           "Here's a side-by-side follow along of the "
           [:a {:href "https://clojure.org/guides/spec"} "spec " [:em "Guide"]]
@@ -150,7 +150,7 @@
            [:div.side-by-side
             [:p "Here is the same process in Speculoos, re-using the regex."
              (label "skip")
-             (side-note "skip" (h2/html "The Spec 'Guide' does not appear to use " [:code ":acct/acctid"] ", so I will skip it."))]
+             (side-note "skip" (h2/html "The " [:em "Spec Guide"] " does not appear to use " [:code ":acct/acctid"] ", so I will skip it."))]
             [:pre
              (print-form-then-eval "(def email-spec #(and (string? %) (re-matches email-regex %)))")
              [:br]
@@ -298,7 +298,7 @@
              [:br]
              (print-form-then-eval "(only-invalid (validate-scalar-spec event-4 (event-type event-4)))")]]]
 
-          [:p "Here we see a significant difference between " [:code "spec.alpha"] " and Speculoos: the former fails the validation because " [:code "event-4"] " is missing the " [:code ":timestamp"] " key. Speculoos considers the presence or absence of a map's key to be a property of the collection. Within that philosophy, such a specification would properly belong in a Speculoos " [:em "collection spec"] "."]]
+          [:p "Here we see a significant difference between " [:code "spec.alpha"] " and Speculoos: the former fails the validation because " [:code "event-4"] " is missing the " [:code ":timestamp"] " key. Speculoos considers the presence or absence of a map's key to be a property of the collection. Within that philosophy, such a specification would properly belong in a Speculoos " [:em "collection specification"] "."]]
 
          [:section
           [:h2 "Collections"]
@@ -653,7 +653,7 @@
              [:br]
              (print-form-then-eval "(s/valid? :game/player kenny)")
              [:br]
-             (print-form-then-eval "(with-out-str (s/explain :game/game {:game/deck deck :game/players [{:game/name \"Kenny Rogers\" :game/score 100 :game/hand [[2 :banana]]}]}))")]]
+             (print-form-then-eval "(s/explain-data :game/game {:game/deck deck :game/players [{:game/name \"Kenny Rogers\" :game/score 100 :game/hand [[2 :banana]]}]})")]]
 
            [:div.side-by-side
             [:p "Let's follow along, slowly building up the Speculoos specification."]
@@ -709,15 +709,15 @@
              (print-form-then-eval "(gen/generate (s/gen :game/player))")]]
 
            [:div.side-by-side
-            [:p "Speculoos provides a very rudimentary version that mimics this functionality. Because " [:code "game-spec"] " is composed of infinitely-repeating sequences, let's create a simplified version that terminates, using the basic " [:code "test.check"] " generators. Speculoos does not have the ability to pull apart a compound predicate such as " [:code "#(and (int? %) (< % 10))"] " in order to compose a generator."
-             (label "dissertation")
-             (side-note "dissertation" "Is it even possible? Seems like it would be a PhD dissertation topic…or three.")]
+            [:p "Speculoos provides a very rudimentary version that mimics this functionality. Because " [:code "game-spec"] " is composed of infinitely-repeating sequences, let's create a simplified version that terminates, using the basic " [:code "test.check"] " generators. Speculoos does not have the ability to automatically pull apart a compound predicate such as " [:code "#(and (int? %) (< % 10))"] " in order to compose a generator."]
             [:pre
              (print-form-then-eval "(require '[speculoos.utility :refer [data-from-spec]])")
              [:br]
              (print-form-then-eval "(data-from-spec game-spec :random)")]
 
-            [:p "Automatically setting up generators and property-based testing is the main area where Speculoos lags " [:code "spec.alpha"] ". I do not yet have a great idea on how to pull apart compound, composed predicates. Maybe put some example usage into the predicate metadata which would put bounds on the generator search space…"]
+            [:p "Automatically setting up generators and property-based testing is the main area where Speculoos lags " [:code "spec.alpha"] ". I do not yet have a great idea on how to automatically pull apart compound, composed predicates."
+             (label "alt")
+             (side-note "alt" (h2/html "See the " [:a {:href "documentation.html"} "docs"] ", " [:a {:href "api.html"} [:span.small-caps "api"]] " and a " [:a {:href "#and"} "later subsection"] " to see how to manunally add generators into the predicate metadata."))]
 
             [:p "Let's follow along as best as we can…"]
             [:pre
@@ -760,7 +760,7 @@
              (print-form-then-eval "(exercise-fn ranged-rand 5)")]]]]
 
 
-         [:section
+         [:section#and
           [:h2 [:code "s/and"] " generators"]
           [:div.side-by-side-container
            [:div.side-by-side

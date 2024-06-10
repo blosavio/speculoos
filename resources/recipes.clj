@@ -136,7 +136,7 @@
                  (print-form-then-eval "(valid-scalar-spec? (lazy-seq [1 2 3]) [int? int? int?])")
                  [:br]
                  (print-form-then-eval "(valid-scalar-spec? (lazy-seq [1 2 3]) [int? boolean? int?])")]
-                [:p "Second, Speculoos can use a specification that is composed from a non-terminating sequence as long as the data is not also a non-terminating sequence."]
+                [:p "Second, Speculoos can use a specification that is composed of a non-terminating sequence as long as the data is not also a non-terminating sequence."]
                 [:pre
                  (print-form-then-eval "(valid-scalar-spec? [42] (repeat int?))")
                  (print-form-then-eval "(valid-scalar-spec? [42 0 99] (repeat int?))")
@@ -171,7 +171,7 @@
                 [:pre (print-form-then-eval "(valid-scalar-spec? [#{42 0 99} #{'foo} #{:foo :bar :baz}] [#{int?} #{symbol?} #{keyword?}])")]
 
                 [:h3 "Adjusting specifications"]
-                [:p "What if the specification in your hand is close, but not exactly, what you need? You can replax a specification with a couple of strategies. First strategy: Speculoos can only validate if it has a predicate, so you could simply " [:em "remove"] " the offending predicate."]
+                [:p "What if the specification in your hand is close, but not exactly, what you need? You can relax a specification with a couple of strategies. First strategy: Speculoos will only validate if it has a predicate, so you could simply " [:em "remove"] " the offending predicate."]
                 [:pre
                  (print-form-then-eval "(valid-scalar-spec? [42 :foo \"abc\"] [int? keyword? boolean?])")
                  [:br]
@@ -220,7 +220,7 @@
                 [:p "The results are the same. Pick the option that best signals your intent."]
                 [:p "Maps are easier: Any key in both the specificaiton and the data will be validated. Otherwise, unpaired datums or predicates are ignored."]
                 [:pre (print-form-then-eval "(valid-scalar-spec? {:validated 42 :ignored-datum 'foo} {:validated int? :ignored-predicate char?})")]
-                [:p "Within a single validation operation, you can bestow optionality by composing a predicate with " [:code "or"] ", or, my preference, " [:a {:href "https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/some-fn"} [:code "clojure.core/some-fn"]] "."]
+                [:p "Considering a single datum, you can bestow optionality by composing a predicate with " [:code "or"] ", or, my preference, " [:a {:href "https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/some-fn"} [:code "clojure.core/some-fn"]] "."]
                 [:pre (print-form-then-eval "(valid-scalar-spec? [42 :foo \"abc\"] [int? #(or (symbol? %) (keyword? %)) (some-fn char? string?)])")]
                 ] ;; end of Scalar Validation section
 
@@ -275,7 +275,7 @@
                  (print-form-then-eval "(valid-collection-spec? '((1) (2) (3)) '((length-1?) list? (length-1?) (length-1?)))")]
 
                 [:h3 "Maps"]
-                [:p "Collection predicates apply to the maps that contain them, as long as the key does not appear in the data map. Any number of predicates may be supplied. Since the specification's keys don't matter, you can name them something informative."]
+                [:p "Collection predicates apply to the maps that contain them, as long as the key does not appear in the data's corresponding map. Any number of predicates may be supplied. Since the specification's keys don't matter, you can name them something informative."]
                 [:pre
                  (print-form-then-eval "(valid-collection-spec? {:a 42} {:map-spec empty?})")
                  [:br]
@@ -693,7 +693,7 @@
                  (print-form-then-eval "(valid-scalar-spec? [42 \"abc\"] [#(and (int? %) (even? %)) #(and (string? %) (= 3 (count %)))])")
                  [:br]
                  (print-form-then-eval "(valid-scalar-spec? {:a 'foo} {:a #(or (char? %) (symbol? %))})")]
-                [:p [:code "clojure.core"] "provides some nice higher-order functions for composing predicates: " [:code "every-pred"] " and " [:code "some-fn"] "."]
+                [:p [:code "clojure.core"] " provides some nice higher-order functions for composing predicates: " [:code "every-pred"] " and " [:code "some-fn"] "."]
                 [:pre (print-form-then-eval "(valid-scalar-spec? [42 \"abc\"] [(every-pred int? even?) (some-fn symbol? string?)])")]
                 [:h3 "Placeholders, ambivalence"]
                 [:p "Maintain a specification's correspondence to a sequence."]

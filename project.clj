@@ -17,6 +17,5 @@
   :codox {:metadata {:doc/format :markdown}
           :namespaces [#"^speculoos\.(?!scratch)(?!generators)"]
           :output-path "doc"
-          #_ :doc-files #_ ["resources/html/home.html" "resources/html/diff.html"]
           :themes [:speculoos]
-          #_ :source-uri #_"https://github.com/sage_visuals/speculoos/{version}"})
+          :source-uri "https://github.com/blosavio/speculoos/blob/main/{filepath}#L{line}"})
