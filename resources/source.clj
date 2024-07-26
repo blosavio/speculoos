@@ -22,9 +22,9 @@
          [:section
           [:p "Current version: " [:code "1"] " (experimental)"]
           [:p "Add this dependency to your " [:a {:href "https://clojure.org/reference/deps_edn"} [:code "deps.edn"]] " file:"]
-          [:pre [:code "com.sagevisuals/speculoos {:mvn/version \"v1\"}"]]
+          [:pre [:code "com.sagevisuals/speculoos {:mvn/version \"version 1\"}"]]
           [:p "Or this to your " [:a {:href "https://leiningen.org/"} "Leiningen"] " " [:code "project.clj"] " file:"]
-          [:pre [:code "com.sagevisuals.com/speculoos \"v1\""]]
+          [:pre [:code "com.sagevisuals.com/speculoos \"version 1\""]]
           [:p "Find the source code on " [:a {:href "https://github.com/blosavio/speculoos"} "Speculoos' repository page."]]
           [:p "Released under the " [:a {:href "https://opensource.org/license/mit"} "MIT License"] "."]
           [:p [:code "gpg"] " key information:"
