@@ -4,8 +4,7 @@
 
 
 (def hiccup-filenames
-  ["api"
-   "contact"
+  ["contact"
    "diff"
    "documentation"
    "four_oh_four"

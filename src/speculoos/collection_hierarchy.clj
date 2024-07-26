@@ -1,5 +1,5 @@
 (comment
-  "Refered by speculoos.core, speculoos.collection-specs, and speculoos.fn-in.
+  "Referred by speculoos.core, speculoos.collection-specs, and speculoos.fn-in.
    Used for multimethods, which should probably be converted to protocols.
    (But I think multimethods are prettier.)" )
 

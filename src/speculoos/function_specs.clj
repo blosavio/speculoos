@@ -6,7 +6,7 @@
 
   Speculoos explores a few different _styles_ of function specification:
 
-  1. Explicitly providing the specificaton during explicit validation.
+  1. Explicitly providing the specification during explicit validation.
   2. Implicitly providing the specification via metadata, explicitly validating.
   3. Implicitly providing the specification via metadata, implicitly validating
   via instrumentation.
@@ -18,8 +18,8 @@
    [clojure.repl :refer [demunge]]
    [clojure.set :as set]
    [clojure.string :as str]
-   [speculoos.core :refer [validate only-invalid dual-validate-scalar-spec
-                           dual-validate-collection-spec all-paths regex?]]
+   [speculoos.core :refer [validate only-invalid dual-validate-scalars
+                           dual-validate-collections all-paths regex?]]
    [speculoos.utility :refer [data-from-spec]]))
 
 
@@ -188,7 +188,7 @@
   Note: Argument and return values satisfying the specifications does not
   guarantee that the function's output is correct.
 
-  See [[validate-scalar-spec]] and [[validate-collection-spec]] for details
+  See [[validate-scalars]] and [[validate-collections]] for details
   about validation.
 
   Examples:
@@ -234,9 +234,9 @@
                                        (:speculoos/ret-scalar-spec specs)
                                        (:speculoos/ret-collection-spec specs))))
         tagged-ret-results (map #(assoc % :fn-spec-type :speculoos/return) ret-spec-results)
-        arg-vs-ret-scalar-results (if (coll? return) (dual-validate-scalar-spec (vec args) return (:speculoos/arg-vs-ret-scalar-spec specs)))
+        arg-vs-ret-scalar-results (if (coll? return) (dual-validate-scalars (vec args) return (:speculoos/arg-vs-ret-scalar-spec specs)))
         tagged-vs-scalar-results (map #(assoc % :fn-spec-type :speculoos/arg-vs-ret) arg-vs-ret-scalar-results)
-        arg-vs-ret-collection-results (if (coll? return) (dual-validate-collection-spec (vec args) return (:speculoos/arg-vs-ret-collection-spec specs)))
+        arg-vs-ret-collection-results (if (coll? return) (dual-validate-collections (vec args) return (:speculoos/arg-vs-ret-collection-spec specs)))
         tagged-vs-collection-results (map #(assoc % :fn-spec-type :speculoos/arg-vs-ret) arg-vs-ret-collection-results)
         non-satisfied-specs (filter #(not (:valid? %)) (concat tagged-arg-results
                                                                tagged-ret-results
@@ -502,7 +502,7 @@
   ```clojure
   (defn add-n-subtract [x y] [(+ x y) (- x y)])
 
-  ;; `intrument` requires specifications be added *before* instrumentation
+  ;; `instrument` requires specifications be added *before* instrumentation
   (inject-specs! add-n-subtract {:speculoos/arg-scalar-spec [int? ratio?]})
 
   (instrument add-n-subtract)
@@ -511,7 +511,7 @@
   ;; non-satisfied predicates are send to *out*
   (with-out-str (add-n-subtract 5 2)) ;; printed to *out* ({:path [1], :datum 2, :predicate ratio?, :valid? false})
 
-  ;; if all specifications are satsified, the function retuns a value
+  ;; if all specifications are satisfied, the function returns a value
   (add-n-subtract 5 3/2) ;; => [13/2 7/2]
 
   ;; remove instrumentation wrapper...

@@ -44,7 +44,7 @@ dt {
 }
 
 #uuid {
-    /* display: none; */
+    display: none;
 }
 
 .side-by-side-container {

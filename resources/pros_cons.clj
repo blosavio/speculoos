@@ -26,12 +26,12 @@
 
            [:li "I find it conceptually simpler to specify collections independently from scalars."]
 
-           [:li "The way Speculoos decomposes a heterogenous, arbitrarily-nested data structure makes it straightforward to write utility functions, especially with the starred functions. Many of the functions in " [:code "speculoos.utility"] " are just a few lines. " [:code "speculoos.core/all-paths"] " exposes this deconstructed version of both the data and the specification, so that you can write your own utilities."]]]
+           [:li "The way Speculoos decomposes a heterogeneous, arbitrarily-nested data structure makes it straightforward to write utility functions, especially with the starred functions. Many of the functions in " [:code "speculoos.utility"] " are just a few lines. " [:code "speculoos.core/all-paths"] " exposes this deconstructed version of both the data and the specification, so that you can write your own utilities."]]]
 
          [:section
           [:h2 "Cons"]
           [:ul
-           [:li [:p [:code "clojure.spec.alpha"] " is designed and written by a " [:a {:href "https://www.infoq.com/presentations/Value-Identity-State-Rich-Hickey/"} "genuine"] " " [:a {:href "https://github.com/tallesl/Rich-Hickey-fanclub"} "wizard"] ". I feel sheepish proposing ideas that Rich has possibly reasoned about, then discarded. The entire Speculoos project may be bulldozing " [:a {:href "https://en.wikipedia.org/wiki/G._K._Chesterton#Chesterton's_fence"} "Chesterton's fence"] "."]]
+           [:li [:p [:code "clojure.spec.alpha"] " is designed and written by a " [:a {:href "https://www.infoq.com/presentations/Value-Identity-State-Rich-Hickey/"} "genuine"] " " [:a {:href "https://github.com/tallesl/Rich-Hickey-fanclub"} "wizard"] ". I wouldn't be surprised if Rich already had these ideas and then discarded them."]]
 
            [:li [:p "On the other hand, Speculoos was haphazardly written by a " [:a {:href "contact.html"} "person"] " who'll put milk in the pantry. My ideas may be absurd."]]
 
@@ -41,7 +41,7 @@
                  [:em "skates to where the puck used to be"]
                  ". Roughly speaking, Speculoos aims to replicate an acceptable subset of "
                  [:code "spec.alpha"]
-                 " functionality, more specifically, what is contained in the "
+                 " functionality. More specifically, what is contained in the "
                  [:a {:href "https://clojure.org/guides/spec"} [:em "Spec Guide"]]
                  ". If there happen to be any use cases or features not covered there and not apparent from the "
                  [:span.small-caps "api"]
@@ -51,7 +51,7 @@
                  " Likewise, Speculoos copies any not-so-great ideas."]]
 
            [:li [:p [:strong "Speculoos is in a very " [:em "pre-alpha"] "."]
-                 " I paid no particular attention to performance, and have done exactly zero performace benchmarking."
+                 " I paid no particular attention to performance, and have done exactly zero performance benchmarking."
                  (label "laborious")
                  (side-note "laborious"
                             "In fact, some of Speculoos' bottom-level functions laboriously and inefficiently step through collections. I deliberately wrote this way for clarity to my inexperienced brain, with complete disregard for good performance.")
@@ -61,10 +61,10 @@
             
             [:p "Implementation issues aside, some decisions are still up in the air. For one example, if a specification+data is invalid, should it return a fully-qualified invalid key such as "
              [:code ":speculoos/invalid"]
-             ", or should it pass the data along and return the invalid result out-of-band? Or, how could Speculoos give the user that choice: an argument flag, or an entirely different function?"]]
+             ", or should it pass the data along and return the invalid announcement out-of-band?"]]
 
            [:li
-            [:p "The un-feature that might sink the entire Speculoos project: Because Speculoos predicates are regular functions, there is no straightforward way to automatically deconstruct them to create a generator."]
+            [:p "The un-feature that might sink the entire Speculoos project: Because Speculoos predicates are regular functions, there is no completely general way to automatically deconstruct them to create a generator."]
 
             [:p [:code "spec.alpha"]
              " dedicates much effort to automatically producing generators to test and exercise functions. I would not be surprised to learn that "
@@ -75,18 +75,18 @@
              [:code "spec/or"]
              " instead of bare predicates precisely to enable this capability."]
 
-            [:p "Speculoos on the other hand, can only generate test values when the predicate is transparent, like "
+            [:p "On the other hand, Speculoos can only generate test values when the predicate is transparent, like "
              [:code "int?"]
              ". The moment a predicate gets wrapped like this "
              [:code "#(int? %)"]
-             ", Speculoos can only rely on a generator that you manually supply."]]
+             ", you must either arrange the predicate definition in a proscribed pattern, or you must manually supply the generator. And either of those options requires access to the source code."]]
 
            [:li
-            [:p "Speculoos struggles when a thing could be either a scalar or a collection. In that scenario, strictly separating collection validtion from scalar specification works against you. For example, suppose you wanted to specify a " [:code "defn"] " S-expression. Sometimes you'll have a docstring…"]
+            [:p "Speculoos specifications become unwieldy when an element could be either a scalar or a collection. In that scenario, strictly separating collection validation from scalar specification works against you. For example, suppose you wanted to specify a " [:code "defn"] " S-expression. Sometimes you'll have a docstring…"]
             [:code "(defn foo \"docstring\" [arg1 arg2 …] (body))"]
             [:p "…and sometimes you won't."]
             [:code "(defn baz [arg1 arg2 …] (body))"]
-            [:p "Depending on the presence of a docstring, the argument vector could be in the third or fourth position. A Speculoos collection specification is general enough to describe that pattern, but it's not quite as clean as it would be with "
+            [:p "Depending on the presence of a docstring, the argument vector could be in the third or fourth position. A Speculoos collection specification is general enough to describe that pattern, but it's not quite as clean as it would be with a "
              [:code "spec.alpha"] " regex sequence spec."
              (label "other-hand")
              (side-note "other-hand" (h2/html "On the other hand, a semi-random sampling of a few dozen " [:code "clojure.core"] " functions turns up very few argument lists which would require that particular kind of optionality. Perhaps " [:code "defn"] " is an outlier."))]]]]
@@ -95,10 +95,10 @@
           [:h2 "Alternatives"]
           [:ul
            [:li "Staples SparX " [:a {:href "https://github.com/staples-sparx/clj-schema"} "clj-schema"]
-            [:p  "Schemas for Clojure data structures and values. Delineates operations on maps, seqs, and sets. I am encouraged by the similarities to Speculoos. Contributors: Alex Baranosky, Laurent Petit, Punit Rathore"]]
+            [:p  "Schemas for Clojure data structures and values. Delineates operations on maps, seqs, and sets. Contributors: Alex Baranosky, Laurent Petit, Punit Rathore"]]
 
            [:li "Steve Miner's " [:a {:href "https://github.com/miner/herbert"} "Herbert"]
-            [:p [:em "A schema language for Clojure data"] " for documenting and validating. Very nice look and feel. Schemas themselves are " [:code "edn"] " values. Yay! The " [:em "ReadMe"] " announces that Herbert is obsolete with the introduction of "  [:code "spec.alpha"] " in Clojure release 1.9"]]
+            [:p [:em "A schema language for Clojure data"] " for documenting and validating. Schemas themselves are " [:code "edn"] " values. Yay! The " [:em "ReadMe"] " announces that Herbert is obsolete with the introduction of "  [:code "spec.alpha"] " in Clojure release 1.9"]]
 
            [:li "John Newman's " [:a {:href "https://github.com/johnmn3/injest"} "injest"]
             [:p "Path thread macros for navigating into and transforming data. An alternative to Speculoos' " [:code "fn-in*"] " facilities."]]
@@ -141,5 +141,5 @@
             [:p "Focused on " [:a {:href "https://en.wikipedia.org/wiki/Structural_type_system"} "structural typing"] " in Clojure. Not precisely the same goals, but the " [:em "flavor"] " of this project is similar to Speculoos."]]
 
            [:li "Peter Taoussanis' " [:a {:href "https://github.com/taoensso/truss"} "Truss"]
-            [:p [:em "A tiny library that provides fast and flexible runtime assertions with terrific error messages."] " Its use of pure predicates works the way my brain works. I like the explicitness of the function argument assertions, but struggle with accepting the trade-off of gumming up the function body."]]
+            [:p [:em "A tiny library that provides fast and flexible runtime assertions with terrific error messages."] " Its use of pure predicates works the way my brain works."]]
 ]]]]))

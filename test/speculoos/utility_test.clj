@@ -1,8 +1,9 @@
 (ns speculoos.utility-test
   (:require
    [clojure.test :refer [are is deftest testing run-tests function?]]
+   [clojure.test.check.generators :as gen]
    [re-rand :refer [re-rand]]
-   [speculoos.core :refer [all-paths valid-scalar-spec? valid-collection-spec?
+   [speculoos.core :refer [all-paths valid-scalars? valid-collections? valid?
                            only-non-collections]]
    [speculoos.fn-in :refer [get*]]
    [speculoos.utility :refer :all]))
@@ -51,30 +52,269 @@
     [{:path [1], :value 22} {:path [3], :value 44} {:path [5], :value 66}]))
 
 
-(deftest data-without-specs-tests
+(deftest data-spec-set-analysis-tests
   (are [x y] (= x y)
-    [] (data-without-specs [] [])
-    [{:path [2], :value 33}] (data-without-specs [11 22 33] [int? int?])
-    [{:path [:b 1 0], :value 33}] (data-without-specs {:a 11 :b [22 [33]]} {:a int? :b [int?]})
-    [{:path [1 1 0], :value 33}] (data-without-specs [11 [22 [33]]] [int? [int?] int?])))
+    #{} ((data-spec-set-analysis []) :set-paths)
+    #{[1] [3]} ((data-spec-set-analysis [11 #{22} 33 #{44}]) :set-paths)
+    #{[]} ((data-spec-set-analysis #{11 22 33}) :set-paths)
+    #{[1 :y] [2] [4]} ((data-spec-set-analysis [11 {:x 22 :y #{33}} #{44} 55 #{66}]) :set-paths)))
 
 
-(deftest data-with-specs-tests
-  (are [x y] (= x y)
-    [] (data-with-specs [] [])
-    [{:path [0], :value 11}] (data-with-specs [11] [int?])
-    [{:path [0], :value 11} {:path [1], :value 22} {:path [2], :value 33}] (data-with-specs [11 22 33] [int? int? int?])
-    [{:path [0], :value 11} {:path [1 0], :value 22}] (data-with-specs [11 [22]] [int? [int?]])
-    [{:path [:a], :value 11} {:path [:b], :value 22}] (data-with-specs {:a 11 :b 22} {:a int? :b int?})))
+(deftest data-scalars-in-a-set-with-a-predicate-tests
+  (testing "no scalars within a set"
+    (are [x] (empty? x)
+      (data-scalars-in-a-set-with-a-predicate #{} #{})
+      (data-scalars-in-a-set-with-a-predicate [] [])
+      (data-scalars-in-a-set-with-a-predicate [11   22   [33   #{}]]
+                                              [int? int? [int? #{}]])))
+  (testing "some don't have a predicate"
+    (are [x y] (= x y)
+      (data-scalars-in-a-set-with-a-predicate #{11} #{})
+      '()
+
+      (data-scalars-in-a-set-with-a-predicate [11   #{22}     33]
+                                              [int? #{int?}     ])
+      '({:path [1 22], :value 22})
+
+      (data-scalars-in-a-set-with-a-predicate [11   #{22} 33   #{44}  ]
+                                              [int? #{}   int? #{int?}])
+      '({:path [3 44], :value 44})
+
+      (data-scalars-in-a-set-with-a-predicate [11   #{22}   33   #{44}   55   {:x 66   :y [77   #{88}  ]}]
+                                              [int? #{}     int? #{int?} int? {:x int? :y [int? #{int?}]}])
+      '({:path [3 44], :value 44}
+        {:path [5 :y 1 88], :value 88})))
+
+  (testing "all do have a predicate"
+    (are [x y] (= x y)
+      (data-scalars-in-a-set-with-a-predicate #{11  }
+                                              #{int?})
+      '({:path [11], :value 11})
+
+      (data-scalars-in-a-set-with-a-predicate [11   #{22}   33  ]
+                                              [int? #{int?} int?])
+      '({:path [1 22], :value 22})
+
+      (data-scalars-in-a-set-with-a-predicate [11   #{22}   33   #{44}]
+                                              [int? #{int?} int? #{int?}])
+      '({:path [1 22], :value 22}
+        {:path [3 44], :value 44})
+
+      (data-scalars-in-a-set-with-a-predicate [11   #{22}   33   #{44}   55   {:x 66   :y [77   #{88}  ]}]
+                                              [int? #{int?} int? #{int?} int? {:x int? :y [int? #{int?}]}])
+      '({:path [1 22], :value 22}
+        {:path [3 44], :value 44}
+        {:path [5 :y 1 88], :value 88}))))
 
 
-(deftest spec-without-data-tests
-  (are [x y] (= x y)
-    [] (specs-without-data [] [])
-    [{:path [0], :value int?}] (specs-without-data [] [int?])
-    [{:path [3], :value int?}] (specs-without-data [11 22 33] [int? int? int? int?])
-    [{:path [2 0], :value int?}] (specs-without-data [11 [22 33]] [int? [int? int?] [int?]])
-    [{:path [:b], :value int?}] (specs-without-data {:a 11} {:a int? :b int?})))
+(deftest data-scalars-in-a-set-without-a-predicate-tests
+  (testing "no scalars within a set"
+    (are [x] (empty? x)
+      (data-scalars-in-a-set-without-a-predicate #{} #{})
+      (data-scalars-in-a-set-without-a-predicate [] [])
+      (data-scalars-in-a-set-without-a-predicate [11   22   [33   #{}]]
+                                                 [int? int? [int? #{}]])))
+
+  (testing "some don't have a predicate"
+    (are [x y] (= x y)
+      (data-scalars-in-a-set-without-a-predicate #{11} #{})
+      '({:path [11], :value 11})
+
+      (data-scalars-in-a-set-without-a-predicate [11   #{22} 33   #{44}  ]
+                                                 [int? #{}   int? #{int?}])
+      '({:path [1 22], :value 22})
+
+      (data-scalars-in-a-set-without-a-predicate [11   #{22}   33   #{44}   55   {:x 66   :y [77   #{88}]}]
+                                                 [int? #{}     int? #{int?} int? {:x int? :y [int? #{}  ]}])
+      '({:path [1 22], :value 22}
+        {:path [5 :y 1 88], :value 88})))
+
+  (testing "all do have a predicate"
+    (are [x] (empty? x)
+      (data-scalars-in-a-set-without-a-predicate #{11} #{int?})
+      (data-scalars-in-a-set-without-a-predicate [11 #{22} 33] [int? #{int?}     ])
+      (data-scalars-in-a-set-without-a-predicate [11 #{22} 33] [int? #{int?} int?])
+      (data-scalars-in-a-set-without-a-predicate [11   #{22}   33   #{44}  ]
+                                                 [int? #{int?} int? #{int?}])
+      (data-scalars-in-a-set-without-a-predicate [11   #{22}   33   #{44}   55   {:x 66   :y [77   #{88}  ]}]
+                                                 [int? #{int?} int? #{int?} int? {:x int? :y [int? #{int?}]}]))))
+
+
+(deftest scalars-without-predicates-tests
+  (testing "no scalars"
+    (are [x] (empty? x)
+      (scalars-without-predicates #{} #{})
+      (scalars-without-predicates [] [])
+      (scalars-without-predicates '() '())
+      (scalars-without-predicates {} {})))
+  (testing "all scalars do have a predicate"
+    (are [x] (empty? x)
+      (scalars-without-predicates [11 #{22}] [int? #{int?}])
+      (scalars-without-predicates #{11 22 33} #{int?})
+      (scalars-without-predicates [11   {:x 22   :y [33   44   #{55  }]} #{66  }]
+                          [int? {:x int? :y [int? int? #{int?}]} #{int?}])))
+  (testing "no scalars within a set"
+    (are [x] (empty? x)
+      (scalars-without-predicates [11 22 33] [int? int? int?])
+      (scalars-without-predicates [11 22 #{}] [int? int? #{}])))
+  (testing "some scalars within a set do not have a predicate"
+    (are [x y] (= x y)
+      (scalars-without-predicates [11 22 33] [int? int?])
+      [{:path [2], :value 33}]
+
+      (scalars-without-predicates {:a 11 :b [22 [33]]} {:a int? :b [int?]})
+      [{:path [:b 1 0], :value 33}]
+
+      (scalars-without-predicates [11 [22 [33]]] [int? [int?] int?])
+      [{:path [1 1 0], :value 33}]
+
+      (scalars-without-predicates #{11 22 33} #{})
+      [{:path [33], :value 33} {:path [22], :value 22} {:path [11], :value 11}]
+
+      (scalars-without-predicates [11   {:x 22   :y [33   44   #{55}]} #{66}]
+                          [int? {:x int? :y [int? int? #{}  ]} #{}  ])
+      [{:path [1 :y 2 55], :value 55} {:path [2 66], :value 66}])))
+
+
+(deftest scalars-with-predicates-tests
+  (testing "empty colls"
+    (are [x] (empty? x)
+      (scalars-with-predicates [] [])
+      (scalars-with-predicates {} {})
+      (scalars-with-predicates '() '())
+      (scalars-with-predicates #{} #{})))
+  (testing "predicates for non-existing scalars"
+    (are [x] (empty? x)
+      (scalars-with-predicates [] [int?])
+      (scalars-with-predicates {} {:x int?})
+      (scalars-with-predicates '() '())
+      (scalars-with-predicates #{} #{int?})))
+  (testing "all scalars have a predicate"
+    (are [x y] (= x y)
+      (scalars-with-predicates [11] [int?])
+      [{:path [0], :value 11}]
+
+      (scalars-with-predicates [11 22 33] [int? int? int?])
+      [{:path [0], :value 11}
+       {:path [1], :value 22}
+       {:path [2], :value 33}]
+
+      (scalars-with-predicates [11 [22]] [int? [int?]])
+      [{:path [0], :value 11}
+       {:path [1 0], :value 22}]
+
+      (scalars-with-predicates {:a 11 :b 22} {:a int? :b int?})
+      [{:path [:a], :value 11}
+       {:path [:b], :value 22}]
+
+      (scalars-with-predicates [11] [int?])
+      [{:path [0], :value 11}]
+
+      (scalars-with-predicates #{99} #{int?})
+      [{:path [99], :value 99}]
+
+      (scalars-with-predicates [11   #{22}  ]
+                       [int? #{int?}])
+      [{:path [0], :value 11}
+       {:path [1 22], :value 22}]
+
+      (scalars-with-predicates #{11 22 33} #{int?})
+      [{:path [33], :value 33}
+       {:path [22], :value 22}
+       {:path [11], :value 11}]
+
+      (scalars-with-predicates [11   {:x [22   #{33}  ]}]
+                       [int? {:x [int? #{int?}]}])
+      [{:path [0], :value 11}
+       {:path [1 :x 0], :value 22}
+       {:path [1 :x 1 33], :value 33}]))
+  (testing "some scalars lack a predicate"
+    (are [x y] (= x y)
+      (scalars-with-predicates [11 22 33] [int?])
+      [{:path [0], :value 11}]
+
+      (scalars-with-predicates {:x 11 :y 22} {:x int?})
+      [{:path [:x], :value 11}]
+
+      (scalars-with-predicates [11 #{22} 33]
+                       [int? #{} int?])
+      [{:path [0], :value 11}
+       {:path [2], :value 33}]
+
+      (scalars-with-predicates #{11 22 33} #{})
+      [])))
+
+
+(deftest predicates-without-scalars-tests
+  (testing "empty data and spec"
+    (are [x] (empty? x)
+      (predicates-without-scalars [] [])
+      (predicates-without-scalars {} {})
+      (predicates-without-scalars '() '())
+      (predicates-without-scalars #{} #{})))
+  (testing "some scalars do not have a predicate"
+    (are [x] (empty? x)
+      (predicates-without-scalars [11] [])
+      (predicates-without-scalars {:x 99} {})
+      (predicates-without-scalars #{99} #{})
+      (predicates-without-scalars [11 #{22}] [#{}])))
+  (testing "all predicates have a scalar"
+    (are [x] (empty? x)
+      (predicates-without-scalars [11] [int?])
+      (predicates-without-scalars {:x 11 :y 22}
+                                  {:x int? :y int?})
+      (predicates-without-scalars #{11 22 33} #{int?})
+      (predicates-without-scalars [11   [22    #{33 44 55}]]
+                                  [int? [char? #{string? }]])))
+  (testing "some predicates lack a scalar"
+    (are [x y] (= x y)
+      (predicates-without-scalars [] [int?])
+      [{:path [0], :value int?}]
+
+      (predicates-without-scalars [11   22   33       ]
+                                  [int? int? int? int?])
+      [{:path [3], :value int?}]
+
+      (predicates-without-scalars [11   [22   33]         ]
+                                  [int? [int? int?] [int?]])
+      [{:path [2 0], :value int?}]
+
+      (predicates-without-scalars {:a 11          }
+                                  {:a int? :b int?})
+      [{:path [:b], :value int?}]
+
+      (predicates-without-scalars [] [int?])
+      [{:path [0], :value int?}]
+
+      (predicates-without-scalars {} {:x int?})
+      [{:path [:x], :value int?}]
+
+      (predicates-without-scalars [11           ]
+                                  [int? int? int])
+      [{:path [1], :value int?}
+       {:path [2], :value int}]
+
+      (predicates-without-scalars {:x 11          }
+                                  {:x int? :y int?})
+      [{:path [:y], :value int?}]
+
+      (predicates-without-scalars #{} #{int?})
+      [{:path [int?], :value int?}]
+
+      (predicates-without-scalars [11   [    ]]
+                                  [int? [int?]])
+      [{:path [1 0], :value int?}]
+
+      (predicates-without-scalars [] [int? {:x char? :y [string? #{boolean?}]}])
+      [{:path [0], :value int?}
+       {:path [1 :x], :value char?}
+       {:path [1 :y 0], :value string?}
+       {:path [1 :y 1 boolean?], :value boolean?}]
+
+      (predicates-without-scalars [11   #{}      [#{        }]]
+                                  [int? #{char?} [#{string?}]])
+      [{:path [1 char?], :value char?}
+       {:path [2 0 string?], :value string?}])))
 
 
 (deftest non-predicates-tests
@@ -299,7 +539,7 @@
       [int? keyword? {:a string? :b boolean?} [[keyword?]]]
       (spec-from-data [1 :two {:a "abc", :b true} [[:c]]])))
   (testing "round-tripping"
-    (is (valid-scalar-spec? data-no-lists-no-sets (spec-from-data data-no-lists-no-sets))))
+    (is (valid-scalars? data-no-lists-no-sets (spec-from-data data-no-lists-no-sets))))
   (testing "non-terminating sequences"
     (are [x y] (= x y)
       (spec-from-data (range 11))
@@ -319,19 +559,6 @@
 
       (spec-from-data {:a 11 :b ["abc" (range 11) (iterate inc 55)] :c (lazy-seq [11 22 33 44 55])} 2)
       {:a int? :b [string? [int? int?] [int? int?]] :c [int? int?]})))
-
-
-(deftest defpred-tests
-  (testing "macroexpansion (lein test does not like this)"
-    #_ (are [x y] (= x y)
-      (macroexpand-1 '(defpred foo :predicate :generator))
-      '(def foo (clojure.core/with-meta :predicate #:speculoos{:canonical-sample :foo-canonical-sample, :predicate->generator :generator}))
-      ))
-  (testing "basic results"
-    (defpred foo1 'pred1 #(rand-int 99))
-    (defpred foo2 'pred2 #(- (rand-int 12)))
-    (defpred foo3 'pred3 #(rand))
-    (is (valid-scalar-spec? (data-from-spec [foo1 foo2 foo3] :random) [int? int? number?]))))
 
 
 ;; round-tripping (data-from-spec)
@@ -370,14 +597,14 @@
       [42 :kw "abc"] (data-from-spec [int? keyword? string?] :canonical)))
 
   (testing "round-tripping"
-    (is (valid-scalar-spec? (data-from-spec spec-no-lists-no-sets) spec-no-lists-no-sets)))
+    (is (valid-scalars? (data-from-spec spec-no-lists-no-sets) spec-no-lists-no-sets)))
 
   (testing "random, test.check generated data"
-    (valid-scalar-spec? (data-from-spec [int? string? boolean? char?] :random)
+    (valid-scalars? (data-from-spec [int? string? boolean? char?] :random)
                         [int? string? boolean? char?])
-    (valid-scalar-spec? (data-from-spec [int? [char? [boolean? {:a float? :b neg-int? :c [keyword? ratio?]}]]] :random)
+    (valid-scalars? (data-from-spec [int? [char? [boolean? {:a float? :b neg-int? :c [keyword? ratio?]}]]] :random)
                         [int? [char? [boolean? {:a float? :b neg-int? :c [keyword? ratio?]}]]])
-    (valid-scalar-spec? (data-from-spec {:a int? :b float? :c [double? string? char?] :d [boolean? decimal?] :e [ratio? keyword? zero?]} :random)
+    (valid-scalars? (data-from-spec {:a int? :b float? :c [double? string? char?] :d [boolean? decimal?] :e [ratio? keyword? zero?]} :random)
                         {:a int? :b float? :c [double? string? char?] :d [boolean? decimal?] :e [ratio? keyword? zero?]}))
 
   (testing "non-terminating sequences"
@@ -438,9 +665,9 @@
 
 (deftest validate-predicate->generator-tests
   (are [x] (true? x)
-    (every? #(valid-scalar-spec? % [int? boolean?]) (validate-predicate->generator (with-meta #(int? %) {:speculoos/predicate->generator #(rand-int 99)})))
-    (every? #(valid-scalar-spec? % [string? boolean?]) (validate-predicate->generator (with-meta #(boolean (re-matches #"H\d{1,3}\w" %)) {:speculoos/predicate->generator #(re-rand #"H\d{1,3}\w")})))
-    (every? #(valid-scalar-spec? % [number? false?]) (validate-predicate->generator (with-meta #(< % 10) {:speculoos/predicate->generator #(+ 10 (rand-int 99))})))))
+    (every? #(valid-scalars? % [int? boolean?]) (validate-predicate->generator (with-meta #(int? %) {:speculoos/predicate->generator #(rand-int 99)})))
+    (every? #(valid-scalars? % [string? boolean?]) (validate-predicate->generator (with-meta #(boolean (re-matches #"H\d{1,3}\w" %)) {:speculoos/predicate->generator #(re-rand #"H\d{1,3}\w")})))
+    (every? #(valid-scalars? % [number? false?]) (validate-predicate->generator (with-meta #(< % 10) {:speculoos/predicate->generator #(+ 10 (rand-int 99))})))))
 
 
 (def maybe-findable {:good-1 int?
@@ -488,7 +715,7 @@
       (bazooka-swatting-flies {:a [99 :foo] :b {:c "yay" :d [[false ] 55]}}
                               {:a [boolean? keyword?] :b {:c char? :d [[int?] int?]}})))
   (testing "round-tripping"
-    (is (valid-scalar-spec? all-correct-data (bazooka-swatting-flies all-correct-data all-incorrect-spec)))))
+    (is (valid-scalars? all-correct-data (bazooka-swatting-flies all-correct-data all-incorrect-spec)))))
 
 
 (deftest smash-data-tests
@@ -813,13 +1040,13 @@
 
 (def test-data-2 [11 [22] 33 '(44) 55])
 (def test-data-2-collection-spec [one-three-five fourth-a-list? fourth-22-more-than-second?])
-(valid-collection-spec? test-data-2 test-data-2-collection-spec)
+(valid-collections? test-data-2 test-data-2-collection-spec)
 
 (def test-data-3 [11 [22 [33] 44] '(55)])
 
 (deftest basic-collection-spec-from-data-test
-  (is (valid-collection-spec? test-data-2 (basic-collection-spec-from-data test-data-2)))
-  (is (valid-collection-spec? test-data-3 (basic-collection-spec-from-data test-data-3)))
+  (is (valid-collections? test-data-2 (basic-collection-spec-from-data test-data-2)))
+  (is (valid-collections? test-data-3 (basic-collection-spec-from-data test-data-3)))
   (testing "non-terminating sequences"
     (are [x y] (= x y)
     (basic-collection-spec-from-data [11 [22 [33] 44] 55])
@@ -952,59 +1179,96 @@
       [6 3])))
 
 
-(deftest collections-without-specs-tests
+(deftest collections-without-predicates-tests
   (testing "empty data, empty specifications"
     (are [x y] (= x y)
-      (collections-without-specs [] [])
+      (collections-without-predicates [] [])
       #{{:path [], :value []}}
 
-      (collections-without-specs {} {})
+      (collections-without-predicates {} {})
       #{{:path [], :value {}}}
 
-      (collections-without-specs '() '())
+      (collections-without-predicates '() '())
       #{{:path [], :value ()}}
 
-      (collections-without-specs #{} #{})
+      (collections-without-predicates #{} #{})
       #{{:path [], :value #{}}}))
 
   (testing "empty data, with a collection predicate"
     (are [x] (= x #{})
-      (collections-without-specs [] [vector?])
-      (collections-without-specs {} {:is-a-map? map?})
-      (collections-without-specs (list) (list list?))
-      (collections-without-specs #{} #{set?})
-      (collections-without-specs (range 9) [seq?])
-      (collections-without-specs (cycle [11 22 33]) [#(isa? % ::non-terminating)])))
+      (collections-without-predicates [] [vector?])
+      (collections-without-predicates {} {:is-a-map? map?})
+      (collections-without-predicates (list) (list list?))
+      (collections-without-predicates #{} #{set?})
+      (collections-without-predicates (range 9) [seq?])
+      (collections-without-predicates (cycle [11 22 33]) [#(isa? % ::non-terminating)])))
 
   (testing "nested collections, missing collection predicates"
     (are [x y] (= x y)
-      (collections-without-specs [11 [22] 33 [44] 55 {:a 66 :b #{77}}] [[vector?] [] {:test map?}])
+      (collections-without-predicates [11 [22] 33 [44] 55 {:a 66 :b #{77}}] [[vector?] [] {:test map?}])
       #{{:path [5 :b], :value #{77}}
         {:path [], :value [11 [22] 33 [44] 55 {:a 66, :b #{77}}]}
         {:path [3], :value [44]}}
 
-      (collections-without-specs [11 [22] 33 [44]] [[vector?]])
+      (collections-without-predicates [11 [22] 33 [44]] [[vector?]])
       #{{:path [], :value [11 [22] 33 [44]]}
         {:path [3], :value [44]}}
 
-      (collections-without-specs [11 [22] 33 [44] 55 [66]] [[] [] [list?]])
+      (collections-without-predicates [11 [22] 33 [44] 55 [66]] [[] [] [list?]])
       #{{:path [1], :value [22]}
         {:path [], :value [11 [22] 33 [44] 55 [66]]}
         {:path [3], :value [44]}}
 
-      (collections-without-specs [[11] [22] [33]] [[map?] [list?] [set?]])
+      (collections-without-predicates [[11] [22] [33]] [[map?] [list?] [set?]])
       #{{:path [], :value [[11] [22] [33]]}}
 
-      (collections-without-specs {:a {:b {:c 33}}} {})
+      (collections-without-predicates {:a {:b {:c 33}}} {})
       #{{:path [:a], :value {:b {:c 33}}}
         {:path [:a :b], :value {:c 33}}
         {:path [], :value {:a {:b {:c 33}}}}}
 
-      (collections-without-specs (list 11 (list 22 (list 33))) (list list? (list list? (list))))
+      (collections-without-predicates (list 11 (list 22 (list 33))) (list list? (list list? (list))))
       #{{:path [1 1], :value (list 33)}}
 
-      (collections-without-specs #{11 [22]} #{set?})
+      (collections-without-predicates #{11 [22]} #{set?})
       #{{:path [[22]], :value [22]}})))
+
+
+(def thorough-data [11 :foo {:x 22/7 :y 'bar} (list 33 44)])
+(def thorough-scalar-spec [int? keyword? {:x ratio? :y symbol?} (list int? int?)])
+(def thorough-coll-spec [vector? {:is-map map?} (list list?)])
+
+(comment
+  (valid-scalars? thorough-data thorough-scalar-spec)
+  (valid-collections? thorough-data thorough-coll-spec)
+  (valid? thorough-data thorough-scalar-spec thorough-coll-spec)
+  (scalars-without-predicates thorough-data thorough-scalar-spec)
+  (collections-without-predicates thorough-data thorough-coll-spec)
+  )
+
+
+(deftest thoroughly-valid?-tests
+  (testing "thoroughly valid example"
+    (are [x] (true? x)
+      (thoroughly-valid? [] [] [vector?])
+      (thoroughly-valid? thorough-data
+                         thorough-scalar-spec
+                         thorough-coll-spec)))
+  (testing "not thoroughly valid examples"
+    (are [x] (false? x)
+      (thoroughly-valid? [] [] [])
+      (thoroughly-valid? thorough-data
+                         (speculoos.fn-in/dissoc-in* thorough-scalar-spec [3])
+                         thorough-coll-spec)
+      (thoroughly-valid? thorough-data
+                         thorough-scalar-spec
+                         (speculoos.fn-in/dissoc-in* thorough-coll-spec [2]))
+      (thoroughly-valid? thorough-data
+                         (speculoos.fn-in/assoc-in* thorough-scalar-spec [1] int?)
+                         thorough-coll-spec)
+      (thoroughly-valid? thorough-data
+                         thorough-scalar-spec
+                         (speculoos.fn-in/assoc-in* thorough-coll-spec [1 :is-map?] list?)))))
 
 
 (deftest clamp-in*-tests
@@ -1202,6 +1466,128 @@
     'two (binding [*ordinal-offset* 0] (=1st ['one 'two 'three]))
     11 (=12th (range))
     42 (=5th (repeat 42))))
+
+
+(deftest predicate-scalar-symbol-tests
+  (are [x y] (= x y)
+    'x (predicate-scalar-symbol '(fn [x] (int? x)))
+    'foo (predicate-scalar-symbol '(fn [foo] (and (number? foo) (< foo 99))))
+
+    ;; The following relies on an implementation detail of the Reader, and is
+    ;; thus not guaranteed to be stable.
+    #_ true #_ (->> '#(int? %)
+                    predicate-scalar-symbol
+                    str
+                    (re-find #"^p\d__\d*#$")
+                    boolean)))
+
+
+(deftest valid-fn-form?-tests
+  (are [x] (true? x)
+    (valid-fn-form? '(fn [x] :foo))
+    (valid-fn-form? '#(int? %)))
+  (are [y] (false? y)
+    (valid-fn-form? '(:foo))
+    (valid-fn-form? '[])))
+
+
+(deftest predicate->generator-tests
+  (are [q] (true? q)
+    (let [x int?] (x ((predicate->generator x))))
+    (let [y string?] (y ((predicate->generator y))))
+    (let [z boolean?] (z ((predicate->generator z))))))
+
+
+#_ (ns-unmap *ns* 'inspect-fn-tests)
+
+
+(deftest inspect-fn-tests
+  (are [f] (true? (:all-valid? (inspect-fn-self-check f)))
+
+    '#(int? %)
+    '#(string? %)
+    '#(and (int? %))
+    '#(and (string? %))
+    '#(and (int? %) (int? %))
+    '#(and (string? %) (< 3 (count %)))
+    #_ '#(and (decimal? %) (< % 999999) (>= % 0)) ;; lein test has trouble here
+    '#(or (int? %))
+    '#(or (int? %) (string? %))
+    '#(or (int? %) (string? %) (ratio? %))
+
+    '(fn [k] (keyword? k))
+    '(fn [s] (string? s))
+    '(fn [i] (int? i))
+    '(fn [i] (and (int? i) (int? i)))
+    '(fn [s] (and (string? s) (<= 3 (count s))))
+    '(fn [r] (and (ratio? r) (< r 99) (>= r 1/99)))
+    '(fn [x] (or (int? x)))
+    '(fn [x] (or (int? x) (string? x)))
+    '(fn [x] (or (int? x) (string? x) (ratio? x)))
+
+    '#(or (and (int? %)
+               (neg? %)))
+
+    '#(or (and (int? %)
+               (even? %))
+          (and (string? %)
+               (<= 2 (count %))))
+
+    '#(or (and (int? %)
+               (even? %))
+          (and (string? %)
+               (<= 2 (count %)))
+          (and (ratio? %)
+               (<= 1/9 %)))
+
+    '(fn [x] (or (and (int? x)
+                      (even? x))))
+
+    '(fn [x] (or (and (int? x)
+                      (odd? x))
+                 (and (string? x)
+                      (<= 3 (count x)))))
+
+    '(fn [x] (or (and (int? x)
+                      (even? x))
+                 (and (string? x)
+                      (<= 2 (count x)))
+                 (and (ratio? x)
+                      (<= 1/8 x))))))
+
+
+(deftest defpred-tests
+  (testing "macroexpansion (lein test does not like this)"
+    #_ (are [x y] (= x y)
+         (macroexpand-1 '(defpred foo :predicate :generator))
+         '(def foo (clojure.core/with-meta :predicate #:speculoos{:canonical-sample :foo-canonical-sample, :predicate->generator :generator}))
+         ))
+  (testing "basic results"
+    (defpred foo1 'pred1 #(rand-int 99))
+    (defpred foo2 'pred2 #(- (rand-int 12)))
+    (defpred foo3 'pred3 #(rand))
+    (is (valid-scalars? (data-from-spec [foo1 foo2 foo3] :random) [int? int? number?])))
+
+  (testing "more advanced features"
+    (defpred a1 #(and (int? %) (even? %)))
+    (defpred b2 (fn [x] (or (ratio? x) (string? x))))
+    (defpred c3 #(or (and (int? %) (neg? %))
+                     (keyword? %)))
+    (def spec-defpred [a1 b2 c3 {:x a1 :y b2 :z c3}])
+    (is (valid-scalars? (data-from-spec spec-defpred :random) spec-defpred))))
+
+
+(deftest lazy-seq?-tests
+  (are [x] (true? x)
+    (lazy-seq? (interleave [:a :b :c] [1 2 3]))
+    (lazy-seq? (interpose :foo ["a" "b" "c"]))
+    (lazy-seq? (lazy-cat [1 2 3] [4 5 6]))
+    (lazy-seq? (mapcat reverse [[3 2 1] [6 5 4] [9 8 7]])))
+  (are [x] (false? x)
+    (lazy-seq? [1 2 3])
+    (lazy-seq? '(1 2 3))
+    (lazy-seq? 3)
+    (lazy-seq? (zipmap [:a :b :c] [1 2 3]))))
 
 
 (run-tests)

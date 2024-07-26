@@ -29,12 +29,12 @@
 
           [:section#description
            [:h2 "Description"]
-           [:p  "The Speculoos library validates Clojure data. Building on that capability, Speculoos can test a function's arguments, its return values, and the relationships between them. Speculoos can also generate sample data to test functions. In short, Speculoos attempts to do what "
+           [:p  "The Speculoos library validates Clojure data. Building on that capability, Speculoos can test a function's arguments, its return values, and the relationships between them. Speculoos can also generate sample data that may be used to test functions. In short, Speculoos attempts to do what "
             [:code "clojure.spec.alpha"]
             " does, while exploring " [:a {:href "ideas.html"} "three ideas"] "."]
            [:p
             "Let's consider validation. "
-            [:em "Does our data look the way we expect it?"]
+            [:em "Does our data look the way we expect?"]
             " Validation is the process of creating a specification, a human- and machine-readable declaration about properties of data, and then checking if an instance of data satisfies that specification."]
            [:p "Pretend Dominique's service accepts a string. Clojure's " [:code "clojure.core/string?"] " tests whether something is a string."]
            [:pre
@@ -47,20 +47,20 @@
            [:p "Dominique updates her service, and now she requires a "
             [:em "vector which contains a string."]
             " We could write a bespoke function to validate this new requirement, but Dominique's service will probably evolve, and so we decide to pull in Speculoos as a dependency to handle more sophisticated validation."]
-           [:pre (print-form-then-eval "(require '[speculoos.core :refer [valid-scalar-spec? validate-scalar-spec only-invalid]])")]
+           [:pre (print-form-then-eval "(require '[speculoos.core :refer [valid-scalars? validate-scalars only-invalid]])")]
            [:p "So we stuff "
             [:code "string?"]
             " into a vector and ask Speculoos to apply it to our data."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [\"big parade\"] [string?])")]
+           [:pre (print-form-then-eval "(valid-scalars? [\"big parade\"] [string?])")]
            [:p "Speculoos' "
             [:code "valid…?"]
             " family of functions take data as the first argument and our specification as the second argument."]
            [:p "Dominique later tells us that she needs more information, and her requirement expands to "
             [:em "vector which contains a string, followed by a keyword and an integer"]
             ". We create a Speculoos specification by arranging predicates in the same pattern as we expect the elements to appear in the data."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [\"big parade\" :trombones 76] [string? keyword? int?])")]
+           [:pre (print-form-then-eval "(valid-scalars? [\"big parade\" :trombones 76] [string? keyword? int?])")]
            [:p "Speculoos marches along our vector, testing each element against the predicate in our specification. In this example, Speculoos tells us that " [:code "[\"big parade\" :trombones 67]"] " satisfies all our properties and returns "[:code "true"] ". What if we supply a non-sensical number of trombones?"]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [\"big parade\" :trombones \\z] [string? keyword? int?])")]
+           [:pre (print-form-then-eval "(valid-scalars? [\"big parade\" :trombones \\z] [string? keyword? int?])")]
            [:p "Sure enough, the character " [:code "\\z"] " is not a valid number of trombones in a big parade. We've specified our data in a way that humans and machines can understand and validated some data."]
            [:p "Ever busy, Dominique tells us we now need to validate any number of suffixed keyword+integer pairs. So we "
             [:em "compose"]
@@ -71,24 +71,24 @@
             " gives us an infinite sequence of keyword/integer pairs."]
            [:pre (print-form-then-eval "(def our-composed-spec (concat [string?] (cycle [keyword? int?])))")]
            [:p "Let's see what happens when we toss Speculoos some larger data and that non-terminating specification."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [\"parade\" :trombones 76 :cornets 110 :bassoons 0]  our-composed-spec)")]
+           [:pre (print-form-then-eval "(valid-scalars? [\"parade\" :trombones 76 :cornets 110 :bassoons 0]  our-composed-spec)")]
            [:p "Speculoos only validates elements that are contained both in the data and in the specification, so the fact that "
             [:code "cycle"]
             " never terminates makes it a powerful tool to specify an arbitrarily long sequence."]
            [:p "Our friend Ahmed's service also requires data of a particular shape, but in his case, a map that looks something like " [:code "{:species \"oak\" :type :deciduous}"] ". Speculoos validates maps by applying predicates found in the identical keys of the specification."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? {:species \"oak\" :type :deciduous} {:species string? :type keyword?})")]
+           [:pre (print-form-then-eval "(valid-scalars? {:species \"oak\" :type :deciduous} {:species string? :type keyword?})")]
            [:p "And if we supply data with the wrong type, for example, a string instead of a keyword"]
-           [:pre (print-form-then-eval "(valid-scalar-spec? {:species \"oak\" :type \"deciduous\"} {:species string? :type keyword?})")]
+           [:pre (print-form-then-eval "(valid-scalars? {:species \"oak\" :type \"deciduous\"} {:species string? :type keyword?})")]
            [:p "Speculoos reports that the data is not valid."]
            [:p "Ahmed tells us that the " [:code ":type"] " may only be either " [:code ":deciduous"] " or " [:code ":coniferous"] ". Clojure sets make wonderful predicates"]
            [:pre
             (print-form-then-eval "(#{:deciduous :coniferous} :deciduous)")
             (print-form-then-eval "(#{:deciduous :coniferous} :shrubbery)")]
-           [:p " so we tighten our specification to test memebership in Ahmed's enumerated set."]
+           [:p " so we tighten our specification to test membership in Ahmed's enumerated set."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? {:species \"oak\" :type :deciduous} {:species string? :type #{:deciduous :coniferous}})")
+            (print-form-then-eval "(valid-scalars? {:species \"oak\" :type :deciduous} {:species string? :type #{:deciduous :coniferous}})")
             [:br]
-            (print-form-then-eval "(valid-scalar-spec? {:species \"oak\" :type :confetti} {:species string? :type #{:deciduous :coniferous}})")]
+            (print-form-then-eval "(valid-scalars? {:species \"oak\" :type :confetti} {:species string? :type #{:deciduous :coniferous}})")]
            [:p "Speculoos tells us that " [:code ":confetti"] " is not one of the expected values."]
            [:p "Gertrude challenges us with a new task: validate some elements in a nested data structure. She supplies us with some data."]
            [:pre (print-form-then-eval "(def hobbit {:first-name \"Peregrin\"
@@ -99,9 +99,9 @@
            [:p "We then write a specification for single hobbit."]
            [:pre (print-form-then-eval "(def hobbit-spec {:first-name string? :last-name string? :favorite-ice-cream keyword? :friends (repeat string?)})")]
            [:p "Remembering that Speculoos only validates elements in both the data and the specification, we take advantage of " [:code "repeat"] " to supply an arbitrarily long sequence of hobbit friend specifications."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [{:first-name \"Meriadoc\"} {:last-name :Brandybuck} {:favorite-pipe-weed \"Longbottom Leaf\"} hobbit] (repeat hobbit-spec))")]
+           [:pre (print-form-then-eval "(valid-scalars? [{:first-name \"Meriadoc\"} {:last-name :Brandybuck} {:favorite-pipe-weed \"Longbottom Leaf\"} hobbit] (repeat hobbit-spec))")]
            [:p "In this example, we can see the problems by eye: the hobbit's " [:code ":last-name"] " and Pippin's final friend, Gandalf, should both be strings, but in this instance both are invalid keywords. Speculoos' family of " [:code "valid…?"] " functions merely return " [:code "true/false"] ". Speculoos provides some helper functions that highlight the interesting, invalid elements."]
-           [:pre (print-form-then-eval "(only-invalid (validate-scalar-spec [{:first-name \"Meriadoc\"} {:last-name :Brandybuck} {:favorite-pipe-weed \"Longbottom Leaf\"} hobbit] (repeat hobbit-spec)))")]
+           [:pre (print-form-then-eval "(only-invalid (validate-scalars [{:first-name \"Meriadoc\"} {:last-name :Brandybuck} {:favorite-pipe-weed \"Longbottom Leaf\"} hobbit] (repeat hobbit-spec)))")]
            [:p "Now we can tell Gertrude precisely where the problems are. The " [:em "path"] " elements of the report provide an unambiguous address to the invalid data elements. The path " [:code "[1 :last-name]"] " can be used to inspect the data like this."]
            [:pre
             (print-form-then-eval "(require '[speculoos.fn-in :refer [get-in* assoc-in* update-in* dissoc-in*]])")
@@ -111,28 +111,28 @@
            [:p "Speculoos provides analogous functions for altering or removing values in a nested structure. We could 'repair' the hobbity data to a valid state like this"]
            [:pre (print-form-then-eval "(def repaired-Pippin (assoc-in* hobbit [:friends 6] \"Gandalf\"))")]
            [:p "such that we can send Gertrude a proper hobbit."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? repaired-Pippin hobbit-spec)")]
+           [:pre (print-form-then-eval "(valid-scalars? repaired-Pippin hobbit-spec)")]
 
            [:p "Viraj has made a machine that requires a vector which contains at least five elements. So far, we have been using Speculoos to validate " [:em "scalars"] ", indivisible elements such as strings, keywords, and integers. The vector's length is a property of the " [:em "collection"] ", and Speculoos validates collection specifications in a distinct process. First, we define a collection specification with a useful name."]
            [:pre (print-form-then-eval "(def length-six-or-greater? #(<= 6 (count %)))")]
            [:p "Then we can validate some sample data to see if it satisfies the collection specification."]
            [:pre
-            (print-form-then-eval "(require '[speculoos.core :refer [valid-collection-spec? validate-collection-spec]])")
+            (print-form-then-eval "(require '[speculoos.core :refer [valid-collections? validate-collections]])")
             [:br]
-            (print-form-then-eval "(valid-collection-spec? [:Dorothy :Toto :Scarecrow :Tin-Man :Cowardly-Lion :Wizard-of-Oz] [length-six-or-greater?])")]
+            (print-form-then-eval "(valid-collections? [:Dorothy :Toto :Scarecrow :Tin-Man :Cowardly-Lion :Wizard-of-Oz] [length-six-or-greater?])")]
            [:p "Let's see what happens if we don't supply Viraj with enough data."]
-           [:pre (print-form-then-eval "(valid-collection-spec? [:water :coffee :tea] [length-six-or-greater?])")]
+           [:pre (print-form-then-eval "(valid-collections? [:water :coffee :tea] [length-six-or-greater?])")]
            [:p "Viraj will be disappointed. Speculoos can tell us more than "
             [:code "true/false"]
             " if we invoke a different function"]
-           [:pre (print-form-then-eval "(validate-collection-spec [:water :coffee :tea] [length-six-or-greater?])" )]
+           [:pre (print-form-then-eval "(validate-collections [:water :coffee :tea] [length-six-or-greater?])" )]
            [:p "One of Speculoos' core ideas is that collections ought to be validated separately from the scalars they contain. However, Viraj wants to specify two concepts: his vector must contain at least six elements, and each of those elements must be a keyword or a string. We've already written his collection specification: the vector must contain at least six elements. We can write his scalar specification like this."]
            [:pre (print-form-then-eval "(def kw-or-string? #(or (keyword %) (string? %)))")]
            [:p "We give that scalar specification a couple of quick tests."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? [:Dorothy :Toto \"Scarecrow\" :Tin-Man \"Cowardly-Lion\" :Wizard-of-Oz] (repeat kw-or-string?))")
+            (print-form-then-eval "(valid-scalars? [:Dorothy :Toto \"Scarecrow\" :Tin-Man \"Cowardly-Lion\" :Wizard-of-Oz] (repeat kw-or-string?))")
             [:br]
-            (print-form-then-eval "(valid-scalar-spec? [:Dorothy 42 :Toto \"Scarecrow\" :Tin-Man \"Cowardly-Lion\" :Wizard-of-Oz] (repeat kw-or-string?))")]
+            (print-form-then-eval "(valid-scalars? [:Dorothy 42 :Toto \"Scarecrow\" :Tin-Man \"Cowardly-Lion\" :Wizard-of-Oz] (repeat kw-or-string?))")]
            [:p "Though scalars and collections are specified separately, for any one chunk of data, we'll often want to specify aspects of its scalars and aspects of their containing collections. Speculoos provides functions to validate both simultaneously, but distinctly. We invoke " [:code "valid?"] " with the data as the first argument, the scalar specification as the second argument, and the collection specification as the third argument."]
            [:pre
             (print-form-then-eval "(require '[speculoos.core :refer [valid? validate]])")
@@ -150,7 +150,7 @@
             (label "doc-enhancement")
             (side-note "doc-enhancement" (h2/html "Also note that the docstring misleadingly calls for an integer, while the argument specification more rigorously calls for a " [:em "positive"] " integer. Specifications, as in this instance, can potentially communicate more and better information to your library users."))
             " and as a basis to perform tests and validation of the function. Speculoos will validate any present scalar specification or collection specification on the argument list or the return values. In addition, Speculoos will perform an "
-            [:em "argument-vs-return"] " validation, analagous to the one performed by " [:code "spec.alpha"] ". Merely adding the meta-data to the function does not cause any action."]
+            [:em "argument-vs-return"] " validation, analogous to the one performed by " [:code "spec.alpha"] ". Merely adding the meta-data to the function does not cause any action."]
            [:pre (print-form-then-eval "(dental-recommendation 4.4 \"Taco\")")]
            [:p [:code "4.4"] " is not an integer, but Speculoos was not watching. We must explicitly request that Speculoos perform a validation."]
            [:pre
@@ -161,12 +161,12 @@
            [:pre (print-form-then-eval "(validate-fn-with dental-recommendation {:speculoos/arg-scalar-spec [pos-int? char?]} 88 \"Filet Mignon\")")]
            [:p "Sure enough, " [:code "\"Filet Mignon\""] " is not a character. Finally, Speculoos can peek at the argument specification and generate test data for exercising Himari's function."]
            [:pre (print-form-then-eval "(exercise-fn dental-recommendation 5)")]
-           [:p "Speculoos generated five pairs of random postive integers and random strings and invoked Himari's function."]
+           [:p "Speculoos generated five pairs of random positive integers and random strings and invoked Himari's function."]
            [:p "We've now taken a whirlwind tour of how Speculoos can help specify and validate Clojure data structures, and how that can be used to describe Clojure functions, check their arguments, and automatically test their operation. Now, let's talk about Speculoos' implementation."]]
 
           [:section#implementation
            [:h2 "Implementation"]
-           [:p "Understanding a little bit about Speculoos' inner workings will help with knowing how to effectively use it. Speculoos is not clever. Nor is it efficient. It's first step in handling any Clojure data structure is to exhaustively enumerate the path to every element. Let's take a look."]
+           [:p "Understanding a little bit about Speculoos' inner workings will help with effectively using it. Speculoos is not clever. Nor is it efficient. It's first step in handling any Clojure data structure is to exhaustively enumerate the path to every element. Let's take a look."]
            [:pre
             (print-form-then-eval "(require '[speculoos.core :refer [all-paths]])")
             [:br]
@@ -182,17 +182,17 @@
            [:p "The paths for those elements are therefore integers. Composite values are also valid map keys."]
            [:pre (print-form-then-eval "(all-paths {[1 2 3] \"one-two-three val\" {:a 1} \"a-1-map val\" [] \"empty vec value\"})")]
            [:p "In this case, the elements' paths are addressed by those composite keys. " [:code "\"a-1-map\""] " is addressed by the key " [:code "{:a 1}"] ". The path to " [:code "\"one-two-three val\""] " is " [:code "[1 2 3]"] "."]
-           [:p "Perhaps you've noticed that I've used the term " [:em "heterogenous, arbitrarily-nested data structure"] ". This path principle extends to every element type, at any nesting level. Let's look at a few illustrations. First, paths for nested elements."]
+           [:p "Perhaps you've noticed that I've used the term " [:em "heterogeneous, arbitrarily-nested data structure"] ". This path principle extends to every element type, at any nesting level. Let's look at a few illustrations. First, paths for nested elements."]
            [:pre (print-form-then-eval "(all-paths [11 [22 33] 44 [[55]]])")]
            [:p "Elements in the top-level vector, in this example " [:code "11"] " and " [:code "44"] ", have single integer paths. " [:code "22"] " and " [:code "33"] " have paths composed of two integers. The first integer is the index to the two-element child vector, while the second integer is the index to their respective position in that child vector. Paths to elements nested in maps work similarly."]
            [:pre (print-form-then-eval "(all-paths {:a [11 22] :b [33 [44] {:c 55}]})")]
-           [:p "Each element, scalar or collection, has a unique, unambiguous path that tells you how to navigate to that value. For this heterogenous, nested structure, some element's paths contain both integer indexes and keyword keys. Value " [:code "55"] " in this example is addressed by key " [:code ":b"] " at the top-level map, index " [:code "2"] " within that vector, and finally at key " [:code ":c"] " within that nested map."]
+           [:p "Each element, scalar or collection, has a unique, unambiguous path that tells you how to navigate to that value. For this heterogeneous, nested structure, some element's paths contain both integer indexes and keyword keys. Value " [:code "55"] " in this example is addressed by key " [:code ":b"] " at the top-level map, index " [:code "2"] " within that vector, and finally at key " [:code ":c"] " within that nested map."]
            [:p "There is no conceptual limit on how deep the nesting, nor on type of the containers. Speculoos handles each of Clojure's data collections: vectors, maps, lists, and sets."]
            [:pre (print-form-then-eval "(all-paths [11 {:a 22 :b (list 33 #{44})}])")]
            [:p "Notice how there is a single, unified path to every element, regardless of its container type. Vectors and list elements are addressed by an integer index. Map elements are addressed by their key. Map keys are often Clojure keywords, but we've seen that they can be any value such as integers, or even composite data types. Sets elements are addressed by their identities. So in the example above, " [:code "44"] " is located at path " [:code "[1 :b 1 44]"] ", where the tail value is not an index nor a key, but the element's identity. Admittedly, addressing elements in a set can be a little like herding cats, but it's still useful to have the capability. Wrangling sets merits its own " [:a {:href "#sets"} "dedicated section"] "."]
            [:p "With an element's path, you can precisely inspect its value. Let's pull out that " [:code "99"] "."]
            [:pre (print-form-then-eval "(get-in* {:x 11 :y (list 22 33 [44 {:z [55 66 77 [88 {:q 99}]]}])} [:y 2 1 :z 3 1 :q])")]
-           [:p "Speculoos' family of starred functions can get, associate, update, and dissociate any value of any type in a heterogeneous, arbitrarily-nested data structure. Later, we'll " [:a {:href "#fn-in*"} "discuss a little more"] " about the starred functions. For now, know that much of Speculoos' functionality relies on navigating paths. Once we've gathered the paths for a piece of data, and a specification composed of predicates arranged in a data structure that mimics that data, validation is merely a process of systematically appying each predicate to its respective scalar value in the data."]
+           [:p "Speculoos' family of starred functions can get, associate, update, and dissociate any value of any type in a heterogeneous, arbitrarily-nested data structure. Later, we'll " [:a {:href "#fn-in*"} "discuss a little more"] " about the starred functions. For now, know that much of Speculoos' functionality relies on navigating paths. Once we've gathered the paths for a piece of data, and a specification composed of predicates arranged in a data structure that mimics that data, validation is merely a process of systematically applying each predicate to its respective scalar value in the data."]
            [:pre
             (print-form-then-eval "(def data {:a 11 :b [22/7]})")
             [:br]
@@ -203,12 +203,12 @@
             [:br]
             [:code ";; equivalent to (decimal? 22/7)"]
             (print-form-then-eval "((get-in* scalar-spec [:b 0]) (get-in* data [:b 0]))")]
-           [:p "Speculoos' " [:code "validate-scalar-spec"] " does exactly that."]
-           [:pre (print-form-then-eval "(validate-scalar-spec data scalar-spec)")]
+           [:p "Speculoos' " [:code "validate-scalars"] " does exactly that."]
+           [:pre (print-form-then-eval "(validate-scalars data scalar-spec)")]
            [:p "Speculoos' "[:code "valid…?"] " series of functions are simply conveniences that return " [:code "true"] " if all the supplied predicates are satisfied."]
            [:p "Distinct from validating scalars, Speculoos can validate properties of a collection while ignoring the elements it contains. Recall that every element of a heterogeneous, arbitrarily-nested collection owns a path, not only the scalar elements. Consider this vector containing an empty map at index " [:code "0"] " and an empty list at index " [:code "1"] ", a total of three elements, each with its own path."]
            [:pre (print-form-then-eval "(all-paths [{} '()])")]
-           [:p "Validating a collection specification is analagous to validating a scalar specification, with the difference being that the predicate is applied to the parent container. Mechanistically, the collection predicate is applied to the entity located at " [:code "(drop-last predicate-path)"] "."
+           [:p "Validating a collection specification is analogous to validating a scalar specification, with the difference being that the predicate is applied to the parent container. Mechanistically, the collection predicate is applied to the entity located at " [:code "(drop-last predicate-path)"] "."
             (label "more-details")
             (side-note "more-details" "Speculoos collection validation has a few more additional rules to make it completely generic, but let's consider only this bit for now.")]
            [:pre
@@ -281,40 +281,40 @@
 
            [:p "Speculoos only validates where and when you want. Speculoos will simply ignore any datum that does not have a corresponding predicate."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? {:a 42 :not-checked \"blah blah\"} {:a int?})")
+            (print-form-then-eval "(valid-scalars? {:a 42 :not-checked \"blah blah\"} {:a int?})")
             [:br]
             (print-form-then-eval "(def all-ints? #(every? int? %))")
             [:br]
-            (print-form-then-eval "(valid-collection-spec? [[1 2] [:not-checked] [3 4]] [[all-ints?] [] [all-ints?]])")]
+            (print-form-then-eval "(valid-collections? [[1 2] [:not-checked] [3 4]] [[all-ints?] [] [all-ints?]])")]
            [:p "If you want to temporarily relax a specification, merely " [:code "assoc"] " or " [:code "dissoc"] " that particular predicate."]
            [:pre
             (print-form-then-eval "(def list-data (list 'sym 22/7 true))")
             (print-form-then-eval "(def list-scalar-spec (list symbol? ratio? string?))")
             [:br]
-            (print-form-then-eval "(valid-scalar-spec? list-data list-scalar-spec)")
+            (print-form-then-eval "(valid-scalars? list-data list-scalar-spec)")
             [:br]
             (print-form-then-eval "(def relaxed-spec (dissoc-in* list-scalar-spec [2]))")
-            (print-form-then-eval "(valid-scalar-spec? list-data relaxed-spec)")]
+            (print-form-then-eval "(valid-scalars? list-data relaxed-spec)")]
            [:p "Your data and specification haven't changed and you can get on with your day."]]
 
           [:section#core
            [:h2 "Core functions"]
-           [:p "The "[:code "speculoos.core"] " namespace provides functions for validating Clojure data structures. Functions whose names start " [:em "validate-…"] " systematically apply predicates, arranged in a prescibed pattern in your specification, to elements of your data. The return value is an exhaustive sequence of all datum/predicate pairs, their path, and whether the predicate was satisfied. For example, we can validate with a scalar specification"]
-           [:pre (print-form-then-eval "(validate-scalar-spec [\"mountains\" :beach 'forest] [string? keyword? string?])")]
+           [:p "The "[:code "speculoos.core"] " namespace provides functions for validating Clojure data structures. Functions whose names start " [:em "validate-…"] " systematically apply predicates, arranged in a prescribed pattern in your specification, to elements of your data. The return value is an exhaustive sequence of all datum/predicate pairs, their path, and whether the predicate was satisfied. For example, we can validate with a scalar specification"]
+           [:pre (print-form-then-eval "(validate-scalars [\"mountains\" :beach 'forest] [string? keyword? string?])")]
            [:p "and obtain three evaluations of the three datums. We see that the first two datums are valid, while the third datum is invalid (i.e. " [:code ":valid?"] " is " [:code "false"] ") because " [:code "'forest"] " at path " [:code "[2]"] " is not a string. This namespace contains " [:code "validate-…"] " variants for scalars and collections." ]
            [:p "Sometimes, we just want a high-level " [:em "yes/no"] " whether the data structure as a whole satisfies all of the predicates. Functions named with the pattern " [:em "valid-…?"] " return a simple boolean, dependent on whether all the specified predicates are satisfied."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [\"mountains\" :beach 'forest] [string? keyword? string?])")]
-           [:p "With the same data and specification as before, we see that our data is indeed invalid. Similarly to the validation functions, the namespace provides functions name with variations of " [:code "valid…?"] " for both scalars and collections."]
+           [:pre (print-form-then-eval "(valid-scalars? [\"mountains\" :beach 'forest] [string? keyword? string?])")]
+           [:p "With the same data and specification as before, we see that our data is indeed invalid. Similarly to the validation functions, the namespace provides functions named with variations of " [:code "valid…?"] " for both scalars and collections."]
            [:p "Speculoos validates scalars contained in maps with the same principle: make your specification look like the data, replacing the scalar with your choice of predicate. Here's a quick example."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? {:first-name \"Sherlock\" :last-name \"Holmes\" :address {:street-name \"Baker Street\" :street-number [221 'B]}}
+           [:pre (print-form-then-eval "(valid-scalars? {:first-name \"Sherlock\" :last-name \"Holmes\" :address {:street-name \"Baker Street\" :street-number [221 'B]}}
                                                                  {:first-name string? :last-name string? :address {:street-name string? :street-number [int?] :city string?}})")]
-           [:p "Predicates in the specification share the same keyword as the value they validate. Any datum that does not have a corresponding key-vlaue pair in the predicate will not be validated. In this example, the second element of the " [:code ":street-number"] " is not validated becuase " [:code "'B"] " does not have a corresponding predicate in that path of the specification. Likewise, any predicate that does not have a corresponding datum will also not be validated. In this example, " [:code ":city"] "'s predicate, " [:code "string?"] ", will not be used for validation because the data does not have a corresponding datum at that path."]
-           [:p "You're probably tired of me mentioning how Speculoos splits up scalar and collection validation, but here's a twist: Speculoos has a pair of convenience functions that do both. As a consolation to having to write two specifications for each data structure, I reserved the best, i.e., shortest, function names for doing both with one invocation. Supply data, then a scalar specification, followed by collection specification."]
+           [:p "Predicates in the specification share the same keyword as the value they validate. Any datum that does not have a corresponding key-value pair in the predicate will not be validated. In this example, the second element of the " [:code ":street-number"] " is not validated because " [:code "'B"] " does not have a corresponding predicate in that path of the specification. Likewise, any predicate that does not have a corresponding datum will also not be validated. In this example, " [:code ":city"] "'s predicate, " [:code "string?"] ", will not be used for validation because the data does not have a corresponding datum at that path."]
+           [:p "You're probably tired of me mentioning how Speculoos splits up scalar and collection validation, but here's a twist: Speculoos has a pair of convenience functions that do both. As a consolation to having to write two specifications for each data structure, I reserved the best, i.e., shortest, function names for doing both with one invocation. Supply data, then a scalar specification, followed by a collection specification."]
            [:pre
             (print-form-then-eval "(defn length-four? [v] (= 4 (count v)))")
             [:br]
             (print-form-then-eval "(valid?   [42 :foo \\z] [int? keyword? char?] [length-four?])")]
-           [:p "Plain " [:code "valid?"] " performs a scalar validation immediately followed by a collection validation and returns a single boolean. In this example, three scalars were validated followed by one collection validation. For a litle more detail,"]
+           [:p "Plain " [:code "valid?"] " performs a scalar validation immediately followed by a collection validation and returns a single boolean. In this example, three scalars were validated followed by one collection validation. For a little more detail,"]
            [:pre (print-form-then-eval "(validate [42 :foo \\z] [int? keyword? char?] [length-four?])")]
            [:p [:code "validate"] " generates an itemized sequence of all the scalar validations followed by all the collection validations. We can see that our data did not satisfy the collection specification: Our specification required the vector contain exactly four elements, whereas our vector contains only three."]
            [:p "It's tedious to manually scan validation results, so Speculoos supplies a helper function to show only the invalid results."]
@@ -375,15 +375,15 @@
             (print-form-then-eval "(defn at-least-one-kw? [v] (some keyword? v))")
             (print-form-then-eval "(defn first-greater-than-fourth? [v] (> (v 0) (v 3)))")]
            [:p "The first wrinkle is that " [:em "every"] " predicate in a collection specification, no matter how few nor how many, applies to the immediate parent container in the data. Let's validate the collection against three predicates using Speculoos' dedicated collection validation function."]
-           [:pre (print-form-then-eval "(validate-collection-spec [42 \"abc\" 'foo 22/7] [length-four? at-least-one-kw? first-greater-than-fourth?])")]
+           [:pre (print-form-then-eval "(validate-collections [42 \"abc\" 'foo 22/7] [length-four? at-least-one-kw? first-greater-than-fourth?])")]
            [:p "Speculoos validates all three predicates against the collection. " [:code "length-four?"] " is satisfied because " [:code "[42 \"abc\" 'foo 227]"] " contains four elements, " [:code "first-greater-than-fourth?"] " is satisfied because the first element is greater than the fourth element, but " [:code "at-least-one-kw?"] " is not satisfied because there is not at least one keyword. All three collection collection predicates were applied to the single container vector."]
            [:p "The second wrinkle involves how Speculoos determines where to find the parent collection sequence. Every predicate in the collection specification applies to its parent, "[:em "regardless of the presence of any intervening predicates or collections at that level of nesting"] ". So that the next example highlights what we're interested in, we'll bury our vector of interest into some nested mess where we don't care about any of the other stuff."]
            [:pre (print-form-then-eval "(def data-1 [[] [] []  [[] [] [42 \"abc\" 'foo 22/7]]])")]
-           [:p "Okay, we've got to look sharp; our target vector is two levels deep. Speculoos' mantra is " [:em "Make your specification shaped like your data"] ". For a Speculoos scalar specification there is a nearly one-to-one correspondence between the data and the specification. The matra holds for Speculoos collection specification, but the correspondence is slightly weaker. We want our collection specification to mimic the data's square brackets, preserving the order, but Speculoos collection validation does not require a predicate for every collection. In this example, we don't care about all those empty vectors, so we simply leave their counterparts in the specification empty. We only put predicates into the collection that we want to validate."]
+           [:p "Okay, we've got to look sharp; our target vector is two levels deep. Speculoos' mantra is " [:em "Make your specification shaped like your data"] ". For a Speculoos scalar specification there is a nearly one-to-one correspondence between the data and the specification. The mantra holds for Speculoos collection specification, but the correspondence is slightly weaker. We want our collection specification to mimic the data's square brackets, preserving the order, but Speculoos collection validation does not require a predicate for every collection. In this example, we don't care about all those empty vectors, so we simply leave their counterparts in the specification empty. We only put predicates into the collection that we want to validate."]
            [:pre
             (print-form-then-eval "(def spec-1 [[] [] [] [[] [] [length-four? at-least-one-kw? first-greater-than-fourth?]]])")
             [:br]
-            (print-form-then-eval "(validate-collection-spec data-1 spec-1)")]
+            (print-form-then-eval "(validate-collections data-1 spec-1)")]
            [:p "As before, our vector satisfies our first and third collection predicates, while the second predicate is not satisfied because it does not contain at least one keyword. And now we can see a better demonstration of the ordinal parent paths. The predicates live at paths " [:code "[3 2 0]"] ", " [:code "[3 2 1]"] ", and " [:code "[3 2 2]"] ", respectively, in " [:code "spec-1"] ". But they all apply to the " [:em "vector"] " that lives at " [:code "[3 2]"] " in " [:code "data-1"] "."]
            [:p "Let's combine two principles: Speculoos applies collection predicates to the parent container, and all collection predicates apply to the parent. Speculoos does not require the predicates to live at any particular index within the specification. Validating sequences can therefore involve an interrupted stream of collection predicates."]
            [:pre
@@ -391,7 +391,7 @@
             [:br]
             (print-form-then-eval "(def spec-2 [length-four? [] at-least-one-kw? [] first-greater-than-fourth?])")
             [:br]
-            (print-form-then-eval "(validate-collection-spec data-2 spec-2)")]
+            (print-form-then-eval "(validate-collections data-2 spec-2)")]
            [:p "Validation skips over the empty vectors in the specification, in this example for two reasons. First, those nested vectors in the specification do not contain a predicate. But, second,  even if " [:code "spec-2"] " did contain those predicates, " [:code "data-2"] " possesses no corresponding nested vectors to test. Speculoos offers this flexibility in arranging your collection predicates so that the system is completely general. In practice, I recommend that you place all your collection predicates as close as possible to the head of the sequence where they apply. That convention will help future human readers of your specification."]
            [:p "So far, we've seen the " [:em "parent"] " and " [:em "path"] " parts, but let's do a final example that demonstrates " [:em "ordinal"] ". First, let's create some length-checking predicates with nice names that are easy to track."]
            [:pre
@@ -404,26 +404,26 @@
            [:p "Our collection specification will test for the lengths of the nested vectors, interleaved with predicates that will test properties of the parent vector itself. Our length-checking predicates are contained within the collection to which they apply, in the order in which they appear in data."]
            [:pre (print-form-then-eval "(def spec-3 [[cero?] vector? [uno?] empty? [dos?] list? [tres?] map?])")]
            [:p "Speculoos validates collection predicates against their parent, so " [:code "vector?"] ", " [:code "empty?"] ", " [:code "list?"] ", and " [:code "map?"] " apply to the parent vector. The length-checking predicates apply to their nested child vectors, in order."]
-           [:pre (print-form-then-eval "(validate-collection-spec data-3 spec-3)")]
+           [:pre (print-form-then-eval "(validate-collections data-3 spec-3)")]
            [:p "Okay. Eight predicates in the collection specification, eight validation results. That's a good sanity check. Let's inspect only the valid results."]
            [:pre
             (print-form-then-eval "(require '[speculoos.core :refer [only-valid]])")
             [:br]
-            (print-form-then-eval "(only-valid (validate-collection-spec data-3 spec-3))")]
+            (print-form-then-eval "(only-valid (validate-collections data-3 spec-3))")]
            [:p "We see each of the nested children vectors satisfy their predicates, but more interestingly, we see how Speculoos located them. The " [:code ":path"] " key-value pair reports where Speculoos found the collection predicate within " [:code "spec-3"] ". The " [:code "ordinal-parent-path"] " indicates where Speculoos applied the predicates within " [:code "data-3"] ". For example, " [:code "[:four :five :six]"] " resides at ordinal parent path " [:code "[3]"] ", which means that it is the fourth nested collection"
             (label "zero-indexed")
             (side-note "zero-indexed" "Zero-indexed.")
             " within the parent sequence. Predicate " [:code "dos?"] " located at path " [:code "[4 0]"] " in " [:code "spec-3"] " was applied to " [:code "[:two :three]"] " the third collection of the parent sequence, and therefore an ordinal parent path " [:code "[2]"] "."]
            [:p "And now, let's inspect the invalid results."]
-           [:pre (print-form-then-eval "(only-invalid (validate-collection-spec data-3 spec-3))")]
+           [:pre (print-form-then-eval "(only-invalid (validate-collections data-3 spec-3))")]
            [:p "These three predicates were interleaved among the nested child vectors, so they all apply to the parent sequence. Their ordinal parent paths are all identical, " [:code "[]"] " which points to " [:code "data-3"] "'s root. This illustrates how Speculoos applies all collection predicates to their parent collection, regardless of their position within the sequence."]
-           [:p "You may find a situtation where it's most natural to specify a sequence with regular expression style, so Speculoos provides a toy utility for that job. " [:code "seq-regex"] " accepts a sequence followed by pairs of predicates and regex-like operators."]
+           [:p "You may find a situation where it's most natural to specify a sequence with regular expression style, so Speculoos provides a toy utility for that job. " [:code "seq-regex"] " accepts a sequence followed by pairs of predicates and regex-like operators."]
            [:pre
             (print-form-then-eval "(require '[speculoos.utility :refer [seq-regex]])")
             [:br]
             (print-form-then-eval "(seq-regex [42 :foo :bar :baz 22/7] int? :. keyword? [1,3] ratio? :?)")]
            [:p "In this example, we asked if our sequence contains exactly one integer, followed by one to three keywords, followed by zero or one ratios. In a collection validation, " [:code "seq-regex"] " could be useful like this."]
-           [:pre (print-form-then-eval "(valid-collection-spec? {:a [1 2 3 'foo 'bar \\c \\l \\o \\j \\u \\r \\e]} {:a [#(seq-regex % int? [0,3] symbol? :+ char? :*)]})")]
+           [:pre (print-form-then-eval "(valid-collections? {:a [1 2 3 'foo 'bar \\c \\l \\o \\j \\u \\r \\e]} {:a [#(seq-regex % int? [0,3] symbol? :+ char? :*)]})")]
            [:p "The nested vector does indeed hold zero to three integers, followed by one or more symbols, followed by any number of characters."]
            [:p "Hey, maps are collections, too. Speculoos has got a story for maps that rhymes. A map specification looks mostly like the data, predicates apply to the containing parent, and any number of predicates may be applied. Let's go."]
            [:pre
@@ -432,8 +432,8 @@
             (print-form-then-eval "(def red-nose? #(contains? % :the-clown))")
             (print-form-then-eval "(def spec-4 {:foo red-nose? :whoa-nellie not-empty})")
             [:br]
-            (print-form-then-eval "(validate-collection-spec data-4 spec-4)")]
-           [:p "After bashing out a few scalar specifications for a map, creating a map's collection specification takes a little getting used to. During map validation, Speculoos searches for predicate located at keys " [:em "not"] " found in the data. Those predicates validate the containing map. If a map specification's key " [:em "is"] " in the data set, then Speculoos dives into the value associated with that key. In the context of a collection specification, that value must be a collection."]
+            (print-form-then-eval "(validate-collections data-4 spec-4)")]
+           [:p "After bashing out scalar specifications for sequences, creating a map's collection specification takes a little getting used to. During map validation, Speculoos searches for predicate located at keys " [:em "not"] " found in the data. Those predicates validate the containing map. If a map specification's key " [:em "is"] " in the data set, then Speculoos dives into the value associated with that key. In the context of a collection specification, that value must be a collection."]
            [:pre
             (print-form-then-eval "(def stop-and-smell {:yellow [\"dandelion\" \"buttercup\" \"marigold\"] :red [\"poppy\" \"rose\"] :blue [\"bluebell\"] :purple [\"violet\"]})")
             [:br]
@@ -441,7 +441,7 @@
             [:br]
             (print-form-then-eval "(def flowers-spec {:yellow [#(every? string? %)] :red [#(= 2 (count %))] :colors-spec valid-color?})")
             [:br]
-            (print-form-then-eval "(validate-collection-spec stop-and-smell flowers-spec)")]
+            (print-form-then-eval "(validate-collections stop-and-smell flowers-spec)")]
            [:p [:code "flowers-spec"] " contains a total of three predicates. The " [:code "valid-color?"] " predicate applies to the root " [:code "stop-and-smell"] " map because the key " [:code ":colors-spec"] " does not appear in the data. Two predicates, located at shared keys " [:code ":yellow"] " and " [:code "red"] " apply to nested vectors because those keys are shared between the data and specification, and the values at those keys are themselves collections."]
            [:p "Don't create a " [:code "does-not-contain-kw"] " or some other predicate that would restrict the keys a map " [:em "might"] " contain. It's better to gracefully ignore map elements that don't concern you. Speculoos does not have any code branches that would prohibit you from doing this, so be a good neighbor."]
            [:p "Now that we've seen an example of validating vectors nested in a map, let's compare that to validating maps nested in a vector. Let's test whether a nested map contains " [:code ":first-name"] " and " [:code ":last-name"] " keys."]
@@ -466,7 +466,7 @@
            [:p  " and "]
            [:pre [:code "{:nick-name \"Gene\" :last-name \"Cernan\"}."]]
            [:p "And indeed, validating the data against our specification shows us that our second commander map is invalid."]
-           [:pre (print-form-then-eval "(validate-collection-spec apollo apollo-spec)")]
+           [:pre (print-form-then-eval "(validate-collections apollo apollo-spec)")]
            [:p "The second commander map does not contain a " [:code ":first-name"] " key. Note this validation would be impossible with a scalar specification because Speculoos considers presence or absence of a map's key to be a property of the collection, not of the scalar itself."]
            [:p "Let's wrap up this section on collection specification by making some cheat sheets. The guidelines for scalar specification fit on the back of a business card."]
            [:div.business-card-container
@@ -493,7 +493,7 @@
 
           [:section#fn-in*
            [:h2 [:code "fn-in*"]]
-           [:p "Speculoos' implementation and developer interface lean heavily on the concept of a " [:a {:href "#path"} "path"] ". Paths unambiguously point to datums and predicates, and thereby enable applying a predicate to that datum. Also, a path is an important component of the validation reports, giving the precise location of datums, and, when they differ in a collection specification, the predicate. Given the importance of this path concept, Speculoos provides an auxilliary set of tools to inspect, change, and remove elements in a heterogeneous, arbitrarily-nested data structure. These functions are modelled after " [:code "clojore.core/get-in"] ", " [:code "assoc-in"] ", " [:code "update-in"] ", and " [:code "dissoc"] "."
+           [:p "Speculoos' implementation and developer interface lean heavily on the concept of a " [:a {:href "#path"} "path"] ". Paths unambiguously point to datums and predicates, and thereby enable applying a predicate to that datum. Also, a path is an important component of the validation reports, giving the precise location of datums, and, when they differ in a collection specification, the predicate. Given the importance of this path concept, Speculoos provides an auxiliary set of tools to inspect, change, and remove elements in a heterogeneous, arbitrarily-nested data structure. These functions are modeled after " [:code "clojore.core/get-in"] ", " [:code "assoc-in"] ", " [:code "update-in"] ", and " [:code "dissoc"] "."
             (label "dissoc-in")
             (side-note "dissoc-in" (h2/html [:code "clojure.core"] " does " [:a {:href "https://ask.clojure.org/index.php/730/missing-dissoc-in"} "not provide"] " an equivalent " [:code "dissoc-in"] "."))
             " The starred versions of their " [:code "clojure.core"] " namesakes consume identical argument lists, but have the ability to seamlessly navigate any of the Clojure data structures (vectors, lists, maps, and sets) in any nesting pattern."]
@@ -561,7 +561,7 @@
 
            [:p "One of " [:code "spec.alpha"] "'s core features is returning " [:em "conformed"] " data, a version of the validated data that is annotated according to whichever optional predicate was satisfied. Speculoos does not attempt to replicate this feature. The " [:code "valid…?"] " function family returns simple " [:code "true/false"] " while the " [:code "validate…"] " function family returns reports which are strictly Clojure data."]
            [:pre (print-form-then-eval "(validate [42 \"abc\"] [int? char?] [vector?])")]
-           [:p "The validation report consists of a sequence of maps, one for each predicate/datum pair that holds the datum, the predicate, the path(s) where they are located within the data and specification, and the results of the evaluation. Most importanly, the validation report can be processed with any Clojure tools. Pull out paths using regular tools. For example, we can filter the previous result to see only unsatisfied predicates."
+           [:p "The validation report consists of a sequence of maps, one for each predicate/datum pair that holds the datum, the predicate, the path(s) where they are located within the data and specification, and the results of the evaluation. Most importantly, the validation report can be processed with any Clojure tools. Pull out paths using regular tools. For example, we can filter the previous result to see only unsatisfied predicates."
             (label "only-invalid")
             (side-note "only-invalid" (h2/html "In fact, this is substantially how " [:code "speculoos.core/only-invalid"] " works."))]
            [:pre (print-form-then-eval "(filter #(not (:valid? %)) (validate [42 \"abc\"] [int? char?] [vector?]))")]
@@ -592,7 +592,7 @@
            [:pre
             (print-form-then-eval "(int? 42)")
             [:br]
-            (print-form-then-eval "(validate-scalar-spec [42] [int?])")]
+            (print-form-then-eval "(validate-scalars [42] [int?])")]
            [:p "Speculoos is fairly ambivalent about the predicate return value. The " [:code "validate…"] " family of functions mindlessly churns through its sequence of predicate-datum pairs, evaluates them, and stuffs the results into " [:code ":valid?"] " keys. The " [:code "valid…?"] " family of functions rips through " [:em "that"] " sequence, and if none of the results are falsey, returns " [:code "true"] ", otherwise it returns " [:code "false"] "."]
 
            [:p "Often, we want to combine multiple predicates to make the validation more specific. We can certainly use " [:code "clojure.core/and"]]
@@ -608,11 +608,10 @@
             (side-note "no-%" (h2/html [:code "#(true)"] " won't work because " [:code "true"] " is not invocable. " [:code "#(identity true)"] " loses the conciseness."))]
            [:pre [:code  "(fn [] true)"]]
            [:p "but Clojure already has a couple of nice options." ]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [42 :foo \\z] [(constantly true) (constantly true) char?])")]
+           [:pre (print-form-then-eval "(valid-scalars? [42 :foo \\z] [(constantly true) (constantly true) char?])")]
            [:p [:code "constantly"] " is nice because it accepts any number of args. But for my money, nothing tops " [:code "any?"] "."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [42 :foo \\z] [any? any? char?])")]
-           [:p "It's four characters, doesn't require typing parentheses, and the everyday usage of " [:em "any"] " aligns well with its techincal purpose."]
-
+           [:pre (print-form-then-eval "(valid-scalars? [42 :foo \\z] [any? any? char?])")]
+           [:p "It's four characters, doesn't require typing parentheses, and the everyday usage of " [:em "any"] " aligns well with its technical purpose."]
            [:p "A word of warning about " [:code "clojure.core/contains?"] ". It might seem natural to use " [:code "contains?"] " to check if a collection contains an item, but it doesn't do what its name suggests. Observe."]
            [:pre (print-form-then-eval "(contains? [97 98 99] 1)")]
            [:p [:code "contains?"] " actually tells you whether a collection contains a key. For a vector, it tests for an index. If you'd like to check whether a value is contained in a collection, you can use this pattern."
@@ -631,42 +630,59 @@
            [:pre
             (print-form-then-eval "(def greater-than-50? #(< 50 %))")
             [:br]
-            (print-form-then-eval "(validate-scalar-spec [42] [greater-than-50?])")]
+            (print-form-then-eval "(validate-scalars [42] [greater-than-50?])")]
            [:p "Now, the predicate entry is a little nicer."]
            [:p "Regular expressions check the content of strings."]
            [:pre
             (print-form-then-eval "(def re #\"F\\dQ\\d\")")
             (print-form-then-eval "(defn re-pred [s] (re-matches re s))")
             [:br]
-            (print-form-then-eval "(validate-scalar-spec [\"F1Q5\" \"F2QQ\"] [re-pred re-pred])")]
-           [:p "Speculoos considers free-floating regexes in a scalar specifcation as predicates, so you can simply jam them in there."]
+            (print-form-then-eval "(validate-scalars [\"F1Q5\" \"F2QQ\"] [re-pred re-pred])")]
+           [:p "Speculoos considers free-floating regexes in a scalar specification as predicates, so you can simply jam them in there."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? [\"A1B2\" \"CDEF\"] [#\"(\\w\\d){2}\" #\"\\w{4}\"])")
+            (print-form-then-eval "(valid-scalars? [\"A1B2\" \"CDEF\"] [#\"(\\w\\d){2}\" #\"\\w{4}\"])")
             [:br]
-            (print-form-then-eval "(validate-scalar-spec {:a \"foo\" :b \"bar\"} {:a #\"f.\\w\" :b #\"^[abr]{0,3}$\"})")]
+            (print-form-then-eval "(validate-scalars {:a \"foo\" :b \"bar\"} {:a #\"f.\\w\" :b #\"^[abr]{0,3}$\"})")]
            [:p "Using bare regexes in your scalar specification has a nice side benefit in that the " [:code "data-from-spec"] " and " [:code "exercise-fn"] " utilities can generate valid strings."]
 
-           [:p [:code "spec.alpha"] " makes a deliberate choice to store predicates in a dedicated " [:a {:href "https://clojure.org/guides/spec#_registry"} "registry"] ".  Speculoos takes a more " [:em "laissez-faire"] " approach: specifications may live in whatever namespace you please. If you feel that some sort of registry would be useful, you could make your own " [:a {:href "https://github.com/clojure/spec.alpha/blob/c630a0b8f1f47275e1a476dcdf77507316bad5bc/src/main/clojure/clojure/spec/alpha.clj#L52"} "modelled after "] [:code "spec.alpha"] "'s."]
+           [:p [:code "spec.alpha"] " makes a deliberate choice to store predicates in a dedicated " [:a {:href "https://clojure.org/guides/spec#_registry"} "registry"] ".  Speculoos takes a more " [:em "laissez-faire"] " approach: specifications may live in whatever namespace you please. If you feel that some sort of registry would be useful, you could make your own " [:a {:href "https://github.com/clojure/spec.alpha/blob/c630a0b8f1f47275e1a476dcdf77507316bad5bc/src/main/clojure/clojure/spec/alpha.clj#L52"} "modeled after "] [:code "spec.alpha"] "'s."]
            [:p "Finally, be aware that Speculoos presents a couple of situations where a predicate needs to accept more than one argument. First, when specifying a function's " [:a {:href "#fn-specs"} "arg-vs-ret"] ", the predicate must accept two inputs: the function's argument sequence and its return value. Second, when using the " [:a {:href "#path-spec"} [:code "validate-with-path-spec"]] " utility, the predicate's arguments must exactly match the number of supplied paths, which could be greater than one."]]
 
           [:section#utility
            [:h2 "Utility functions"]
            [:p "You won't miss any crucial piece of Speculoos' functionality if you don't use this namespace, but perhaps something here might make your day a little nicer. Nearly every function takes advantage of " [:code "speculoos.core/all-paths"] ", which decomposes a heterogeneous, arbitrarily-nested data structure into a sequence of paths and datums. With that in hand, these not-clever functions churn through the entries and give you back something useful."]
-           [:pre (print-form-then-eval "(require '[speculoos.utility :refer [data-without-specs specs-without-data all-specs-okay non-predicates sore-thumb spec-from-data data-from-spec basic-collection-spec-from-data collections-without-specs exercise]])")]
-           [:p "Recall that Speculoos only validates a datum and predicate at identical paths in data and specificaton, respectively. This pair of utilities tells us where we have unmatched datums or unmatched predicates."]
+           [:pre (print-form-then-eval "(require '[speculoos.utility :refer [scalars-without-predicates predicates-without-scalars thoroughly-valid? all-specs-okay non-predicates sore-thumb spec-from-data data-from-spec basic-collection-spec-from-data collections-without-predicates exercise]])")]
+           [:p "Recall that Speculoos only validates a datum and predicate at identical paths in data and specification, respectively. This pair of utilities tells us where we have unmatched datums or unmatched predicates."]
            [:pre
-            (print-form-then-eval "(data-without-specs [42 [:foo \"abc\"]] [int?])")
+            (print-form-then-eval "(scalars-without-predicates [42 [:foo \"abc\"]] [int?])")
             [:br]
-            (print-form-then-eval "(specs-without-data [42] [int? [keyword? string?]])")]
+            (print-form-then-eval "(predicates-without-scalars [42] [int? [keyword? string?]])")]
            [:p "With this information, we can see if we were missing datums we were expecting,"
             (label "missing")
             (side-note "missing" "Or more formally, we could check for missing data by validating against a collection specification.")
             " or we could adjust our specification for better coverage."]
            [:p "It's not difficult to neglect a predicate for a nested element within a collection specification, so Speculoos offers an analogous utility to highlight that possible issue."]
-           [:pre (print-form-then-eval "(collections-without-specs [11 [22 {:a 33}]] [vector? [{:is-a-map? map?}]])")]
+           [:pre (print-form-then-eval "(collections-without-predicates [11 [22 {:a 33}]] [vector? [{:is-a-map? map?}]])")]
            [:p "Yup, we didn't specify that inner vector whose first element is " [:code "22"] ". That's okay, though. Maybe we don't care to specify it. But now we're aware."
             (label "coll-preds-without")
-            (side-note "coll-preds-without" (h2/html [:code "specs-without-data"] " does not have an analogous utility for collection predicates because every predicate in a specificaiton is contained within a collection and by policy always applies to its container. There can never be a collection predicate without a target collection."))]
+            (side-note "coll-preds-without" (h2/html [:code "predicates-without-scalars"] " does not have an analogous utility for collection predicates because every predicate in a specification is contained within a collection and by policy always applies to its container. There can never be a collection predicate without a target collection."))]
+           [:p "Taking that idea to its logical conclusion, " [:code "thoroughly-valid?"] " returns " [:code "true"] " only if every scalar and every collection in data have a corresponding predicate in the scalar specification and the collection specification, respectively, and all those predicates are satisfied."]
+           [:pre
+            [:code ";; all scalars and the vector have predicates; all predicates satisfied"]
+            (print-form-then-eval "(thoroughly-valid? [42 :foo 22/7] [int? keyword? ratio?] [vector?])")
+            [:br]
+            [:code ";; all scalars and the vector have predicates,\n;; but the 22/7 fails the scalar predicate"]
+            (print-form-then-eval "(thoroughly-valid? [42 :foo 22/7] [int? keyword? string?] [vector?])")
+            [:br]
+            [:code ";; all scalars and the vector have predicates,\n;; but the vector fails the collection predicate"]
+            (print-form-then-eval "(thoroughly-valid? [42 :foo 22/7] [int? keyword? ratio?] [list?])")
+            [:br]
+            [:code ";; all predicates are satisfied, but the 22/7 scalar is missing a predicate"]
+            (print-form-then-eval "(thoroughly-valid? [42 :foo 22/7] [int? keyword?] [vector?])")
+            [:br]
+            [:code ";; all predicates are satisfied, but the vector is missing a predicate"]
+            (print-form-then-eval "(thoroughly-valid? [42 :foo 22/7] [int? keyword? ratio?] [])")]
+
            [:p "I can imagine passing around specifications as any other re-usable piece of data. Perhaps somewhere along the way, a wayward emacs key sequence damaged the specification. Here's a couple of functions to check the specification itself."]
            [:pre
             (print-form-then-eval "(all-specs-okay {:a int? :b [string? ] :d [[int?]]})")
@@ -695,16 +711,16 @@
             (side-note "compound" (h2/html "A few " [:a {:href "#custom-generators"} "paragraphs down"] " we'll see some ways to create random sample generators for compound predicates."))
             " that is, merely " [:em "Is it an integer?"] ", not " [:em "Is it an even integer greater than 25, divisible by 3?"] ". But it's convenient raw material to start crafting a tighter specification. Oh, yeah…they both round-trip."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? (data-from-spec [int? keyword? string?]) [int? keyword? string?])")
+            (print-form-then-eval "(valid-scalars? (data-from-spec [int? keyword? string?]) [int? keyword? string?])")
             [:br]
-            (print-form-then-eval "(valid-scalar-spec? [42 :foo 'baz] (spec-from-data [42 :foo 'baz]))")]
+            (print-form-then-eval "(valid-scalars? [42 :foo 'baz] (spec-from-data [42 :foo 'baz]))")]
            [:p "Speaking of raw material, Speculoos also has a collection specification generator."]
            [:pre (print-form-then-eval "(basic-collection-spec-from-data [55 {:q 33 :r ['foo 'bar]} '(22 44 66)])")]
            [:p "Which does not produce a specification that is immediately useful, but does provide a good starting template, because collection specifications can be tricky to get just right."]
-           [:p#custom-generators "The " [:code "utility"] " namespace contains a trio of functions to assist writing compound predicates that can be used by " [:code "data-from-spec"] " to generate valid random sample data. A compound predicate such as " [:code "#(and (int? %) (< % 100))"] " does not have built-in generator provided by " [:code "clojure.test.check.generators"] ". However, " [:code "data-from-spec"] " can extract a custom generator residing in the predicate's metadata."]
+           [:p#custom-generators "The " [:code "utility"] " namespace contains a trio of functions to assist writing, checking, and locating compound predicates that can be used by " [:code "data-from-spec"] " to generate valid random sample data. A compound predicate such as " [:code "#(and (int? %) (< % 100))"] " does not have built-in generator provided by " [:code "clojure.test.check.generators"] ". However, " [:code "data-from-spec"] " can extract a generator residing in the predicate's metadata."]
            [:pre
             (print-form-then-eval "(data-from-spec [keyword? (with-meta #(and (number? %) (< % 100)) {:speculoos/predicate->generator #(rand 101)})] :random)")]
-           [:p "The custom generator must be provided at the metadata key" [:code ":speculoos/predicate->generator"] ". " [:code "clojure.spec.alpha"] " automatically creates generators from its specs, but Speculoos isn't that slick. We must write them by hand." (label "ick") (side-note "ick" "Ugh.") " It can be tricky to make sure the generator produces values that precisely satisfy the predicate, so Speculoos provides a utility to check one against the other. What if we don't quite have the generator written correctly?"]
+           [:p "The custom generator must be provided at the metadata key" [:code ":speculoos/predicate->generator"] ". " [:code "clojure.spec.alpha"] " automatically creates generators from its specs, but Speculoos isn't always that slick. Sometimes, we must write them by hand." (label "ick") (side-note "ick" "Ugh.") " It can be tricky to make sure the generator produces values that precisely satisfy the predicate, so Speculoos provides a utility to check one against the other. What if we don't quite have the generator written correctly?"]
            [:pre
             (print-form-then-eval "(require '[speculoos.utility :refer [validate-predicate->generator unfindable-generators defpred]]
                                              '[clojure.test.check.generators :as gen])")
@@ -718,6 +734,24 @@
             [:br]
             (print-form-then-eval "(validate-predicate->generator fixed 5)")]
            [:p "We can see that the generator now yields values that satisfy its predicate."]
+           [:p "If you don't manually supply a generator, " [:code "defpred"] " will create one automatically if your predicate's structure fulfills some assumptions. A top-level " [:code "or"] " indicates a set of possible Clojure scalar types. Let's define a predicate that tests for either an integer, keyword, or ratio and then check how it works."]
+           [:pre
+            (print-form-then-eval "(defpred int-kw-ratio? #(or (int? %) (keyword? %) (ratio? %)))")
+            [:br]
+            (print-form-then-eval "(validate-predicate->generator int-kw-ratio? 9)")]
+           [:p [:code "and"] " signals a set of modifiers as long as the first clause tests for a basic Clojure scalar type. Let's define a predicate that tests for an integer that is even and greater-or-equal to two."]
+           [:pre
+            (print-form-then-eval "(defpred even-int-more-5 (fn [i] (and (int? i) (even? i) (<= 2 i))))")
+            [:br]
+            (print-form-then-eval "(validate-predicate->generator even-int-more-5 5)")]
+           [:p "Note how the first " [:em "s-expression"] " immediately following " [:code "and"] ", " [:code "(int? i)"]  ", selects the basic Clojure scalar type. All subsequent " [:em "s-expressions"] " refine the integer sample generator."]
+           [:p "Now, let's see how we might combine both " [:code "or"] " and " [:code "and"] ". We'll define a predicate that tests for either an odd integer, a string of at least three characters, or a ratio greater than one-ninth."]
+           [:pre
+            (print-form-then-eval "(defpred combined-pred #(or (and (int? %) (odd? %))
+                                                              (and (string? %) (<= 3 (count %)))
+                                                              (and (ratio? %) (< 1/9 %))))")
+            [:br]
+            (print-form-then-eval "(validate-predicate->generator combined-pred 7)")]
            [:p "Perhaps we've got a specification in hand, and we'd like to know if all of the predicates have a random sample generator."]
            [:pre
             (print-form-then-eval "(def not-int? #(not (int? %)))")
@@ -728,7 +762,7 @@
 
            [:p "One final creative utility: " [:code "exercise"] ", which consumes a scalar specification, and generates a series of random data, then validates them."]
            [:pre (print-form-then-eval "(exercise [int? symbol? {:x boolean? :y ratio?}] 5)")]
-           [:p "I'm not sure that's generally useful, but I include it to illustrate the benefits of the " [:code "all-paths"] " structure. All these utilities contain just a handful of lines because " [:code "all-paths"] " has already done the hard work, which makes me feel like Speculoos somehow aligns with Alan Perlis' " [:a {:href "https://web.archive.org/web/19990117034445/http://www-pu.informatik.uni-tuebingen.de/users/klaeren/epigrams.html"} "epigram"] " " [:a {:href "https://dl.acm.org/doi/10.1145/947955.1083808"} "#9"] "."]
+           [:p "I'm not sure that's generally useful, but I include it to illustrate the benefits of the " [:code "all-paths"] " structure. All these utilities contain just a handful of lines because " [:code "all-paths"] " has already done the hard work, which makes me feel like Speculoos somehow aligns with the spirit of Alan Perlis' " [:a {:href "https://web.archive.org/web/19990117034445/http://www-pu.informatik.uni-tuebingen.de/users/klaeren/epigrams.html"} "epigram #9"] "."]
            [:p "Now that we've finished the creative utilities, the next involve altering data structures and specifications. I do not know if any of these would be useful in the real world, but they were quick to write, and again illustrate the power of the " [:code "all-paths"] " core function."]
            [:p "Imagine a specification damaged by cosmic rays, and some data that we know for certain is valid. Speculoos can mangle the specification into working." (label "immutable") (side-note "immutable" (h2/html [:em "Mangle"] " only in the everyday sense. All the Clojure data structures — including Speculoos specifications — remain immutable.")) " If for some reason our specification contained an entry that was not a predicate, Speculoos could swap it out so that the specification can be fed into " [:code "validate"] "."]
            [:pre
@@ -768,9 +802,9 @@
            [:p "Since all specifications are satisfied, " [:code "add-ten"] " returns its evaluation. When one or more predicates are not satisfied, Speculoos returns a validation report."]
            [:pre (print-form-then-eval "(validate-fn-with add-ten {:speculoos/arg-scalar-spec [float?] :speculoos/ret-scalar-spec float?} 15)")]
            [:p "Speculoos steps in to tell us that neither the argument nor the return value are floating point numbers. Note that in this example, the return value is a bare scalar. When a function returns a non-collection, Speculoos handles it."]
-           [:p "Speculoos consults this defined group of keys in a specfication map when it validates."]
+           [:p "Speculoos consults the following defined group of keys in a specification map when it validates."]
            [:pre (print-form-then-eval "speculoos.function-specs/recognized-spec-keys")]
-           [:p "Speculoos offers a pair convenience functions to add and remove specificatons from a function's metadata."]
+           [:p "Speculoos offers a pair convenience functions to add and remove specifications from a function's metadata."]
            [:pre (print-form-then-eval "(inject-specs! add-ten {:speculoos/arg-scalar-spec [int?] :speculoos/ret-scalar-spec int?})")]
            [:p "We can observe that the specifications indeed live in the function's metadata. If we later decided to undo that, " [:code "unject-specs!"] " removes all recognized Speculoos specification entries, regardless of how they got there. For the upcoming demonstrations, though, we'll keep those specifications in " [:code "add-ten"] "'s metadata."]
            [:pre (print-form-then-eval "(select-keys (meta #'add-ten) recognized-spec-keys)")]
@@ -787,7 +821,7 @@
            [:pre
             (print-form-then-eval "(defn length-3? [v] (= 3 (count v)))")
             (print-form-then-eval "(defn silly \"A contrived demo.\" [x s r] (vector (/ r 2) (inc x) (apply str (reverse (.toString s)))))")]
-           [:p "Next, we inject our specifications into the function's metadata: a scalar specification and collection specication, each, for both the argument sequence and the return sequence. A grand total of four specifications."]
+           [:p "Next, we inject our specifications into the function's metadata: a scalar specification and collection specification, each, for both the argument sequence and the return sequence. A grand total of four specifications."]
            [:pre (print-form-then-eval "(inject-specs! silly {:speculoos/arg-scalar-spec [int? string? ratio?] :speculoos/arg-collection-spec [length-3?] :speculoos/ret-scalar-spec [ratio? int? string?] :speculoos/ret-collection-spec [length-3?]})")]
            [:p "Valid inputs…"]
            [:pre (print-form-then-eval "(validate-fn-meta-spec silly 42 \"abc\" 1/3)")]
@@ -796,7 +830,7 @@
            [:p "…yields an invalidation report: two of our arguments do not satisfy their scalar predicates."]
            [:p "Speculoos' third pattern of function validation " [:em "instruments"] " the function using the metadata specifications."
             (label "fagile")
-            (side-note "fragile" (h2/html [:code "intrument"] "-style function validation is very much a work in progress. The implementation is sensitive to invocation order and can choke on multiple calls. The var mutation is not robust. Beware.")) " Every invocation of the function itself automatically validates any specified arguments and return values."]
+            (side-note "fragile" (h2/html [:code "instrument"] "-style function validation is very much a work in progress. The implementation is sensitive to invocation order and can choke on multiple calls. The var mutation is not robust. Beware.")) " Every invocation of the function itself automatically validates any specified arguments and return values."]
            #_ [:div.no-display (instrument silly)]
            [:pre
             [:code "(instrument silly)"]
@@ -820,7 +854,7 @@
            [:p "Even though character " [:code "\\a"] " and non-ratio " [:code "9"] " do not satisfy the specifications, " [:code "silly"] " is no longer instrumented, and Speculoos is not intercepting its invocation, so the function returns a value."
             (label "preference")
             (side-note "preference " (h2/html  "Frankly, I wrote " [:code "instrument/unstrument"] " to mimic the features " [:code "spec.alpha"] " offers. My implementation is squirrelly, and I don't like mutating vars. I lean much more towards the deterministic " [:code "validate-fn-meta-spec"] " and " [:code "validate-fn-with"] "."))]
-           [:p "Beyond validating a function's argument sequence and its return, Speculoos can perform a validation that checks the relationship between any aspect of the arguments and return values. When the arguments sequence and return sequence share a high degree of shape, an " [:em "argument versus return scalar specification"] " will work well. A good example of this is using " [:code "map"] " to transform a sequence of values. Each item in the return sequence has a corresponsing item in the argument sequence."]
+           [:p "Beyond validating a function's argument sequence and its return, Speculoos can perform a validation that checks the relationship between any aspect of the arguments and return values. When the arguments sequence and return sequence share a high degree of shape, an " [:em "argument versus return scalar specification"] " will work well. A good example of this is using " [:code "map"] " to transform a sequence of values. Each item in the return sequence has a corresponding item in the argument sequence."]
            [:pre
             (print-form-then-eval "(defn mult-ten [& args] (map #(* 10 %) args))")
             [:br]
@@ -844,7 +878,7 @@
             (print-form-then-eval "(defn equal-lengths? \"Buggy!\" [v1 v2] (= (+ 1 (count v1)) (count v2)))")
             [:br]
             (print-form-then-eval "(defn mirror-elements-equal? [v1 v2] (= (first v1) (last v2)))")]
-           [:p "Composing our args versus return collection specification, using the properly psuedo-qualified key."]
+           [:p "Composing our args versus return collection specification, using the properly pseudo-qualified key."]
            [:pre (print-form-then-eval "(def rev-coll-spec {:speculoos/arg-vs-ret-collection-spec [equal-lengths? mirror-elements-equal?]})")]
            [:p "Our goofy reverse function fails our buggy argument versus return validation."]
            [:pre (print-form-then-eval "(validate-fn-with goofy-reverse rev-coll-spec 1 2 3)")]
@@ -880,7 +914,7 @@
            [:p "Not exactly thirst-quenching."]
            [:p "Finally, Speculoos can validate the macroexpansion of a macro against a scalar specification. Let's write a dinky example macro."]
            [:pre
-            (print-form-then-eval "(require '[speculoos.core :refer [validate-macro-with valid-macro-spec?]])")
+            (print-form-then-eval "(require '[speculoos.core :refer [validate-macro-with valid-macro?]])")
             [:br]
             (print-form-then-eval "(defmacro dinky-macro [f x] `(~f ~@x))")
             [:br]
@@ -896,7 +930,7 @@
 ;;     {:path [2], :datum 2, :predicate clojure.core/int?, :valid? true}
 ;;     {:path [3], :datum 3, :predicate clojure.core/int?, :valid? true}]"]]
            [:p "Or, more briefly."]
-           [:pre (print-form-then-eval "(valid-macro-spec? '(dinky-macro + [1 2 3]) dinky-specification)")]
+           [:pre (print-form-then-eval "(valid-macro? '(dinky-macro + [1 2 3]) dinky-specification)")]
            [:div.no-display "Macro validation is included in the " [:code "core"] " namespace and not the " [:code "function-specs"] " namespace because Speculoos validates macroexpansion on a structural basis, not it arguments nor returns."]
            ]
 
@@ -907,42 +941,42 @@
             (side-note "infinite" (h2/html [:em "(possibly) non-terminating sequences"] " might be more accurate."))
             " That power stems from the fact that Speculoos only validates complete pairs of datums and predicates. Datums without predicates are not validated, and predicates without datums are ignored. That policy provides optionality in your data. If a datum is present, it is validated against its corresponding predicate, but if that datum is non-existent, it is not required."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? [42] [int? keyword? char?])")
+            (print-form-then-eval "(valid-scalars? [42] [int? keyword? char?])")
             [:br]
-            (print-form-then-eval "(valid-scalar-spec? [42 :foo \\z] [int?])")]
+            (print-form-then-eval "(valid-scalars? [42 :foo \\z] [int?])")]
            [:p "In the first example, only the single integer is validated, the rest of the predicates are ignored. In the second example, only the first integer was validated because the specification implies that any trailing elements are un-specified. We can take advantage of this fact by intentionally making either the data or the specification " [:em "run off the end"] "."]
-           [:p "First, if you'd like to validate a non-terminating sequence, specify as many datums as necessary to capture the pattern. " [:code "repeat"] " produces mulitiple instances of a single value, so we only need to specify one datum."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? (repeat 3) [int?])")]
+           [:p "First, if you'd like to validate a non-terminating sequence, specify as many datums as necessary to capture the pattern. " [:code "repeat"] " produces multiple instances of a single value, so we only need to specify one datum."]
+           [:pre (print-form-then-eval "(valid-scalars? (repeat 3) [int?])")]
            [:p [:code "cycle"] " can produce different values, so we ought to test for as many as appear in the definition."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? (cycle [42 :foo 22/7]) [int? keyword? ratio?])")]
+           [:pre (print-form-then-eval "(valid-scalars? (cycle [42 :foo 22/7]) [int? keyword? ratio?])")]
            [:p "Three unique datums. Only three predicates needed."]
-           [:p "On the other side of the coin, non-terminating sequences serve a critical role in composing Speculoos spefications. They express " [:em "I don't know how many items there are in this sequence, but they all must satisfy these predicates"] "."]
+           [:p "On the other side of the coin, non-terminating sequences serve a critical role in composing Speculoos specifications. They express " [:em "I don't know how many items there are in this sequence, but they all must satisfy these predicates"] "."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? [1] (repeat int?))")
-            (print-form-then-eval "(valid-scalar-spec? [1 2] (repeat int?))")
-            (print-form-then-eval "(valid-scalar-spec? [1 2 3] (repeat int?))")
-            (print-form-then-eval "(valid-scalar-spec? [1 2 3 4] (repeat int?))")
-            (print-form-then-eval "(valid-scalar-spec? [1 2 3 4 5] (repeat int?))")]
-           [:p "Basically, it serves the role of a regular experssion " [:code "zero-or-more"] ". Let's pretend we'd like to validate an integer, then a string, followed by any number of characters. We compose our specification like this."]
+            (print-form-then-eval "(valid-scalars? [1] (repeat int?))")
+            (print-form-then-eval "(valid-scalars? [1 2] (repeat int?))")
+            (print-form-then-eval "(valid-scalars? [1 2 3] (repeat int?))")
+            (print-form-then-eval "(valid-scalars? [1 2 3 4] (repeat int?))")
+            (print-form-then-eval "(valid-scalars? [1 2 3 4 5] (repeat int?))")]
+           [:p "Basically, it serves the role of a regular expression " [:code "zero-or-more"] ". Let's pretend we'd like to validate an integer, then a string, followed by any number of characters. We compose our specification like this."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? [99 \"abc\" \\x \\y \\z] (concat [int? string?] (repeat char?)))")
+            (print-form-then-eval "(valid-scalars? [99 \"abc\" \\x \\y \\z] (concat [int? string?] (repeat char?)))")
             [:br]
-            (print-form-then-eval "(only-invalid (validate-scalar-spec [99 \"abc\" \\x \"y\" \\z] (concat [int? string?] (repeat char?))))")]
+            (print-form-then-eval "(only-invalid (validate-scalars [99 \"abc\" \\x \"y\" \\z] (concat [int? string?] (repeat char?))))")]
            [:p "Or perhaps we'd like to validate a function's argument list composed of a ratio followed by " [:code "&-args"] " consisting of any number of alternating keyword-string pairs."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? [2/3] (concat [ratio?] (cycle [keyword string?])))")
+            (print-form-then-eval "(valid-scalars? [2/3] (concat [ratio?] (cycle [keyword string?])))")
             [:br]
-            (print-form-then-eval "(valid-scalar-spec? [2/3 :opt1 \"abc\" :opt2 \"xyz\"] (concat [ratio?] (cycle [keyword string?])))")
+            (print-form-then-eval "(valid-scalars? [2/3 :opt1 \"abc\" :opt2 \"xyz\"] (concat [ratio?] (cycle [keyword string?])))")
             [:br]
-            (print-form-then-eval "(only-invalid (validate-scalar-spec [2/3 :opt1 'foo] (concat [ratio?] (cycle [keyword string?]))))")]
+            (print-form-then-eval "(only-invalid (validate-scalars [2/3 :opt1 'foo] (concat [ratio?] (cycle [keyword string?]))))")]
            [:p "Using non-terminating sequences this way sorta replicates " [:code "spec.alpha"] "'s sequence regexes. I think of it as Speculoos' super-power."]
            [:p "Also, Speculoos can handle nested, non-terminating sequences."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [[1] [2 \"2\"] [3 \"3\" :3]] (repeat (cycle [int? string? keyword?])))")]
-           [:p "One implementation detail: A non-terminating sequence must not appear at the same path within both the data and specification. I am not aware of any method to inspect a sequence to determine if it is inifinite, so Speculoos will refuse to validate a non-terminating data sequence at the same path as a non-terminating predicate sequence, and " [:em "vice versa"] ". However, feel free to use them in either data or in the specification, as long as they live at different paths."]
+           [:pre (print-form-then-eval "(valid-scalars? [[1] [2 \"2\"] [3 \"3\" :3]] (repeat (cycle [int? string? keyword?])))")]
+           [:p "One implementation detail: A non-terminating sequence must not appear at the same path within both the data and specification. I am not aware of any method to inspect a sequence to determine if it is infinite, so Speculoos will refuse to validate a non-terminating data sequence at the same path as a non-terminating predicate sequence, and " [:em "vice versa"] ". However, feel free to use them in either data or in the specification, as long as they live at different paths."]
            [:pre
-            (print-form-then-eval "(valid-scalar-spec? {:a (repeat 42) :b [22/7 true]} {:a [int?] :b (cycle [ratio? boolean?])})")
+            (print-form-then-eval "(valid-scalars? {:a (repeat 42) :b [22/7 true]} {:a [int?] :b (cycle [ratio? boolean?])})")
             [:br]
-            (print-form-then-eval "(only-invalid (validate-scalar-spec {:a (repeat 42) :b [22/7 true]} {:a [int? int? string?] :b (repeat ratio?)}))")]
+            (print-form-then-eval "(only-invalid (validate-scalars {:a (repeat 42) :b [22/7 true]} {:a [int? int? string?] :b (repeat ratio?)}))")]
            [:p "Here, the data contains a non-terminating sequence at key " [:code ":a"] ", while the specification contains a non-terminating sequence at key " [:code ":b"] ". Since the two do not share a path, validation can proceed to completion."]
            [:p "So what's going on? Internally, Speculoos finds all the potentially non-terminating sequences in both the data and the specification. For each of those hits, Speculoos looks into the other nested structure to determine how long the counterpart sequence is. Speculoos then " [:em "clamps"] " the non-terminating sequence to that length. Validation proceeds with the clamped sequences. Let's see the clamping in action."]
            [:pre
@@ -975,7 +1009,7 @@
            [:pre (print-form-then-eval "(all-paths #{:foo 42 \"abc\"})")]
            [:p "In the first example, the root element, a set, has a path " [:code "[]"] ". The remaining three elements, direct descendants of the root set have paths that consist of themselves. We find " [:code "42"] " at path " [:code "[42]"] " and so on. The second example applies the principle further."]
            [:pre (print-form-then-eval "(all-paths #{11 {:a [22 #{33}]}})")]
-           [:p "How would we navidgate to that " [:code "33"] "? Again the root element set has a path " [:code "[]"] ". There are two direct descendants of the root set: " [:code "11"] " and a map. We've already seen that the integer's path is the value of the integer. The path to the map is the map itself, which appears as the first element of its path. That path may look unusual, but Speculoos " [:a {:href "#fn-in*"} "starred functions"] " take it without skipping a beat."]
+           [:p "How would we navigate to that " [:code "33"] "? Again the root element set has a path " [:code "[]"] ". There are two direct descendants of the root set: " [:code "11"] " and a map. We've already seen that the integer's path is the value of the integer. The path to the map is the map itself, which appears as the first element of its path. That path may look unusual, but Speculoos " [:a {:href "#fn-in*"} "starred functions"] " take it without skipping a beat."]
            [:pre (print-form-then-eval "(get-in* #{11 {:a [22 #{33}]}} [{:a [22 #{33}]}])")]
            [:p  "The map has one " [:code "MapEntry"] ", key " [:code ":a"] ", with an associated value, a two-element vector " [:code "[22 #{33}]"] ". A map value is addressed by its key, so the vector's path contains that key. Its path is that of its parent, with its key appended."]
            [:pre (print-form-then-eval "(get-in* #{11 {:a [22 #{33}]}} [{:a [22 #{33}]} :a])")]
@@ -983,13 +1017,16 @@
            [:pre (print-form-then-eval "(get-in* #{11 {:a [22 #{33}]}} [{:a [22 #{33}]} :a 1])")]
            [:p "We've now arrived at the little nested set which holds our " [:code "33"] ". Items in a set are addressed by their identity, and the identity of " [:code "33"] " is " [:code "33"] ". So we append that to the path so far."]
            [:pre (print-form-then-eval "(get-in* #{11 {:a [22 #{33}]}} [{:a [22 #{33}]} :a 1 33])")]
-           [:p "And now we've got our goal. Following this algrorithm, we can get, change, and delete any element of any heterogeneous, arbitrarily-nested data structure, and that includes sets at any level of nesting. We could even make a path to a set, nested within a set, nested within a set, but it's not pretty. Best to let Speculoos handle it."]
+           [:p "And now we've got our goal. Following this algorithm, we can get, change, and delete any element of any heterogeneous, arbitrarily-nested data structure, and that includes sets at any level of nesting. We could even make a path to a set, nested within a set, nested within a set, but it's not pretty. Best to let Speculoos handle it."]
            [:p "Speculoos can validate scalars within a set during a scalar validation operation. Validating a set's scalar members follows all the same principles as validating a vector's scalar members, except for one wrinkle: Since elements of a set have no inherent location" (label "unordered") (side-note "unordered" "I.e., sets are unordered.") " sets in our data are validated against all predicates contained in the corresponding set at the same path in the specification. An example shows this better than words."]
-           [:pre (print-form-then-eval "(valid-scalar-spec? [42 #{:glass :rubber :paper}] [int? #{keyword?}])")]
-           [:p "Speculoos validates " [:code "42"] " against predicate " [:code "int?"] " because they share paths in their respective vectors. At vector index " [:code "1"] " our data and specificaton both hold sets, so Speculoos enters " [:em "set-scalar-validation-mode"] ". Every predicate contained in the specification set is applied to every datum in the data's set. In this example, " [:code "keyword?"] " is individually applied to " [:code ":glass"] ", " [:code ":rubber"] ", and " [:code ":paper"] ", and since each satisfy the predicate, the validation returns " [:code "true"] "."]
+           [:pre (print-form-then-eval "(valid-scalars? [42 #{:glass :rubber :paper}] [int? #{keyword?}])")]
+           [:p "Speculoos validates " [:code "42"] " against predicate " [:code "int?"] " because they share paths in their respective vectors. At vector index " [:code "1"] " our data and specification both hold sets, so Speculoos enters " [:em "set-scalar-validation-mode"]
+            (label "mode")
+            (side-note "mode" (h2/html [:em "Mode"] " only in the casual sense.  There's no modes nor states. The algorithm merely branches to treat the set differently depending on the situation."))
+            ". Every predicate contained in the specification set is applied to every datum in the data's set. In this example, " [:code "keyword?"] " is individually applied to " [:code ":glass"] ", " [:code ":rubber"] ", and " [:code ":paper"] ", and since each satisfy the predicate, the validation returns " [:code "true"] "."]
            [:p "If our specification set contains more than one predicate, each of the predicates is applied to all the scalars in the data's set. In the next example, the specification set contains two predicates."]
-           [:pre (print-form-then-eval "(validate-scalar-spec #{:chocolate :vanilla :strawberry} #{keyword? qualified-keyword?})")]
-           [:p "Validaton applies " [:code "keyword?"] " and " [:code "qualified-keyword?"] ", in turn, to every scalar member of the data set. Speculoos tells us that all the scalars in the data are indeed keywords, but at least one of the data's scalars is not a qualified keyword. Notice how Speculoos condenses the validaton results. Instead of a validation entry for each individual scalar in the data set, Speculoos combines all the results for all the scalars. Two predicates, two validation results."]
+           [:pre (print-form-then-eval "(validate-scalars #{:chocolate :vanilla :strawberry} #{keyword? qualified-keyword?})")]
+           [:p "Validation applies " [:code "keyword?"] " and " [:code "qualified-keyword?"] ", in turn, to every scalar member of the data set. Speculoos tells us that all the scalars in the data are indeed keywords, but at least one of the data's scalars is not a qualified keyword. Notice how Speculoos condenses the validation results. Instead of a validation entry for each individual scalar in the data set, Speculoos combines all the results for all the scalars. Two predicates, two validation results."]
            [:p  "Clojure sets can serve as membership tests."]
            [:pre
             (print-form-then-eval "(def self? #{:me :myself :I})")
@@ -1003,17 +1040,17 @@
            [:pre
             (print-form-then-eval "(def geography #{:mountain :plateau :valley})")
             [:br]
-            (print-form-then-eval "(validate-scalar-spec [:valley {:a :mountain :b :river}] [geography {:a geography :b geography}])")]
-           [:p "Our example data contains three datums: " [:code ":valley"] " in the root vector, " [:code ":mountain"] " and " [:code ":river"] "  in the nested map. Each of those datums shares a path with a set-as-a-predicate in the specification. When Speculoos validates, it treats each set in the specificaton as a predicate because the corresponding element in the data is a scalar, not a set. In this example, " [:code ":valley"] " and " [:code ":mountain"] " are members of the " [:code "geography"] " set-predicate, whereas " [:code ":river"] " is not."]
+            (print-form-then-eval "(validate-scalars [:valley {:a :mountain :b :river}] [geography {:a geography :b geography}])")]
+           [:p "Our example data contains three datums: " [:code ":valley"] " in the root vector, " [:code ":mountain"] " and " [:code ":river"] "  in the nested map. Each of those datums shares a path with a set-as-a-predicate in the specification. When Speculoos validates, it treats each set in the specification as a predicate because the corresponding element in the data is a scalar, not a set. In this example, " [:code ":valley"] " and " [:code ":mountain"] " are members of the " [:code "geography"] " set-predicate, whereas " [:code ":river"] " is not."]
            [:p "Speculoos performs the two modes in separate passes, so we may even use both set-as-a-predicate-mode and set-scalar-validation-mode during the same validation, as long as the predicates stay on their own side of the fence."]
-           [:pre (print-form-then-eval "(validate-scalar-spec [42 #{:foo :bar :baz}] [#{40 41 42} #{keyword?}])")]
+           [:pre (print-form-then-eval "(validate-scalars [42 #{:foo :bar :baz}] [#{40 41 42} #{keyword?}])")]
            [:p "In this example, the predicate at index " [:code "0"] " of the specification is a set while the datum at same index of the data is " [:code "42"] ", a scalar. Speculoos uses the set-as-a-predicate mode. Since " [:code "42"] " is a member of " [:code "#{40 41 42}"] ", that datum validates as truthy. Because the data at index " [:code "1"] " is itself a set, Speculoos performs set-scalar-validation. The " [:code "keyword?"] " predicate is applied to each element of " [:code "#{:foo :bar :baz}"] " at index " [:code "1"] " and they all validate " [:code "true"] "."]
            [:p " Speculoos will also validate a set as whole during a collection validation operation. The rules are identical to how the other collections are validated: predicates from the specification are applied to the parent container in the data. Nested collections are validated by ordinal, regardless of intervening predicates in the parent collection. But let's not get bogged down in a textual description; let's look at some examples."]
-           [:p "The simplest case involvles validating a set as a collection. In Speculoos's collection validation, the predicates apply to collections, not scalars."]
+           [:p "The simplest case involves validating a set as a collection. In Speculoos' collection validation, the predicates apply to collections, not scalars."]
            [:pre
             (print-form-then-eval "(def count-3? #(= 3 (count %)))")
             [:br]
-            (print-form-then-eval "(validate-collection-spec #{:foo :bar :baz} #{count-3?})")]
+            (print-form-then-eval "(validate-collections #{:foo :bar :baz} #{count-3?})")]
            [:p "Our data is a set containing a trio of keywords. Instead of a scalar specification applied to each of the scalars, our predicate " [:code "count-3?"] " applies to the containing collection " [:code "#{:foo :bar :baz}"] "."]
            [:p "Another principle of collection validation is that Speculoos will apply any number of collection predicates to its parent container. We'll illustrate this by creating three predicates that cannot by tested by validating scalars alone; the collection as a whole must be validated."]
            [:pre
@@ -1025,7 +1062,7 @@
             [:br]
             (print-form-then-eval "(def zero-int? #(empty? (filter int? %)))")
             [:br]
-            (print-form-then-eval "(validate-collection-spec #{:foo :bar :baz 'foo 'bar} #{equal-kw-sym? more-kw? zero-int?})")]
+            (print-form-then-eval "(validate-collections #{:foo :bar :baz 'foo 'bar} #{equal-kw-sym? more-kw? zero-int?})")]
            [:p "Speculoos applies all three collection predicates to the parent set. The set does indeed contain more keywords than non-keywords, the set does not contain any integers, but the set does not hold equal numbers of keywords and symbols."]
            [:p "Nested sets are validated according to Speculoos' conventions for all collections: predicates apply to their parents, and predicates may be interleaved among nested collections. Example time. Lots of collection predicates."]
            [:pre
@@ -1036,7 +1073,7 @@
             (print-form-then-eval "(def all-qual-kw? #(every? qualified-keyword? %))")
             (print-form-then-eval "(def all-sym? #(every? symbol? %))")]
            [:p "Our parent container will be a vector with integers in the first, third, and fifth slots, with two sets nested at the second and fourth spots. The first nested set contains three keywords, the second nested set contains three symbols. Our specification is a vector with collection predicates at the first, second, and fifth spots and sets nested at the third and fourth spots."]
-           [:pre (print-form-then-eval "(validate-collection-spec [42 #{:foo :bar :baz} 33 #{'foo 'bar 'baz} 55] [count-5? last-is-55? #{all-kw? all-qual-kw?} #{all-sym?} middle-is-33?])")]
+           [:pre (print-form-then-eval "(validate-collections [42 #{:foo :bar :baz} 33 #{'foo 'bar 'baz} 55] [count-5? last-is-55? #{all-kw? all-qual-kw?} #{all-sym?} middle-is-33?])")]
            [:p "The three top-level predicates " [:code "count-5?"] ", " [:code "last-is-55?"] ", and " [:code "middle-is-33?"] " all apply to the root vector, regardless of their positions within the root vector. Two predicates contained in the first nested set, " [:code "all-kw?"] " and " [:code "all-qual-kw?"] ", apply to the first nested set " [:code "#{:foo :bar :baz}"] ", regardless of their index within the root vector. Likewise, the single predicate in the second set, " [:code "all-sym?"] ", applies to the second set " [:code "#{'foo 'bar 'baz}"] " in the data."]
            [:p "The order of collection predicates does not matter. Speculoos applies them all to the parent container. All the following produce functionally equivalent results."]
            [:pre
@@ -1058,7 +1095,7 @@
             (print-form-then-eval "(defn all-increasing? [& args] (apply < args))")
             [:br]
             (print-form-then-eval "(validate-with-path-spec [11 22 33] [{:paths [[0] [1] [2]] :predicate all-increasing?}])")]
-           [:p "We establish a predicate that tests if a group of numbers is monontonically increasing. " [:code "validate-with-path-spec"] " extracts the three datums with the three paths contained at " [:code ":paths"] ". With those datums in hand, it invokes the predicate with a " [:code "(apply predicate args)"] " pattern. The datums are fed in the order of the " [:code ":paths"] " sequence. Let's feed them in reverse."]
+           [:p "We establish a predicate that tests if a group of numbers is monotonically increasing. " [:code "validate-with-path-spec"] " extracts the three datums with the three paths contained at " [:code ":paths"] ". With those datums in hand, it invokes the predicate with a " [:code "(apply predicate args)"] " pattern. The datums are fed in the order of the " [:code ":paths"] " sequence. Let's feed them in reverse."]
            [:pre
             (print-form-then-eval "(defn all-decreasing? [& args] (apply > args))")
             [:br]
@@ -1084,7 +1121,7 @@
             (print-form-then-eval "(= 99 (last [55 77 99]))")
             [:br]
             (print-form-then-eval "(validate-with-path-spec crazy-data [{:paths [[:a] [:c 1] [:c 0] [:c 2 0] [:b]] :predicate crazy-predicate}])")]
-           [:p  [:code "crazy-predicate"] " receives five arguments: four scalars, and one collection, and performs three comparisons on the collection involving its length and the values at couple of indexes. We've sprinkled throughout " [:code "carzy-data"] " the arguments which " [:code "validate-with-path-spec"] " will pass to " [:code "crazy-predicate"] ". Referring to " [:code "crazy-predicate"] "'s argument list, we find the vector length " [:code "w"] " at path " [:code "[:a]"] ", the vector's last value " [:code "z"] " at " [:code "[:c 2 0]"] ", etc. " [:code "crazy-predicate"] " calculates that " [:code "[55 77 99]"] " contains three elements, it finds " [:code "77"] " at index " [:code "1"] ", and " [:code "99"] " is indeed the last datum, so " [:code "valid?"] " is " [:code "true"] "."]
+           [:p  [:code "crazy-predicate"] " receives five arguments: four scalars, and one collection, and performs three comparisons on the collection involving its length and the values at couple of indexes. We've sprinkled throughout " [:code "crazy-data"] " the arguments which " [:code "validate-with-path-spec"] " will pass to " [:code "crazy-predicate"] ". Referring to " [:code "crazy-predicate"] "'s argument list, we find the vector length " [:code "w"] " at path " [:code "[:a]"] ", the vector's last value " [:code "z"] " at " [:code "[:c 2 0]"] ", etc. " [:code "crazy-predicate"] " calculates that " [:code "[55 77 99]"] " contains three elements, it finds " [:code "77"] " at index " [:code "1"] ", and " [:code "99"] " is indeed the last datum, so " [:code "valid?"] " is " [:code "true"] "."]
            [:p "To validate more, supply more specification entries."]
            [:pre
             (print-form-then-eval "(validate-with-path-spec [11 22 33] [{:paths [[1]] :predicate int?}
@@ -1110,10 +1147,13 @@
              [:code ":favorite-ice-cream"]
              " make a coherent grouping of "
              [:em "data"]
-             " about a person. On the other hand, if you're watching a pipeline, and pulling out a singular piece of information and sending it off somewhere else, there's no apparent relationship (from your perspective) about each datum. But over time, you are handling multiple, singluar pieces of information, " [:em "datums"] ". Similarly, a value passed to a function is a datum and a value returned from that function is also a datum, but together, they don't necessarily aggregate to " [:em "data"], " so I'd call the two " [:em "datums"] ". I use " [:em "datums"] " throughout the text of the Speculoos project because it makes sense to my weirdo brain."]
+             " about a person. On the other hand, if you're watching a pipeline, and pulling out a singular piece of information and sending it off somewhere else, there's no apparent relationship (from your perspective) about each datum. But over time, you are handling multiple, singular pieces of information, " [:em "datums"] ". Similarly, a value passed to a function is a datum and a value returned from that function is also a datum, but together, they don't necessarily aggregate to " [:em "data"], " so I'd call the two " [:em "datums"] ". I use " [:em "datums"] " throughout the text of the Speculoos project because it makes sense to my weirdo brain."]
+
+            [:dt#element "element"]
+            [:dd "A thing contained within a collection, either a scalar value or another nested collection."]
 
             [:dt#HANDS "heterogeneous, arbitrarily-nested data structure"]
-            [:dd "Exactly one Clojure collection (vector, map, list, or set) with zero or more elements or nested collections, nested to any depth."]
+            [:dd "Exactly one Clojure collection (vector, map, list, or set) with zero or more elements, nested to any depth."]
 
             [:dt#non-term-seq "non-terminating sequence"]
             [:dd "One of " [:code "clojure.lang.{Cycle,Iterate,LazySeq,LongRange,Range,Repeat}"] " that may or may not be realized, and possibly infinite."
@@ -1152,7 +1192,7 @@
              (side-note "atom" (h2/html "I'd prefer to have adopted " [:em "atom"] " in this role, but Clojure already uses it " [:a {:href "https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/atom"} "elsewhere"] "."))]
 
             [:dt "validate"]
-            [:dd "An action that returns an exhaustive listing of all datum+predicate pairs, their paths, and whether the datum satifies the predicate."]
+            [:dd "An action that returns an exhaustive listing of all datum+predicate pairs, their paths, and whether the datum satisfies the predicate."]
 
             [:dt "valid?"]
             [:dd "Returns " [:code "true"] " if all datums satisfy their predicates, " [:code "false"] " otherwise."]]

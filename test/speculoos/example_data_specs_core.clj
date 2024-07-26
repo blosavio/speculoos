@@ -31,7 +31,7 @@
                            [33 "def" \d]
                            [44 "ghi" \e]} :kw])
 (def spec-for-set-members [int? string? char?])
-(def spec-with-set-3 [int? #{#(valid-scalar-spec? % spec-for-set-members)} keyword?])
+(def spec-with-set-3 [int? #{#(valid-scalars? % spec-for-set-members)} keyword?])
 
 
 (def third-is-11-more-than-first #(= (+ 11 (=1st %))
@@ -192,7 +192,7 @@
                             :check-vals #(= (type (:a %))
                                             (type (:b %)))})
 
-;; (validate-collection-spec test-data-6 test-data-6-coll-spec)
+;; (validate-collections test-data-6 test-data-6-coll-spec)
   
 
 ;; data set 7
@@ -202,7 +202,7 @@
                           (even? (=4th %)))
                     #(< (count %) 10)])
 
-;; (validate-collection-spec test-data-7 test-data-7-coll-spec)
+;; (validate-collections test-data-7 test-data-7-coll-spec)
 
 
 ;; data set 8
@@ -221,7 +221,7 @@
                             []
                             {:check-map-vals map-vals-vecs?}])
 
-;; (validate-collection-spec test-data-8 test-data-8-coll-spec)
+;; (validate-collections test-data-8 test-data-8-coll-spec)
 
 
 ;; data set 9, maps with non-keyword indexes
@@ -238,7 +238,7 @@
                             :check-vec-as-keys #(and (vector? (get % [44]))
                                                      (vector? (get % [88])))})
 
-;; (validate-collection-spec test-data-9 test-data-9-coll-spec)
+;; (validate-collections test-data-9 test-data-9-coll-spec)
 
 
 ;; data set 10, more maps with non-keyword indexes, spec has order shuffled
@@ -262,7 +262,7 @@
                              [22 33] [#(and (vector? %)
                                             (= :twenty-two-twenty-three (=1st %)))]})
 
-;; (validate-collection-spec test-data-10 test-data-10-coll-spec)
+;; (validate-collections test-data-10 test-data-10-coll-spec)
 
 
 ;; data set 11, focus on handling lists
@@ -275,7 +275,7 @@
                                     (list? (=4th %))
                                     (list? (=6th %)))))
 
-;; (valid-collection-spec? test-data-11 test-data-11-coll-spec)
+;; (valid-collections? test-data-11 test-data-11-coll-spec)
 
 
 ;; test data for non-terminating sequences

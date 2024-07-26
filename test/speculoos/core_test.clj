@@ -753,65 +753,72 @@
 (deftest validate-and-validate-set-tests
   (testing "empty colls and specs"
     (are [x] (true? x)
-      (valid-scalar-spec? [] [])
-      (valid-scalar-spec? '() '())
-      (valid-scalar-spec? {} {})
-      (valid-scalar-spec? #{} #{})))
+      (valid-scalars? [] [])
+      (valid-scalars? '() '())
+      (valid-scalars? {} {})
+      (valid-scalars? #{} #{})))
   (testing "simple colls"
     (are [x] (true? x)
-      (valid-scalar-spec? simple-coll simple-spec)))
+      (valid-scalars? simple-coll simple-spec)))
   (testing "nested colls"
     (are [x] (true? x)
-      (valid-scalar-spec? nested-coll nested-spec)
-      (valid-scalar-spec? heterogeneous-coll heterogeneous-spec)))
+      (valid-scalars? nested-coll nested-spec)
+      (valid-scalars? heterogeneous-coll heterogeneous-spec)))
   (testing "scalar specs on lists"
     (are [x] (true? x)
-      (valid-scalar-spec? data-list-1 spec-list-1)
-      (valid-scalar-spec? data-list-2 spec-list-2)
-      (valid-scalar-spec? '() '())))
+      (valid-scalars? data-list-1 spec-list-1)
+      (valid-scalars? data-list-2 spec-list-2)
+      (valid-scalars? '() '())))
   (testing "colls with elements that are sets"
     (are [x] (true? x)
-      (valid-scalar-spec? data-with-set-1 spec-with-set-1)
-      (valid-scalar-spec? data-with-set-2 spec-with-set-2)
-      (valid-scalar-spec? data-with-set-3 spec-with-set-3)))
+      (valid-scalars? data-with-set-1 spec-with-set-1)
+      (valid-scalars? data-with-set-2 spec-with-set-2)
+      (valid-scalars? data-with-set-3 spec-with-set-3)))
   (testing "colls that are sets themselves"
     (are [x] (true? x)
-      (valid-scalar-spec? #{33} #{int?})
-      (valid-scalar-spec? #{11 22 33} #{int?})))
+      (valid-scalars? #{33} #{int?})
+      (valid-scalars? #{11 22 33} #{int?})))
   (testing "non-terminating sequence as the top-level container"
     (are [x] (true? x)
-      (valid-scalar-spec? (range 0 0) [])
-      (valid-scalar-spec? [11 22 33] (take 0 (repeat int?)))
-      (valid-scalar-spec? (range 99) [int? int? int?])
-      (valid-scalar-spec? [11 22 33] (take 99 (repeat int?)))
-      (valid-scalar-spec? [:foo "abc" true 11 22 33 44 55 66 77 88 99]
+      (valid-scalars? (range 0 0) [])
+      (valid-scalars? [11 22 33] (take 0 (repeat int?)))
+      (valid-scalars? (range 99) [int? int? int?])
+      (valid-scalars? [11 22 33] (take 99 (repeat int?)))
+      (valid-scalars? [:foo "abc" true 11 22 33 44 55 66 77 88 99]
                           (lazy-cat [keyword? string? boolean?] (take 99 (repeat int?))))
-      (valid-scalar-spec? [11 "abc" :foo
+      (valid-scalars? [11 "abc" :foo
                            22 "xyz" :bar
                            33 "wqv" :baz]
                           (take 99 (cycle [int? string? keyword?])))))
   (testing "nested non-terminating sequences"
     (are [x] (true? x)
-      (valid-scalar-spec? (take 99 (cycle [123 "abc" :foo \c])) [int? string? keyword? char?])
-      (valid-scalar-spec? [123 "abc" :foo (range 0 9)] [int? string? keyword? [int? int? int?]])
-      (valid-scalar-spec? {:a (range 0 99)} {:a [int? int?]})))
+      (valid-scalars? (take 99 (cycle [123 "abc" :foo \c])) [int? string? keyword? char?])
+      (valid-scalars? [123 "abc" :foo (range 0 9)] [int? string? keyword? [int? int? int?]])
+      (valid-scalars? {:a (range 0 99)} {:a [int? int?]})))
   (testing "sets as predicates"
     (are [x] (true? x)
-      (valid-scalar-spec? data-1-set-predicate spec-1-set-predicate)
-      (not (valid-scalar-spec? data-2-set-predicate spec-2-set-predicate))))
+      (valid-scalars? data-1-set-predicate spec-1-set-predicate)
+      (not (valid-scalars? data-2-set-predicate spec-2-set-predicate))))
   (testing "regexes as predicates"
     (are [x] (true? x)
-      (valid-scalar-spec? [42 :abc "foo"] [int? keyword? #"^foo$"])
-      (valid-scalar-spec? {:a "baz" :b "qux"} {:a #"[abc]?.[xyz]+" :b #"[^Q].x"}))))
+      (valid-scalars? [42 :abc "foo"] [int? keyword? #"^foo$"])
+      (valid-scalars? {:a "baz" :b "qux"} {:a #"[abc]?.[xyz]+" :b #"[^Q].x"})))
+  (testing "other sequence types"
+    (are [x] (true? x)
+      (valid-scalars? (interleave [:a :b :c] [1 2 3]) (speculoos.utility/clamp-in* (cycle [keyword? int?]) [] 6))
+      (valid-scalars? (interpose :foo ["a" "b" "c"]) (speculoos.utility/clamp-in* (interpose keyword? [string? string? string?]) [] 5))
+      (valid-scalars? (lazy-cat [1 2 3] [4 5 6]) (speculoos.utility/clamp-in* (lazy-cat [int? int? int?] [int? int? int?]) [] 6))
+      (valid-scalars? (mapcat reverse [[3 2 1] [6 5 4] [9 8 7]]) (speculoos.utility/clamp-in* (mapcat identity [[int? int?] [int? int?]]) [] 4))
+      (valid-scalars? (zipmap [:a :b :c] [1 2 3]) (zipmap [:a :b :c] [int? int? int?])))))
 
 
 (deftest valid-dual-scalar-spec?-tests
   (testing "empty and nil data and specs"
     (are [x] (= [] x)
-      (dual-validate-scalar-spec [] [] nil)
-      (dual-validate-scalar-spec [] nil [])
-      (dual-validate-scalar-spec [] nil nil)
-      (dual-validate-scalar-spec [] [] [])))
+      (dual-validate-scalars [] [] nil)
+      (dual-validate-scalars [] nil [])
+      (dual-validate-scalars [] nil nil)
+      (dual-validate-scalars [] [] [])))
   (testing "non-nested data and specs"
     (are [x] (true? x)
 
@@ -847,18 +854,18 @@
 
 (deftest filter-validatation-tests
   (are [x y] (= x y)
-    [] (filter-validation (validate-scalar-spec [11 "abc" :foo] [int? string? keyword?]) falsey)
-    [] (filter-validation (validate-scalar-spec [11 "abc" :foo] [string? keyword? int?]) truthy)))
+    [] (filter-validation (validate-scalars [11 "abc" :foo] [int? string? keyword?]) falsey)
+    [] (filter-validation (validate-scalars [11 "abc" :foo] [string? keyword? int?]) truthy)))
 
 
 (deftest only-valid-tests
   (are [x y] (= x y)
-    [] (only-valid (validate-scalar-spec [11 "abc" :foo] [string? keyword? int?]))
+    [] (only-valid (validate-scalars [11 "abc" :foo] [string? keyword? int?]))
 
-    (only-valid (validate-scalar-spec [11] [int?]))
+    (only-valid (validate-scalars [11] [int?]))
     [{:path [0], :datum 11, :predicate int?, :valid? true}]
 
-    (only-valid (validate-scalar-spec [11 "abc" true :foo \z] [int? string? char? keyword? boolean?]))
+    (only-valid (validate-scalars [11 "abc" true :foo \z] [int? string? char? keyword? boolean?]))
     [{:path [0], :datum 11, :predicate int?, :valid? true}
      {:path [1], :datum "abc", :predicate string?, :valid? true}
      {:path [3], :datum :foo, :predicate keyword?, :valid? true}]))
@@ -867,28 +874,28 @@
 (deftest only-invalid-tests
   (testing "expected results"
     (are [x y] (= x y)
-      [] (only-invalid (validate-scalar-spec [11 "abc" :foo] [int? string? keyword?]))
+      [] (only-invalid (validate-scalars [11 "abc" :foo] [int? string? keyword?]))
 
-      (only-invalid (validate-scalar-spec [11] [keyword?]))
+      (only-invalid (validate-scalars [11] [keyword?]))
       [{:path [0], :datum 11, :predicate keyword?, :valid? false}]
 
-      (only-invalid (validate-scalar-spec [11 "abc" true :foo \z] [int? string? char? keyword? boolean?]))
+      (only-invalid (validate-scalars [11 "abc" true :foo \z] [int? string? char? keyword? boolean?]))
       [{:path [2], :datum true, :predicate char?, :valid? false}
        {:path [4], :datum \z, :predicate boolean?, :valid? false}]))
   (testing "nil results"
     (are [x] (nil? (:valid? x))
-      (only-invalid (validate-scalar-spec [99 "HelloXWorld!" :foo] [int? #(re-matches #"Hello World!" %) keyword?])))))
+      (only-invalid (validate-scalars [99 "HelloXWorld!" :foo] [int? #(re-matches #"Hello World!" %) keyword?])))))
 
 
 
-(deftest valid-scalar-spec?-tests
+(deftest valid-scalars?-tests
   (are [x] (true? x)
-    (valid-scalar-spec? [] nil)
-    (valid-scalar-spec? [] [])
-    (valid-scalar-spec? [11] [int?])
-    (valid-scalar-spec? [11 "abc" :kw] [int? string? keyword?])
-    (not (valid-scalar-spec? [11 "abc" :kw] [string? keyword? int?]))
-    (valid-scalar-spec? [99 "HelloXWorld!" :foo] [int? #(re-matches #"Hello.World!" %) keyword?])))
+    (valid-scalars? [] nil)
+    (valid-scalars? [] [])
+    (valid-scalars? [11] [int?])
+    (valid-scalars? [11 "abc" :kw] [int? string? keyword?])
+    (not (valid-scalars? [11 "abc" :kw] [string? keyword? int?]))
+    (valid-scalars? [99 "HelloXWorld!" :foo] [int? #(re-matches #"Hello.World!" %) keyword?])))
 
 
 (deftest only-colls-tests
@@ -1216,20 +1223,25 @@
       (:valid? (apply-one-coll-spec test-data-5 test-data-5-coll-spec [:both-vecs?])))))
 
 
-(deftest valid-collection-spec?-tests
+(deftest valid-collections?-tests
   (testing "entire collection spec"
     (are [x] (true? x)
-      (valid-collection-spec? test-data-6 nil)
-      (valid-collection-spec? test-data-6 {})
-      (valid-collection-spec? test-data-6 test-data-6-coll-spec)
-      (valid-collection-spec? test-data-7 test-data-7-coll-spec)
-      (valid-collection-spec? test-data-8 test-data-8-coll-spec)
-      (valid-collection-spec? test-data-9 test-data-9-coll-spec)
-      (valid-collection-spec? test-data-10 test-data-10-coll-spec)
-      (valid-collection-spec? test-data-11 test-data-11-coll-spec)
-      (valid-collection-spec? test-non-terminating-data-1 test-non-terminating-spec-1)
-      (valid-collection-spec? test-non-terminating-data-2 test-non-terminating-spec-2)
-      (valid-collection-spec? test-non-terminating-data-3 test-non-terminating-spec-3))))
+      (valid-collections? test-data-6 nil)
+      (valid-collections? test-data-6 {})
+      (valid-collections? test-data-6 test-data-6-coll-spec)
+      (valid-collections? test-data-7 test-data-7-coll-spec)
+      (valid-collections? test-data-8 test-data-8-coll-spec)
+      (valid-collections? test-data-9 test-data-9-coll-spec)
+      (valid-collections? test-data-10 test-data-10-coll-spec)
+      (valid-collections? test-data-11 test-data-11-coll-spec)
+      (valid-collections? test-non-terminating-data-1 test-non-terminating-spec-1)
+      (valid-collections? test-non-terminating-data-2 test-non-terminating-spec-2)
+      (valid-collections? test-non-terminating-data-3 test-non-terminating-spec-3)
+      (valid-collections? (interleave [:a :b :c] [1 2 3]) (speculoos.utility/clamp-in* (interleave [coll?] [nil]) [] 1))
+      (valid-collections? (interpose :foo ["a" "b" "c"]) (speculoos.utility/clamp-in* (interpose nil [coll?]) [] 1))
+      (valid-collections? (lazy-cat [1 2 3] [4 5 6]) (speculoos.utility/clamp-in* (lazy-cat [coll?] [coll?]) [] 2))
+      (valid-collections? (mapcat reverse [[3 2 1] [6 5 4] [9 8 7]]) (speculoos.utility/clamp-in* (mapcat identity [[coll?] []]) [] 1))
+      (valid-collections? (zipmap [:a :b :c] [1 2 3]) (zipmap [:is-map?] [map?])))))
 
 
 (deftest valid?-combo-tests
@@ -1245,10 +1257,10 @@
 (deftest validate-dual-collection-spec-tests
   (testing "validate on empty"
     (are [x] (= [] x)
-      (dual-validate-collection-spec [] [] [])
-      (dual-validate-collection-spec [] nil [])
-      (dual-validate-collection-spec [] [] nil)
-      (dual-validate-collection-spec [] nil nil)))
+      (dual-validate-collections [] [] [])
+      (dual-validate-collections [] nil [])
+      (dual-validate-collections [] [] nil)
+      (dual-validate-collections [] nil nil)))
   (testing "validate and valid?"
     (are [x] (true? x)
       (valid-dual-collection-spec? [11 22 33]
@@ -1298,19 +1310,19 @@
   (silly-macro + 1 10 100 1000)
   (macroexpand-1 `(silly-macro + 1 2 3 4))
   (validate-macro-with `(silly-macro + 1 2) silly-macro-spec)
-  (valid-macro-spec? `(silly-macro + 1 2) silly-macro-spec)
+  (valid-macro? `(silly-macro + 1 2) silly-macro-spec)
 
   (and-2 true 99)
   (macroexpand-1 `(and-2 true 99))
   (validate-macro-with `(and-2 true 99) and-2-spec)
-  (valid-macro-spec? `(and-2 true 99) and-2-spec)
+  (valid-macro? `(and-2 true 99) and-2-spec)
   )
 
 
-(deftest validate-and-valid-macro-spec-tests
+(deftest validate-and-valid-macro-tests
   (are [x] (true? x)
-    (valid-macro-spec? `(silly-macro + 1 2) silly-macro-spec)
-    (valid-macro-spec? `(and-2 true 99) and-2-spec)))
+    (valid-macro? `(silly-macro + 1 2) silly-macro-spec)
+    (valid-macro? `(and-2 true 99) and-2-spec)))
 
 
 (def test-data-12 [11 22 33 44 [55 66 [77 88] 99] 111 222])

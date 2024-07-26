@@ -16,7 +16,12 @@
       (get* {} :a)
       (get* #{} 0)
       (get* (cycle []) 0)
-      (get* (lazy-seq []) 0)))
+      (get* (lazy-seq []) 0)
+      (get* (interleave [] []) 0)
+      (get* (interpose nil []) 0)
+      (get* (lazy-cat) 0)
+      (get* (mapcat + []) 0)
+      (get* (zipmap [] []) :a)))
 
   (testing "zero-th index"
     (are [x] (= 11 x)
@@ -27,7 +32,11 @@
       (get* (iterate inc 11) 0)
       (get* (lazy-seq [11 22 33 44 55]) 0)
       (get* (repeat 11) 0)
-      (get* (cons 11 '(22 33 44 55)) 0)))
+      (get* (cons 11 '(22 33 44 55)) 0)
+      (get* (interleave [11 22 33] [:a :b :c]) 0)
+      (get* (interpose :foo [11 22 33]) 0)
+      (get* (lazy-cat [11 22 33] [44 55 66]) 0)
+      (get* (mapcat reverse [[33 22 11] [66 55 44] [99 88 77]]) 0)))
 
   (testing "provided indexes"
     (are [x] (= 33 x)
@@ -45,7 +54,12 @@
       (get* (range) 33)
       (get* (range 0 100) 33)
       (get* (repeat 33) 2)
-      (get* (cons 11 '(22 33 44 55)) 2)))
+      (get* (cons 11 '(22 33 44 55)) 2)
+      (get* (interleave [:a :b :c] [11 22 33]) 5)
+      (get* (interpose :foo [11 22 33]) 4)
+      (get* (lazy-cat [11 22 33] [44 55 66]) 2)
+      (get* (mapcat reverse [[33 22 11] [66 55 44] [99 88 77]]) 2)
+      (get* (zipmap [:a :b :c] [11 22 33]) :c)))
 
   (testing "composite keys on maps"
     (are [x y] (= x y)
@@ -90,7 +104,12 @@
       (get-in* {} [:a :b])
       (get-in* #{} [1 2])
       (get-in* (cycle []) [1 2])
-      (get-in* (lazy-seq []) [1 2])))
+      (get-in* (lazy-seq []) [1 2])
+      (get-in* (interleave [] []) [1 2])
+      (get-in* (interpose nil []) [0])
+      (get-in* (lazy-cat) [0])
+      (get-in* (mapcat + []) [0])
+      (get-in* (zipmap [] []) [:a])))
 
   (testing "key/index not found"
     (are [x] (= nil x)
@@ -119,7 +138,12 @@
       (get-in* (iterate #(vector (inc (% 0))) [11]) [0 0])
       (get-in* (lazy-seq [[11 22]]) [0 0])
       (get-in* (repeat [11 22]) [0 0])
-      (get-in* (cons '(11) '(22 33 44 55)) [0 0])))
+      (get-in* (cons '(11) '(22 33 44 55)) [0 0])
+      (get-in* (interleave [11 22 33] [:a :b :c]) [0])
+      (get-in* (interpose :foo [11 22 33]) [0])
+      (get-in* (lazy-cat [11 22 33] [44 55 66]) [0])
+      (get-in* (mapcat reverse [[33 22 11] [66 55 44] [99 88 77]]) [0])
+      (get-in* (zipmap [:a :b :c] [11 22 33]) [:a])))
 
   (testing "provided indexes"
     (are [x] (= 33 x)
@@ -133,7 +157,12 @@
       (get-in* (range) [33])
       (get-in* (range 1000) [33])
       (get-in* (repeat [11 [22 [33]]]) [4 1 1 0])
-      (get-in* (cons 11 '((22 (33 44 55)))) [1 1 0])))
+      (get-in* (cons 11 '((22 (33 44 55)))) [1 1 0])
+      (get-in* (interleave [:a :b :c] [[11 22 33] [44 55 66] [77 88 99]]) [1 2])
+      (get-in* (interpose :foo [[11 22 33] [44 55 66] [77 88 99]]) [0 2])
+      (get-in* (lazy-cat [11 [22 33]] [44 [55 66]]) [1 1])
+      (get-in* (mapcat identity [[11 22 33] [[44 55 66]][77 88 99]]) [2])
+      (get-in* (zipmap [:a :b :c] [[11 22 33] [44 55 66] [77 88 99]]) [:a 2])))
 
   (testing "heterogeneous indexes"
     (are [x] (= 55)
@@ -350,7 +379,22 @@
       (take 5 (assoc* (repeat 11) 2 99))
 
       '(11 22 99 44 55)
-      (assoc* (cons 11 '(22 33 44 55)) 2 99)))
+      (assoc* (cons 11 '(22 33 44 55)) 2 99)
+
+      '(:foo)
+      (assoc* (interleave [] []) 0 :foo)
+
+      '(:baz)
+      (assoc* (interpose nil []) 0 :baz)
+
+      '(:foo)
+      (assoc* (lazy-cat) 0 :foo)
+
+      '(:foo)
+      (assoc* (mapcat + []) 0 :foo)
+
+      {:a 99}
+      (assoc* (zipmap [] []) :a 99)))
 
   (testing "at the beginning of the collection"
     (are [x y] (= x y)
@@ -358,7 +402,16 @@
       (assoc* [1 2 3 4 5] 0 :new-vector-element)
 
       '(:new-list-element 22 33 44 55)
-      (assoc* '(11 22 33 44 55) 0 :new-list-element)))
+      (assoc* '(11 22 33 44 55) 0 :new-list-element)
+
+      (assoc* (interleave [:a :b :c] [1 2 3]) 0 :foo)
+      '(:foo 1 :b 2 :c 3)
+
+      (assoc* (lazy-cat [1 2 3] [4 5 6]) 0 :foo)
+      '(:foo 2 3 4 5 6)
+
+      (assoc* (mapcat reverse [[3 2 1] [6 5 4] [9 8 7]]) 0 :foo)
+      '(:foo 2 3 4 5 6 7 8 9)))
 
   (testing "in the middle of the collection"
     (are [x y] (= x y)
@@ -372,7 +425,13 @@
       (assoc* '(11 22 33 44 55) 2 :new-list-element)
 
       #{11 22 :new-set-element 44 55}
-      (assoc* #{11 22 33 44 55} 33 :new-set-element)))
+      (assoc* #{11 22 33 44 55} 33 :new-set-element)
+
+      (assoc* (interpose :foo ["a" "b" "c"]) 2 :baz)
+      '("a" :foo :baz :foo "c")
+
+      (assoc* (lazy-cat [1 2 3] [4 5 6]) 2 :foo)
+      '(1 2 :foo 4 5 6)))
 
   (testing "at the end of the collection"
     (are [x y] (= x y)
@@ -380,7 +439,13 @@
       (assoc* [1 2 3 4 5] 4 :new-vector-element)
 
       '(11 22 33 44 :new-list-element)
-      (assoc* '(11 22 33 44 55) 4 :new-list-element)))
+      (assoc* '(11 22 33 44 55) 4 :new-list-element)
+
+      (assoc* (interpose :foo ["a" "b" "c"]) 4 :baz)
+      '("a" :foo "b" :foo :baz)
+
+      (assoc* (lazy-cat [1 2 3] [4 5 6]) 5 :foo)
+      '(1 2 3 4 5 :foo)))
 
   (testing "beyond the end of the collection"
     (are [x y] (= x y)
@@ -405,7 +470,10 @@
   (testing "assoc-ing over a map's pre-existing key-value pair"
     (are [x y] (= x y)
       {:a 11 :b 99 :c 33}
-      (assoc* {:a 11 :b 22 :c 33} :b 99)))
+      (assoc* {:a 11 :b 22 :c 33} :b 99)
+
+      (assoc* (zipmap [:a :b :c] [1 2 3]) :a 99)
+      {:a 99, :b 2, :c 3}))
 
   (testing "assoc-ing away non-unique set members"
     (are [x y] (= x y)
@@ -450,7 +518,19 @@
       (take 6 (update* (range) 3 #(+ 100 %)))
 
       '(11 22 66 44 55)
-      (update* (cons 11 '(22 33 44 55)) 2 #(+ 33 %))))
+      (update* (cons 11 '(22 33 44 55)) 2 #(+ 33 %))
+
+      (update* (interleave [:a :b :c] [1 2 3]) 2 (constantly :bar))
+      '(:a 1 :bar 2 :c 3)
+
+      (update* (lazy-cat [1 2 3] [4 5 6]) 2 (constantly :baz))
+      '(1 2 :baz 4 5 6)
+
+      (update* (mapcat reverse [[3 2 1] [6 5 4] [9 8 7]]) 4 (constantly :foo))
+      '(1 2 3 4 :foo 6 7 8 9)
+
+      (update* (zipmap [:a :b :c] [1 2 3]) :a (constantly 'foo))
+      {:a 'foo, :b 2, :c 3}))
 
   (testing "'updated' values beyond bounds; update function must accept nil"
     (are [x y] (= x y)
@@ -502,7 +582,13 @@
       (assoc-in* '(11 22 33 44 55) [2] 99)
 
       #{11 22 99 44 55}
-      (assoc-in* #{11 22 33 44 55} [33] 99)))
+      (assoc-in* #{11 22 33 44 55} [33] 99)
+
+      (assoc-in* (interleave [:a :b :c] [1 2 3]) [2] :foo)
+      '(:a 1 :foo 2 :c 3)
+
+      (assoc-in* (lazy-cat [1 2 3] [4 5 6]) [2] :foo)
+      '(1 2 :foo 4 5 6)))
 
   (testing "homogeneous nested collection"
     (are [x y] (= x y)
@@ -520,7 +606,16 @@
                                     #{11 22 33}
                                     33] 99)
       '(11 (22 (99 (44 (55)))))
-      (assoc-in* (cons 11 '((22 (33 (44 (55)))))) [1 1 0] 99)))
+      (assoc-in* (cons 11 '((22 (33 (44 (55)))))) [1 1 0] 99)
+
+      (assoc-in* (interleave [:a :b :c] [[11 22 33] [44 55 66] [77 88 99]]) [3 2] :foo)
+      '(:a [11 22 33] :b [44 55 :foo] :c [77 88 99])
+
+      (assoc-in* (lazy-cat [11 [22 33]] [44 [55 66]]) [3 1] :foo)
+      '(11 [22 33] 44 [55 :foo])
+
+      (assoc-in* (mapcat identity [[11 22 33] [[44 55 66]][77 88 99]]) [3 2] :foo)
+      '(11 22 33 [44 55 :foo] 77 88 99)))
 
   (testing "heterogeneous nested collection"
     (are [x y] (= x y)
@@ -589,7 +684,19 @@
       (update-in* #{[11 22] {:a 33} #{44}} [#{44} 44] #(/ % 4))
 
       '(11 22 (33 88))
-      (update-in* (cons 11 (list 22 (cons 33 (list 44)))) [2 1] #(+ 44 %))))
+      (update-in* (cons 11 (list 22 (cons 33 (list 44)))) [2 1] #(+ 44 %))
+
+      (update-in* (interleave [:a :b :c] [1 2 3]) [0] (constantly :bar))
+      '(:bar 1 :b 2 :c 3)
+
+      (update-in* (lazy-cat [1 2 3] [4 5 6]) [2] (constantly :baz))
+      '(1 2 :baz 4 5 6)
+
+      (update-in* (zipmap [:a :b :c] [1 2 3]) [:a] (constantly 'foo))
+      {:a 'foo, :b 2, :c 3}
+
+      (update-in* (interleave [:a :b :c] [[11 22 33] [44 55 66] [77 88 99]]) [3 2] (constantly :bar))
+      '(:a [11 22 33] :b [44 55 :bar] :c [77 88 99])))
 
   (testing "heterogeneous collections"
     (are [x y] (= x y)
@@ -719,7 +826,10 @@
       (dissoc* {:a 11 :b 22 :c 33} :b)
 
       {:a 11 :b 22 :c 33}
-      (dissoc* {:a 11 :b 22 :c 33} :d)))
+      (dissoc* {:a 11 :b 22 :c 33} :d)
+
+      (dissoc* (zipmap [:a :b :c] [1 2 3]) :a)
+      {:b 2, :c 3}))
 
   (testing "vector"
     (are [x y] (= x y)
@@ -761,7 +871,21 @@
       (take 5 (dissoc* (repeat 3) 3)) '(3 3 3 3 3)))
 
   (testing "cons"
-    (is (= (dissoc* (cons 11 '(22 33)) 1) '(11 33)))))
+    (is (= (dissoc* (cons 11 '(22 33)) 1) '(11 33))))
+
+  (testing "other sequences"
+    (are [x y] (= x y)
+      (dissoc* (interleave [:a :b :c] [1 2 3]) 2)
+      '(:a 1 2 :c 3)
+
+      (dissoc* (interpose :foo ["a" "b" "c"]) 4)
+      '("a" :foo "b" :foo)
+
+      (dissoc* (lazy-cat [1 2 3] [4 5 6]) 0)
+      '(2 3 4 5 6)
+
+      (dissoc* (mapcat reverse [[3 2 1] [6 5 4] [9 8 7]]) 4)
+      '(1 2 3 4 6 7 8 9))))
 
 
 (deftest dissoc-in*-test
@@ -783,7 +907,16 @@
       (dissoc-in* (lazy-seq [11 22 33]) [1])
 
       '(11 22 (33 (44)))
-      (dissoc-in* (cons 11 (list 22 (list 33 (list 44 55)))) [2 1 1])))
+      (dissoc-in* (cons 11 (list 22 (list 33 (list 44 55)))) [2 1 1])
+
+      (dissoc-in* (interleave [:a :b :c] [1 2 3]) [2])
+      '(:a 1 2 :c 3)
+
+      (dissoc-in* (lazy-cat [1 2 3] [4 5 6]) [2])
+      '(1 2 4 5 6)
+
+      (dissoc-in* (mapcat reverse [[3 2 1] [6 5 4] [9 8 7]]) [4])
+      '(1 2 3 4 6 7 8 9)))
 
   (testing "preserve empty containing collections"
     (are [x y] (= x y)
@@ -835,7 +968,19 @@
                    44])
 
       '(11 22 [33 44 [55]])
-      (dissoc-in* (lazy-seq [11 22 [33 44 [55 66]]]) [2 2 1])))
+      (dissoc-in* (lazy-seq [11 22 [33 44 [55 66]]]) [2 2 1])
+
+      (dissoc-in* (interleave [:a :b :c] [[11 22 33] [44 55 66] [77 88 99]]) [3 2])
+      '(:a [11 22 33] :b [44 55] :c [77 88 99])
+
+      (dissoc-in* (interpose :foo [[11 22 33] [44 55 66] [77 88 99]]) [2 2])
+      '([11 22 33] :foo [44 55] :foo [77 88 99])
+
+      (dissoc-in* (lazy-cat [11 [22 33]] [44 [55 66]]) [3 1])
+      '(11 [22 33] 44 [55])
+
+      (dissoc-in* (mapcat identity [[11 22 33] [[44 55 66]][77 88 99]]) [3 2])
+      '(11 22 33 [44 55] 77 88 99)))
 
   (testing "nested heterogeneous"
     (are [x y] (= x y)
@@ -867,7 +1012,10 @@
       (dissoc-in* (list 11 [22 33 {:a 44 :b (range 5 10)}]) [1 2 :b 3])
 
       [11 22 33 '([44 55 66] [44 66] [44 55 66])]
-      (dissoc-in* [11 22 33 (take 3 (repeat [44 55 66]))] [3 1 1]) )))
+      (dissoc-in* [11 22 33 (take 3 (repeat [44 55 66]))] [3 1 1])
+
+      (dissoc-in* (zipmap [:a :b :c] [[11 22 33] [44 55 66] [77 88 99]]) [:a 1])
+      {:a [11 33], :b [44 55 66], :c [77 88 99]})))
 
 
 (run-tests)

@@ -55,7 +55,7 @@
              (print-form-then-eval "(s/def :order/date inst?)")
              (print-form-then-eval "(s/def :deck/suit #{:club :diamond :heart :spade})")]]
            [:div.side-by-side
-            [:p "Speculoos specifications are " [:code "def"] "-ed and live in your namespace, and are therefore automatically namespace-qualified."]
+            [:p "Speculoos specifications are " [:code "def"] "-ed, and live in, your namespace, and are therefore automatically namespace-qualified."]
             [:pre
              (print-form-then-eval "(def date inst?)")
              (print-form-then-eval "(def suit #{:club :diamond :heart :spade})")] 
@@ -122,7 +122,7 @@
              (print-form-then-eval "(s/valid? (s/nilable string?) nil)")]]
 
            [:div.side-by-side
-            [:p "Simply compose to make a speculoos predicate nilable."]
+            [:p "Simply compose to make a Speculoos predicate nilable."]
             [:pre (print-form-then-eval "(#(or (string? %) (nil? %)) nil)")]]]
 
           [:div.side-by-side-container
@@ -156,41 +156,41 @@
              [:br]
              (print-form-then-eval "(def person-spec {:first-name string? :last-name string? :email email-spec :phone any?})")
              [:br]
-             (print-form-then-eval "(require '[speculoos.core :refer [valid-scalar-spec? validate-scalar-spec only-invalid]])")
+             (print-form-then-eval "(require '[speculoos.core :refer [valid-scalars? validate-scalars only-invalid]])")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? {:first-name \"Bugs\" :last-name \"Bunny\" :email \"bugs@example.com\"} person-spec)")]
+             (print-form-then-eval "(valid-scalars? {:first-name \"Bugs\" :last-name \"Bunny\" :email \"bugs@example.com\"} person-spec)")]
 
             [:p "Speculoos checks only keys that are in both the data and the specification. If you don't want to validate a particular entry, you can, on-the-fly, dissociate that key-val from the specification."]
 
-            [:pre (print-form-then-eval "(valid-scalar-spec? {:first-name \"Bugs\" :last-name \"Bunny\" :email \"not@even@close@to@a@valid@email\"} (dissoc person-spec :email))")]
+            [:pre (print-form-then-eval "(valid-scalars? {:first-name \"Bugs\" :last-name \"Bunny\" :email \"not@even@close@to@a@valid@email\"} (dissoc person-spec :email))")]
 
             [:p "If you want to merely relax a specification, simply associate a new, more permissive predicate."]
-            [:pre (print-form-then-eval "(valid-scalar-spec? {:first-name \"Bugs\" :last-name \"Bunny\" :email :not-an-email} (assoc person-spec :email #(string? %)))")]
+            [:pre (print-form-then-eval "(valid-scalars? {:first-name \"Bugs\" :last-name \"Bunny\" :email :not-an-email} (assoc person-spec :email #(string? %)))")]
 
-            [:p "Note the function name: Speculoos " [:a {:href "ideas.html#separate"} "distinguishes"] " validating " [:em "scalars"] " (i.e., numbers, strings, characters, etc.) from " [:em "collections"] " (vectors, lists, maps, sets). Speculoos provides a corresponding group of functions specifying collection counts, presence of keys, set memebership, etc."]
+            [:p "Note the function name: Speculoos " [:a {:href "ideas.html#separate"} "distinguishes"] " validating " [:em "scalars"] " (i.e., numbers, strings, characters, etc.) from " [:em "collections"] " (vectors, lists, maps, sets). Speculoos provides a corresponding group of functions specifying collection counts, presence of keys, set membership, etc."]
 
-            [:pre (print-form-then-eval "(valid-scalar-spec? {:first-name \"Bugs\" :last-name \"Bunny\" :email \"n/a\"}  person-spec)")]
+            [:pre (print-form-then-eval "(valid-scalars? {:first-name \"Bugs\" :last-name \"Bunny\" :email \"n/a\"}  person-spec)")]
 
             [:p "Instead of using " [:code "valid…?"] " and friends, Speculoos' " [:code "validate…*"] " family of functions show the details of the validating each datum."]
-            [:pre (print-form-then-eval "(validate-scalar-spec {:first-name \"Bugs\" :last-name \"Bunny\" :email \"n/a\"} person-spec)")]
+            [:pre (print-form-then-eval "(validate-scalars {:first-name \"Bugs\" :last-name \"Bunny\" :email \"n/a\"} person-spec)")]
 
 
             [:p "The validation results can grow unwieldy with large data and specifications, so Speculoos provides some helper functions to quickly focus on points of interest, i.e., non-valid specs."]
-            [:pre (print-form-then-eval "(only-invalid (validate-scalar-spec {:first-name \"Bugs\" :last-name \"Bunny\" :email \"n/a\"} person-spec))")]]]
+            [:pre (print-form-then-eval "(only-invalid (validate-scalars {:first-name \"Bugs\" :last-name \"Bunny\" :email \"n/a\"} person-spec))")]]]
 
           [:div.side-by-side-container
            [:div.side-by-side [:p [:code "spec.alpha"] " distinguishes unqualified keys and fully-namespaced keys, and allows you to explicitly declare one or the other."]]
            [:div.side-by-side
             [:p "Speculoos implicitly distinguishes qualified from unqualified keys because " [:code "(not= :k ::k)."]]
 
-            [:p "Observe. Qualified keys in data, unqualified keys in specification, no matches…"]
-            [:pre (print-form-then-eval "(validate-scalar-spec {::a 42 ::b \"abc\" ::c :foo} {:a int? :b string? :c keyword?})")]
+            [:p "Observe: Qualified keys in data, unqualified keys in specification, no matches…"]
+            [:pre (print-form-then-eval "(validate-scalars {::a 42 ::b \"abc\" ::c :foo} {:a int? :b string? :c keyword?})")]
 
             [:p "…qualified keys in both data and specification, validation succeeds…"]
-            [:pre (print-form-then-eval "(valid-scalar-spec? {::a 42 ::b \"abc\" ::c :foo} {::a int? ::b string? ::c keyword?})")]
+            [:pre (print-form-then-eval "(valid-scalars? {::a 42 ::b \"abc\" ::c :foo} {::a int? ::b string? ::c keyword?})")]
 
             [:p "…unqualified keys in both data and specification, validation succeeds."]
-            [:pre (print-form-then-eval "(valid-scalar-spec? {:a 42 :b \"abc\" :c :foo} {:a int? :b string? :c keyword?})")]]]]
+            [:pre (print-form-then-eval "(valid-scalars? {:a 42 :b \"abc\" :c :foo} {:a int? :b string? :c keyword?})")]]]]
 
          [:div.side-by-side-container
           [:div.side-by-side
@@ -210,7 +210,7 @@
             (print-form-then-eval "(def id keyword?)")
             (print-form-then-eval "(def server-spec {:my.config/id id :my.config/host host :my.config/port port})")
             [:br]
-            (print-form-then-eval "(valid-scalar-spec? {:my.config/id :s1 :my.config/host \"example.com\" :my.config/port 5555} server-spec)")]
+            (print-form-then-eval "(valid-scalars? {:my.config/id :s1 :my.config/host \"example.com\" :my.config/port 5555} server-spec)")]
 
            [:p "The principle of Speculoos' validation is that if the key exists in both the data and specification, then Speculoos will apply the predicate to the datum. This fulfills the criteria of " [:em "Thing may or may not exist, but if Thing " [:strong "does"] " exist, it must satisfy this predicate."]]
 
@@ -220,7 +220,7 @@
             [:br]
             (print-form-then-eval "(def server-spec-2 [#(= % :my.config/id) id #(= % :my.config/host) host #(= % :my.config/port) port])")
             [:br]
-            (print-form-then-eval "(valid-scalar-spec? server-data-2 server-spec-2)")]]]
+            (print-form-then-eval "(valid-scalars? server-data-2 server-spec-2)")]]]
 
          [:div.side-by-side-container
           [:div.side-by-side
@@ -247,7 +247,7 @@
             [:br]
             (print-form-then-eval "(def dog-data {:kind \"dog\" :says \"woof\" :tail true :breed \"retriever\"})")
             [:br]
-            (print-form-then-eval "(valid-scalar-spec? dog-data dog-spec)")]]]
+            (print-form-then-eval "(valid-scalars? dog-data dog-spec)")]]]
 
          [:section
           [:h2 "Multi-spec"]
@@ -284,19 +284,19 @@
              [:br]
              (print-form-then-eval "(def event-1 {:event/type :event/search :event/timestamp 1463970123000 :event/url \"https://clojure.org\"})")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? event-1 (event-type event-1))")
+             (print-form-then-eval "(valid-scalars? event-1 (event-type event-1))")
              [:br]
              (print-form-then-eval "(def event-2 {:event/type :event/error :event/timestamp 1463970123000 :error/message \"Invalid host\" :code 500})")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? event-2 (event-type event-2))")
+             (print-form-then-eval "(valid-scalars? event-2 (event-type event-2))")
              [:br]
              (print-form-then-eval "(def event-3 {:event/type :restart})")
              [:br]
-             (print-form-then-eval "(try (valid-scalar-spec? event-3 (event-type event-3)) (catch Exception e (.getMessage e)))")
+             (print-form-then-eval "(try (valid-scalars? event-3 (event-type event-3)) (catch Exception e (.getMessage e)))")
              [:br]
              (print-form-then-eval "(def event-4 {:event/type :event/search :search/url 200})")
              [:br]
-             (print-form-then-eval "(only-invalid (validate-scalar-spec event-4 (event-type event-4)))")]]]
+             (print-form-then-eval "(only-invalid (validate-scalars event-4 (event-type event-4)))")]]]
 
           [:p "Here we see a significant difference between " [:code "spec.alpha"] " and Speculoos: the former fails the validation because " [:code "event-4"] " is missing the " [:code ":timestamp"] " key. Speculoos considers the presence or absence of a map's key to be a property of the collection. Within that philosophy, such a specification would properly belong in a Speculoos " [:em "collection specification"] "."]]
 
@@ -314,20 +314,20 @@
              (print-form-then-eval "(s/conform :ex/vnum3 [1 2 3])")]]
 
            [:div.side-by-side
-            [:p "Speculoos was designed from the start to specify collections. Speculoos validates collections in two different ways: it can validate " [:em "scalars"] ", atomic, inidvisible values (i.e., numbers, booleans, etc.) and it can separately validate the properties of a " [:em "collection"] " (i.e., vector, map, list, set, etc.) itself, such as its size, the position of particular elements, and the relationships between elements, etc."]
+            [:p "Speculoos was designed from the start to specify collections. Speculoos validates collections in two different ways: it can validate groupings of " [:em "scalars"] ", atomic, inidivisible values (i.e., numbers, booleans, etc.) and it can separately validate the properties of a " [:em "collection"] " (i.e., vector, map, list, set, etc.) itself, such as its size, the position of particular elements, and the relationships between elements, etc."]
             [:p "This example could certainly be validated as we've seen before."]
-            [:pre (print-form-then-eval "(valid-scalar-spec? [:a :b :c] [keyword? keyword? keyword?])")]
+            [:pre (print-form-then-eval "(valid-scalars? [:a :b :c] [keyword? keyword? keyword?])")]
 
             [:p "Speculoos can also consider the vector as a whole with its collection validation facility."]
             [:pre
-             (print-form-then-eval "(require '[speculoos.core :refer [valid-collection-spec? validate-collection-spec]])")
+             (print-form-then-eval "(require '[speculoos.core :refer [valid-collections? validate-collections]])")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? [:a :b :c] [#(every? keyword? %)])")]
+             (print-form-then-eval "(valid-collections? [:a :b :c] [#(every? keyword? %)])")]
 
             [:p "In a collection spec, the predicate applies to the collection that contains that predicate."]
             
             [:p "Speculoos collection specs work on just about any type of collection."]
-            [:pre (print-form-then-eval "(valid-collection-spec? #{5 10 2} #{#(every? number? %)})")]
+            [:pre (print-form-then-eval "(valid-collections? #{5 10 2} #{#(every? number? %)})")]
 
             [:p "Speculoos is not limited in the kinds of predicates you might apply to the collection; any Clojure predicate works."]
             [:pre
@@ -337,15 +337,15 @@
              [:br]
              (print-form-then-eval "(def combo-coll-spec [all-vector-entries-numbers? vector? vector-length-3? all-vector-entries-distinct?])")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? [1 2 3] combo-coll-spec)")
+             (print-form-then-eval "(valid-collections? [1 2 3] combo-coll-spec)")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? #{1 2 3} combo-coll-spec)")
+             (print-form-then-eval "(valid-collections? #{1 2 3} combo-coll-spec)")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? [1 1 1] combo-coll-spec)")
+             (print-form-then-eval "(valid-collections? [1 1 1] combo-coll-spec)")
              [:br]
-             (print-form-then-eval "(only-invalid (validate-collection-spec [1 2 :a] combo-coll-spec))")]
+             (print-form-then-eval "(only-invalid (validate-collections [1 2 :a] combo-coll-spec))")]
 
-            [:p "The last example above highlights how " [:code "def"] "-ing your predicates with informative names makes the validation results easier understand. Instead of something inscrutable like " [:code "fn--10774"] ", you'll see the name you gave it, presumably carring some useful meaning. Helps your future self understand your present self's intent, and you just might be able to re-use that specification in other contexts."]]]
+            [:p "The last example above highlights how " [:code "def"] "-ing your predicates with informative names makes the validation results easier understand. Instead of something inscrutable like " [:code "fn--10774"] ", you'll see the name you gave it, presumably carrying some useful meaning. Helps your future self understand your present self's intent, and you just might be able to re-use that specification in other contexts."]]]
 
           [:div.side-by-side-container
            [:div.side-by-side
@@ -356,9 +356,9 @@
              (print-form-then-eval "(s/conform :geom/point [1.5 2.5 -0.5])")]]
            [:div.side-by-side
             [:p "Tuples are Speculoos' bread and butter."]
-            [:pre (print-form-then-eval "(valid-scalar-spec? [1.5 2.5 -0.5] [double? double? double?])")]
+            [:pre (print-form-then-eval "(valid-scalars? [1.5 2.5 -0.5] [double? double? double?])")]
             [:p "or"]
-            [:pre (print-form-then-eval "(valid-collection-spec? [1.5 2.5 -0.5] [#(every? double? %)])")]]]
+            [:pre (print-form-then-eval "(valid-collections? [1.5 2.5 -0.5] [#(every? double? %)])")]]]
 
           [:div.side-by-side-container
            [:div.side-by-side
@@ -369,9 +369,9 @@
              (print-form-then-eval "(s/conform :game/scores {\"Sally\" 1000, \"Joe\" 500})")]]
 
            [:div.side-by-side
-            [:p "Where Speculoos really takes flight is heterogenous collections, but since this document is a comparison to " [:code "spec.alpha"] ", see the Speculoos " [:a {:href "recipes.html"} "recipes"] " for examples."]
+            [:p "Where Speculoos really takes flight is heterogeneous collections, but since this document is a comparison to " [:code "spec.alpha"] ", see the Speculoos " [:a {:href "recipes.html"} "recipes"] " for examples."]
             [:p "Speculoos collection validation works on maps, too."]
-            [:pre (print-form-then-eval "(valid-collection-spec? {\"Sally\" 1000, \"Joe\" 500} {:check-keys #(every? string? (keys %)) :check-vals #(every? int? (vals %))})")]]]]
+            [:pre (print-form-then-eval "(valid-collections? {\"Sally\" 1000, \"Joe\" 500} {:check-keys #(every? string? (keys %)) :check-vals #(every? int? (vals %))})")]]]]
 
          [:section
           [:h2 "Sequences"]
@@ -388,16 +388,16 @@
             [:pre
              (print-form-then-eval "(def ingredient-spec [number? keyword?])")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? [2 :teaspoon] ingredient-spec)")]
+             (print-form-then-eval "(valid-scalars? [2 :teaspoon] ingredient-spec)")]
             [:p "Invalid datums are reported."]
-            [:pre (print-form-then-eval "(only-invalid (validate-scalar-spec [11 \"peaches\"] ingredient-spec))")]
+            [:pre (print-form-then-eval "(only-invalid (validate-scalars [11 \"peaches\"] ingredient-spec))")]
             [:p "Note, 'missing' scalars are not validated as they would be with " [:code "spec.alpha"] "."]
-            [:pre (print-form-then-eval "(valid-scalar-spec? [2] ingredient-spec)")]
+            [:pre (print-form-then-eval "(valid-scalars? [2] ingredient-spec)")]
             [:p "Speculoos assumes that you didn't want to test non-present predicates. Presence/absence of a datum is a property of the collection, and is thus handled with a collection spec."]
             [:pre
              (print-form-then-eval "(def is-second-kw? #(keyword? (get % 1)))")
              [:br]
-             (print-form-then-eval "(validate-collection-spec [2] [is-second-kw?])")]]]
+             (print-form-then-eval "(validate-collections [2] [is-second-kw?])")]]]
 
           [:div.side-by-side-container
            [:div.side-by-side
@@ -413,9 +413,9 @@
             [:pre
              (print-form-then-eval "(def inf-seq-of-keywords-spec (repeat keyword?))")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? [:a :b :c] inf-seq-of-keywords-spec)")
+             (print-form-then-eval "(valid-scalars? [:a :b :c] inf-seq-of-keywords-spec)")
              [:br]
-             (print-form-then-eval "(validate-scalar-spec [10 20] inf-seq-of-keywords-spec)")]]]
+             (print-form-then-eval "(validate-scalars [10 20] inf-seq-of-keywords-spec)")]]]
 
           [:div.side-by-side-container
            [:div.side-by-side
@@ -432,11 +432,11 @@
             [:pre
              (print-form-then-eval "(def odds-then-maybe-even-spec #(and (<= 2 (count (partition-by odd? %))) (every? odd? (first (partition-by odd? %)))))")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? [1 3 5 100] [odds-then-maybe-even-spec])")
+             (print-form-then-eval "(valid-collections? [1 3 5 100] [odds-then-maybe-even-spec])")
              [:br]
-             (print-form-then-eval "(validate-collection-spec [1] [odds-then-maybe-even-spec])")
+             (print-form-then-eval "(validate-collections [1] [odds-then-maybe-even-spec])")
              [:br]
-             (print-form-then-eval "(validate-collection-spec [100] [odds-then-maybe-even-spec])")]]]
+             (print-form-then-eval "(validate-collections [100] [odds-then-maybe-even-spec])")]]]
 
           [:div.side-by-side-container
            [:div.side-by-side
@@ -451,7 +451,7 @@
             [:pre
              (print-form-then-eval "(def alt-kw-bool-spec (cycle [keyword? boolean?]))")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? [:silent false :verbose true] alt-kw-bool-spec)")]]]
+             (print-form-then-eval "(valid-scalars? [:silent false :verbose true] alt-kw-bool-spec)")]]]
 
 
           [:div.side-by-side-container
@@ -467,7 +467,7 @@
             [:pre
              (print-form-then-eval "(def config-spec (cycle [string? #(or (string? %) (boolean? %))]))")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? [\"-server\" \"foo\" \"-verbose\" true \"-user\" \"joe\"] config-spec)")]]]
+             (print-form-then-eval "(valid-scalars? [\"-server\" \"foo\" \"-verbose\" true \"-user\" \"joe\"] config-spec)")]]]
 
           [:p [:code "spec.alpha"] " provides the " [:code "describe"] " function to retrieve a spec's description. Speculoos trusts your dev environment to find and show you the definitions."]
 
@@ -487,25 +487,25 @@
             [:pre
              (print-form-then-eval "(def even-string-spec #(and (even? (count %)) (every? string? %)))")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? [\"a\"] [even-string-spec])")
+             (print-form-then-eval "(valid-collections? [\"a\"] [even-string-spec])")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? [\"a\" \"b\"] [even-string-spec])")
+             (print-form-then-eval "(valid-collections? [\"a\" \"b\"] [even-string-spec])")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? [\"a\" \"b\" \"c\"] [even-string-spec])")
+             (print-form-then-eval "(valid-collections? [\"a\" \"b\" \"c\"] [even-string-spec])")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? [\"a\" \"b\" \"c\" \"d\"] [even-string-spec])")]]]
+             (print-form-then-eval "(valid-collections? [\"a\" \"b\" \"c\" \"d\"] [even-string-spec])")]]]
 
-          [:p "This example exposes a philosophical difference between " [:code "spec.alpha"] " and Speculoos. Here, " [:code "spec.alpha"] " has combined specifying the values of a collection and the count of the collection, a property of the container. Speculoos' opinion is that specifying values and collections are separate concerns. For the sake of the compare and constrast, I combined the two validation tests into a single collection specification, abusing the fact that the container has access to its own contents. But this improperly combines two conceptually distinct operations."]
+          [:p "This example exposes a philosophical difference between " [:code "spec.alpha"] " and Speculoos. Here, " [:code "spec.alpha"] " has combined specifying the values of a collection and the count of the collection, a property of the container. Speculoos' opinion is that specifying values and collections are separate concerns. For the sake of the compare and contrast, I combined the two validation tests into a single collection specification, abusing the fact that the container has access to its own contents. But this improperly combines two conceptually distinct operations."]
 
 
           [:div.side-by-side-container
            [:div.side-by-side]
            [:div.side-by-side
-            [:p "If I weren't constrasting with the " [:code "spec.alpha"] " " [:em "Guide"] ", I would have written this."]
+            [:p "If I weren't contrasting with the " [:code "spec.alpha"] " " [:em "Guide"] ", I would have written this."]
             [:pre
-             (print-form-then-eval "(valid-scalar-spec? [\"a\" \"b\" \"c\" \"d\"] (repeat string?))")
+             (print-form-then-eval "(valid-scalars? [\"a\" \"b\" \"c\" \"d\"] (repeat string?))")
              [:br]
-             (print-form-then-eval "(valid-collection-spec? [\"a\" \"b\" \"c\" \"d\"] [#(even? (count %))])")]
+             (print-form-then-eval "(valid-collections? [\"a\" \"b\" \"c\" \"d\"] [#(even? (count %))])")]
 
             [:p "Because we'll often want to validate both a scalar specification and a collection specification at the same time, Speculoos provides a convenience function that does both."]
             [:pre
@@ -529,7 +529,7 @@
             [:pre
              (print-form-then-eval "(def scalar-nested-spec [#{:names} (repeat string?) #{:nums} (repeat number?)])")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? [:names [\"a\" \"b\"] :nums [1 2 3]] scalar-nested-spec)")]]]]
+             (print-form-then-eval "(valid-scalars? [:names [\"a\" \"b\"] :nums [1 2 3]] scalar-nested-spec)")]]]]
 
          [:section
           [:h2 "Using spec for validation"]
@@ -562,7 +562,7 @@
              [:br]
              (print-form-then-eval "(validate-fn-with ranged-rand {:speculoos/arg-scalar-spec [int? int?] :speculoos/arg-collection-spec [second-is-larger-than-first?] :speculoos/ret-scalar-spec int?} 2 12)")]
 
-            [:p "Here, we'll inentionally violate the function's argument collection specification by reversing the order of the arguments, and observe the report."]
+            [:p "Here, we'll intentionally violate the function's argument collection specification by reversing the order of the arguments, and observe the report."]
             [:pre (print-form-then-eval "(validate-fn-with ranged-rand {:speculoos/arg-scalar-spec [int? int?] :speculoos/arg-collection-spec [second-is-larger-than-first?] :speculoos/ret-scalar-spec int?} 8 5)")]
 
             [:p "For testing with a higher degree of integration, Speculoos' second function validation option mimics " [:code "spec.alpha/instrument"] ". Instrumented function specifications are gathered from the function's metadata. Speculoos provides a convenience function for injecting specs."]
@@ -621,13 +621,13 @@
              (print-form-then-eval "(silly-macro + 1 2)")]
             [:p "Speculoos validates macro expansion like this."
              (label "macro")
-             (side-note "macro" (h2/html "(I haven't written enough macros to know if this is of any use. I merely wrote " [:code "valid-macro-spec?"] " as a placeholder.)"))]
+             (side-note "macro" (h2/html "I haven't written enough macros to know if this is of any use. I merely wrote " [:code "valid-macro?"] " as a placeholder."))]
             [:pre
-             (print-form-then-eval "(require '[speculoos.core :refer [valid-macro-spec?]])")
+             (print-form-then-eval "(require '[speculoos.core :refer [valid-macro?]])")
              [:br]
              (print-form-then-eval "(def silly-macro-spec (list symbol? number? number?))")
              [:br]
-             (print-form-then-eval "(valid-macro-spec? `(silly-macro + 1 2) silly-macro-spec)")]]]]
+             (print-form-then-eval "(valid-macro? `(silly-macro + 1 2) silly-macro-spec)")]]]]
 
          [:section
           [:h2 "Game of cards"]
@@ -664,35 +664,35 @@
              (print-form-then-eval "(def card-spec [ranks suits])")
              (print-form-then-eval "(def deck-spec (repeat card-spec))")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? deck deck-spec)")
+             (print-form-then-eval "(valid-scalars? deck deck-spec)")
              [:br]
              (print-form-then-eval "(def player-spec {:name string? :score int? :hand (repeat card-spec)})")
              [:br]
              (print-form-then-eval "(def kenny {:name \"Kenny Rogers\" :score 100 :hand []})")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? kenny player-spec)")
+             (print-form-then-eval "(valid-scalars? kenny player-spec)")
              [:br]
              (print-form-then-eval "(defn draw-hand [] (vec (take 5 (repeatedly #(first (shuffle deck))))))")
              [:br]
              (print-form-then-eval "(def players-spec (repeat player-spec))")
              (print-form-then-eval "(def players [kenny {:name \"Humprey Bogart\" :score 188 :hand (draw-hand)} {:name \"Julius Caesar\" :score 77 :hand (draw-hand)}])")
              [:br]
-             [:code "(validate-scalar-spec (:hand (players 1)) (repeat card-spec)) ;; => lengthy output..."]
+             [:code "(validate-scalars (:hand (players 1)) (repeat card-spec)) ;; => lengthy output..."]
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? (:hand (players 1)) (repeat card-spec))")
+             (print-form-then-eval "(valid-scalars? (:hand (players 1)) (repeat card-spec))")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? players players-spec)")
+             (print-form-then-eval "(valid-scalars? players players-spec)")
              [:br]
              (print-form-then-eval "(def game [deck players])")
              (print-form-then-eval "(def game-spec [deck-spec players-spec])")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? game game-spec)")]
+             (print-form-then-eval "(valid-scalars? game game-spec)")]
 
             [:p "What happens when we have bad data?"]
             [:pre
              (print-form-then-eval "(def corrupted-game (assoc-in game [1 0 :hand 0] [2 :banana]))")
              [:br]
-             (print-form-then-eval "(only-invalid (validate-scalar-spec corrupted-game game-spec))")]
+             (print-form-then-eval "(only-invalid (validate-scalars corrupted-game game-spec))")]
 
             [:p "Speculoos reports an invalid datum " [:code ":banana"] " according to predicate " [:code "suits"] " located at path " [:code "[1 0 :hand 0]"] ", which you can inspect with " [:code "get-in*"] " and similar functions."]]]]
 
@@ -717,7 +717,7 @@
 
             [:p "Automatically setting up generators and property-based testing is the main area where Speculoos lags " [:code "spec.alpha"] ". I do not yet have a great idea on how to automatically pull apart compound, composed predicates."
              (label "alt")
-             (side-note "alt" (h2/html "See the " [:a {:href "documentation.html"} "docs"] ", " [:a {:href "api.html"} [:span.small-caps "api"]] " and a " [:a {:href "#and"} "later subsection"] " to see how to manunally add generators into the predicate metadata."))]
+             (side-note "alt" (h2/html "See the " [:a {:href "documentation.html"} "docs"] ", " [:a {:href "api.html"} [:span.small-caps "api"]] " and a " [:a {:href "#and"} "later subsection"] " to see how to manually or semi-automatically add generators into the predicate metadata."))]
 
             [:p "Let's follow along as best as we can…"]
             [:pre
@@ -773,7 +773,7 @@
              (print-form-then-eval "(gen/sample (s/gen (s/and int? #(> % 0) (divisible-by 3))))")]]
 
            [:div.side-by-side
-            [:p "Right now, Speculoos cannot " [:em "automatically"] " dive into a compound predicate such as " [:code "#(and (int? %) (even? %))"] " to create a competent generator. You must create it manually and add it the predicate's metadata. You may use whatever generator you prefer; " [:code "test.check.generators"] " works well."]
+            [:p "Right now, Speculoos cannot " [:em "automatically"] " dive into a compound predicate such as " [:code "#(and (int? %) (even? %))"] " to create a competent generator, but it does offer a few options. First, you could manually compose a random sample generator and attach it the predicate's metadata. You may use whatever generator you prefer; " [:code "test.check.generators"] " works well."]
             [:pre
              (print-form-then-eval "(require '[speculoos.utility :refer [defpred validate-predicate->generator]]
                                               '[clojure.test.check.generators :as tc-gen])")
@@ -781,21 +781,27 @@
              (print-form-then-eval "(defn gen-int-pos-div-by-3 [] (last (tc-gen/sample (tc-gen/fmap #(* % 3) tc-gen/nat) 50)))")
              [:br]
              (print-form-then-eval "(def pred-1 (with-meta #(and (int? %) (> % 0) ((divisible-by 3) %)) {:speculoos/predicate->generator gen-int-pos-div-by-3}))")
-             [:br]
-             [:code ";; helper macro that does the equivalent"]
+             [:br]]
+            [:p "The " [:code "defpred"] " utility macro does the equivalent when you explicitly supply a sample generator."]
+            [:pre
              (print-form-then-eval "(defpred pred-2 #(and (int? %) (> % 0) ((divisible-by 3) %)) gen-int-pos-div-by-3)")
              [:br]
-             [:code ";; verify that the samples prodcued by generator satisfy the predicate"]
+             [:code ";; verify that the samples produced by generator satisfy the predicate"]
              (print-form-then-eval "(validate-predicate->generator pred-1 5)")
              [:br]
              (print-form-then-eval "(validate-predicate->generator pred-2 5)")]
+            [:p "However, if you write your predicate in a way that conforms to " [:code "defpred"] "'s assumptions, it will compose a generator automatically."]
+            [:pre
+             (print-form-then-eval "(defpred pred-3 #(and (int? %) (pos? %) ((divisible-by 3) %)))")
+             [:br]
+             (print-form-then-eval "(validate-predicate->generator pred-3 5)")]
 
             [:p "This is another area where " [:code "spec.alpha"] "'s approach outclasses Speculoos. Because you write a " [:code "spec.alpha"] " spec in an already 'pulled-apart' state, it can compose a generator starting with the first branch of that compound predicate and then use the following predicates as filters to refine the generated values."]
-            [:p "Speculoos consumes predicates as already-defined functions, and it's not apparent to me how to inspect the internal structure of a function — whose source may not be available — to extract individual components of a predicate if I wanted to set bounds on a generator."]
+            [:p "Speculoos consumes predicates as already-defined functions, and it appears fiendishly involved to inspect the internal structure of a function — whose source may not be available — in order to generically extract individual components to an arbitrary nesting depth."]
             [:p "Three questions"
              [:ol
               [:li "Is this why " [:code "spec.alpha"] " specs are written that way?"]
-              [:li "Would it be possible at all to decompose a defined predicate function?"]
+              [:li "Would it be possible at all to decompose a predicate function object without access to the source?"]
               [:li "If Speculoos never offers fully-automatic sample generation from a given compound predicate, is that deal-breaker for the entire approach?"]]]]]]
 
          [:section
@@ -814,7 +820,7 @@
             [:pre
              (print-form-then-eval "(def kw-pred (into #{} (map #(keyword \"my.domain\" %) [\"name\" \"occupation\" \"id\"])))")
              [:br]
-             (print-form-then-eval "(valid-scalar-spec? [:my.domain/name] [kw-pred])")
+             (print-form-then-eval "(valid-scalars? [:my.domain/name] [kw-pred])")
              [:br]
              (print-form-then-eval "(exercise [kw-pred] 5)")]]]
           [:div.side-by-side-container

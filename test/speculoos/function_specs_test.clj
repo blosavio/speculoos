@@ -4,7 +4,7 @@
    [clojure.set :as set]
    [clojure.string :as str]
    [clojure.test :refer [are is deftest testing run-tests]]
-   [speculoos.core :refer [valid-scalar-spec?]]
+   [speculoos.core :refer [valid-scalars?]]
    [speculoos.utility :refer [=1st =2nd =3rd]]
    [speculoos.function-specs :refer :all]))
 
@@ -850,7 +850,7 @@
 
 (deftest exercise-fn-tests
   (are [x] (true? x)
-    (every? #(valid-scalar-spec? (first %) [int? string? keyword? #"F\dQ[a-z]"]) (exercise-fn exercise-fn-example-fn 9))
+    (every? #(valid-scalars? (first %) [int? string? keyword? #"F\dQ[a-z]"]) (exercise-fn exercise-fn-example-fn 9))
     (every? #(string? (second %)) (exercise-fn exercise-fn-example-fn 7))
     (= 10 (count (exercise-fn exercise-fn-example-fn)))))
 

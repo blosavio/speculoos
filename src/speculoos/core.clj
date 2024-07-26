@@ -8,7 +8,7 @@
   * `valid`: All datums satisfy their corresponding predicates.
   * `scalar`: A non-divisible datum, such as a number, string, boolean, etc.
   * `collection`: A composite data structure, such as a vector, list, map, set,
-  lazy-seqeuence, etc., composed of scalars and other collections.
+  lazy-sequence, etc., composed of scalars and other collections.
   * `path`: A vector of indexes/keys that uniquely locate a datum.
   * `predicate`: A function that returns `true`/`false`, usually 1-arity, but in
   particular circumstances may be more.
@@ -213,7 +213,7 @@
 ;;;; Scalar Specs
 
 
-(declare validate-scalar-spec)
+(declare validate-scalars)
 (declare expand-and-clamp)
 
 
@@ -296,7 +296,7 @@
         data-spec-union (concat data-paths spec-paths)]
     (reduce (fn [acc upath] (let [[clamped-data clamped-spec] (clamp (get-in* data (:path upath))
                                                                      (get-in* spec (:path upath)))]
-                              (conj acc (validate-scalar-spec clamped-data clamped-spec))))
+                              (conj acc (validate-scalars clamped-data clamped-spec))))
             []
             data-spec-union)))
 
@@ -356,13 +356,13 @@
   (instance? java.util.regex.Pattern x))
 
 
-(defn validate-scalar-spec
+(defn validate-scalars
   "For every scalar datum in `data`, test corresponding predicate in
   specification `spec`. Tests predicates on scalars, non-collection leaf nodes
   of a collection. `data` is a heterogeneous, arbitrarily-nested data structure
   of arbitrary values. `spec` is a corresponding 'shape', i.e., all nested
   structures are of the same type and length, containing predicates to test
-  against. `validate-scalar-spec` recursively descends into all nested data
+  against. `validate-scalars` recursively descends into all nested data
   structures and produces a flattened sequence of
   `{:path _ :value _ :predicate _}` hash-maps for each datum-predicate pair.
 
@@ -376,33 +376,33 @@
 
   Examples:
   ```clojure
-  (validate-scalar-spec [42 :foo \\c] [int? keyword? char?])
+  (validate-scalars [42 :foo \\c] [int? keyword? char?])
   ;; => [{:path [0], :datum 42, :predicate int?, :valid? true}
   ;;     {:path [1], :datum :foo, :predicate keyword?, :valid? true}
   ;;     {:path [2], :datum \\c, :predicate char?, :valid? true}]
 
-  (validate-scalar-spec {:a 42 :b 'foo} {:a int? :b symbol?})
+  (validate-scalars {:a 42 :b 'foo} {:a int? :b symbol?})
   ;; => [{:path [:a], :datum 42, :predicate int?, :valid? true}
   ;;     {:path [:b], :datum foo, :predicate symbol?, :valid? true}]
 
   ;; nested data and specification
-  (validate-scalar-spec [42 {:z 'baz}] [ratio? {:z keyword?}])
+  (validate-scalars [42 {:z 'baz}] [ratio? {:z keyword?}])
   ;; => [{:path [0], :datum 42, :predicate ratio?, :valid? false}
   ;;     {:path [1 :z], :datum baz, :predicate keyword?], :valid? false}]
 
   ;; data and specification not same length
-  (validate-scalar-spec [42 :foo 22/7] [int?])
+  (validate-scalars [42 :foo 22/7] [int?])
   ;; => [{:path [0], :datum 42, :predicate int?, :valid? true}]
 
-  (validate-scalar-spec [42] [decimal? keyword? char?])
+  (validate-scalars [42] [decimal? keyword? char?])
   ;; => [{:path [0], :datum 42, :predicate decimal?, :valid? false}]
 
   ;; regular expression predicate
-  (validate-scalar-spec [\"foo\"] [#\"f..\"])
+  (validate-scalars [\"foo\"] [#\"f..\"])
   ;; => [{:path [0], :datum \"foo\", :predicate #\"f..\", :valid? \"foo\"}]
 
   ;; set as a membership predicate
-  (validate-scalar-spec [:green] [#{:red :green :blue}])
+  (validate-scalars [:green] [#{:red :green :blue}])
   ;; => [{:path [0], :datum :green, :predicate #{:green :red :blue}, :valid? :green}]
   ```"
   {:UUIDv4 #uuid "da127bee-6f28-4943-a76c-6bb2b0819ca6"
@@ -434,12 +434,12 @@
             data-paths)))
 
 
-(defn dual-validate-scalar-spec
-  "Analogous to (validate-scalar-spec), but with two input data sets,
+(defn dual-validate-scalars
+  "Analogous to (validate-scalars), but with two input data sets,
    data-1 and data-2. The 'predicates' in spec must accept two arguments, an
    element from each respective data set. data-1 is priveledged in that it is
    used in the 'clamp' procedure with spec.
-   Note: Sets are not validated, in constrast to (validate-scalar-spec)."
+   Note: Sets are not validated, in constrast to (validate-scalars)."
   {:UUIDv4 #uuid "205476af-591d-4403-b28a-f3d260d1ef5b"
    :no-doc true}
   [data-1 data-2 spec]
@@ -490,10 +490,10 @@
 
   Examples:
   ```clojure
-  (only-valid (validate-scalar-spec [42 :foo 22/7] [decimal? symbol? ratio?]))
+  (only-valid (validate-scalars [42 :foo 22/7] [decimal? symbol? ratio?]))
   ;; => ({:path [2], :datum 22/7, :predicate ratio?, :valid? true})
 
-  (only-valid (validate-collection-spec [42 (list :foo)] [list? [list?]]))
+  (only-valid (validate-collections [42 (list :foo)] [list? [list?]]))
   ;; => ({:path [1 0], :value list?, :datum (:foo), :ordinal-parent-path [0], :valid? true})
   ```"
   {:UUIDv4 #uuid "7f5912e8-52e5-4aab-820a-3bac2739cc65"}
@@ -507,10 +507,10 @@
 
   Examples:
   ```clojure
-  (only-invalid (validate-scalar-spec [42 :foo 22/7] [int? keyword? symbol?]))
+  (only-invalid (validate-scalars [42 :foo 22/7] [int? keyword? symbol?]))
   ;; => ({:path [2], :datum 22/7, :predicate symbol?, :valid? false})
 
-  (only-invalid (validate-collection-spec [42 (list :foo)] [list? [list?]]))
+  (only-invalid (validate-collections [42 (list :foo)] [list? [list?]]))
   ;; => ({:path [0], :value list?, :datum [42 (:foo)], :ordinal-parent-path [], :valid? false})
   ```"
   {:UUIDv4 #uuid "8c1a8a78-20b4-473f-ade8-b09804c92a31"}
@@ -518,36 +518,36 @@
   (filter-validation validations falsey))
 
 
-(defn valid-scalar-spec?
+(defn valid-scalars?
   "`true` if every element in `data` satisfies corresponding predicate in scalar
   specification `spec`, `false` otherwise. Note, if a corresponding
   specification predicate does not exist, that element of data will not be
-  checked. Use [[data-without-specs]] to locate elements of data that lack
-  corresponding predicates in `spec`.
+  checked. Use [[scalars-without-predicates]] to locate elements of data that
+  lack corresponding predicates in `spec`.
 
   Examples:
   ```clojure
-  (valid-scalar-spec? [42 :foo 22/7] [int? keyword? ratio?]) ;; => true
-  (valid-scalar-spec? {:a 42 :b 'foo} {:a string? :b symbol?}) ;; => false
+  (valid-scalars? [42 :foo 22/7] [int? keyword? ratio?]) ;; => true
+  (valid-scalars? {:a 42 :b 'foo} {:a string? :b symbol?}) ;; => false
 
   ;; unmatched datums
-  (valid-scalar-spec? [42 :foo 22/7] [int?]) ;; => true
+  (valid-scalars? [42 :foo 22/7] [int?]) ;; => true
 
   ;; unmatched predicates
-  (valid-scalar-spec? {:a 42} {:b symbol?}) ;; => true
+  (valid-scalars? {:a 42} {:b symbol?}) ;; => true
   ```"
   {:UUIDv4 #uuid "563d6131-b607-46d3-8a16-a7d2e249e288"}
   [data spec]
-  (empty? (only-invalid (validate-scalar-spec data spec))))
+  (empty? (only-invalid (validate-scalars data spec))))
 
 
 (defn valid-dual-scalar-spec?
   "`true` if each element in `data-1` and `data-2` both satisfy corresponding
-  predicate in specification `spec`. Analgous to [[valid-scalar-spec?]]."
+  predicate in specification `spec`. Analgous to [[valid-scalars?]]."
   {:UUIDv4 #uuid "74043f31-8afc-4b65-a8ed-8aa372a0c9bf"
    :no-doc true}
   [data-1 data-2 spec]
-  (let [validate-results (dual-validate-scalar-spec data-1 data-2 spec)
+  (let [validate-results (dual-validate-scalars data-1 data-2 spec)
         invalids (only-invalid validate-results)]
     (empty? invalids)))
 
@@ -737,7 +737,7 @@
      :valid? (pred datum)}))
 
 
-(defn validate-collection-spec
+(defn validate-collections
   "Given `data`, an arbitrarily-nested, heterogeneous data structure, apply all
   predicates within `spec`, a collection specification. Only elements of `spec`
   that satisfy `fn?` are tested.
@@ -752,11 +752,11 @@
 
   Examples:
   ```clojure
-  (validate-collection-spec [42 [99]] [vector? [vector?]])
+  (validate-collections [42 [99]] [vector? [vector?]])
   ;; => ({:path [0], :value vector?, :datum [42 [99]], :ordinal-parent-path [], :valid? true}
   ;;     {:path [1 0], :value vector?, :datum [99], :ordinal-parent-path [0], :valid? true})
 
-  (validate-collection-spec {:a 42 :b {:c 99}} {:root-coll map? :b {:child-coll? list?}})
+  (validate-collections {:a 42 :b {:c 99}} {:root-coll map? :b {:child-coll? list?}})
   ;; => ({:path [:root-coll], :value map?, :datum {:a 42, :b {:c 99}}, :ordinal-parent-path [], :valid? true}
   ;;     {:path [:b :child-coll?], :value list?, :datum {:c 99}, :ordinal-parent-path [:b], :valid? false})
   ```"
@@ -767,26 +767,26 @@
          (only-fns (all-paths clamped-spec)))))
 
 
-(defn valid-collection-spec?
-  "Returns `true` if [[validate-collection-spec]] on `data` and collection
+(defn valid-collections?
+  "Returns `true` if [[validate-collections]] on `data` and collection
   specification `spec` all validate truthy.
 
   Examples:
   ```clojure
-  (valid-collection-spec? [42 [:foo]] [list? [vector?]]) ;; => false
-  (valid-collection-spec? {:a 42 :b {:c 'foo}} {:outer-coll map? :b {:inner-coll map?}}) ;; => true
+  (valid-collections? [42 [:foo]] [list? [vector?]]) ;; => false
+  (valid-collections? {:a 42 :b {:c 'foo}} {:outer-coll map? :b {:inner-coll map?}}) ;; => true
   ```"
   {:UUIDv4 #uuid "bd03894b-c45a-4875-972a-d5be8a092920"}
   [data spec]
-  (every? #(true? (:valid?  %)) (validate-collection-spec data spec)))
+  (every? #(true? (:valid?  %)) (validate-collections data spec)))
 
 
 ;;;; Combined specs
 
 (defn validate
   "Run respective validations of both `scalar-spec` and `collection-spec` on `data`.
-   Returns a merged vector of results. See [[validate-scalar-spec]] and
-  [[validate-collection-spec]].
+   Returns a merged vector of results. See [[validate-scalars]] and
+  [[validate-collections]].
 
   Examples:
   ```clojure
@@ -800,13 +800,13 @@
   ```"
   {:UUIDv4 #uuid "4c7c9c1c-f8a6-49f1-abcb-946a0c820cf2"}
   [data scalar-spec collection-spec]
-  (concat (validate-scalar-spec data scalar-spec)
-          (validate-collection-spec data collection-spec)))
+  (concat (validate-scalars data scalar-spec)
+          (validate-collections data collection-spec)))
 
 
 (defn valid?
   "Returns `true` if `data` fully satisfies both `scalar-spec` and
-  `collection-spec`. See [[valid-scalar-spec?]] and [[valid-collection-spec?]].
+  `collection-spec`. See [[valid-scalars?]] and [[valid-collections?]].
 
   Examples:
   ```clojure
@@ -818,8 +818,8 @@
   ```"
   {:UUIDv4 #uuid "2f95850d-9cc5-4f02-8020-a86f3e64cbfe"}
   [data scalar-spec collection-spec]
-  (and (valid-scalar-spec? data scalar-spec)
-       (valid-collection-spec? data collection-spec)))
+  (and (valid-scalars? data scalar-spec)
+       (valid-collections? data collection-spec)))
 
 
 (defn apply-one-coll-spec-to-two
@@ -839,8 +839,8 @@
      :valid? (pred datum-1 datum-2)}))
 
 
-(defn dual-validate-collection-spec
-  "Two-collection version of (validate-collection-spec). Predicates contained
+(defn dual-validate-collections
+  "Two-collection version of (validate-collections). Predicates contained
    in spec must accept two arguments, one from each data collection.
    data-1 is priviledged to be the reference by which non-terminating
    sequences are clamped."
@@ -854,12 +854,12 @@
 
 
 (defn valid-dual-collection-spec?
-  "Two-collection version of (valid-collection-spec?). Returns true if data-1
+  "Two-collection version of (valid-collections?). Returns true if data-1
    and data-2 both validate against spec."
   {:UUIDv4 #uuid "3f6ba989-3283-4e55-88bf-b7a46c104a83"
    :no-doc true}
   [data-1 data-2 spec]
-  (every? #(true? (:valid? %)) (dual-validate-collection-spec data-1 data-2 spec)))
+  (every? #(true? (:valid? %)) (dual-validate-collections data-1 data-2 spec)))
 
 
 ;;;; macro specs
@@ -888,11 +888,11 @@
   ```"
   {:UUIDv4 #uuid "a821bfd8-fd47-4d5c-bc62-21f999600df1"}
   [macro-args spec]
-  (validate-scalar-spec (macroexpand-1 macro-args) spec))
+  (validate-scalars (macroexpand-1 macro-args) spec))
 
 
-(defn valid-macro-spec?
-  "Returns `true` if macroexpansion fully satisfies scalar specficiation `spec`.
+(defn valid-macro?
+  "Returns `true` if macroexpansion fully satisfies scalar specification `spec`.
   Supply `macro` and `args` as if to `macroexpand-1` itself, i.e.,
   `` `(macro-name arg1 arg 2...)``.
 
@@ -910,7 +910,7 @@
 
   (def example-macro-spec (list symbol? number? number? number?))
 
-  (valid-macro-spec? `(example-macro + 1 2 3) example-macro-spec) ;; => true
+  (valid-macro? `(example-macro + 1 2 3) example-macro-spec) ;; => true
   ```"
   {:UUIDv4 #uuid "b084eeaf-288a-4d4c-b095-6cf08fe1d88f"}
   [macro-args spec]
@@ -922,7 +922,7 @@
 
 (defn validate-with-path-spec
   "Given a heterogeneous, arbitrarily-nested structure `data`, validate
-  against path specfication vector `spec`. Each entry in `spec` is a map with
+  against path specification vector `spec`. Each entry in `spec` is a map with
   keys `:paths` and `:predicate`. `:paths` is a vector to [[get-in*]] paths to
   elements (scalar and/or collections) in `data`, supplied in-order to the
   function associated with `:predicate`, whose arity matches the number of paths
@@ -935,7 +935,7 @@
   (validate-with-path-spec [11 :foo 22] [{:paths [[2] [0]] :predicate #(= %2 (/ %1 2))}])
   ;; => ({:args (22 11), :valid? true, :paths [[2] [0]], :predicate fn--47025]})
 
-  ;; relating one scalar to another, differnt depths of the sequence (predicate is 3-arity)
+  ;; relating one scalar to another, different depths of the sequence (predicate is 3-arity)
   (validate-with-path-spec {:a 42 :b [42 {:c 42}]} [{:paths [[:b 0] [:a] [:b 1 :c]] :predicate #(= %1 %2 %3)}])
   ;; => ({:args (42 42 42), :valid? true, :paths [[:b 0] [:a] [:b 1 :c]], :predicate fn--47045]})
 

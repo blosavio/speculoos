@@ -9,7 +9,7 @@
 (comment
   (def d1 [0 true -1/2 "" \Á])
   (def s1 (spec-from-data d1))
-  (valid-scalar-spec? d1 s1)
+  (valid-scalars? d1 s1)
   )
 
 
@@ -30,7 +30,7 @@
 (gen/sample (gen/vector (gen/one-of scalars-to-check)))
 
 (def simple-scalar-spec (prop/for-all [v (gen/vector (gen/one-of scalars-to-check))]
-                                      (valid-scalar-spec? v (spec-from-data v))))
+                                      (valid-scalars? v (spec-from-data v))))
 
 (tc/quick-check 100 simple-scalar-spec)
 
@@ -39,7 +39,7 @@
 (gen/sample (gen/map gen/keyword (gen/one-of scalars-to-check)))
 
 (def simple-map-spec (prop/for-all [m (gen/map gen/keyword (gen/one-of scalars-to-check))]
-                                   (valid-scalar-spec? m (spec-from-data m))))
+                                   (valid-scalars? m (spec-from-data m))))
 
 (tc/quick-check 100 simple-map-spec)
 
@@ -50,7 +50,7 @@
 (gen/sample (gen/set (rand-nth scalars-to-check)))
 
 (def simple-set-spec (prop/for-all [s (gen/set (rand-nth scalars-to-check))]
-                                   (valid-scalar-spec? s (spec-from-data s))))
+                                   (valid-scalars? s (spec-from-data s))))
 
 (tc/quick-check 100 simple-set-spec)
 
@@ -59,7 +59,7 @@
 (gen/sample (gen/list (gen/one-of scalars-to-check)))
 
 (def simple-list-spec (prop/for-all [l (gen/list (gen/one-of scalars-to-check))]
-                                    (valid-scalar-spec? l (spec-from-data l))))
+                                    (valid-scalars? l (spec-from-data l))))
 
 (tc/quick-check 100 simple-list-spec)
 
@@ -75,7 +75,7 @@
 (def recursive-coll (gen/vector (gen/recursive-gen compound scalars)))
 
 (def scalar-spec-on-recursive-colls (prop/for-all [c recursive-coll]
-                                                  (valid-scalar-spec? c (spec-from-data c))))
+                                                  (valid-scalars? c (spec-from-data c))))
 
 (tc/quick-check 15 scalar-spec-on-recursive-colls)
 
@@ -86,12 +86,12 @@
   (last (gen/sample (gen/recursive-gen compound scalars) 10))
   (def b1 (last (gen/sample (gen/recursive-gen compound scalars) 100)))
   (basic-collection-spec-from-data b1)
-  (valid-collection-spec? b1 (basic-collection-spec-from-data b1))
+  (valid-collections? b1 (basic-collection-spec-from-data b1))
   )
 
 
 (def collection-spec-on-recursive-colls (prop/for-all [c recursive-coll]
-                                                      (valid-collection-spec? c (basic-collection-spec-from-data c))))
+                                                      (valid-collections? c (basic-collection-spec-from-data c))))
 
 (tc/quick-check 15 collection-spec-on-recursive-colls)
 
@@ -103,7 +103,7 @@
   (take-last 10 (gen/sample simple-collection-gen 100))
   (make-empty (gen/sample simple-collection-gen 1))
   (basic-collection-spec-from-data [11 22 33])
-  (valid-collection-spec? [11 22 33] (basic-collection-spec-from-data [11 22 33]))
+  (valid-collections? [11 22 33] (basic-collection-spec-from-data [11 22 33]))
   (basic-collection-spec-from-data [#{11 #{22} #{33 #{44}}}])
 
   ;; note: collection specs can only nest max one-level further into a set; after that,
@@ -111,25 +111,25 @@
 
 
   (def a01 [[#{[]}]])
-  (valid-collection-spec? a01 (basic-collection-spec-from-data a01)) ; false
+  (valid-collections? a01 (basic-collection-spec-from-data a01)) ; false
 
 
   (def a02 [[#{}]])
-  (valid-collection-spec? a02 (basic-collection-spec-from-data a02)) ; true
+  (valid-collections? a02 (basic-collection-spec-from-data a02)) ; true
 
 
   (def a1 [11 #{22}])
-  (valid-collection-spec? a1 (basic-collection-spec-from-data a1)) ; true
+  (valid-collections? a1 (basic-collection-spec-from-data a1)) ; true
 
 
   (def a2 [11 #{22 [33]}])
-  (valid-scalar-spec? a2 (basic-collection-spec-from-data a2)) ; true
+  (valid-scalars? a2 (basic-collection-spec-from-data a2)) ; true
 
 
   (def a3 [11 #{22 [33 #{44}]}])
-  (valid-collection-spec? a3 (basic-collection-spec-from-data a3)) ; false
+  (valid-collections? a3 (basic-collection-spec-from-data a3)) ; false
 
 
   (def a4 [[11 #{22 [33 #{44}]}] 99])
-  (valid-collection-spec? a4 (basic-collection-spec-from-data a4)) ; false
+  (valid-collections? a4 (basic-collection-spec-from-data a4)) ; false
   )

@@ -32,7 +32,7 @@
 	agents/send/send-off
 	refs/alter
 
-5. Consider fully-qualified keywords (:net.speculoos/arg-scalar-spce) instead of pseudo-qualified keywords (:speculoos/arg-scalar-spec).
+5. Consider fully-qualified keywords (:net.speculoos/arg-scalar-spec) instead of pseudo-qualified keywords (:speculoos/arg-scalar-spec).
 
 6. Compare returning plain true/false, or a globally-qualified result, such as :speculoos/valid or :speculoos/invalid.
 
@@ -42,10 +42,7 @@
 
 9. Re-visit reduce-indexed and fn-in* implementations to improve performance.
 
-10. Considering renaming/new names:
-	valid? => no-invalids?
-	(new) all-valid?
-	(new) some-validations?
+10. Make quantitative performance measurements
 
 
 ### Speculoss to-don't

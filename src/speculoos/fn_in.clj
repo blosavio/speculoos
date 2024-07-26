@@ -6,7 +6,7 @@
   * apply a function to an element (`update`)
   * remove an element (`dissoc`)
 
-  from any of Clojure's collection types (plus inifinite sequences), similarly
+  from any of Clojure's collection types (plus infinite sequences), similarly
   to their `clojure.core` namesakes. The `...-in` variants operate on any
   heterogeneous, arbitrarily-nested data structure.
 
@@ -212,7 +212,7 @@
   "Returns collection `c` with a new value `x` associated at location `i`.
   Similar to [`clojure.core/assoc-in`](https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/assoc-in)
   , but operates on any heterogeneous, arbitrarily-nested collections. Supplying
-  an empty path throws an excpetion.
+  an empty path throws an exception.
 
   Examples:
   ```clojure
@@ -228,7 +228,7 @@
   ;; associating beyond nested sequence's bounds causes nil-padding
   (assoc-in* [11 22 [33 44]] [2 3] 99) ;; => [11 22 (33 44 nil 99)]
 
-  ;; aossociating a non-existant key-val in a map merely expands the map
+  ;; associating a non-existent key-val in a map merely expands the map
   (assoc-in* {:a 11 :b {:c 22}} [:b :d] 99) ;; => {:a 11, :b {:c 22, :d 99}}
   ```"
   {:UUIDv4 #uuid "e32d8f77-84d3-4830-82ad-369682e9eb9b"}
@@ -277,7 +277,7 @@
   "Returns a new collection `c` with the value at location `ks` updated by
   applying function `f` to the previous value. Similar to
   [`clojure.core/update-in`](https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/update-in)
-  , but operates on any heterogenous, arbitrarily-nested collection. Additional
+  , but operates on any heterogeneous, arbitrarily-nested collection. Additional
   arguments `args` may be supplied trailing `f`. If location `ks` does not exist,
   `f` must handle `nil`.
 
@@ -299,7 +299,7 @@
   (+ nil) ;; => nil
   (update-in* [1 2 3] [3] +) ;; => (1 2 3 nil)
 
-  ;; non-existant key-val
+  ;; non-existent key-val
   (not nil) ;; => true
   (update-in* {:a {:b 11}} [:a :c] not) ;; => {:a {:b 11, :c true}}
 
@@ -374,7 +374,7 @@
   (dissoc* #{1 2 3} 2) ;; => #{1 3}
   (dissoc* (take 3 (cycle [:a :b :c])) 1) ;; => (:a :c)
 
-  ;; non-existant entity
+  ;; non-existent entity
   (dissoc* #{1 2 3} 99) ;; => #{1 3 2}
   (dissoc* {:a 1 :b 2} :c) ;; => {:a 1, :b 2}
   ```"

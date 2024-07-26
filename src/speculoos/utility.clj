@@ -2,7 +2,7 @@
   "Utility functions to make using and interacting with Speculoos nicer.
 
   1. **Constructive** functions create conforming data or specifications, e.g.,
-  synthesizing valid data when given a specificaiton.
+  synthesizing valid data when given a specification.
 
       * [[data-from-spec]]
       * [[spec-from-data]]
@@ -28,12 +28,14 @@
   3. **Reporting** functions highlight some aspect of a data set or
   specification, e.g., returning non-predicates within a specification.
 
+      * [[thoroughly-valid?]]
       * [[all-specs-okay]]
-      * [[data-without-specs]]
-      * [[collections-without-specs]]
+      * [[scalars-without-predicates]]
+      * [[scalars-with-predicates]]
+      * [[collections-without-predicates]]
       * [[non-predicates]]
       * [[sore-thumb]]
-      * [[specs-without-data]]
+      * [[predicates-without-scalars]]
       * [[unfindable-generators]]
       * [[validate-predicate->generator]]
 
@@ -44,6 +46,7 @@
       * [[clamp-in*]] and [[clamp-every]]
       * [[defpred]]
       * [[in?]]
+      * [[lazy-seq?]]
       * [[seq-regex]]"
   (:require
    [clojure.test :as test]
@@ -53,8 +56,9 @@
    [re-rand :refer [re-rand]]
    [speculoos.collection-functions :refer [reduce-indexed]]
    [speculoos.core :refer [all-paths only-non-collections only-valid regex?
-                           only-invalid validate-scalar-spec valid-scalar-spec?
-                           validate-collection-spec expand-and-clamp]]
+                           only-invalid validate-scalars valid-scalars?
+                           validate-collections valid-collections? valid?
+                           expand-and-clamp]]
    [speculoos.fn-in :refer [get* get-in* assoc-in* dissoc-in* concat-list]]))
 
 
@@ -115,60 +119,125 @@
   (filter #(st (kw %)) form))
 
 
-(defn data-without-specs
-  "Returns `data` elements which lack corresponding predicates in scalar
-  specification `spec`. See also [[collections-without-specs]].
+(defn data-spec-set-analysis
+  "Generate a map of information that describes entities contained within sets
+  of a heterogeneous, arbitrarily-nested data structure `d`."
+  {:UUIDv4 #uuid "24ea3ffe-a019-4c37-9bd7-b520a6e6927a"
+   :no-doc true}
+  [d]
+  (let [all-paths-d (all-paths d)
+        all-sets-in-d (filter #(set? (:value %)) all-paths-d)
+        d-set-paths (set (map #(:path %) all-sets-in-d))
+        entities-in-a-set (filter #(d-set-paths (drop-last (:path %))) (only-non-collections all-paths-d))]
+    {:all-paths all-paths-d
+     :all-sets all-sets-in-d
+     :set-paths d-set-paths
+     :entities-in-a-set entities-in-a-set}))
+
+
+(defn data-scalars-in-a-set-*-a-predicate
+  "Helper function for `data-scalars-in-a-set-with-a-predicate` and
+  `data-scalars-in-a-set-without-a-predicate`.
+
+  `f` should be `contains?` for _with_
+  `f` should be `(complement contains?)` for _without_"
+  {:UUIDv4 #uuid "20a1a956-4b24-42e1-b049-8974d40d8048"
+   :no-doc true}
+  [data spec f]
+  (let [data-analysis (data-spec-set-analysis data)
+        spec-analysis (data-spec-set-analysis spec)
+        predicates-in-spec (filter #(fn? (:value %)) (spec-analysis :entities-in-a-set))
+        paths-of-predicates-in-a-spec-set (set (map #(drop-last (:path %)) predicates-in-spec))
+        entities-in-a-data-set (data-analysis :entities-in-a-set)]
+    (filter #(f paths-of-predicates-in-a-spec-set (drop-last (:path %))) (data-analysis :entities-in-a-set))))
+
+
+(defn data-scalars-in-a-set-with-a-predicate
+  "Returns `data` all-paths scalar elements that are members of a set and which
+  have a corresponding predicate in `spec`.
+
+  See also [[data-scalars-in-a-set-without-a-predicate]]."
+  {:UUIDv4 #uuid "cf209dcf-7686-4c51-8280-9dd7fc0899ff"
+   :no-doc true}
+  [data spec]
+  (data-scalars-in-a-set-*-a-predicate data spec contains?))
+
+
+(defn data-scalars-in-a-set-without-a-predicate
+  "Returns `data` scalars that are members of a set but which do *not* have a
+  corresponding predicate in `spec`.
+
+  See also [[data-scalars-in-a-set-with-a-predicate]]."
+  {:UUIDv4 #uuid "953db3b5-0654-4128-89fc-efac545d8578"
+   :no-doc true}
+  [data spec]
+  (data-scalars-in-a-set-*-a-predicate data spec (complement contains?)))
+
+
+(defn scalars-without-predicates
+  "Returns `data` all-paths scalar elements which lack corresponding predicates
+  in scalar specification `spec`. See also [[scalars-with-predicates]] and
+  [[collections-without-predicates]].
 
   Examples:
   ```clojure
-  (data-without-specs [42 :foo 22/7] [int? keyword?]) ;; => ({:path [2], :value 22/7})
-  (data-without-specs {:a 42 :b 'foo} {:a int?}) ;; => ({:path [:b], :value foo})
+  (scalars-without-predicates [42 :foo 22/7] [int? keyword?]) ;; => ({:path [2], :value 22/7})
+  (scalars-without-predicates {:a 42 :b 'foo} {:a int?}) ;; => ({:path [:b], :value foo})
   ```"
   {:UUIDv4 #uuid "cfb2d897-cf07-49d8-b0e2-b4da701cce6c"}
   [data spec]
-  (keep-only-elements-in-set
-   (only-non-collections (all-paths data))
-   (paths-only-in-A-not-in-B data spec)
-   :path))
+  (let [scalars-without-specs-possibly-set-elements (keep-only-elements-in-set
+                                                     (only-non-collections (all-paths data))
+                                                     (paths-only-in-A-not-in-B data spec)
+                                                     :path)
+        scalars-in-a-set-with-a-pred (set (data-scalars-in-a-set-with-a-predicate data spec))]
+    (remove #(scalars-in-a-set-with-a-pred %)
+            scalars-without-specs-possibly-set-elements)))
 
 
-(defn data-with-specs
-  "Returns only `data` elements which have a corresponding predicate in scalar
-  specification `spec`.
+(defn scalars-with-predicates
+  "Returns `data` all-paths scalar elements which have a corresponding predicate
+  in scalar specification `spec`. See also [[scalars-without-predicates]] and
+  [[collections-without-predicates]].
 
   Examples:
   ```clojure
-  (data-with-specs [42 :foo 22/7] [int?]) ;; => ({:path [0], :value 42})
-  (data-with-specs {:a 42 :b 'foo} {:a int?}) ;; => ({:path [:a], :value 42})
+  (scalars-with-predicates [42 :foo 22/7] [int?]) ;; => ({:path [0], :value 42})
+  (scalars-with-predicates {:a 42 :b 'foo} {:a int?}) ;; => ({:path [:a], :value 42})
   ```"
   {:UUIDv4 #uuid "669dbe43-82ab-47f4-bf91-6e74100c0cda"}
   [data spec]
-  (keep-only-elements-in-set
-   (only-non-collections (all-paths data))
-   (paths-in-both-A-and-B data spec)
-   :path))
+  (let [scalars-with-pred-possibly-missing-set-elements (keep-only-elements-in-set
+                                                         (only-non-collections (all-paths data))
+                                                         (paths-in-both-A-and-B data spec)
+                                                         :path)
+        scalars-in-a-set-with-a-pred (data-scalars-in-a-set-with-a-predicate data spec)]
+    (concat scalars-with-pred-possibly-missing-set-elements
+            scalars-in-a-set-with-a-pred)))
 
 
-(defn specs-without-data
+(defn predicates-without-scalars
   "Returns only scalar specification `spec` elements which lack a corresponding
   element in `data`.
 
   Examples:
   ```clojure
-  (specs-without-data [42 :foo] [int? keyword? ratio?]) ;; => ({:path [2], :value ratio?})
-  (specs-without-data {:a 42} {:a int? :b symbol?}) ;; => ({:path [:b], :value symbol?})
+  (predicates-without-scalars [42 :foo] [int? keyword? ratio?]) ;; => ({:path [2], :value ratio?})
+  (predicates-without-scalars {:a 42} {:a int? :b symbol?}) ;; => ({:path [:b], :value symbol?})
   ```"
   {:UUIDv4 #uuid "7e36fcb9-183e-4b33-bd69-8267cd65aece"}
   [data spec]
-  (keep-only-elements-in-set
-   (only-non-collections (all-paths spec))
-   (paths-only-in-A-not-in-B spec data)
-   :path))
+  (let [preds-without-scalars-possibly-in-sets (keep-only-elements-in-set
+                                                (only-non-collections (all-paths spec))
+                                                (paths-only-in-A-not-in-B spec data)
+                                                :path)
+        predicates-in-set-with-scalars (set (map #(drop-last (:path %)) (data-scalars-in-a-set-with-a-predicate data spec)))]
+    (remove #(contains? predicates-in-set-with-scalars (drop-last (:path %))) preds-without-scalars-possibly-in-sets)))
 
 
 (defn non-predicates
   "Returns [[all-paths]] entries `{:path _ :value _}` for all elements in
-  specfication `spec` that are not functions.
+  specification `spec` that are not functions.
 
   This function name is possibly mis-leading: It tests only `fn?`, not if the
   function is a competent predicate. Sets are flagged as 'non-predicates'.
@@ -230,7 +299,7 @@
 
 
 (defn swap-non-predicates
-  "Returns a new sclar specification `spec` with all non-predicate elements
+  "Returns a new scalar specification `spec` with all non-predicate elements
   swapped for [`any?`](https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/any?)
   (default) or optional supplied predicate `pred`.
 
@@ -270,7 +339,7 @@
   ```"
   {:UUIDv4 #uuid "ebf3ad71-4f93-449e-bf41-aac071544b85"
    :destructive true}
-  [data spec] (let [invalids (only-invalid (validate-scalar-spec data spec))
+  [data spec] (let [invalids (only-invalid (validate-scalars data spec))
                     nil-it (fn [form invalids replacement]
                              (reduce #(assoc-in* %1 (:path %2) replacement)
                                      form
@@ -291,7 +360,7 @@
   {:UUIDv4 #uuid "6544cb1c-a71c-40f5-8f18-ee46c42cabc5"
    :destructive true
    :alternative-fname "remove-invalid-data-and-predicates"}
-  [data spec] (let [invalids (only-invalid (validate-scalar-spec data spec))
+  [data spec] (let [invalids (only-invalid (validate-scalars data spec))
                     eliminate (fn [form invalids]
                                 (reduce #(dissoc-in* %1 (:path %2))
                                         form
@@ -314,7 +383,7 @@
    :alternative-fname "relax-all-unsatisfied-predicates"}
   [data spec]  (reduce (fn [spc invalids] (assoc-in* spc (:path invalids) any?))
                        spec
-                       (only-invalid (validate-scalar-spec data spec))))
+                       (only-invalid (validate-scalars data spec))))
 
 
 (defn sore-thumb
@@ -330,7 +399,7 @@
   (with-out-str (sore-thumb [42 :foo 22/7] [int? symbol? ratio?]))
   ;; printed to *out*: data: [_ :foo _] spec: [_ symbol? _]
 
-  ;; optional replatement '...
+  ;; optional replacement '...
   (with-out-str (sore-thumb {:a 42 :b 'foo :c 22/7} {:a int? :b keyword? :c ratio?} '...))
   ;; printed to *out*: data: {:a ..., :b foo, :c ...} spec: {:a ..., :b keyword?, :c ...}
   ```"
@@ -338,7 +407,7 @@
    :future-work "Direct the REPL to print the unqualified names of core functions so the predicates display cleaner."}
   ([data spec] (sore-thumb data spec '_))
   ([data spec replacement]
-   (let [valids (only-valid (validate-scalar-spec data
+   (let [valids (only-valid (validate-scalars data
                                                   spec))
          replace-fn (fn [form] (reduce #(assoc-in* %1 (:path %2) replacement)
                                        form
@@ -500,34 +569,6 @@ retrieved on 2024Mar12."}
              (only-non-collections (all-paths clamped-data))))))
 
 
-(defmacro defpred
-  "Defines a predicate `f` with function `body` and random sample generator
-  `gen`, and optional canonical value `can`. If the optional canonical value is
-  not supplied, a keyword is automatically generated using the symbol `f`
-  appended with `-canonical-sample`.
-
-  Useful for defining predicates consumed by [[data-from-spec]].
-
-  ```clojure
-  (macroexpand-1 '(defpred foo int? #(rand-int 99) 42))
-  ;; => (def foo (clojure.core/with-meta int? #:speculoos{:canonical-sample 42, :predicate->generator (fn* [] (rand-int 99))}))
-
-  (defpred f1 #(<= % 99) #(rand-int 99) 42)
-  (defpred f2 #(<= % 5)  #(- (rand-int 99))) ;; no canonical value supplied
-  (defpred f3 #(> % 999) #(rand 999) 1.23)
-
-  (data-from-spec [f1 f2 f3] :random)
-  ;; => [86 -77 971.3462532541377]
-
-  (data-from-spec [f1 f2 f3] :canonical)
-  ;; => [42 :f2-canonical-sample 1.23]
-  ```"
-  {:UUIDv4 #uuid "f49dc35b-b3e9-4e4a-b636-75e38b6a40e0"}
-  [f body gen & [can]]
-  `(def ~f (with-meta ~body {:speculoos/predicate->generator ~gen
-                             :speculoos/canonical-sample ~(or can (keyword (str f "-canonical-sample")))})))
-
-
 (defn data-from-spec
   "Given heterogeneous, arbitrarily-nested scalar specification `spec`, create a
   sample data structure whose values validate to that specification. Only works
@@ -567,7 +608,7 @@ retrieved on 2024Mar12."}
   ```
   If the metadata of a non-set, non-regex predicate contains either key
   `:speculoos/predicate->generator` or key `:speculoos/canonical-sample`, the
-  associated value is presumed to be a competant generator or canonical sample,
+  associated value is presumed to be a competent generator or canonical sample,
   respectively, and will be preferred. See [[validate-predicate->generator]].
 
   Note: Presence of either metadata key implies that a default generator will
@@ -702,7 +743,7 @@ retrieved on 2024Mar12."}
 
   * Many basic predicates such as `int?`, `string?`, `ratio?`, etc., are
     provided by `clojure.test.check.generators`.
-  * Sets and regular expressions are competant generators.
+  * Sets and regular expressions are competent generators.
   * Compound predicates such as `#(and (number? %) (< % 99))` may be
     explicitly supplied with a custom generator located within its metadata
     map at key `:speculoos/predicate->generator`.
@@ -742,7 +783,7 @@ retrieved on 2024Mar12."}
 
 (defn exercise
   "Generates a number `n` (default 10) of values compatible with scalar
-  specification `spec` and maps [[valid-scalar-spec?]] over them, returning a
+  specification `spec` and maps [[valid-scalars?]] over them, returning a
   sequence of `[val valid?]` tuples.
 
   See [[data-from-spec]] for details on predicates.
@@ -763,7 +804,7 @@ retrieved on 2024Mar12."}
   ([spec] (exercise spec 10))
   ([spec n]
    (letfn [(f [] (let [d-from-s (data-from-spec spec :random)
-                       v? (valid-scalar-spec? d-from-s spec)]
+                       v? (valid-scalars? d-from-s spec)]
                    (vector d-from-s v?)))]
      (repeatedly n f))))
 
@@ -792,7 +833,7 @@ retrieved on 2024Mar12."}
                                         (element->predicate
                                          (get-in* data (:path invalids)))))
           spec
-          (only-invalid (validate-scalar-spec data spec))))
+          (only-invalid (validate-scalars data spec))))
 
 
 (defn smash-data
@@ -816,7 +857,7 @@ retrieved on 2024Mar12."}
                                        (predicate->canonical
                                         (get-in* spec (:path invalids)))))
           data
-          (only-invalid (validate-scalar-spec data spec))))
+          (only-invalid (validate-scalars data spec))))
 
 
 ;; Collection spec utilities
@@ -930,13 +971,13 @@ retrieved on 2024Mar12."}
 
 
 (defn basic-collection-spec-from-data
-  "Given `data`, a heterogneous, arbitrarily-nested collection,
+  "Given `data`, a heterogeneous, arbitrarily-nested collection,
   returns a similar structure that can serve as basic collection specification.
   Non-terminating sequences are clamped to length `3` and converted to vectors.
 
   Note: Speculoos validates maps with predicates at keys which do not exist in
   `data`, so a pseudo-qualified key `:speculoos.utility/collection-predicate`
-  is created that is applied by [[validate-collection-spec]].
+  is created that is applied by [[validate-collections]].
 
   Examples:
   ```clojure
@@ -1051,39 +1092,73 @@ retrieved on 2024Mar12."}
    ord-path))
 
 
-(defn collections-without-specs
+(defn collections-without-predicates
   "Given `data` a heterogeneous, arbitrarily-nested data structure, returns a
-  set of `data`'s collection elements and their paths which lack at least one
+  set of `data`'s all-paths elements for collections which lack at least one
   corresponding predicate in collection specification `spec`. See also
-  [[data-without-specs]].
+  [[scalars-without-predicates]] and [[scalars-with-predicates]].
 
   Examples:
   ```clojure
   ;; all collections have a corresponding collection predicate; returns an empty set
-  (collections-without-specs [11 [22] 33] [vector? [vector?]])
+  (collections-without-predicates [11 [22] 33] [vector? [vector?]])
   ;; => #{}
 
   ;; missing predicate(s)
-  (collections-without-specs [11 [22] 33] [vector? []])
+  (collections-without-predicates [11 [22] 33] [vector? []])
   ;; => #{{:path [1], :value [22]}}
 
-  (collections-without-specs {:a [11 {:b (list 22 33)}]} {:a [vector? {:is-a-map? map?}]})
+  (collections-without-predicates {:a [11 {:b (list 22 33)}]} {:a [vector? {:is-a-map? map?}]})
   ;; => #{{:path [:a 1 :b], :value (22 33)}
   ;;      {:path [], :value {:a [11 {:b (22 33)}]}}}
 
-  (collections-without-specs [11 [22] 33 (cycle [44 55 66])] [vector? [vector?]])
+  (collections-without-predicates [11 [22] 33 (cycle [44 55 66])] [vector? [vector?]])
   ;; => #{{:path [3], :value []}}
   ```"
   {:UUIDv4 #uuid "3cced132-72aa-42b4-8ac1-4488d358572a"}
   [data spec]
   (let [[data spec] (expand-and-clamp data spec)
         all (all-paths data)
-        validation (validate-collection-spec data spec)
+        validation (validate-collections data spec)
         colls-only (set (filter #(coll? (:value %)) all))
         red-fn (fn [acc vl] (let [entry (select-keys vl [:ordinal-parent-path :datum])]
                               (disj acc {:path (recover-literal-path data (:ordinal-parent-path entry))
                                          :value (:datum entry)})))]
     (reduce red-fn colls-only validation)))
+
+
+(defn thoroughly-valid?
+  "Given a heterogeneous, arbitrarily-nested data structure `data`, returns
+  `true` if every scalar in `data` has a predicate in `scalar-spec` and
+  every collection has at least one predicate in `collection-spec`, and all
+  predicates are satisfied.
+
+  See [[valid?]], [[scalars-without-predicates]], and
+  [[collections-without-predicates]].
+
+  Examples:
+  ```clojure
+  ;; all scalars and colls have satisfied predicates
+  (thoroughly-valid? [11 {:x 22/7 :y 'foo}] [int? {:x ratio? :y symbol?}] [vector? {:is-map? map?}])
+  ;; => true
+
+  ;; all scalars and colls have predicates, but not all satisfied
+  (thoroughly-valid? [11 {:x 22/7 :y 'foo}] [char? {:x ratio? :y symbol?}] [vector? {:is-map? map?}])
+  ;; => false
+
+  ;; all predicates satisfied, but one scalar is missing a predicate
+  (thoroughly-valid? [11 {:x 22/7 :y 'foo}] [int? {:x ratio?}] [vector? {:is-map? map?}])
+  ;; => false
+
+  ;; all predicates satisfied, but one coll is missing a predicate
+  (thoroughly-valid? [11 {:x 22/7 :y 'foo}] [int? {:x ratio? :y symbol?}] [{:is-map? map?}])
+  ;; => false
+  ```"
+  {:UUIDv4 #uuid "43b126ce-c684-4358-b5ec-bba6f4c46fc5"}
+  [data scalar-spec collection-spec]
+  (and (valid? data scalar-spec collection-spec)
+       (empty? (scalars-without-predicates data scalar-spec))
+       (empty? (collections-without-predicates data collection-spec))))
 
 
 (defn clamp-in*
@@ -1119,7 +1194,7 @@ retrieved on 2024Mar12."}
 
 
 (defn clamp-every
-  "Given a heterogeneous, arbitratrily-nested collection `coll`, 'clamp' every
+  "Given a heterogeneous, arbitrarily-nested collection `coll`, 'clamp' every
   (possibly) non-terminating sequence at length `x`. Sequences are converted to
   vectors. See [[clamp-in*]] for particulars on behavior.
 
@@ -1147,7 +1222,7 @@ retrieved on 2024Mar12."}
   [`clojure.core/contains?`](https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/contains?)
   suggests it might do. Works on all collection types, but map elements are
   checked as `MapEntry` key-value pairs. Pass `(vals m)` if you want to only
-  check values. Properly handles `nil` and `false` memebership.
+  check values. Properly handles `nil` and `false` membership.
 
   Examples:
   ```clojure
@@ -1191,7 +1266,7 @@ retrieved on 2024Mar12."}
   * `:.` exactly-one
   * `:+` one-or-more
   * `:*` zero-or-more
-  * `[m n]` between `m` and `n` (itegers), inclusive
+  * `[m n]` between `m` and `n` (integers), inclusive
   * `i` exactly `i` (integer)
 
   Examples:
@@ -1243,7 +1318,7 @@ retrieved on 2024Mar12."}
 
   Predicates must be specific enough so that they aren't consumed further than
   you intend. This is treacherous when, e.g., converting to string.
-  Here's possibly suprising failing example:
+  Here's possibly surprising failing example:
   ```clojure
   (seq-regex [:a :b :c 'fo 'br 'bz] #(= 2 (count (str %))) 3 symbol? 3)
   ;; => false
@@ -1358,3 +1433,484 @@ Example:
 (def ^{:doc ordinal-docstring} =10th (th 10))
 (def ^{:doc ordinal-docstring} =11th (th 11))
 (def ^{:doc ordinal-docstring} =12th (th 12))
+
+
+;; defpred, a utility macro for defining predicates and automatically creating
+;; random sample generators
+
+
+(def pred-sym->gen-sym
+  (with-meta
+    {'ratio? '(clojure.test.check.generators/such-that ratio? clojure.test.check.generators/ratio)
+     'boolean? 'clojure.test.check.generators/boolean
+     'char? 'clojure.test.check.generators/char-alphanumeric
+     'double? 'clojure.test.check.generators/double
+     'int? 'clojure.test.check.generators/small-integer
+     'keyword? 'clojure.test.check.generators/keyword
+     'simple-keyword? 'clojure.test.check.generators/keyword
+     'qualified-keyword? 'clojure.test.check.generators/keyword-ns
+     'neg-int? '(clojure.test.check.generators/fmap - clojure.test.check.generators/nat)
+     'pos-int? '(clojure.test.check.generators/nat)
+     'string? 'clojure.test.check.generators/string-alphanumeric
+     'symbol? 'clojure.test.check.generators/symbol
+     'simple-symbol? 'clojure.test.check.generators/symbol
+     'qualified-symbol? 'clojure.test.check.generators/symbol-ns
+     'uuid? 'clojure.test.check.generators/uuid}
+    {:UUIDv4 #uuid "7a28e369-2a17-4a62-a1c9-ad1da404befd"
+     :doc "Maps predicate symbols to clojure.test.check.generators symbols."
+     :no-doc true}))
+
+
+(defn predicate-scalar-symbol
+  "Given s-exp `f` that represents a 1-arity predicate function, return the
+  symbol that represents the scalar being tested.
+
+  Examples:
+  ```clojure
+  (predicate-scalar-symbol '(fn [x] (int? x))) ;; => x
+
+  (predicate-scalar-symbol '#(int? %)) ;; => p1__9877#
+
+  (predicate-scalar-symbol '(fn [foo] (and (number? foo) (< foo 99)))) ;; => foo
+  ```"
+  {:UUIDv4 #uuid "d1611c53-da0d-42d5-af99-b82a20426252"
+   :no-doc true}
+  [f]
+  (first (second f)))
+
+
+(defn valid-fn-form?
+  "Returns `true` if form `f` represents a valid function, `false` otherwise."
+  {:UUIDv4 #uuid "86f56c2a-0286-4061-8ee1-f68e2ed8b0d3"
+   :no-doc true}
+  [f]
+  (boolean (#{'fn 'fn*} (first f))))
+
+
+(def predicate->generator
+  (with-meta
+    (reduce #(assoc %1 (:predicate (get %2 1)) (:gen (get %2 1)))
+            {}
+            speculoos.utility/type-predicate-canonical)
+    {:UUIDv4 #uuid "824f18f6-9822-424a-a6e9-82c8bcfeadfb"
+     :no-doc true}))
+
+
+(def ^:dynamic *such-that-max-tries* 50)
+
+
+(defn and-branch
+  "Given a sequence `s` of predicate s-exps, returns a vector containing a
+  generator symbol and that generator symbol evaled. Argument symbol
+  `arg-sym` must be supplied in order for
+  `clojure.test.check.generators/such-that` modifiers can be constructed."
+  {:UUIDv4 #uuid "9e193537-7a30-4fe8-9484-5c0f41610780"
+   :no-doc true}
+  [s arg-sym]
+  (let [exclude-and (next s)
+        base-pred (ffirst exclude-and)
+        modifiers (cons 'and (next exclude-and))
+        such-that `(fn [~arg-sym] ~modifiers)
+        generator (pred-sym->gen-sym base-pred)
+        generator-sym (if (next modifiers)
+                        `(clojure.test.check.generators/such-that ~such-that ~generator {:max-tries *such-that-max-tries*})
+                        generator)]
+    [generator-sym (eval generator-sym)]))
+
+
+(defn and-branch-self-check
+  "Check the returned generator against a manually-supplied predicate. `s` and
+  `arg-sym` correspond the args in [[and-branch]], `pred` is the predicate to
+  test against."
+  {:UUIDv4 #uuid "64b14e4d-ef96-48b4-8fa8-89980cb5e70a"
+   :no-doc true}
+  [s arg-sym pred]
+  (let [[gen-sym gen-obj] (and-branch s arg-sym)
+        samples (clojure.test.check.generators/sample gen-obj)
+        valids (map #(pred %) samples)]
+    (every? true? valids)))
+
+
+(comment
+  (and-branch-self-check '(and (int? i) (even? i))
+                         'i
+                         int?)
+
+  (and-branch-self-check '(and (string? s) (< 3 (count s)))
+                         's
+                         string?)
+
+  (and-branch-self-check '(and (keyword? k) (< 3 (count (str k))))
+                         'k
+                         keyword?)
+
+  (and-branch-self-check '(and (ratio? r) (< 1/9 r))
+                         'r
+                         ratio?)
+  )
+
+
+(defn or-branch
+  "Given a sequence `s` of predicate s-exps, returns generator symbol and that
+  generator symbol evaled, which would produce one or more scalar types with
+  equal probability. Argument symbol `arg-sym` must be supplied in order for
+  `clojure.test.check.generators/such-that` modifiers can be constructed."
+  {:UUIDv4 #uuid "75fdfaac-502d-4ed2-b768-24d7673ed14d"
+   :no-doc true}
+  [s arg-sym]
+  (let [exclude-or (next s)
+        f (fn [x] (case (first x)
+                    and (and-branch x arg-sym)
+                    [(pred-sym->gen-sym (first x)) (eval (pred-sym->gen-sym (first x)))]))
+        branches (map f exclude-or)]
+    [(reverse (conj '(clojure.test.check.generators/one-of) (vec (map #(get % 0) branches))))
+     (clojure.test.check.generators/one-of (map #(get % 1) branches))]))
+
+
+(comment
+  (or-branch '(or) 'z)
+  (or-branch '(or (int? x)) 'x)
+  (or-branch '(or (string? y) (keyword? y)) 'y)
+  (or-branch '(or (int? z) (string? z) (boolean? z)) 'z)
+
+  (or-branch '(or (and (int? i) (even? i)))
+             'i)
+
+  (or-branch '(or (and (int? q) (pos? q))
+                  (string? q))
+             'q)
+
+  (or-branch '(or (and (int? w) (odd? w) (>= w 2))
+                  (and (string? w) (< 3 (count w)))
+                  (and (ratio? w) (<= 1/9 w) (< w 1)))
+             'w)
+
+  (gen/sample (get (or-branch '(or (int? a)
+                                   (string? a)
+                                   (ratio? a))
+                              'a)
+                   1))
+
+  (gen/sample (get (or-branch '(or (and (int? b) (even? b) (<= 1 b))
+                                   (and (string? b) (<= 3 (count b)))
+                                   (and (ratio? b) (<= 1/9 b) (< b 1/1))
+                                   (and (boolean? b) (true? b)))
+                              'b)
+                   1))
+  )
+
+
+(defn inspect-fn
+  "Inspect expression `f` to attempt to create a random sample generator. If
+  unable to do so, returns `nil`.`f` must be of the form `(fn [...] ...)`
+  or `#(...)`.
+
+  *This implementation is a proof-of-concept* that only descends to a maximum
+  depth of two levels. It does not generically handle arbitrary nesting depths
+  nor all possible Clojure data types
+
+  The predicate body must fulfill these properties:
+
+  1. The first symbol must be `and`, `or`, or a basic predicate for a Clojure
+     built-in scalar, such as `int?` that is registered at
+     `speculoos.utility/preddicate->generator`.
+  2. The first clause after `and` or `or` must contain a `clojure.core`
+     predicate for a scalar, such as `int?`.
+  3. Subsequent clauses of `and` will be injected into a
+     `clojure.test.check.generators/such-that` filter.
+  4. Direct descendants of a top-level `or` will produce `n` separate random
+     sample generators, each with `1/n` probability for any one invocation.
+
+  Examples:
+  ```clojure
+  (inspect-fn '(fn [i] (int? i)))
+  (inspect-fn '(fn [i] (and (int? i) (even? i))))
+
+  (inspect-fn '#(int? %))
+  (inspect-fn '#(and (int? %) (even? %)))
+
+  (inspect-fn '(fn [x] (or (int? x) (ratio? x))))
+
+  (inspect-fn '#(or (and (int? %) (odd? %))
+                    (and (string? %) (<= 3 (count %)))))
+  ```"
+  {:UUIDv4 #uuid "88eaaa10-489b-4f8c-8a09-6d7b89e89c9e"}
+  [f]
+  (if (valid-fn-form? f)
+    (let [fn-body (nth f 2)
+          arg-symbol (predicate-scalar-symbol f)]
+      (case (first fn-body) ;; symbols should not be quoted [https://ask.clojure.org/index.php/9508/incorrect-difficult-comprehend-behavior-matching-clojure]
+        and (and-branch fn-body arg-symbol)
+        or (or-branch fn-body arg-symbol)
+        [(pred-sym->gen-sym (first fn-body)) (eval (pred-sym->gen-sym (first fn-body)))]))
+    "Argument `f` is not a valid function form such as (fn [x] ...) or #(...)"))
+
+
+(comment
+  ;; invalid form
+  (inspect-fn '())
+
+  ;; empty
+  (inspect-fn '(fn [] ()))
+  (inspect-fn '#())
+
+  ;; (fn [...] ...) patterns
+  ;;;; single predicates, no modifiers
+  (inspect-fn '(fn [i] (int? i)))
+  (inspect-fn '(fn [s] (string? s)))
+  (inspect-fn '(fn [k] (keyword? k)))
+
+  ;;;; single predicates with 'and, but no modifiers
+  (inspect-fn '(fn [i] (and (int? i))))
+  (inspect-fn '(fn [r] (and (ratio? r))))
+  (inspect-fn '(fn [c] (and (char? c))))
+
+  ;;;; single predicates, 'and, one modifier
+  (inspect-fn '(fn [i] (and (int? i) (even? i))))
+  (inspect-fn '(fn [s] (and (string? s) (<= 3 (count s)))))
+  (inspect-fn '(fn [d] (and (double? d) (<= 3 d))))
+
+  ;;;; single predicates, 'and, multiple modifiers
+  (inspect-fn '(fn [r] (and (ratio? r) (< r 99) (>= r 0))))
+  (inspect-fn '(fn [b] (and (boolean? b) (true? b) (not (false? b)))))
+  (inspect-fn '(fn [c] (and (char? c) (not= c \A) (not= c \B))))
+  (inspect-fn '(fn [d] (and (double? d) (< d 999) (>= d 0))))
+  (inspect-fn '(fn [i] (and (int? i) (even? i) (< i 99) (not= i 5))))
+  (inspect-fn '(fn [k] (and (keyword? k) (not= k :foo) (not= :bar k))))
+  (inspect-fn '(fn [sk] (and (simple-keyword? sk) (not= sk :foo) (not= :bar sk))))
+  (inspect-fn '(fn [qk] (and (qualified-keyword? qk) (not= qk :foo) (not= :bar qk))))
+  (inspect-fn '(fn [ni] (and (neg-int? ni) (not= ni 5) (<= ki 0))))
+  (inspect-fn '(fn [pi] (and (pos-int? pi) (not= pi -1) (>= pi 0))))
+  (inspect-fn '(fn [s] (and (string? s) (not= s "foobarbaz") (not= 1 (count s)))))
+  (inspect-fn '(fn [s] (and (symbol? s) (not= s 'foo) (not= 'bar s))))
+  (inspect-fn '(fn [ss] (and (simple-symbol? ss) (not= ss 'foo) (not= 'baz ss))))
+  (inspect-fn '(fn [qs] (and (qualified-symbol? qs) (not= qs 'foo) (not= 'bar qs))))
+  (inspect-fn '(fn [u] (and (uuid? u) (not= u "foo") (not= u :foo))))
+
+  ;; #(... %) patterns
+  ;;;; single predicates, no modifiers
+  (inspect-fn '#(int? %))
+  (inspect-fn '#(string? %))
+  (inspect-fn '#(keyword? %))
+
+  ;;;; single predicates with 'and, but no modifiers
+  (inspect-fn '#(and (int? %)))
+  (inspect-fn '#(and (ratio? %)))
+  (inspect-fn '#(and (char? %)))
+
+  ;;;; single predicates, 'and, one modifer
+  (inspect-fn '#(and (int? %) (even? %)))
+  (inspect-fn '#(and (string? %) (<= 3 (count %))))
+  (inspect-fn '#(and (double? %) (<= 3 %)))
+
+  ;;;; single predicats, 'and, multiple modifiers
+  (inspect-fn '#(and (ratio? %) (< % 99) (>= % 0)))
+  (inspect-fn '#(and (boolean? %) (true? %) (not (false? %))))
+  (inspect-fn '#(and (double? %) (< % 999) (>= % 0)))
+  (inspect-fn '#(and (int? %) (even? %) (< % 99) (not= % 5)))
+  (inspect-fn '#(and (string? %) (not= % "foobarbaz") (not= 1 (count %))))
+
+  ;; 'or
+  (inspect-fn '(fn [i] (or (int? i))))
+  (inspect-fn '(fn [i] (or (int? i) (string? i))))
+  (inspect-fn '(fn [x] (or (and (int? x) (even? x))
+                           (and (string? x) (<= 3 (count x))))))
+
+  (inspect-fn '#(or (int? %)))
+  (inspect-fn '#(or (int? %) (string? %)))
+  (inspect-fn '#(or (and (int? %) (odd? %))
+                    (and (string? %) (<= 3 (count %)))))
+)
+
+
+(defn inspect-fn-self-check
+  "Check the results of `inspect-fn` by applying the supplied predicate `p`
+  against the random sample returned by the generator."
+  {:UUIDv4 #uuid "129d53fc-f39a-418c-9617-4a7ef5cdc43e"
+   :no-doc true}
+  [p]
+  (let [[generator-form generator-obj] (inspect-fn p)
+        sample (clojure.test.check.generators/sample generator-obj 10)]
+    {:predicate-form p
+     :generator-form generator-form
+     :generator-object generator-obj
+     :generated-sample sample
+     :all-valid? (every? #(true? ((eval p) %)) sample)}))
+
+
+(comment
+  (inspect-fn-self-check '#(int? %))
+  (inspect-fn-self-check '#(string? %))
+
+  (inspect-fn-self-check '#(and (int? %)))
+  (inspect-fn-self-check '#(and (string? %)))
+
+  (inspect-fn-self-check '#(and (int? %) (even? %)))
+  (inspect-fn-self-check '#(and (string? %) (< 3 (count %))))
+
+  (inspect-fn-self-check '(fn [k] (keyword? k)))
+  (inspect-fn-self-check '(fn [s] (string? s)))
+  (inspect-fn-self-check '(fn [i] (int? i)))
+
+  (inspect-fn-self-check '(fn [i] (and (int? i) (even? i))))
+  (inspect-fn-self-check '(fn [s] (and (string? s) (<= 3 (count s)))))
+
+  (inspect-fn-self-check '(fn [x] (or (int? x))))
+  (inspect-fn-self-check '(fn [x] (or (int? x) (string? x))))
+  (inspect-fn-self-check '(fn [x] (or (int? x) (string? x) (ratio? x))))
+
+  (inspect-fn-self-check '(fn [x] (or (and (int? x)
+                                           (even? x)))))
+
+  (inspect-fn-self-check '(fn [x] (or (and (int? x)
+                                           (odd? x))
+                                      (and (string? x)
+                                           (<= 3 (count x))))))
+
+  (inspect-fn-self-check '(fn [x] (or (and (int? x)
+                                           (pos? x)
+                                           (even? x))
+                                      (and (string? x)
+                                           (<= 2 (count x)))
+                                      (and (ratio? x)
+                                           (<= 1/8 x)))))
+
+  (inspect-fn-self-check '#(or (int? %)))
+  (inspect-fn-self-check '#(or (int? %) (string? %)))
+  (inspect-fn-self-check '#(or (int? %) (string? %) (ratio? %)))
+
+  (inspect-fn-self-check '#(or (and (int? %)
+                                    (neg? %))))
+
+  (inspect-fn-self-check '#(or (and (int? %)
+                                    (even? %))
+                               (and (string? %)
+                                    (<= 2 (count %)))))
+
+  (inspect-fn-self-check '#(or (and (int? %)
+                                    (even? %))
+                               (and (string? %)
+                                    (<= 2 (count %)))
+                               (and (ratio? %)
+                                    (<= 1/9 %))))
+  )
+
+
+(defmacro defpred
+  "*def*ine a *pred*icate by binding symbol `predname` to function `f` while
+  associating a random sample generator.
+
+  1. With only a name `predname` and function `f`, `defpred` will attempt to
+     create a random sample generator as outlined by [[inspect-fn]].
+  2. An explicitly supplied `generator` will be preferred.
+  3. If `generator` is explicitly provided, a canonical value may also be
+     supplied. If the optional canonical value is not supplied, a keyword is
+     automatically generated using the symbol `predname` appended with
+     `-canonical-sample`.
+
+  Useful for defining predicates consumed by [[data-from-spec]], [[exercise]],
+  and friends.
+
+  `*such-that-max-tries*` is bound to an integer (default `50`) that governs the
+  number of attempts the random sample generator will make to create a valid
+  sample.
+
+  Note: Can not use bare predicates such as `int?`; they must be 'wrapped', like
+  `#(int? %)`. See examples.
+
+  Examples:
+  ```clojure
+  (macroexpand-1 '(defpred foo (fn [i] (int? i)) (fn [] (rand-int 99)) 42))
+  ;; => (def foo (clojure.core/with-meta (fn [i] (int? i)) #:speculoos{:canonical-sample 42, :predicate->generator (fn [] (rand-int 99))}))
+
+  (defpred f1 #(<= % 99) #(rand-int 99) 42)
+  (defpred f2 #(<= % 5)  #(- (rand-int 99))) ;; no canonical value supplied
+  (defpred f3 #(> % 999) #(rand 999) 1.23)
+
+  (data-from-spec [f1 f2 f3] :random)
+  ;; => [86 -77 971.3462532541377]
+
+  (data-from-spec [f1 f2 f3] :canonical)
+  ;; => [42 :f2-canonical-sample 1.23]
+
+  ;; using (and...) to modify a core predicate
+  (defpred even-int? #(and (int? %) (even? %) (< 3 %)))
+  (data-from-spec [even-int? even-int? even-int? even-int?] :random)
+  ;; => [14 24 16 30]
+
+  ;; using (or...) to generate alternatives
+  (defpred int-or-kw? #(or (int? %) (keyword? %)))
+  (data-from-spec [int-or-kw? int-or-kw? int-or-kw? int-or-kw?] :random)
+  ;; => [:J0+ -25 22 :o_6W.l:?]
+
+  ;; using both (and...) and (or...)
+  (defpred odd-int-or-short-kw? (fn [x] (or (and (int? x)
+                                                 (odd? x))
+                                            (and (keyword? x)
+                                                 (>= 3 (count (str x)))))))
+
+  (data-from-spec [odd-int-or-short-kw?
+                   odd-int-or-short-kw?
+                   odd-int-or-short-kw?
+                   odd-int-or-short-kw?] :random)
+  ;; => [:Y9.c :i. -3 :xxk]
+  ```"
+  {:UUIDv4 #uuid "f49dc35b-b3e9-4e4a-b636-75e38b6a40e0"}
+  ([predname f]
+   (let [f-symbol f]
+     `(def ~predname (with-meta ~f {:speculoos/predicate->generator #(clojure.test.check.generators/generate (get (inspect-fn '~f-symbol) 1))
+                                    :speculoos/canonical-sample ~(keyword (str predname "-canonical-sample"))}))))
+  ([predname f generator]
+   `(def ~predname (with-meta ~f {:speculoos/predicate->generator ~generator
+                                  :speculoos/canonical-sample ~(keyword (str predname "-canonical-sample"))})))
+  ([predname f generator canonical]
+   `(def ~predname (with-meta ~f {:speculoos/predicate->generator ~generator
+                                  :speculoos/canonical-sample ~canonical}))))
+
+
+(comment
+
+  (macroexpand-1 '(defpred foo (fn [i] (int? i))))
+  (macroexpand-1 '(defpred foo (fn [i] (and (int? i)))))
+  (macroexpand-1 '(defpred foo (fn [i] (and (int? i) (even? i)))))
+
+  (macroexpand-1 '(defpred foo #(int? %)))
+  (macroexpand-1 '(defpred foo #(and (int? %))))
+  (macroexpand-1 '(defpred foo #(and (int? %) (even? %))))
+
+  (macroexpand-1 '(defpred foo #(or (and (int? %) (odd? %))
+                                    (and (string? %) (<= 5 (count %))))))
+
+  (defpred a1 #(and (int? %) (even? %)))
+  (defpred b2 (fn [x] (or (ratio? x) (string? x))))
+  (defpred c3 #(or (and (int? %) (neg? %))
+                   (keyword? %)))
+
+  (data-from-spec {:a a1
+                   :b b2
+                   :c c3
+                   :d a1
+                   :e b2
+                   :f [a1 b2 c3]} :random)
+
+  (data-from-spec [a1 b2 (list c3 {:x a1 :b b2})] :random)
+
+  (data-from-spec {:a a1
+                   :b b2
+                   :c c3
+                   :d a1
+                   :e b2
+                   :f [a1 b2 c3]} :canonical)
+
+  (data-from-spec [a1 b2 (list c3 {:x a1 :b b2})] :canonical)
+
+  (def spec-defpred [a1 b2 c3 {:x a1 :y b2 :z c3}])
+  (valid-scalars? (data-from-spec spec-defpred :random) spec-defpred)
+  )
+
+
+(defn lazy-seq?
+  "Returns `true` if `x` is a lazy sequence."
+  {:UUIDv4 #uuid "19c24236-a9fe-4066-87ae-321d0cfb319a"}
+  [x]
+  (isa? clojure.lang.LazySeq (type x)))

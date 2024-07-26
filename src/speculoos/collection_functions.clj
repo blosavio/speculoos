@@ -61,7 +61,7 @@
   (map-2 inc []) ;; => []
   ```
 
-  Modications of [map version 1.0](https://github.com/clojure/clojure/blob/f85444e6f890eb585e598efefdbd84727427e0a4/src/clj/clojure/core.clj#L1494C1-L1522C56)."
+  Modifications of [map version 1.0](https://github.com/clojure/clojure/blob/f85444e6f890eb585e598efefdbd84727427e0a4/src/clj/clojure/core.clj#L1494C1-L1522C56)."
   {:UUIDv4 #uuid "e4da723c-8b54-4036-9207-900553a20bd5"
    :source "clojure.core v1.0"
    :url "https://github.com/clojure/clojure/blob/f85444e6f890eb585e598efefdbd84727427e0a4/src/clj/clojure/core.clj#L1494C1-L1522C56"}
@@ -103,7 +103,7 @@
 
 
 (defn reduce-indexed
-  "Systematically apply `f` to elements of `coll`, analagous to
+  "Systematically apply `f` to elements of `coll`, analogous to
   [[map-indexed-2]]. Function `f` should be a function of 3 arguments: index,
   the accumulating value, and the next element of `coll`. `coll` may be any
   Clojure collection.

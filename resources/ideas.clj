@@ -46,25 +46,26 @@
           [:p "Now, we merely send both to Speculoos."]
 
           [:pre
-           (print-form-then-eval "(require '[speculoos.core :refer [valid-scalar-spec? only-invalid validate-scalar-spec]])")
+           (print-form-then-eval "(require '[speculoos.core :refer [valid-scalars? only-invalid validate-scalars]])")
            [:br]
-           (print-form-then-eval "(valid-scalar-spec? person-1 person-spec)")]
+           (print-form-then-eval "(valid-scalars? person-1 person-spec)")]
 
           [:p "Let's create some invalid data."]
 
-          [:pre (print-form-then-eval "(def person-2 {:name \"Lucy Ricardo\"
+          [:pre
+           (print-form-then-eval "(def person-2 {:name \"Lucy Ricardo\"
                                      :phone \"Klondike5-6553\"
                                      :address {:street-number 623
                                                :street-name \"East 68th Street\"
                                                :apt-number 4}
                                      :occupation \"candy assembly line operator\"
                                      :favorite-ice-cream-flavor :vita-meata-vegemin})")
-
-           (print-form-then-eval "(valid-scalar-spec? person-2 person-spec)")]
+           [:br]
+           (print-form-then-eval "(valid-scalars? person-2 person-spec)")]
 
           [:p "And when we delve a little deeper"]
 
-          [:pre (print-form-then-eval "(only-invalid (validate-scalar-spec person-2 person-spec))")]
+          [:pre (print-form-then-eval "(only-invalid (validate-scalars person-2 person-spec))")]
 
           [:p "we can see that the phone number in " [:code "person-2"] " is not valid."
            (label "invalid-phone")
@@ -80,7 +81,7 @@
 
           [:p "We check our veggies in the same way."]
 
-          [:pre (print-form-then-eval "(valid-scalar-spec? vegetables vegetable-spec)")]
+          [:pre (print-form-then-eval "(valid-scalars? vegetables vegetable-spec)")]
 
           [:p "And some invalid data."]
 
@@ -88,7 +89,7 @@
 
           [:p "Speculoos tells us what's wrong."]
 
-          [:pre (print-form-then-eval "(only-invalid (validate-scalar-spec rotten-vegetables vegetable-spec))")]
+          [:pre (print-form-then-eval "(only-invalid (validate-scalars rotten-vegetables vegetable-spec))")]
 
           [:p "Speculoos has a similar story for testing functions. Speculoos function specifications live in the function's metadata."]
 
@@ -123,7 +124,7 @@
 
           [:p "This carries enormous benefits. First, writing Speculoos specifications is natural and intuitive. Simply make your specification look like your data."]
 
-          [:pre (print-form-then-eval "(valid-scalar-spec? [99 \"abc\" :foo \\c false 'sym 22/7]
+          [:pre (print-form-then-eval "(valid-scalars? [99 \"abc\" :foo \\c false 'sym 22/7]
                                                  [int? string? keyword? char? boolean? symbol? ratio?])")]
 
           [:p "Speculoos handles heterogenous, arbitrarily-nested data structures of all of Clojure's data collection types."]
@@ -133,13 +134,13 @@
            [:br]
            (print-form-then-eval "(def spec-1 {:a int? :b [string? keyword?] :c {:d (list char? boolean?)}})")
            [:br]
-           (print-form-then-eval "(valid-scalar-spec? data-1 spec-1)")]
+           (print-form-then-eval "(valid-scalars? data-1 spec-1)")]
 
           [:p "There is a very nearly one-to-one correspondence between your data and a Speculoos specification."]
 
           [:p "Since specifications are pure Clojure data structures, any function that operates on a Clojure data structure will work, such as old reliable " [:code "clojure.core/assoc"] "."]
 
-          [:pre (print-form-then-eval "(valid-scalar-spec? {:x 33 :y 44}
+          [:pre (print-form-then-eval "(valid-scalars? {:x 33 :y 44}
                                                  (assoc {:y int?} :x int?))")]
 
           [:p "Composing a specification with "[:code "concat"] " is like a set of well-worn flannel pyjamas."]
@@ -149,7 +150,7 @@
            [:br]
            (print-form-then-eval "(def spec-from-the-wire [#(= % \"hello\") #(even? %)])")
            [:br]
-           (print-form-then-eval "(valid-scalar-spec? [6 2 [\"hello\" 4]]
+           (print-form-then-eval "(valid-scalars? [6 2 [\"hello\" 4]]
                                                  (concat spec-from-ten-years-ago
                                                          spec-from-the-wire))")]
 
@@ -158,12 +159,12 @@
           [:pre (print-form-then-eval "(def overly-strict-spec {:a float? :b #(and (string? %)
                                                                     (< 10 (count %)))})")
            [:br]
-           (print-form-then-eval "(valid-scalar-spec? {:a 5.5 :b \"baz\"}
+           (print-form-then-eval "(valid-scalars? {:a 5.5 :b \"baz\"}
                                                  (assoc overly-strict-spec :b string?))")]
 
           [:p "Your little machine does its job, and then sends off the processed data and the original specifciation."]
 
-          [:p "I propose that any other way of composing data specifications could, at most, only " [:em "match"] " it in power, but never exceed it. And to merely match it would require replicating all of Clojure plus all external libraries, everywhere. It's almost cheating to have the entirity of Clojure and its ecosystem to write specifications. People won't have to learn a new grammar or " [:span.small-caps "dsl"] ". Clojurists are already adept at diving into a data structure, pulling it apart, manipulating values, and putting back together. Could there logically be a superior method than writing specifications with pure Clojure data literals?"]
+          [:p "I propose that any other way of composing data specifications could, at most, only " [:em "match"] " it in power, but never exceed it. And to merely match it would require replicating all of Clojure plus all external libraries, everywhere. It's almost cheating to have the entirety of Clojure and its ecosystem to write specifications. People won't have to learn a new grammar or " [:span.small-caps "dsl"] ". Clojurists are already adept at diving into a data structure, pulling it apart, manipulating values, and putting them back together. It's difficult to imagine a method superior to writing specifications with pure Clojure data literals."]
 
           [:p "Speculoos' second core idea closely relates to the first, but I wanted to separate them so that if the second idea is a dud, it wouldn't sink both."]]
 
@@ -171,7 +172,7 @@
          [:section
           [:h2 "Augemented functions for manipulating nested data structures"]
 
-          [:p "I mentioned earlier Clojure's extensive core library for handling data structures. " [:code "get-in"] ", " [:code "assoc-in"] ", " [:code "update-in"] ", " [:code "dissoc"] " are among my favorites. However, they have some limitations that block them from serving in all the scenarios I wanted. I envisioned a set of functions that presented a consistent interface to inspect, change, and remove elements in vectors, maps, lists, and sets, at any arbitrary level of nesting."]
+          [:p "I mentioned earlier Clojure's extensive core library for handling data structures. " [:code "get-in"] ", " [:code "assoc-in"] ", " [:code "update-in"] ", " [:code "dissoc"] " are among my favorites. However, they have some limitations that block them from serving in all the scenarios I wanted. I envisioned a set of functions that presented a consistent, familiar interface to inspect, change, and remove elements in vectors, maps, lists, and sets, at any arbitrary level of nesting."]
 
           [:p "To that end, I wrote " [:em "starred"] " versions: " [:code "get-in*"] ", " [:code "assoc-in*"] ", " [:code "update-in*"] ", " [:code "dissoc-in*"] " which all operate similar to their " [:code "clojure.core"] " namesakes, but work on any heterogenous, arbitrarily-nested data structure. Their unified interface pivots on the concept of a "  [:em "path"] ", a vector of elements that unambiguously addresses a single datum in a heterogenous, arbitrarily-nested data structure. Elements in vectors and lists are referenced by zero-based integers, map elements are addressed by their keys"
            (label "tread-carefully")
@@ -203,7 +204,7 @@
 
           [:p "Note how the starred functions are able to dive into any of the collection types to do their jobs. Such capabilities are invaluable to straightforwardly manipulating Speculoos specification literals, or adjusting invalid/non-conforming data. In fact, the Speculoos implementation makes liberal use of each of these starred functions to perform the mechanics of validation. Beyond that, they also enable many of the Speculoos utility functions, such as generating sample data from a specification and data repair."]
 
-          [:p "One of " [:code "spec.alpha"] "'s headline features that Speculoos does not attempt to replicate is returning conformed values. This part of the Speculoos experiment tests if having the family of starred functions removes some of the need of conformed returns."]]
+          [:p "One of " [:code "spec.alpha"] "'s headline features that Speculoos does not attempt to replicate is returning conformed values. This part of the Speculoos experiment tests if having the family of starred functions alleviates some of the need of conformed returns."]]
 
 
          [:section
@@ -211,11 +212,11 @@
 
           [:p "You may have been uncomfortably shifting in your chair while reading through the Speculoos examples above. Every example we've seen so far shows Speculoos validating individual scalars, such as integers, strings, booleans, etc."]
 
-          [:pre (print-form-then-eval "(valid-scalar-spec? [false \"qwz\" -88] [false? string? neg-int?])")]
+          [:pre (print-form-then-eval "(valid-scalars? [false \"qwz\" -88] [false? string? neg-int?])")]
 
           [:p "However, you might need to specify some property of a collection itself, such as a vector's length, the presence of a key in a map, relationships " [:em "between"] " datums, etc."]
 
-          [:p "Speculoos' third idea is that specification of scalars and specification of collections should be explicitly separate. You perhaps noticed that the function name wasn't " [:code "valid?"] " but instead " [:code "valid-scalar-spec?"] ". Speculoos provides a parallel group of functions to validate the properties of collections, independent of the scalar values they contain."]
+          [:p "Speculoos' third idea is that specification of scalars and specification of collections should be explicitly separate. You perhaps noticed that the function name wasn't " [:code "valid?"] " but instead " [:code "valid-scalars?"] ". Speculoos provides a parallel group of functions to validate the properties of collections, independent of the scalar values they contain."]
 
           [:pre
            (print-form-then-eval "(def scalars-not-important [33 {:Q 77 :W [:granite :marble :basalt]}])")
@@ -223,9 +224,9 @@
            (print-form-then-eval "(def spec-for-collections [#(= 2 (count %)) {:W [vector? #(every? (complement coll?) %)]
                                                                         :all-keywords-capitals? (fn [m] (every? #(re-matches #\"^[A-Z]$\" (name %)) (keys m)))}])")
            [:br]
-           (print-form-then-eval "(require '[speculoos.core :refer [valid-collection-spec? valid?]])")
+           (print-form-then-eval "(require '[speculoos.core :refer [valid-collections? valid?]])")
            [:br]
-           (print-form-then-eval "(valid-collection-spec? scalars-not-important spec-for-collections)")]
+           (print-form-then-eval "(valid-collections? scalars-not-important spec-for-collections)")]
 
           [:p "To show how strongly I believe this idea, I reserved a very precious resource — the shortest, most mnemonic function name, " [:code "valid?"] " — for simultanesouly, but separately, checking a scalar specification and a collection specification."]
 
