@@ -8,16 +8,16 @@ Find more documentation at the [Speculoos project page](https://spec.uloos.net).
 
 ### Leiningen
 
-In your `project.clj` file:
+In your `project.clj` file's `:deps` entry:
 
 ```clojure
-:deps [[com.sagevisuals/speculoos "version 1"]]
+[com.sagevisuals/speculoos "version1"]
 ```
 
 ### deps.edn
 
 ```clojure
-com.sagevisuals/speculoos "version 1"
+com.sagevisuals/speculoos {:mvn/version "version1"}
 ```
 
 Then require it:
