@@ -25,7 +25,8 @@
           [:pre [:code "com.sagevisuals/speculoos {:mvn/version \"version1\"}"]]
           [:p "Or this to your " [:a {:href "https://leiningen.org/"} "Leiningen"] " " [:code "project.clj"] " file:"]
           [:pre [:code "[com.sagevisuals/speculoos \"version1\"]"]]
-          [:p "Find the source code on " [:a {:href "https://github.com/blosavio/speculoos"} "Speculoos' repository page."]]
+          [:p "Find the source code on " [:a {:href "https://github.com/blosavio/speculoos"} "Speculoos' repository page"] "."]
+          [:p "Deployed at the " [:a {:href "https://clojars.org/com.sagevisuals/speculoos"} "Clojars repository"] "."]
           [:p "Released under the " [:a {:href "https://opensource.org/license/mit"} "MIT License"] "."]
           [:p [:code "gpg"] " key information:"
            [:ul

@@ -1,12 +1,14 @@
+[![Clojars Project](https://img.shields.io/clojars/v/com.sagevisuals/speculoos.svg)](https://clojars.org/com.sagevisuals/speculoos)
+
 # Speculoos
 
 An experimental Clojure library for data specification.
 
-Find more documentation at the [Speculoos project page](https://spec.uloos.net).
+Find documentation at the [Speculoos project page](https://blosavio.github.io/speculoos).
 
 ## Setup
 
-### Leiningen
+### Leiningen/Boot
 
 In your `project.clj` file's `:deps` entry:
 
@@ -14,7 +16,7 @@ In your `project.clj` file's `:deps` entry:
 [com.sagevisuals/speculoos "version1"]
 ```
 
-### deps.edn
+### Clojure CLI/deps.edn
 
 ```clojure
 com.sagevisuals/speculoos {:mvn/version "version1"}
