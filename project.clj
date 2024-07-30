@@ -18,4 +18,5 @@
           :namespaces [#"^speculoos\.(?!scratch)(?!generators)"]
           :output-path "doc"
           :themes [:speculoos]
-          :source-uri "https://github.com/blosavio/speculoos/blob/main/{filepath}#L{line}"})
+          :source-uri "https://github.com/blosavio/speculoos/blob/main/{filepath}#L{line}"}
+  :scm {:name "git" :url "https://github.com/blosavio/speculoos"})
