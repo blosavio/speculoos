@@ -4,7 +4,7 @@
 
 An experimental Clojure library for data specification.
 
-Find documentation at the [Speculoos project page](https://blosavio.github.io/speculoos).
+Find documentation at the [Speculoos project page](https://blosavio.github.io/speculoos/home.html).
 
 ## Setup
 
