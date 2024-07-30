@@ -13,13 +13,13 @@ Find documentation at the [Speculoos project page](https://blosavio.github.io/sp
 In your `project.clj` file's `:deps` entry:
 
 ```clojure
-[com.sagevisuals/speculoos "version1"]
+[com.sagevisuals/speculoos "1"]
 ```
 
 ### Clojure CLI/deps.edn
 
 ```clojure
-com.sagevisuals/speculoos {:mvn/version "version1"}
+com.sagevisuals/speculoos {:mvn/version "1"}
 ```
 
 Then require it:

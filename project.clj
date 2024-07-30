@@ -1,4 +1,4 @@
-(defproject com.sagevisuals/speculoos "version1"
+(defproject com.sagevisuals/speculoos "1"
   :description "A library for validating Clojure data."
   :url "https://blosavio.github.io/speculoos/home.html"
   :license {:name "MIT License"

@@ -17,11 +17,44 @@
   (:require
    [clojure.set :as set]
    [clojure.string :as str]
+   #_ [speculoos.collection-hierarchy :refer [create-collection-hierarchy]]
    [speculoos.collection-functions :refer [reduce-indexed]]
    [speculoos.fn-in :refer [get-in* assoc-in*]]))
 
 
-(load-file "src/speculoos/collection_hierarchy.clj")
+;;(create-collection-hierarchy)
+(derive clojure.lang.PersistentList ::list)
+(derive clojure.lang.PersistentList$EmptyList ::list)
+
+(derive clojure.lang.Cons ::list)
+
+(derive clojure.lang.PersistentVector ::vector)
+(derive clojure.lang.PersistentVector$ChunkedSeq ::vector)
+
+(derive clojure.lang.PersistentArrayMap ::map)
+(derive clojure.lang.PersistentHashMap ::map)
+(derive clojure.lang.PersistentTreeMap ::map)
+
+(derive clojure.lang.MapEntry ::map-entry)
+
+(derive clojure.lang.PersistentHashSet ::set)
+(derive clojure.lang.PersistentTreeSet ::set)
+
+(derive ::list ::non-map-entry-collection)
+(derive ::vector ::non-map-entry-collection)
+(derive ::map ::non-map-entry-collection)
+(derive ::set ::non-map-entry-collection)
+
+(derive ::list ::non-map)
+(derive ::vector ::non-map)
+(derive ::set ::non-map)
+
+(derive clojure.lang.Cycle ::non-terminating)
+(derive clojure.lang.Iterate ::non-terminating)
+(derive clojure.lang.LazySeq ::non-terminating)
+(derive clojure.lang.LongRange ::non-terminating)
+(derive clojure.lang.Range ::non-terminating)
+(derive clojure.lang.Repeat ::non-terminating)
 
 
 (defn assoc-vector-tail
