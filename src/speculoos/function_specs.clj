@@ -19,7 +19,8 @@
    [clojure.set :as set]
    [clojure.string :as str]
    [speculoos.core :refer [validate only-invalid dual-validate-scalars
-                           dual-validate-collections all-paths regex?]]
+                           dual-validate-collections all-paths regex?
+                           validate-scalars validate-collections]]
    [speculoos.utility :refer [data-from-spec]]))
 
 
@@ -113,8 +114,7 @@
                                    :speculoos/arg-collection-spec
                                    :speculoos/ret-scalar-spec
                                    :speculoos/ret-collection-spec
-                                   :speculoos/arg-vs-ret-scalar-spec
-                                   :speculoos/arg-vs-ret-collection-spec
+                                   :speculoos/argument-return-relationships
                                    :speculoos/canonical-sample
                                    :speculoos/predicate->generator
                                    :speculoos/hof-specs]
@@ -179,9 +179,64 @@
       invalid-results)))
 
 
+(defn validate-argument-return-relationship
+  "Validates an argument/return relationship given argument sequence `arg`,
+  function return value `ret`, and relationship `rel`, a map of
+  `{:path-argument … :path-return … :relationship-fn …}`. `:relationship-fn` is
+  a 2-arity function that presumably tests some relationship between a slice of
+  `arg`, passed as the first argument to the relationship function, and a slice
+  of `ret`, passed as the second argument to the relationship function. A `nil`
+  path indicates a 'bare' scalar value (i.e., a non-collection). `arg` ought to
+  always be a sequence.
+
+  Intended to validate the relationship between a function's arguments and its
+  return value.
+
+  Examples:
+  ```clojure
+  (defn doubled? [x y] (= y (* 2 x)))
+
+  ;; 'bare' function return, uses path `nil`
+  (validate-argument-return-relationship [42] 84 {:path-argument [0]
+                                                  :path-return nil
+                                                  :relationship-fn doubled?})
+  ;; => {:path-argument [0],
+  ;;     :path-return nil,
+  ;;     :relationship-fn doubled?,
+  ;;     :datum-argument 42,
+  ;;     :datum-return 84,
+  ;;     :valid? true}
+
+
+  (defn reversed? [v1 v2] (= v2 (reverse v1)))
+
+  ;; argument and return value fail to satisfy relationship
+  (validate-argument-return-relationship [1 2 3] [1 2 3] {:path-argument []
+                                                          :path-return []
+                                                          :relationship-fn reversed?})
+  ;; => {:path-argument [],
+  ;;     :path-return [],
+  ;;     :relationship-fn reversed?,
+  ;;     :datum-argument [1 2 3],
+  ;;     :datum-return [1 2 3],
+  ;;     :valid? false}
+  ```"
+  {:UUIDv4 #uuid "6a1d0075-0f4b-44c9-8d1f-2c86c94b78e6"}
+  [arg ret rel]
+  (let [arg-datum (fn-in.core/get-in* arg (:path-argument rel))
+        ret-datum (if (:path-return rel)
+                    (fn-in.core/get-in* ret (:path-return rel))
+                    ret)
+        validation ((:relationship-fn rel) arg-datum ret-datum)]
+    (merge rel {:datum-argument arg-datum
+                :datum-return ret-datum
+                :valid? validation})))
+
+
 (defn validate-fn-with
-  "Apply pre- and post-specs specifications to function `f`, invoke `f` with
-  arguments `args`. `specs` is a map with any permutation of
+  "Validate the scalar and collection aspects of arguments `args`, the return
+  value, and the relationship between the arguments and return value, of
+  function `f`. `specs` is a map with any permutation of
   [[recognized-spec-keys]]. Returns `f`'s results if `specs` are fully
   satisfied, otherwise, returns a report.
 
@@ -189,29 +244,79 @@
   guarantee that the function's output is correct.
 
   See [[validate-scalars]] and [[validate-collections]] for details
-  about validation.
+  about scalar and collection validation.
 
-  Examples:
+  See [[validate-argument-return-relationship]] for details about validating
+  relationships between the function's argument and the function's return value.
+
+  Example, validating scalars:
   ```clojure
-  (defn foo [x s] (+ x (read-string s)))
-  (foo 7 \"8\") ;; 15
+  (defn foo [x y] (+ x y))
 
-  (def foo-spec {:speculoos/arg-scalar-spec [int? string?]
-                 :speculoos/ret-scalar-spec number?})
+  ;; no specifications; return value passes through
+  (validate-fn-with foo {} 2 3)
+  ;; => 5
 
-  ;; supplying valid arguments; function returns
-  (validate-fn-with foo foo-spec 7 \"8\") ;; 15
+  ;; all scalar specifications satisfied; return value passes through
+  (validate-fn-with foo
+                    {:speculoos/arg-scalar-spec [int? int?]
+                     :speculoos/ret-scalar-spec int?}
+                    2 3)
+  ;; => 5
 
-  ;; supplying invalid argument (arg2 is not a string); yields a report
-  (validate-fn-with foo foo-spec 7 8)
-  ;; => ({:path [1], :datum 8, :predicate string?, :valid? false, :fn-spec-type :speculoos/argument}
-  ;;     {:path nil, :datum [], :predicate number?, :valid? false, :fn-spec-type :speculoos/return})
+  ;; one argument scalar specification and the return value scalar specification not satisfied
+  (validate-fn-with foo
+                    {:speculoos/arg-scalar-spec [int? int?]
+                     :speculoos/ret-scalar-spec int?}
+                    2 3.3)
+  ;; => ({:path [1], :datum 3.3, :predicate int?, :valid? false, :fn-spec-type :speculoos/argument}
+  ;;     {:path nil, :datum 5.3, :predicate int?, :valid? false, :fn-spec-type :speculoos/return})
+  ```
+
+  Example, validating argument/return value relationship:
+  ```clojure
+  ;; function to validate
+  (defn broken-reverse [v] v)
+
+  ;; function to test if the return collection is a correctly reversed version of the argument collection
+  (defn reversed? [v1 v2] (= v2 (reverse v1)))
+
+  ;; yup, it's truly broken
+  (reversed? [11 22 33] (broken-reverse [11 22 33]))
+  ;; => false
+
+  ;; `broken-reverse` fails to satisfy the relationship function because it doesn't correctly reverse the argument collection
+  (validate-fn-with broken-reverse
+                    {:speculoos/argument-return-relationships [{:path-argument [0]
+                                                                :path-return []
+                                                                :relationship-fn reversed?}]}
+                    [11 22 33])
+  ;; => ({:path-argument [0],
+  ;;      :path-return [],
+  ;;      :relationship-fn reversed?,
+  ;;      :datum-argument [11 22 33],
+  ;;      :datum-return [11 22 33],
+  ;;      :valid? false,
+  ;;      :fn-spec-type
+  ;;      :speculoos/argument-return-relationship})
   ```"
   {:UUIDv4 #uuid "44971243-841c-4c53-9926-90a94cd1407c"}
   [f specs & args]
-  (let [arg-spec-results (validate (vec args)
-                                   (:speculoos/arg-scalar-spec specs)
-                                   (:speculoos/arg-collection-spec specs))
+  (let [arg-scalar-spec (:speculoos/arg-scalar-spec specs)
+        arg-collection-spec (:speculoos/arg-collection-spec specs)
+        bare-arg-scalar-spec? (and ((complement nil?) arg-scalar-spec)
+                                   ((complement coll?) arg-scalar-spec)) ;; ((complment coll?) nil) evals to true
+        ret-scalar-spec (:speculoos/ret-scalar-spec specs)
+        ret-collection-spec (:speculoos/ret-collection-spec specs)
+        arg-scalar-validation (if arg-scalar-spec
+                                (if bare-arg-scalar-spec?
+                                  (binding [speculoos.core/*notice-on-validation-bare-scalar* false] (validate-scalars (first args) arg-scalar-spec))
+                                  (validate-scalars (vec args) arg-scalar-spec))
+                                [])
+        arg-collection-validation (if arg-collection-spec
+                                    (validate-collections (vec args) arg-collection-spec)
+                                    [])
+        arg-spec-results (concat arg-scalar-validation arg-collection-validation)
         tagged-arg-results (map #(assoc % :fn-spec-type :speculoos/argument) arg-spec-results)
         return (try (apply f (vec args))
                     (catch Exception e
@@ -219,29 +324,19 @@
                                "\narg scalar spec:" (:speculoos/arg-scalar-spec specs)
                                "\narg collection spec:" (:speculoos/arg-collection-spec specs))
                       []))
-        ret-spec-exits? (:speculoos/ret-scalar-spec specs)
-        bare-ret-spec?  ((complement coll?)  (:speculoos/ret-scalar-spec specs)) ;; ((complment coll?) nil) evals to true
-        ret-spec-results (if ret-spec-exits?
-                           (if bare-ret-spec?
-                             (let [pred (:speculoos/ret-scalar-spec specs)]
-                               [{:path nil
-                                 :datum return
-                                 :predicate pred
-                                 :valid? (if (regex? pred)
-                                           (re-matches pred return)
-                                           (pred return))}])
-                             (validate return
-                                       (:speculoos/ret-scalar-spec specs)
-                                       (:speculoos/ret-collection-spec specs))))
+        ret-scalar-validation (if ret-scalar-spec
+                                (binding [speculoos.core/*notice-on-validation-bare-scalar* false] (validate-scalars return ret-scalar-spec))
+                                [])
+        ret-collection-validation (if ret-collection-spec
+                                    (validate-collections return ret-collection-spec)
+                                    [])
+        ret-spec-results (concat ret-scalar-validation ret-collection-validation)
         tagged-ret-results (map #(assoc % :fn-spec-type :speculoos/return) ret-spec-results)
-        arg-vs-ret-scalar-results (if (coll? return) (dual-validate-scalars (vec args) return (:speculoos/arg-vs-ret-scalar-spec specs)))
-        tagged-vs-scalar-results (map #(assoc % :fn-spec-type :speculoos/arg-vs-ret) arg-vs-ret-scalar-results)
-        arg-vs-ret-collection-results (if (coll? return) (dual-validate-collections (vec args) return (:speculoos/arg-vs-ret-collection-spec specs)))
-        tagged-vs-collection-results (map #(assoc % :fn-spec-type :speculoos/arg-vs-ret) arg-vs-ret-collection-results)
+        argument-return-relationship-validation (mapv #(validate-argument-return-relationship (vec args) return %) (:speculoos/argument-return-relationships specs))
+        tagged-argument-return-relationship-results (map #(assoc % :fn-spec-type :speculoos/argument-return-relationship) argument-return-relationship-validation)
         non-satisfied-specs (filter #(not (:valid? %)) (concat tagged-arg-results
                                                                tagged-ret-results
-                                                               tagged-vs-scalar-results
-                                                               tagged-vs-collection-results))]
+                                                               tagged-argument-return-relationship-results))]
     (if (empty? non-satisfied-specs)
       return
       non-satisfied-specs)))

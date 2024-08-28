@@ -1,42 +1,11 @@
 @charset "utf-8";
 
-/* CSS for navigation sidebar, footers, code side-by-sides, etc, attempting to integrate with TufteCSS */
+/* CSS for navigation, footers, code side-by-sides, etc */
 
 dt {
     font-weight: bold;
 }
 
-
-#nav-bar {
-    position: absolute;
-    top: 245px;
-    margin: 0 0 0 -325px;
-    width: 260px;
-    height: auto;
-    border: 0px dotted gray;
-    padding: 5px 0 0 0;
-    background-color: transparent;
-    color: #111;
-    text-align: right;
-    line-height: 0.5em;
-}
-
-
-#nav-bar ul {
-    margin: 0 0 5em -4em;
-}
-
-#nav-bar li {
-    list-style: none;
-    letter-spacing: 2px;
-    margin: 0 0 0.15em 0;
-    padding: 0;
-    font-size: 80%;
-}
-
-#nav-bar li.small-caps {
-    font-variant: small-caps;
-}
 
 #page-footer {
     font-size: 100%;
@@ -65,9 +34,6 @@ dt {
     font-variant: small-caps;
 }
 
-.four-oh-four-link {
-    font-weight: normal;
-}
 
 span.totally-not-mail r {
     display: none;
@@ -159,4 +125,19 @@ span.totally-not-mail r {
 
 .wide-title {
     width: 100%;
+}
+
+pre {
+    background-color: whitesmoke;
+}
+
+code {
+    background-color: whitesmoke;
+}
+
+body {
+    width: 50em;
+    max-width: max-content;
+    margin: auto;
+    font-size: 12pt;
 }

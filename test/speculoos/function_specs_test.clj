@@ -108,6 +108,109 @@
     ))
 
 
+;; test functions
+(defn my-summation-er [v] (apply + v))
+(defn my-summation-er-broken [v] (+ 100 (my-summation-er v)))
+(defn my-reverser [v] (vec (reverse v)))
+(defn my-reverser-broken [v] (-> v pop pop (conj 42)))
+(defn swap-key-vals [m] {:x (m :y) :y (m :x)})
+(defn swap-key-vals-broken [m] m)
+(defn sum-vals [m] (apply + (vals m)))
+(defn sum-vals-broken [m] (- (sum-vals m)))
+(defn plus [x y] (+ x y))
+(defn plus-broken [x y] (- x y))
+
+
+;; example relationship functions
+(defn reversed? [v1 v2] (= v2 (reverse v1)))
+(defn doubled? [x y] (= y (* 2 x)))
+(defn same-elements? [v1 v2] (= (sort v1) (sort v2)))
+(defn equal-count? [v1 v2] (= (count v1) (count v2)))
+(defn is-count? [v n] (= n (count v)))
+(defn correct-sum? [v n] (= n (apply + v)))
+(defn four-elements? [v _] (= 4 (count v)))
+(defn twice-plus-two? [v3 n] (= n (+ 2 (* 2 v3))))
+(defn swapped? [m1 m2] (and (= (m1 :x) (m2 :y))
+                            (= (m1 :y) (m2 :x))))
+(defn is-2? [_ i] (= 2 i))
+(defn correct-val-sum? [m n] (= n (sum-vals m)))
+(defn correct-sign? [_ n] (pos? n))
+(defn correct-plus? [v y] (= y (apply + v)))
+
+
+(deftest validate-relationship-tests
+  (testing "valid relationships, 'bare' return"
+    (are [x y] (= x y)
+      (validate-argument-return-relationship [42] 84 {:path-argument [0]
+                                                      :path-return nil
+                                                      :relationship-fn doubled?})
+      {:path-argument [0], :path-return nil, :relationship-fn doubled?, :datum-argument 42, :datum-return 84, :valid? true}
+
+      ;; can get cute and omit :path-return so that it defaults to `nil` (not recommended, because it won't show up in validation report)
+      (validate-argument-return-relationship [42] 84 {:path-argument [0]
+                                                      :relationship-fn doubled?})
+      {:path-argument [0], :relationship-fn doubled?, :datum-argument 42, :datum-return 84, :valid? true}
+
+      (validate-argument-return-relationship [11 22 33] 3 {:path-argument []
+                                                           :path-return nil
+                                                           :relationship-fn is-count?})
+      {:path-argument [], :path-return nil, :relationship-fn is-count?, :datum-argument [11 22 33], :datum-return 3, :valid? true}))
+
+  (testing "invalid relationships, 'bare' return"
+    (are [x y] (= x y)
+      (validate-argument-return-relationship [42] 42 {:path-argument [0]
+                                                      :path-return nil
+                                                      :relationship-fn doubled?})
+      {:path-argument [0], :path-return nil, :relationship-fn doubled?, :datum-argument 42, :datum-return 42, :valid? false}
+
+      (validate-argument-return-relationship [11 22 33] 2 {:path-argument []
+                                                           :path-return nil
+                                                           :relationship-fn is-count?})
+      {:path-argument [], :path-return nil, :relationship-fn is-count?, :datum-argument [11 22 33], :datum-return 2, :valid? false}))
+
+  (testing "valid relationships"
+    (are [x y] (= x y)
+      (validate-argument-return-relationship [1 2 3] [3 2 1] {:path-argument []
+                                                              :path-return []
+                                                              :relationship-fn reversed?})
+      {:path-argument [], :path-return [], :relationship-fn reversed?, :datum-argument [1 2 3], :datum-return [3 2 1], :valid? true}
+
+      (validate-argument-return-relationship ['foo 'bar 'baz [:x :y :z [11 22 33]]]
+                                             {:q {:w [11 22 33]}}
+                                             {:path-argument [3 3]
+                                              :path-return [:q :w]
+                                              :relationship-fn same-elements?})
+      {:path-argument [3 3], :path-return [:q :w], :relationship-fn same-elements?, :datum-argument [11 22 33], :datum-return [11 22 33], :valid? true}
+
+      (validate-argument-return-relationship {:x [11 22 33]}
+                                             ['foo 'bar [77 88 99]]
+                                             {:path-argument [:x]
+                                              :path-return [2]
+                                              :relationship-fn equal-count?})
+      {:path-argument [:x], :path-return [2], :relationship-fn equal-count?, :datum-argument [11 22 33], :datum-return [77 88 99], :valid? true}))
+
+  (testing "invalid relationships"
+    (are [x y] (= x y)
+      (validate-argument-return-relationship [1 2 3] [1 2 3] {:path-argument []
+                                                              :path-return []
+                                                              :relationship-fn reversed?})
+      {:path-argument [], :path-return [], :relationship-fn reversed?, :datum-argument [1 2 3], :datum-return [1 2 3], :valid? false}
+
+      (validate-argument-return-relationship ['foo 'bar 'baz [:x :y :z [11 22 22]]]
+                                             {:q {:w [11 33 33]}}
+                                             {:path-argument [3 3]
+                                              :path-return [:q :w]
+                                              :relationship-fn same-elements?})
+      {:path-argument [3 3], :path-return [:q :w], :relationship-fn same-elements?, :datum-argument [11 22 22], :datum-return [11 33 33], :valid? false}
+
+      (validate-argument-return-relationship  {:x [11 22 33]}
+                                              ['foo 'bar [99]]
+                                              {:path-argument [:x]
+                                               :path-return [2]
+                                               :relationship-fn equal-count?})
+      {:path-argument [:x], :path-return [2], :relationship-fn equal-count?, :datum-argument [11 22 33], :datum-return [99], :valid? false})))
+
+
 ;; definitions for testing (validate-fn-with-tests)
 (defn one-arity [x] (vector (* 2 x) (+ 100 x)))
 
@@ -147,12 +250,12 @@
     (are [x y] (= x y)
       []
       (validate-fn-with (fn [] []) {:speculoos/ret-scalar-spec []
-                                :speculoos/ret-collection-spec [vector?]})
+                                    :speculoos/ret-collection-spec [vector?]})
 
       [22 111]
       (validate-fn-with one-arity one-arity-specs 11)
 
-      [{:path [1], :value second-bigger-than-first?, :datum [2222 1211], :ordinal-parent-path [], :valid? false, :fn-spec-type :speculoos/return}]
+      [{:path-predicate [1], :predicate second-bigger-than-first?, :datum [2222 1211], :ordinal-path-datum [], :path-datum [], :valid? false, :fn-spec-type :speculoos/return}]
       (validate-fn-with one-arity one-arity-specs 1111)
 
       [{:path [0], :datum 22, :predicate double?, :valid? false, :fn-spec-type :speculoos/argument}
@@ -168,6 +271,7 @@
       (validate-fn-with two-arity (dissoc two-arity-specs :speculoos/ret-scalar-spec :speculoos/ret-collection-spec) 22.2 24.5)
       (validate-fn-with two-arity (dissoc two-arity-specs :speculoos/ret-scalar-spec :speculoos/ret-collection-spec :speculoos/arg-collection-spec) 22.2 24.5)
       (validate-fn-with two-arity (dissoc two-arity-specs :speculoos/ret-scalar-spec :speculoos/ret-collection-spec :speculoos/arg-collection-spec :speculoos/arg-scalar-spec) 22.2 24.5))))
+
 
 (deftest validate-fn-with-tests-extended
   (testing "all validate"
@@ -186,27 +290,14 @@
       (validate-fn-with fn-spec-test-example-2 {:speculoos/arg-scalar-spec [int? int?]
                                                 :speculoos/arg-collection-spec [#(= 2 (count %))]
                                                 :speculoos/ret-scalar-spec [int? int? int?]
-                                                :speculoos/ret-collection-spec [#(< (=1st %) (=2nd %) (=3rd %))]} 3 4)
-
-      (validate-fn-with fn-spec-test-example-2 {:speculoos/arg-scalar-spec [int? int?]
-                                                :speculoos/arg-collection-spec [#(= 2 (count %))]
-                                                :speculoos/ret-scalar-spec [int? int? int?]
-                                                :speculoos/ret-collection-spec [#(< (=1st %) (=2nd %) (=3rd %))]
-                                                :speculoos/arg-vs-ret-scalar-spec [#(not= %1 %2)]} 3 4)
-
-      (validate-fn-with fn-spec-test-example-2 {:speculoos/arg-scalar-spec [int? int?]
-                                                :speculoos/arg-collection-spec [#(= 2 (count %))]
-                                                :speculoos/ret-scalar-spec [int? int? int?]
-                                                :speculoos/ret-collection-spec [#(< (=1st %) (=2nd %) (=3rd %))]
-                                                :speculoos/arg-vs-ret-scalar-spec [#(not= %1 %2)]
-                                                :speculoos/arg-vs-ret-collection-spec [#(= (+ 1 (count %1)) (count %2))]} 3 4)))
+                                                :speculoos/ret-collection-spec [#(< (=1st %) (=2nd %) (=3rd %))]} 3 4)))
 
   (testing "all invalid"
     (are [x y] (= x y)
       [{:path [0], :datum 3/2, :predicate int?, :valid? false, :fn-spec-type :speculoos/argument}]
       (validate-fn-with fn-spec-test-example-2 {:speculoos/arg-scalar-spec [int? int?]} 3/2 4)
 
-      [{:path [0], :value count-is-one?, :datum [3 4], :ordinal-parent-path [], :valid? false, :fn-spec-type :speculoos/argument}]
+      [{:path-predicate [0], :predicate count-is-one?, :datum [3 4], :ordinal-path-datum [], :path-datum [], :valid? false, :fn-spec-type :speculoos/argument}]
       (validate-fn-with fn-spec-test-example-2 {:speculoos/arg-scalar-spec [int? int?]
                                                 :speculoos/arg-collection-spec [count-is-one?]} 3 4)
 
@@ -215,26 +306,19 @@
                                                 :speculoos/arg-collection-spec [#(= 2 (count %))]
                                                 :speculoos/ret-scalar-spec [int? int? string?]} 3 4)
 
-      [{:path [0], :value first-second-third-equal?, :datum [7 12 144], :ordinal-parent-path [], :valid? false, :fn-spec-type :speculoos/return}]
+      [{:path-predicate [0], :predicate first-second-third-equal?, :datum [7 12 144], :ordinal-path-datum [], :path-datum [], :valid? false, :fn-spec-type :speculoos/return}]
       (validate-fn-with fn-spec-test-example-2 {:speculoos/arg-scalar-spec [int? int?]
                                                 :speculoos/arg-collection-spec [#(= 2 (count %))]
                                                 :speculoos/ret-scalar-spec [int? int? int?]
-                                                :speculoos/ret-collection-spec [first-second-third-equal?]} 3 4)
+                                                :speculoos/ret-collection-spec [first-second-third-equal?]} 3 4)))
 
-      [{:path [0], :datum-1 3, :datum-2 7, :predicate first-equals-second?, :valid? false, :fn-spec-type :speculoos/arg-vs-ret}]
-      (validate-fn-with fn-spec-test-example-2 {:speculoos/arg-scalar-spec [int? int?]
-                                                :speculoos/arg-collection-spec [#(= 2 (count %))]
-                                                :speculoos/ret-scalar-spec [int? int? int?]
-                                                :speculoos/ret-collection-spec [first-second-third-less-than?]
-                                                :speculoos/arg-vs-ret-scalar-spec [first-equals-second?]} 3 4)
+  (testing "lone return collection specification, GitHub Issue #4"
+    (are [x y] (= x y)
+      (validate-fn-with fn-spec-test-example-2 {:speculoos/ret-collection-spec [first-second-third-equal?]} 3 4)
+      [{:datum [7 12 144], :valid? false, :path-predicate [0], :predicate first-second-third-equal?, :ordinal-path-datum [], :path-datum [], :fn-spec-type :speculoos/return}]
 
-      [{:path [0], :value count-plus-two?, :predicate count-plus-two?, :datum-1 [3 4], :datum-2 [7 12 144], :ordinal-parent-path [], :valid? false, :fn-spec-type :speculoos/arg-vs-ret}]
-      (validate-fn-with fn-spec-test-example-2 {:speculoos/arg-scalar-spec [int? int?]
-                                                :speculoos/arg-collection-spec [#(= 2 (count %))]
-                                                :speculoos/ret-scalar-spec [int? int? int?]
-                                                :speculoos/ret-collection-spec [first-second-third-less-than?]
-                                                :speculoos/arg-vs-ret-scalar-spec [first-not-equal-second?]
-                                                :speculoos/arg-vs-ret-collection-spec [count-plus-two?]} 3 4))))
+      (validate-fn-with #(vector (inc %)) {:speculoos/ret-collection-spec [map?]} 99)
+      [{:datum [100], :valid? false, :path-predicate [0], :predicate map?, :ordinal-path-datum [], :path-datum [], :fn-spec-type :speculoos/return}])))
 
 
 (deftest validate-fn-with-test-exceptions
@@ -267,6 +351,163 @@
   (are [x y] (= x y)
     "5" (validate-fn-with (fn [x] (str x)) {:speculoos/ret-scalar-spec #"\d"} 5)
     true (nil? (:valid? (validate-fn-with (fn [x] (str x)) {:speculoos/ret-scalar-spec #"\d"} "a")))))
+
+
+(deftest validate-fn-with-individual-specs-tests
+    (testing "individual spec supplied (or none), bare scalar return, predicate satisfied"
+      (are [x] (= x 100)
+        (validate-fn-with inc {} 99)
+        (validate-fn-with inc {:speculoos/arg-scalar-spec int?} 99)
+        (validate-fn-with inc {:speculoos/ret-scalar-spec int?} 99)))
+    (testing "individual spec supplied, bare scalar, predicate not satisfied"
+      (are [x y] (= x y)
+        (validate-fn-with inc {:speculoos/arg-scalar-spec string?} 99)
+        [{:path nil, :datum 99, :predicate string?, :valid? false, :fn-spec-type :speculoos/argument}]
+
+        (validate-fn-with inc {:speculoos/ret-scalar-spec string?} 99)
+        [{:path nil, :datum 100, :predicate string?, :valid? false, :fn-spec-type :speculoos/return}]))
+    (testing "individual spec supplied (or none), return value is a collection, predicate satisfied"
+      (are [x] (= x [100])
+        (validate-fn-with #(vector (inc %)) {} 99)
+        (validate-fn-with #(vector (inc %)) {:speculoos/arg-scalar-spec [int?]} 99)
+        (validate-fn-with #(vector (inc %)) {:speculoos/arg-collection-spec [vector?]} 99)
+        (validate-fn-with #(vector (inc %)) {:speculoos/ret-scalar-spec [int?]} 99)
+        (validate-fn-with #(vector (inc %)) {:speculoos/ret-collection-spec [vector?]} 99)))
+    (testing "individual spec supplied, return value is a collection, predicate not satisfied"
+      (are [x y] (= x y)
+        (validate-fn-with #(vector (inc %)) {:speculoos/arg-scalar-spec [string?]} 99)
+        [{:path [0], :datum 99, :predicate string?, :valid? false, :fn-spec-type :speculoos/argument}]
+
+        (validate-fn-with #(vector (inc %)) {:speculoos/arg-collection-spec [set?]} 99)
+        [{:datum [99], :valid? false, :path-predicate [0], :predicate set?, :ordinal-path-datum [], :path-datum [], :fn-spec-type :speculoos/argument}]
+
+        (validate-fn-with #(vector (inc %)) {:speculoos/ret-scalar-spec [string?]} 99)
+        [{:path [0], :datum 100, :predicate string?, :valid? false, :fn-spec-type :speculoos/return}]
+
+        (validate-fn-with #(vector (inc %)) {:speculoos/ret-collection-spec [set?]} 99)
+        [{:datum [100], :valid? false, :path-predicate [0], :predicate set?, :ordinal-path-datum [], :path-datum [], :fn-spec-type :speculoos/return}])))
+
+
+(deftest validate-fn-with-combo-tests
+    (testing "bare arg scalar spec, regular return scalar spec"
+      (are [x y] (= x y)
+        (validate-fn-with #(vector (inc %)) {:speculoos/arg-scalar-spec [string?]
+                                             :speculoos/ret-scalar-spec [char?]} 99)
+        [{:path [0], :datum 99, :predicate string?, :valid? false, :fn-spec-type :speculoos/argument}
+         {:path [0], :datum 100, :predicate char?, :valid? false, :fn-spec-type :speculoos/return}]))
+    (testing "regular arg scalar spec, bare arg return scalar spec"
+      (are [x y] (= x y)
+        (validate-fn-with #(inc (first %)) {:speculoos/arg-scalar-spec [[string?]]
+                                            :speculoos/ret-scalar-spec char?} [99])
+        [{:path [0 0], :datum 99, :predicate string?, :valid? false, :fn-spec-type :speculoos/argument}
+         {:path nil, :datum 100, :predicate char?, :valid? false, :fn-spec-type :speculoos/return}]))
+    (testing "bare arg scalar spec, bare ret scalar spec"
+      (are [x y] (= x y)
+        (validate-fn-with inc {:speculoos/arg-scalar-spec [string?]
+                               :speculoos/ret-scalar-spec char?} 99)
+        [{:path [0], :datum 99, :predicate string?, :valid? false, :fn-spec-type :speculoos/argument}
+         {:path nil, :datum 100, :predicate char?, :valid? false, :fn-spec-type :speculoos/return}]))
+    (testing "regular arg scalar spec, regular ret scalar spec"
+      (are [x y] (= x y)
+        (validate-fn-with #(-> (first %) inc vector) {:speculoos/arg-scalar-spec [[string?]]
+                                                      :speculoos/ret-scalar-spec [char?]}
+                          [99])
+        [{:path [0 0], :datum 99, :predicate string?, :valid? false, :fn-spec-type :speculoos/argument}
+         {:path [0], :datum 100, :predicate char?, :valid? false, :fn-spec-type :speculoos/return}]
+
+        (validate-fn-with identity {:speculoos/arg-scalar-spec [[string? char? boolean?]]
+                                    :speculoos/ret-scalar-spec [string? char? boolean?]} [1 2 3])
+        [{:path [0 0], :datum 1, :predicate string?, :valid? false, :fn-spec-type :speculoos/argument}
+         {:path [0 1], :datum 2, :predicate char?, :valid? false, :fn-spec-type :speculoos/argument}
+         {:path [0 2], :datum 3, :predicate boolean?, :valid? false, :fn-spec-type :speculoos/argument}
+         {:path [0], :datum 1, :predicate string?, :valid? false, :fn-spec-type :speculoos/return}
+         {:path [1], :datum 2, :predicate char?, :valid? false, :fn-spec-type :speculoos/return}
+         {:path [2], :datum 3, :predicate boolean?, :valid? false, :fn-spec-type :speculoos/return}])))
+
+
+;; example relationship specifications
+
+(def relationship-spec-1 [{:path-argument [0]
+                           :path-return []
+                           :relationship-fn reversed?}
+                          {:path-argument [0]
+                           :path-return []
+                           :relationship-fn same-elements?}
+                          {:path-argument [0]
+                           :path-return []
+                           :relationship-fn equal-count?}])
+
+(def relationship-spec-2 [{:path-argument [0]
+                           :path-return nil
+                           :relationship-fn correct-sum?}
+                          {:path-argument [0]
+                           :path-return nil
+                           :relationship-fn four-elements?}
+                          {:path-argument [0 3]
+                           :path-return nil
+                           :relationship-fn twice-plus-two?}])
+
+(def relationship-spec-3 [{:path-argument [0]
+                           :path-return []
+                           :relationship-fn swapped?}
+                          {:path-argument [0]
+                           :path-return [:x]
+                           :relationship-fn is-2?}])
+
+(def relationship-spec-4 [{:path-argument [0]
+                           :path-return nil
+                           :relationship-fn correct-val-sum?}
+                          {:path-argument [0]
+                           :path-return nil
+                           :relationship-fn correct-sign?}])
+
+(def relationship-spec-5 [{:path-argument []
+                           :path-return nil
+                           :relationship-fn correct-plus?}])
+
+
+(deftest validate-fn-with-relationship-tests
+  (testing "vector argument, vector return"
+    (are [x y] (= x y)
+      (validate-fn-with my-reverser {:speculoos/argument-return-relationships relationship-spec-1} [11 22 33 44 55])
+      [55 44 33 22 11]
+
+      (validate-fn-with my-reverser-broken {:speculoos/argument-return-relationships relationship-spec-1} [11 22 33 44 55])
+      [{:path-argument [0], :path-return [], :relationship-fn reversed?, :datum-argument [11 22 33 44 55], :datum-return [11 22 33 42], :valid? false, :fn-spec-type :speculoos/argument-return-relationship}
+       {:path-argument [0], :path-return [], :relationship-fn same-elements?, :datum-argument [11 22 33 44 55], :datum-return [11 22 33 42], :valid? false, :fn-spec-type :speculoos/argument-return-relationship}
+       {:path-argument [0], :path-return [], :relationship-fn equal-count?, :datum-argument [11 22 33 44 55], :datum-return [11 22 33 42], :valid? false, :fn-spec-type :speculoos/argument-return-relationship}]))
+  (testing "vector argument, scalar return"
+    (are [x y] (= x y)
+      (validate-fn-with my-summation-er {:speculoos/argument-return-relationships relationship-spec-2} [1 2 3 4])
+      10
+
+      (validate-fn-with my-summation-er-broken {:speculoos/argument-return-relationships relationship-spec-2} [1 2 3 5 4])
+      [{:path-argument [0], :path-return nil, :relationship-fn correct-sum?, :datum-argument [1 2 3 5 4], :datum-return 115, :valid? false, :fn-spec-type :speculoos/argument-return-relationship}
+       {:path-argument [0], :path-return nil, :relationship-fn four-elements?, :datum-argument [1 2 3 5 4], :datum-return 115, :valid? false, :fn-spec-type :speculoos/argument-return-relationship}
+       {:path-argument [0 3], :path-return nil, :relationship-fn twice-plus-two?, :datum-argument 5, :datum-return 115, :valid? false, :fn-spec-type :speculoos/argument-return-relationship}]))
+  (testing "map argument, map return"
+    (are [x y] (= x y)
+      (validate-fn-with swap-key-vals {:speculoos/argument-return-relationships relationship-spec-3} {:x 1 :y 2})
+      {:x 2, :y 1}
+
+      (validate-fn-with swap-key-vals-broken {:speculoos/argument-return-relationships relationship-spec-3} {:x 1 :y 2})
+      [{:path-argument [0], :path-return [], :relationship-fn swapped?, :datum-argument {:x 1, :y 2}, :datum-return {:x 1, :y 2}, :valid? false, :fn-spec-type :speculoos/argument-return-relationship}
+       {:path-argument [0], :path-return [:x], :relationship-fn is-2?, :datum-argument {:x 1, :y 2}, :datum-return 1, :valid? false, :fn-spec-type :speculoos/argument-return-relationship}]))
+  (testing "map argument, scalar return"
+    (are [x y] (= x y)
+      (validate-fn-with sum-vals {:speculoos/argument-return-relationships relationship-spec-4} {:x 1 :y 2})
+      3
+
+      (validate-fn-with sum-vals-broken {:speculoos/argument-return-relationships relationship-spec-4} {:x 1 :y 2})
+      [{:path-argument [0], :path-return nil, :relationship-fn correct-val-sum?, :datum-argument {:x 1, :y 2}, :datum-return -3, :valid? false, :fn-spec-type :speculoos/argument-return-relationship}
+       {:path-argument [0], :path-return nil, :relationship-fn correct-sign?, :datum-argument {:x 1, :y 2}, :datum-return -3, :valid? false, :fn-spec-type :speculoos/argument-return-relationship}])
+    (testing "scalar arguments, scalar return"
+      (are [x y] (= x y)
+        (validate-fn-with plus {:speculoos/argument-return-relationships relationship-spec-5} 1 2)
+        3
+
+        (validate-fn-with plus-broken {:speculoos/argument-return-relationships relationship-spec-5} 1 2)
+        [{:path-argument [], :path-return nil, :relationship-fn correct-plus?, :datum-argument [1 2], :datum-return -1, :valid? false, :fn-spec-type :speculoos/argument-return-relationship}]))))
 
 
 (defn fn-with-meta-specs
@@ -465,8 +706,7 @@
           :speculoos/hof-specs {:speculoos/ret-scalar-spec [ratio?]}} [a b] (fn [c d] (vector (+ a b c d))))
 (defn Z3 {:speculoos/arg-scalar-spec [int? int?]
           :speculoos/hof-specs {:speculoos/ret-scalar-spec [string?]
-                                :speculoos/ret-collection-spec [count-is-two?]
-                                :speculoos/arg-vs-ret-scalar-spec [first-bigger-than-second?]}} [a b] (fn [c d] (vector (+ a b c d))))
+                                :speculoos/ret-collection-spec [count-is-two?]}} [a b] (fn [c d] (vector (+ a b c d))))
 
 
 (deftest validate-hof-return-spec-tests
@@ -482,8 +722,7 @@
 
     (validate-hof-return-spec Z3 [1 20] [300 4000])
     [{:path [0], :datum 4321, :predicate string?, :valid? false, :fn-spec-type :speculoos/return}
-     {:path [0], :value count-is-two?, :datum [4321], :ordinal-parent-path [], :valid? false, :fn-spec-type :speculoos/return}
-     {:path [0], :datum-1 300, :datum-2 4321, :predicate first-bigger-than-second?, :valid? false, :fn-spec-type :speculoos/arg-vs-ret}]))
+     {:path-predicate [0], :predicate count-is-two?, :datum [4321], :ordinal-path-datum [], :path-datum [], :valid? false, :fn-spec-type :speculoos/return}]))
 
 
 ;; test functions of higher-order-function validation
@@ -756,52 +995,6 @@
            (with-out-str (fn-spec-test-example 4.1 3/2)))))
   )
 
-
-(comment
-  ;; (instrument) and (unstrument) demonstration with injected arg-vs-return specs
-
-  (ns-unmap *ns* 't1)
-  (defn t1 [x y] (vector (- x y) (/ x y) (+ x y 100)))
-  (t1 8 4)
-
-  ;; these specs should validate true with args of 8 and 4
-  (defn count-is-less-than? [a b] (< (count a) (count b)))
-  (defn four-more? [c d] (= (+ 4 d) c))
-  (defn two-more? [e f] (= (+ 2 f) e))
-  (def t1-specs {:speculoos/arg-vs-ret-scalar-spec [four-more? two-more?]
-                 :speculoos/arg-vs-ret-collection-spec [count-is-less-than?]})
-
-  (validate-fn-with t1 {} 8 4)
-  (validate-fn-with t1 {:speculoos/arg-vs-ret-scalar-spec [four-more? two-more?]
-                        :speculoos/arg-vs-ret-collection-spec [count-is-less-than?]} 8 4)
-
-  (validate-fn-with t1 {:speculoos/arg-vs-ret-scalar-spec [four-more? (complement two-more?)]
-                        :speculoos/arg-vs-ret-collection-spec [count-is-less-than?]} 8 4)
-
-  (validate-fn-with t1 {:speculoos/arg-vs-ret-scalar-spec [(complement four-more?) two-more?]
-                        :speculoos/arg-vs-ret-collection-spec [count-is-less-than?]} 8 4)
-
-  (validate-fn-with t1 {:speculoos/arg-vs-ret-scalar-spec [four-more? two-more?]
-                        :speculoos/arg-vs-ret-collection-spec [(complement count-is-less-than?)]} 8 4)
-
-  (validate-fn-with t1 {:speculoos/arg-vs-ret-scalar-spec [four-more? two-more?]
-                        :speculoos/arg-vs-ret-collection-spec [count-is-less-than?]} 8 "4")
-
-  ;; eval these in sequence
-  (inject-specs! t1 t1-specs)
-  (meta #'t1)
-  ((wrapping-fn t1) 8 4)
-  ((wrapping-fn t1) 100 1)
-
-  (instrument t1)
-  (t1 8 4)
-  (t1 9 9)
-  (t1 9 "3")
-
-  (unstrument t1)
-  (t1 8 4)
-  (t1 9 9)
-  )
 
 (comment
   ;; (instrument) and (unstrument) demonstration with non-collection return value and a bare predicate spec

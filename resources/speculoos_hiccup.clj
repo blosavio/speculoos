@@ -1,5 +1,5 @@
 (ns speculoos-hiccup
-  "Convenience functions for generating Speculoos Project webpage with hiccup and TufteCSS."
+  "Convenience functions for generating Speculoos Project webpages"
   (:require
    [clojure.pprint :as pp]
    [clojure.string :as str]
@@ -16,7 +16,14 @@
 ;; FireFox apparently won't follow symlinks to css or font files
 
 
-(def ^:dynamic *wrap-at* 60)
+(def ^:dynamic *wrap-at* 80)
+
+
+(def fn-map-additions {"all-paths" :arg1
+                       "validate-scalars" :hang
+                       "valid-scalars?" :hang
+                       "validate-collections" :hang
+                       "valid-collections?" :hang})
 
 
 (defn comment-newlines
@@ -32,13 +39,32 @@
     (clojure.string/replace arrow-prefixed-str "\n" indent)))
 
 
+(def fn-obj-regex #"#function ?\[clojure.core\/([\w-]+\?)(--\d+)?\]")
+
+
+(defn revert-fn-obj-rendering
+  "Given string `s`, swap out nREPL function object rendering for original
+  form."
+  {:UUIDv4 #uuid "ca3e8813-3398-4663-b96a-b8289346794e"}
+  [s]
+  (clojure.string/replace s fn-obj-regex "$1"))
+
+
+(defn render-fn-obj-str
+  "Helper function to convert string `s`, representing a clojure.core predicate, into a string-ized nREPL function obj rendering."
+  {:UUIDv4 #uuid "65d6b999-4628-43bb-97ac-f8b775829470"}
+  [s]
+  (-> s read-string eval pr-str))
+
+
 (defn prettyfy
   "Apply zprint formatting to string s."
   {:UUIDv4 #uuid "a419ba9f-3aaa-4be2-837f-9cc75c51dbe9"}
-  [s]
-  (zp/zprint-str s {:width *wrap-at*
+  [s & width]
+  (zp/zprint-str s {:width (or (first width) *wrap-at*)
                     :vector {:wrap-coll? true}
-                    :parse-string? true}))
+                    :parse-string? true
+                    :fn-map fn-map-additions}))
 
 
 (defn print-form-then-eval
@@ -52,86 +78,25 @@
   to attempt a backtrack. Since the rendering of an anonymous function
   changes from one invocation to the next, there is no stable reference."
   {:UUIDv4 #uuid "39dcd66b-f919-41a2-8376-4c2364bf3c59"}
-  ([str-form] (print-form-then-eval str-form " => "))
-  ([str-form separator]
+  ([str-form] (print-form-then-eval str-form " => " 80 40))
+  ([str-form separator] (print-form-then-eval str-form separator 80 40))
+  ([str-form width-fn width-output] (print-form-then-eval str-form " => " width-fn width-output))
+  ([str-form separator width-fn width-output]
    (let [def? (re-find #"^\((s\/)?defn?(macro)?(pred)? " str-form)
          require? (re-find #"^\(require " str-form)
          form (read-string str-form)
          evaled-form (eval form)
-         evaled-str (pr-str evaled-form)]
+         evaled-str (revert-fn-obj-rendering (pr-str evaled-form))]
      (if (or def? require?)
        [:code (prettyfy str-form)]
-       (let [combo-str (str (prettyfy str-form) " ;;" separator (prettyfy evaled-str))]
+       (let [combo-str (str (prettyfy str-form width-fn) " ;;" separator (prettyfy evaled-str width-output))]
          (if (<= (count combo-str) *wrap-at*)
            [:code combo-str]
-           [:code (str (prettyfy str-form)
+           [:code (str (prettyfy str-form width-fn)
                        "\n"
-                       (comment-newlines (prettyfy evaled-str)
+                       (comment-newlines (prettyfy evaled-str width-output)
                                          separator
                                          ";;"))]))))))
-
-
-(defn label
-  "Generate a TufteCSS numbered sidenote label for target t."
-  {:UUIDv4 #uuid "824e0d40-ad61-4142-bbf4-739035849fae"}
-  [t]
-  (h2/html (form/label {:class "margin-toggle sidenote-number"} t nil)))
-
-
-(defn side-note
-  "Generate a TufteCSS numbered sidenote for target id, with text txt."
-  {:UUIDv4 #uuid "3a8e0a85-807c-4f94-9013-6d9bd49aae77"
-   :implementation-note "Can't use (form/check-box) b/c it assumes checkbox doesn't contain text, but TufteCSS abuses that feature."}
-  [id txt]
-  (h2/html [:input {:type "checkbox" :id id :class "margin-toggle"} [:span.sidenote txt]]))
-
-
-(defn inline-img
-  "Generate a TufteCSS inline image figure with target label id, margin note m-note, source src, and alternative text alt. Note: This elemenent may not appear in a [:p]."
-  {:UUIDv4 #uuid "de8047ab-80b8-4fff-888a-61af48dcfe14"}
-  [id m-note src alt]
-  (h2/html [:figure
-            (form/label {:class "margin-toggle"} id "&#8853;")
-            (form/check-box {:type "checkbox" :class "margin-toggle"} id)
-            [:span.marginnote m-note]
-            (element/image src alt)]))
-
-
-(defn margin-img
-  "Generate a TufteCSS margin image figure with target label id, margin note m-note, source src, and alternative text alt. Note: This element may not appear in a [:p]."
-  {:UUIDv4 #uuid "829dd15f-25fd-4a06-afa3-5f78f005ee30"}
-  [id m-note src alt]
-  (h2/html (form/label {:class "margin-toggle"} id "&#8853;")
-           (form/check-box {:type "checkbox" :class "margin-toggle"} id)
-           [:span.marginnote (element/image src alt) m-note]))
-
-
-(def raw-nav-bar (with-meta [:nav#nav-bar
-                             [:ul
-                              [:li [:a {:href "home.html"} "Home"]]
-                              [:li [:a {:href "ideas.html"} "Ideas"]]
-                              [:li [:a {:href "documentation.html"} "Documentation"]]
-                              [:li [:a {:href "recipes.html"} "Recipes"]]
-                              [:li [:a {:href "diff.html"} [:code "diff"]]]
-                              [:li [:a {:href "pros_cons.html"} "Pros, Cons, & Alts"]]
-                              [:li.small-caps [:a {:href "index.html"} "api"]]
-                              [:li [:a {:href "source.html"} "Source"]]
-                              [:li [:a {:href "contact.html"} "Contact"]]]]
-                   {:UUIDv4 #uuid "a573aee1-8702-436c-a8ca-3e6954d2bd08"}))
-
-
-(defn this-page-index
-  "Returns index of page within raw-nav-bar structure."
-  {:UUIDv4 #uuid "f8736e03-8926-494f-bc5c-5dede6ea84c6"}
-  [page]
-  (.indexOf (map  #(= page (get-in % [1 2])) (next (get-in raw-nav-bar [1]))) true))
-
-
-(defn nav-bar
-  "Generate a TufteCSS compatible navigation bar in the left margin. current-page will be un-link-ified."
-  {:UUIDv4 #uuid "0df46fd8-ae9a-4d02-bc21-5434299f2d6f"}
-  [current-page]
-  (h2/html (assoc-in raw-nav-bar [1 (inc (this-page-index current-page)) 1] current-page)))
 
 
 (defn long-date
@@ -155,15 +120,44 @@
     (str "Copyright © " (if (= "2024" year) year (str "2024–" year)) " Brad Losavio.")))
 
 
+(defn nav
+  "Create navigation links. `sections` is a vector of maps, each map with key
+  `:section-name` and optionally `:href`. If `href` is not supplied, one is
+  generated from `:section-name`."
+  {:UUIDv4 #uuid "9e2c9562-adb6-4a56-b1fe-4482c9da83fc"}
+  [sections]
+  (let [link-fn (fn [m] (vector :a
+                                {:href (if (:skip-section-load? m)
+                                         (:section-href m)
+                                         (if (:section-href m)
+                                           (str "#" (:section-href m))
+                                           (str "#" (clojure.string/lower-case (:section-name m)))))}
+                                (:section-name m)))]
+    (interleave (map link-fn sections) (repeat [:br]))))
+
+
+(defn section-blocks
+  "Create hiccup html section blocks given a vector of `sections`."
+  {:UUIDv4 #uuid "15893381-f284-4b5e-9680-c8095161c3d9"}
+  [sections]
+  (let [filenamer (fn [m] (str "resources/readme_sections/"
+                               (clojure.string/replace (or (:section-href m)
+                                                           (clojure.string/lower-case (:section-name m))) "-" "_")
+                               ".clj"))
+        section-fn (fn [m] (if (:skip-section-load? m)
+                             nil
+                             (load-file (filenamer m))))]
+    (map section-fn sections)))
+
+
 (defn page-template
-  "Generate a webpage with TufteCSS, compatible nav-bar, header title t,
-   hiccup/html dialect body b, and UUIDv4 uuid."
+  "Generate a webpage with header title t, hiccup/html dialect body b, and
+  UUIDv4 uuid."
   {:UUIDv4 #uuid "80dd93eb-0c26-41a0-9e6c-2d88352ea4e5"}
   [title uuid body]
   (page/html5
    {:lang "en"}
    [:head
-    (page/include-css "tufte.css")
     (page/include-css "speculoos.css")
     [:title title]
     [:meta {"charset"  "utf-8"
@@ -219,3 +213,26 @@
         section-tag (fn [s] (-> s (get 0) str (clojure.string/split #"#") last))
         f (fn [s] [:a {:href (str "#" (section-tag s))} (section-name s)])]
     (into [[:section.nav-section (reduce #(conj %1 (f %2) [:br]) [:p] sections)] sections])))
+
+
+(def html-non-breaking-space "&nbsp;")
+(def pre-code-block-regex #"<pre><code>[\s\S]*<\/code><\/pre>")
+
+
+(defn line-leading-space-to-non-breaking-space
+  "Given a string `s`, replace all occurances of a line-leading space with an
+  html non-breaking space."
+  {:UUIDv4 #uuid "ec0dff15-9a32-4eb0-89b7-58b515b4154d"}
+  [s]
+  (clojure.string/replace s #"\n " (str "\n" html-non-breaking-space )))
+
+
+(defn non-breaking-space-ize
+  "GitHub markdown processing collapses non-breaking spaces, even within
+  <pre><code> blocks. This destroys the nice hanging indent arranged by zprint.
+  This function accepts a string representing html and replaces all line-leading
+  spaces within a preformatted code block with an html non-breaking space
+  `&nbsp;`."
+  {:UUIDv4 #uuid "67da63e5-d7ab-4427-86ef-0e03beef5e3d"}
+  [html-str]
+  (clojure.string/replace html-str pre-code-block-regex line-leading-space-to-non-breaking-space))

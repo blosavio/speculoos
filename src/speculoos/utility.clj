@@ -15,10 +15,6 @@
   with `nil`/`nil?`.
 
       * [[apathetic]]
-      * [[bazooka-swatting-flies]]
-      * [[bed-of-procrustes]]
-      * [[nil-out]]
-      * [[smash-data]]
       * [[swap-non-predicates]]
 
       All data structures remain immutable. These functions are only
@@ -28,6 +24,8 @@
   3. **Reporting** functions highlight some aspect of a data set or
   specification, e.g., returning non-predicates within a specification.
 
+      * [[thoroughly-valid-scalars?]]
+      * [[thoroughly-valid-collections?]]
       * [[thoroughly-valid?]]
       * [[all-specs-okay]]
       * [[scalars-without-predicates]]
@@ -53,49 +51,15 @@
    [clojure.set :as set]
    [clojure.pprint :as pprint]
    [clojure.test.check.generators :as gen]
+   [fn-in.core :refer [get* get-in* assoc-in* dissoc-in* concat-list]]
    [re-rand :refer [re-rand]]
-   #_ [speculoos.collection-hierarchy :refer [create-collection-hierarchy]]
-   [speculoos.collection-functions :refer [reduce-indexed]]
    [speculoos.core :refer [all-paths only-non-collections only-valid regex?
                            only-invalid validate-scalars valid-scalars?
                            validate-collections valid-collections? valid?
-                           expand-and-clamp]]
-   [speculoos.fn-in :refer [get* get-in* assoc-in* dissoc-in* concat-list]]))
+                           expand-and-clamp recover-literal-path]]))
 
 
-;;(create-collection-hierarchy)
-(derive clojure.lang.PersistentList ::list)
-(derive clojure.lang.PersistentList$EmptyList ::list)
-
-(derive clojure.lang.Cons ::list)
-
-(derive clojure.lang.PersistentVector ::vector)
-(derive clojure.lang.PersistentVector$ChunkedSeq ::vector)
-
-(derive clojure.lang.PersistentArrayMap ::map)
-(derive clojure.lang.PersistentHashMap ::map)
-(derive clojure.lang.PersistentTreeMap ::map)
-
-(derive clojure.lang.MapEntry ::map-entry)
-
-(derive clojure.lang.PersistentHashSet ::set)
-(derive clojure.lang.PersistentTreeSet ::set)
-
-(derive ::list ::non-map-entry-collection)
-(derive ::vector ::non-map-entry-collection)
-(derive ::map ::non-map-entry-collection)
-(derive ::set ::non-map-entry-collection)
-
-(derive ::list ::non-map)
-(derive ::vector ::non-map)
-(derive ::set ::non-map)
-
-(derive clojure.lang.Cycle ::non-terminating)
-(derive clojure.lang.Iterate ::non-terminating)
-(derive clojure.lang.LazySeq ::non-terminating)
-(derive clojure.lang.LongRange ::non-terminating)
-(derive clojure.lang.Range ::non-terminating)
-(derive clojure.lang.Repeat ::non-terminating)
+(load "/fn_in/collection_hierarchy")
 
 
 (defn only-values
@@ -208,14 +172,14 @@
 
 
 (defn scalars-without-predicates
-  "Returns `data` all-paths scalar elements which lack corresponding predicates
-  in scalar specification `spec`. See also [[scalars-with-predicates]] and
-  [[collections-without-predicates]].
+  "Returns a set of `data` all-paths scalar elements which lack corresponding
+  predicates in scalar specification `spec`. See also
+  [[scalars-with-predicates]] and [[collections-without-predicates]].
 
   Examples:
   ```clojure
-  (scalars-without-predicates [42 :foo 22/7] [int? keyword?]) ;; => ({:path [2], :value 22/7})
-  (scalars-without-predicates {:a 42 :b 'foo} {:a int?}) ;; => ({:path [:b], :value foo})
+  (scalars-without-predicates [42 :foo 22/7] [int? keyword?]) ;; => #{{:path [2], :value 22/7}}
+  (scalars-without-predicates {:a 42 :b 'foo} {:a int?}) ;; => #{{:path [:b], :value foo}}
   ```"
   {:UUIDv4 #uuid "cfb2d897-cf07-49d8-b0e2-b4da701cce6c"}
   [data spec]
@@ -224,8 +188,8 @@
                                                      (paths-only-in-A-not-in-B data spec)
                                                      :path)
         scalars-in-a-set-with-a-pred (set (data-scalars-in-a-set-with-a-predicate data spec))]
-    (remove #(scalars-in-a-set-with-a-pred %)
-            scalars-without-specs-possibly-set-elements)))
+    (into #{} (remove #(scalars-in-a-set-with-a-pred %)
+                      scalars-without-specs-possibly-set-elements))))
 
 
 (defn scalars-with-predicates
@@ -277,10 +241,18 @@
 
   Examples:
   ```clojure
-  (non-predicates [int? 42 decimal?]) ;; => => ({:path [1], :value 42})
+  (non-predicates [int? 42 decimal?]) ;; => ({:path [1], :value 42})
 
-  ;; sets may serve as a membership predicate for a scalar specification,
-  ;; but are flagged as 'non-predicates'
+  (non-predicates {:a int? :b 'foo}) ;; => ({:path [:b], :value foo})
+  ```
+
+  Sets may serve as a membership predicate for a scalar specification, but are
+  flagged as 'non-predicates'.
+
+  Demonstration:
+  ```clojure
+  ;; `validate-scalars` considers #{:red} as a predicate-like thing, but ...
+  ;; ... `non-predicates` is unable to distinguish without data to accompany spec
   (non-predicates [int? #{:red} ratio?]) ;; => ({:path [1 :red], :value :red})
   ```"
   {:UUIDv4 #uuid "7147f695-3852-4a1b-bd60-92854b000919"}
@@ -291,7 +263,7 @@
 (defn all-specs-okay
   "Returns `true` if all entries in specification `spec` are a function.
   Otherwise, returns [[all-paths]] entries `{:path _ :element _}` to
-  non-functions.
+  non-functions. See [[non-predicates]] for limitations.
 
   Examples:
   ```clojure
@@ -353,55 +325,6 @@
                          non-fn-paths))))
 
 
-(defn nil-out
-  "For each invalid datum+predicate pair, replace datum in `data` with `nil` and
-  the predicate in specification `spec` with `nil?`. Returns
-  `{:data _ :spec _}`. Datums and predicates that do not participate in
-  validation are ignored.
-
-  Examples:
-  ```clojure
-  (nil-out [42 :foo 22/7] [int? symbol? ratio?]) ;; => {:data [42 nil 22/7], :spec [int? nil? ratio?]}
-  (nil-out {:a 42 :b {:c 'foo}} {:a int? :b {:c keyword?}}) ;; => {:data {:a 42, :b {:c nil}}, :spec {:a int?, :b {:c nil?}}}
-
-  ;; un-used predicates are ignored
-  (nil-out [42] [int? string?]) ;; => {:data [42], :spec [int? string?]}
-
-  ;; un-validated datums are ignored
-  (nil-out [42 :foo] [int?]) ;; => {:data [42 :foo], :spec [int?]}
-  ```"
-  {:UUIDv4 #uuid "ebf3ad71-4f93-449e-bf41-aac071544b85"
-   :destructive true}
-  [data spec] (let [invalids (only-invalid (validate-scalars data spec))
-                    nil-it (fn [form invalids replacement]
-                             (reduce #(assoc-in* %1 (:path %2) replacement)
-                                     form
-                                     invalids))]
-                {:data (nil-it data invalids nil)
-                 :spec (nil-it spec invalids nil?)}))
-
-
-(defn bed-of-procrustes
-  "Remove elements of `data` and `spec` for which the datum+predicate do not
-  satisfy. Returns `{:data _ :spec _}`.
-
-  Examples:
-  ```clojure
-  (bed-of-procrustes [42 :foo 22/7] [int? symbol? ratio?]) ;; => {:data [42 22/7], :spec [int? ratio?]}
-  (bed-of-procrustes {:a 42 :b 'foo} {:a int? :b keyword?}) ;; => {:data {:a 42}, :spec {:a int?}}
-  ```"
-  {:UUIDv4 #uuid "6544cb1c-a71c-40f5-8f18-ee46c42cabc5"
-   :destructive true
-   :alternative-fname "remove-invalid-data-and-predicates"}
-  [data spec] (let [invalids (only-invalid (validate-scalars data spec))
-                    eliminate (fn [form invalids]
-                                (reduce #(dissoc-in* %1 (:path %2))
-                                        form
-                                        invalids))]
-                {:data (eliminate data invalids)
-                 :spec (eliminate spec invalids)}))
-
-
 (defn apathetic
   "Return a scalar specification `spec` for which any specification predicate
   which returns invalid, is transmorgrified to `any?`.
@@ -424,7 +347,7 @@
   datums+predicates invalidate. Non-invalids (i.e., datums that satisfy their own
   predicates) are de-emphasized with `replacement`, defaulting to `'_`.
 
-  `'...` is also kinda nice.
+  `'…` is also kinda nice.
 
   Examples:
   ```clojure
@@ -432,9 +355,9 @@
   (with-out-str (sore-thumb [42 :foo 22/7] [int? symbol? ratio?]))
   ;; printed to *out*: data: [_ :foo _] spec: [_ symbol? _]
 
-  ;; optional replacement '...
-  (with-out-str (sore-thumb {:a 42 :b 'foo :c 22/7} {:a int? :b keyword? :c ratio?} '...))
-  ;; printed to *out*: data: {:a ..., :b foo, :c ...} spec: {:a ..., :b keyword?, :c ...}
+  ;; optional replacement '…
+  (with-out-str (sore-thumb {:a 42 :b 'foo :c 22/7} {:a int? :b keyword? :c ratio?} '…))
+  ;; printed to *out*: data: {:a …, :b foo, :c …} spec: {:a …, :b keyword?, :c …}
   ```"
   {:UUIDv4 #uuid "70288ca6-74b8-444e-83a4-b1e2f1d5fd27"
    :future-work "Direct the REPL to print the unqualified names of core functions so the predicates display cleaner."}
@@ -791,8 +714,8 @@ retrieved on 2024Mar12."}
 
   ;; all bad generators
   (unfindable-generators {:no-meta-data #(int? %)
-                        :no-generator +
-                        :improper-key (with-meta #(int? %) {:speculoos/oops #(rand-int 99)})})
+                          :no-generator +
+                          :improper-key (with-meta #(int? %) {:speculoos/oops #(rand-int 99)})})
   ;; => [{:path [:no-meta-data], :value #fn--34610]}
   ;;     {:path [:no-generator], :value clojure.core/+}
   ;;     {:path [:improper-key], :value #function[clojure.lang.AFunction/1]]}]
@@ -840,57 +763,6 @@ retrieved on 2024Mar12."}
                        v? (valid-scalars? d-from-s spec)]
                    (vector d-from-s v?)))]
      (repeatedly n f))))
-
-
-(defn bazooka-swatting-flies
-  "Mangle predicate entries in scalar specification `spec` so they minimally
-  return `true` for corresponding entries in `data`. The altered predicate
-  entries only minimally satisfy, i.e., a datum `4.0` would only solicit a
-  `double?` predicate, not `even?` nor `#(> % 3)`.
-
-  Examples:
-  ```clojure
-  (bazooka-swatting-flies [42 :foo 22/7] [number? symbol? string?])
-  ;; => [number? keyword? ratio?]
-
-  (bazooka-swatting-flies {:a 'foo :b {:c [3.14 true]}} {:a keyword? :b {:c [int? boolean?]}})
-  ;; => {:a symbol?, :b {:c [double? boolean?]}}
-  ```"
-  {:UUIDv4 #uuid "31fb7a94-d2d2-43f6-8a2d-214830755b29"
-   :destructive true
-   :alternative-fname "heal-spec"
-   :implementation "relies on an external reference to a lookup table of type-predicate-canonical that is surely non-exhaustive"}
-  [data spec]
-  (reduce (fn [spc invalids] (assoc-in* spc
-                                        (:path invalids)
-                                        (element->predicate
-                                         (get-in* data (:path invalids)))))
-          spec
-          (only-invalid (validate-scalars data spec))))
-
-
-(defn smash-data
-  "Mangle invalid datums in `data`, according to predicates in scalar
-  specification `spec`.
-
-  Examples:
-  ```clojure
-  (smash-data [42 :foo 22/7] [int? string? neg-int?])
-  ;; => [42 \"abc\" -10]
-
-  (smash-data {:a 99 :b {:c ['foo 1.23]}} {:a decimal? :b {:c [symbol? char?]}})
-  ;; => {:a 1M, :b {:c [foo \\c]}}
-  ```"
-  {:UUIDv4 #uuid "833129f1-8ad5-4ffc-a8c7-37fdd890996b"
-   :destructive true
-   :alternative-fname "heal-data"}
-  [data spec]
-  (reduce (fn [dt invalids] (assoc-in* dt
-                                       (:path invalids)
-                                       (predicate->canonical
-                                        (get-in* spec (:path invalids)))))
-          data
-          (only-invalid (validate-scalars data spec))))
 
 
 ;; Collection spec utilities
@@ -1031,100 +903,6 @@ retrieved on 2024Mar12."}
       inject-coll-preds))
 
 
-(defn partition-between
-  "Applies `pred` to successive values in `coll`, splitting it each time
-  `(pred prev-item item)` returns logical `true`.
-
-  Unlike original, this version is hollowed out to not return a transducer when
-  no collection is provided.
-
-  Adapted from [James Reeves' Medley](https://github.com/weavejester/medley)
-  [source](https://github.com/weavejester/medley/blob/1.8.0/src/medley/core.cljc#L443)"
-  {:added "1.7.0"
-   :UUIDv4 #uuid "34793280-6d1c-4bf1-beb7-bf53d5fe506a"
-   :no-doc true}
-  [pred coll]
-  (lazy-seq
-   (letfn [(take-part [prev coll]
-             (lazy-seq
-              (when-let [[x & xs] (seq coll)]
-                (when-not (pred prev x)
-                  (cons x (take-part x xs))))))]
-     (when-let [[x & xs] (seq coll)]
-       (let [run (take-part x xs)]
-         (cons (cons x run)
-               (partition-between pred
-                                  (lazy-seq (drop (count run) xs)))))))))
-
-
-(defn partition-after
-  "Returns a lazy sequence of partitions, splitting after `(pred item)` returns
-  true. Unlike original, this version does not return a transducer when no
-  collection is provided.
-
-  Adapted from [James Reeves' Medley](https://github.com/weavejester/medley)
-  [source](https://github.com/weavejester/medley/blob/1.8.0/src/medley/core.cljc#L485)"
-  {:added "1.5.0"
-   :UUIDv4 #uuid "cb373c2e-a28f-412d-af05-073f9157f17a"
-   :no-doc true}
-  [pred coll]
-  (partition-between (fn [x _] (pred x)) coll))
-
-
-(defn flatten-one-level
-  "Given sequence `v` containing strictly collections, 'flatten', but only one
-  level deep."
-  {:UUIDv4 #uuid "6066f9b5-0925-43ad-9362-4c475555bd1d"
-   :no-doc true}
-  [v]
-  (apply concat v))
-
-
-(defn recover-literal-path-1
-  "Given collection `form` and ordinal index `ord-idx`, returns the literal path
-  index to the nested child collection addressed by `ord-idx`. Only operates on
-  sequences; maps and sets are passed through."
-  {:UUIDv4 #uuid "232e6aa0-7305-4d7b-86c5-6e235042cdc2"
-   :no-doc true}
-  [form ord-idx]
-  (if (sequential? form)
-    (->> form
-         (partition-after coll?)
-         (take (inc ord-idx))
-         flatten-one-level
-         count
-         dec)
-    ord-idx))
-
-
-(defn recover-literal-path
-  "Given heterogeneous, arbitrarily-nested data structure `form` and ordinal
-  collection path `ord-path`, returns the literal path to the nested child
-  collection.
-
-  Examples:
-  ```clojure
-  (recover-literal-path [11 [22] 33 [44] 55 [66]] [2])
-  ;; => [5]
-
-  (recover-literal-path {:a {:b [11 [22] 33 [44]]}}
-                        [:a :b 1])
-  ;; => [:a :b 3]
-
-  (recover-literal-path (list 11 22 [33 [44] [55] [66]])
-                        [1 2])
-  ;; => [2 3]
-  ```"
-  {:UUIDv4 #uuid "d892eda9-4369-432c-b0c4-2c2b3ee929b7"}
-  [form ord-path]
-  (reduce
-   (fn [accumulating-literal-path ordinal-index]
-     (conj accumulating-literal-path
-           (recover-literal-path-1 (get-in* form accumulating-literal-path) ordinal-index)))
-   []
-   ord-path))
-
-
 (defn collections-without-predicates
   "Given `data` a heterogeneous, arbitrarily-nested data structure, returns a
   set of `data`'s all-paths elements for collections which lack at least one
@@ -1154,10 +932,104 @@ retrieved on 2024Mar12."}
         all (all-paths data)
         validation (validate-collections data spec)
         colls-only (set (filter #(coll? (:value %)) all))
-        red-fn (fn [acc vl] (let [entry (select-keys vl [:ordinal-parent-path :datum])]
-                              (disj acc {:path (recover-literal-path data (:ordinal-parent-path entry))
+        red-fn (fn [acc vl] (let [entry (select-keys vl [:ordinal-path-datum :datum])]
+                              (disj acc {:path (recover-literal-path data (:ordinal-path-datum entry))
                                          :value (:datum entry)})))]
     (reduce red-fn colls-only validation)))
+
+
+(defn predicates-without-collections
+  "Given `data` at heterogeneuous, arbitrarily-nested data structure and a
+  collection specification `spec`, returns a set of all-paths elements for
+  predicates in `spec` which cannnot be paired with a collection element in
+  `data`. See also [[collections-without-predicates]],
+  [[scalars-without-predicates]], and [[predicates-without-scalars]].
+
+  Examples:
+  ```clojure
+  ;; all predicates are paired
+  (predicates-without-collections [42] [vector?])
+  ;; => #{}
+
+  ;; one un-paired predicate
+  (predicates-without-collections [42] [vector? [map?]])
+  ;; => #{{:path [1 0], :value map?}}
+
+  ;; one un-paired predicate
+  (predicates-without-collections {:a 42} {:is-map? map? :b [vector?]})
+  ;; => #{{:path [:b 0], :value vector?}}
+
+  ;; one un-paired predicate <-- collection validation only applies predicates to non-scalars
+  (predicates-without-collections {:a 42 :b 99} {:is-map? map? :b [vector?]})
+  ;; => #{{:path [:b 0], :value vector?}}
+  ```"
+  {:UUIDv4 #uuid "15f87b04-f05b-40a3-a308-9d10515409a8"}
+  [data spec]
+  (let [[data spec] (expand-and-clamp data spec)
+        all-spec (all-paths spec)
+        validation (validate-collections data spec)
+        fns-only (set (filter #(fn? (:value %)) all-spec))
+        red-fn (fn [acc vl] (let [entry (select-keys vl [:path-predicate :predicate])]
+                              (disj acc {:path (:path-predicate entry)
+                                         :value (:predicate entry)})))]
+    (reduce red-fn fns-only validation)))
+
+
+(defn thoroughly-valid-scalars?
+  "Given a heterogeneous, arbitrarily-nested data structure `data` and scalar
+  specification `spec`, returns `true` if every scalar contained in `data` has a
+  corresponding predicate in `spec`, and every scalar satisfies its predicate.
+
+  See [[valid-scalars?]], [[scalars-without-predicates]], and
+  [[thoroughly-valid?]].
+
+  Examples:
+  ```clojure
+  ;; all scalars have satisfied predicates
+  (thoroughly-valid-scalars? [11 {:x 22/7 :y 'foo}] [int? {:x ratio? :y symbol?}])
+  ;; => true
+
+  ;; all scalars have predicates, but not all satisfied
+  (thoroughly-valid-scalars? [11 {:x 22/7 :y 'foo}] [char? {:x ratio? :y symbol?}])
+  ;; => false
+
+  ;; all predicates satisfied, but one scalar is missing a predicate
+  (thoroughly-valid-scalars? [11 {:x 22/7 :y 'foo}] [int? {:x ratio?}])
+  ;; => false
+  ```"
+  {:UUIDv4 #uuid "ab6d091d-82d2-4b2f-965d-1de630d320c1"}
+  [data spec]
+  (and (empty? (scalars-without-predicates data spec))
+       (valid-scalars? data spec)))
+
+
+(defn thoroughly-valid-collections?
+  "Given a heterogeneous, arbitrarily-nested data structure `data` and
+  collection specification `spec`, returns `true` if every collection contained
+  in `data` has a corresponding predicate in `spec`, and every collection
+  satisfies its predicate.
+
+  See [[valid-collections?]], [[collections-without-predicates]], and
+  [[thoroughly-valid?]].
+
+  Examples:
+  ```clojure
+  ;; all collections have satisfied predicates
+  (thoroughly-valid-collections? [11 {:x 22/7 :y 'foo}] [vector? {:is-map? map?}])
+  ;; => true
+
+  ;; all collections have predicates, but not all satisfied
+  (thoroughly-valid-collections? [11 {:x 22/7 :y 'foo}] [list? {:is-map? map?}])
+  ;; => false
+
+  ;; all predicates satisfied, but one collection is missing a predicate
+  (thoroughly-valid-collections? [11 {:x 22/7 :y 'foo}] [{:is-map? map?}])
+  ;; => false
+  ```"
+  {:UUIDv4 #uuid "81283b57-2543-4fa2-9d92-72ed1cbd7bbc"}
+  [data spec]
+  (and (empty? (collections-without-predicates data spec))
+       (valid-collections? data spec)))
 
 
 (defn thoroughly-valid?
@@ -1189,9 +1061,8 @@ retrieved on 2024Mar12."}
   ```"
   {:UUIDv4 #uuid "43b126ce-c684-4358-b5ec-bba6f4c46fc5"}
   [data scalar-spec collection-spec]
-  (and (valid? data scalar-spec collection-spec)
-       (empty? (scalars-without-predicates data scalar-spec))
-       (empty? (collections-without-predicates data collection-spec))))
+  (and (thoroughly-valid-scalars? data scalar-spec)
+       (thoroughly-valid-collections? data collection-spec)))
 
 
 (defn clamp-in*

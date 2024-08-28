@@ -1,8 +1,8 @@
 (ns speculoos.core-test
   (:require
    [clojure.test :refer [deftest are is run-tests testing]]
+   [fn-in.core :refer [get-in* assoc-in*]]
    [speculoos.core :refer :all]
-   [speculoos.fn-in :refer [get-in* assoc-in*]]
    [speculoos.example-data-specs-core :refer :all]))
 
 
@@ -75,6 +75,108 @@
     (is (= (clamp [1 2 3] [\a \b \c \d \e]) [[1 2 3] [\a \b \c \d \e]])))
   (testing "two non-terminating collections"
     (is (thrown? Exception (clamp (range) (cycle [11 22 33]))))))
+
+
+(deftest reduce-indexed-test
+  (testing "reduce-indexed output on all four collection types, plus seqs"
+    (are [x y] (= x y)
+      (reduce-indexed #(conj %2 (vector %1 %3))
+                      [[99 :a]]
+                      [:b :c :d])
+      [[99 :a] [0 :b] [1 :c] [2 :d]]
+
+      (reduce-indexed #(conj %2 (list %1 %3))
+                      '((99 :a))
+                      '(:b :c :d))
+      '((2 :d) (1 :c) (0 :b) (99 :a))
+
+      (reduce-indexed #(conj %2 (vector %1 %3))
+                      #{:initial-contents}
+                      #{:one :two :three})
+      #{[1 :three] :initial-contents [0 :one] [2 :two]}
+
+      (reduce-indexed #(conj %2 (hash-map %1 %3))
+                      {:a 99}
+                      {:b 2 :c 3 :d 4})
+      {:a 99, 0 [:b 2], 1 [:c 3], 2 [:d 4]}
+
+      (reduce-indexed #(conj %2 (sequence [%1 %3]))
+                      (sequence [99 :a])
+                      (sequence [:b :c :d]))
+      '((2 :d) (1 :c) (0 :b) 99 :a)
+
+      (reduce-indexed #(* %3 (+ %1 %2)) 0 (range 4))
+      27
+
+      (reduce-indexed #(conj %2 [%1 %3]) [] (take 5 (cycle [:a :b :c])))
+      [[0 :a] [1 :b] [2 :c] [3 :a] [4 :b]]
+      ))
+
+  (testing "init val not supplied, f not applied"
+    (are [x y] (= x y)
+      0 (reduce-indexed + [])
+      1 (reduce-indexed + [1])
+
+      0 (reduce-indexed + '())
+      1 (reduce-indexed + '(1))
+
+      0 (reduce-indexed + {})
+      [:a 1] (reduce-indexed + {:a 1})
+
+      0 (reduce-indexed + #{})
+      1 (reduce-indexed + #{1})
+
+      0 (reduce-indexed + (sequence []))
+      1 (reduce-indexed + (sequence [1]))
+      ))
+
+  (testing "init value supplied"
+    (are [x y] (= x y)
+      [] (reduce-indexed + [] [])
+      {} (reduce-indexed + {} {})
+      '() (reduce-indexed + '() '())
+      #{} (reduce-indexed + #{} #{})
+      '() (reduce-indexed + (sequence []) (sequence []))
+
+
+      [5] (reduce-indexed + [5] [])
+      {:a 1} (reduce-indexed + {:a 1} {})
+      '(3) (reduce-indexed + '(3) '())
+      #{4} (reduce-indexed + #{4} #{})
+      '(99) (reduce-indexed + (sequence [99]) (sequence []))
+
+      :no-items-in-coll (reduce-indexed + :no-items-in-coll [])
+      ))
+
+  (testing "exceptions"
+    (is (thrown? ClassCastException ; (+) is undefined for a nil argument
+                 (reduce-indexed + [] [5]))))
+
+  (testing "map assembly tests"
+    (are [x y] (= x y)
+      {:init-val 99 :a 0 :b 1 :c 2}
+      (reduce-indexed #(assoc %2 %3 %1) {:init-val 99} [:a :b :c])
+
+      {0 {:idx 0 :val 11} 1 {:idx 1 :val 22} 2 {:idx 2 :val 33}}
+      (reduce-indexed #(assoc %2 %1 {:idx %1 :val (second %3)}) {} {:a 11 :b 22 :c 33})
+      ))
+
+  (testing "vector conj tests"
+    (are [x y] (= x y)
+      (reduce-indexed #(conj %2 (vector %1 %3))
+                      [:initial-contents]
+                      [:item1 :item2 :item3])
+      [:initial-contents [0 :item1] [1 :item2] [2 :item3]]))
+
+  (testing "list creation"
+    (are [x y] (= x y)
+      '({:idx 2, :val 33} {:idx 1, :val 22} {:idx 0, :val 11} :init-element)
+      (reduce-indexed #(conj %2 {:idx %1 :val %3}) '(:init-element) '(11 22 33))))
+
+  (testing "set handling"
+    (are [x y] (= x y)
+      (reduce-indexed #(conj %2 %1 %3) #{:init-val} #{11 22 33})
+      #{:init-val 0 11 1 22 2 33})))
 
 
 (deftest all-paths-sub-function-test
@@ -727,27 +829,99 @@
         (apply-all-predicates-within-spec-set #{1 2 3} #{int? string?} [])
         (apply-all-predicates-within-spec-set #{:a 42 "abc"} #{int? string? keyword?} []))))
 
-  (deftest validate-set-elements-tests
-    (testing "empties"
-      (are [x] (empty? x)
-        (validate-set-elements [] [])
-        (validate-set-elements {} {})
-        (validate-set-elements '() '())
-        (validate-set-elements #{} #{})
-        (validate-set-elements #{1 2 3} #{})
-        (validate-set-elements #{} #{int?})))
 
-    (testing "all true"
-      (are [x] (every? #(true? (:valid? %)) x)
-        (validate-set-elements #{1 2 3} #{int?})
-        (validate-set-elements #{1 2 3} #{int? number? pos?})
-        (validate-set-elements [42 #{1 2 3}] [int? #{number? int?}])
-        (validate-set-elements {:a 42 :b #{"abc" "xyz" "qrs"}} {:a int? :b #{string? #(= 3 (count %))}})))
+(deftest validate-set-elements-tests
+  (testing "empties"
+    (are [x] (empty? x)
+      (validate-set-elements [] [])
+      (validate-set-elements {} {})
+      (validate-set-elements '() '())
+      (validate-set-elements #{} #{})
+      (validate-set-elements #{1 2 3} #{})
+      (validate-set-elements #{} #{int?})))
 
-    (testing "some false"
-      (are [x] (some #(not (:valid? %)) x)
-        (validate-set-elements #{1 2 3 :foo} #{int? number?})
-        (validate-set-elements #{1 2 3} #{string? keyword? boolean?}))))
+  (testing "all true"
+    (are [x] (every? #(true? (:valid? %)) x)
+      (validate-set-elements #{1 2 3} #{int?})
+      (validate-set-elements #{1 2 3} #{int? number? pos?})
+      (validate-set-elements [42 #{1 2 3}] [int? #{number? int?}])
+      (validate-set-elements {:a 42 :b #{"abc" "xyz" "qrs"}} {:a int? :b #{string? #(= 3 (count %))}})))
+
+  (testing "some false"
+    (are [x] (some #(not (:valid? %)) x)
+      (validate-set-elements #{1 2 3 :foo} #{int? number?})
+      (validate-set-elements #{1 2 3} #{string? keyword? boolean?}))))
+
+
+(defmacro with-err-str
+  "Evaluates exprs in a context in which *err* is bound to a fresh
+   StringWriter. Returns the string created by any nested printing calls."
+  {:UUIDv4 #uuid "98ca9460-f3c4-40b7-8e6a-178445c3358f"
+   :no-doc true
+   :source {:project "cloojure tupelo"
+            :author "Alan Thompson"
+            :version "v23.03.14"
+            :url "https://github.com/cloojure/tupelo/blob/b5d08eb60f1df1ed7330af3c38daa8fce3b856de/src/cljc/tupelo/core.cljc#L188C6-L196C24"}
+   :license {:name "Eclipse Public License"
+             :version "1.0"
+             :url "https://www.eclipse.org/legal/epl/epl-v10.html"}}
+  [& body]
+  `(let [s# (new java.io.StringWriter)]
+     (binding [*err* s#]
+       ~@body
+       (str s#))))
+
+
+(def regex-pred-example #"a.c")
+
+
+(deftest validate-bare-scalars-tests
+  (testing "with notice"
+    (is
+     (with-err-str (validate-bare-scalar 42 int?))
+     "Validating 'bare' scalars with 'bare' predicates is an undocumented feature provided for convenience, but is not guarnanteed in future versions. Bind *notice-on-validation-bare-scalar* to false to suppress this notice and associated key-val of the returned map.\n"))
+  (testing "notice suppressed"
+    (binding [speculoos.core/*notice-on-validation-bare-scalar* false]
+      (are [x y] (= x y)
+        (validate-bare-scalar 99 int?)
+        [{:path nil, :datum 99, :predicate int?, :valid? true}]
+
+        (validate-bare-scalar 'foo decimal?)
+        [{:path nil, :datum 'foo, :predicate decimal?, :valid? false}]
+
+        (validate-bare-scalar :red #{:red :green :blue})
+        [{:path nil, :datum :red, :predicate #{:green :red :blue}, :valid? :red}]
+
+        (validate-bare-scalar "abc" regex-pred-example) ;; regex objects apparently are not equable (= #"a.c" #"a.c") ;; => false
+        [{:path nil, :datum "abc", :predicate regex-pred-example, :valid? "abc"}]))))
+
+
+(deftest validate-scalars-tests
+  (binding [speculoos.core/*notice-on-validation-bare-scalar* false]
+    (testing "undocumented usage: 'bare' scalar and 'bare' predicate dispatch"
+      (are [x y] (= x y)
+        (validate-scalars 42 int?)
+        [{:path nil, :datum 42, :predicate int?, :valid? true}]
+
+        (validate-scalars :red #{:red :green :blue})
+        [{:path nil, :datum :red, :predicate #{:green :red :blue}, :valid? :red}]
+
+        (validate-scalars "abc" regex-pred-example)
+        [{:path nil, :datum "abc", :predicate regex-pred-example, :valid? "abc"}])))
+  (testing "documented usage: `data` and `spec` are both collections"
+    (are [x y] (= x y)
+      (validate-scalars [99] [int?])
+      [{:path [0], :datum 99, :predicate int?, :valid? true}]
+
+      (validate-scalars {:a 99} {:a int?})
+      [{:path [:a], :datum 99, :predicate int?, :valid? true}]
+
+      (validate-scalars (list 99) (list int?))
+      [{:path [0], :datum 99, :predicate int?, :valid? true}]
+
+      (validate-scalars #{99} #{int? odd?})
+      [{:path [], :datums-set #{99}, :predicate int?, :valid? true}
+       {:path [], :datums-set #{99}, :predicate odd?, :valid? true}])))
 
 
 (deftest validate-and-validate-set-tests
@@ -785,11 +959,11 @@
       (valid-scalars? (range 99) [int? int? int?])
       (valid-scalars? [11 22 33] (take 99 (repeat int?)))
       (valid-scalars? [:foo "abc" true 11 22 33 44 55 66 77 88 99]
-                          (lazy-cat [keyword? string? boolean?] (take 99 (repeat int?))))
+                      (lazy-cat [keyword? string? boolean?] (take 99 (repeat int?))))
       (valid-scalars? [11 "abc" :foo
-                           22 "xyz" :bar
-                           33 "wqv" :baz]
-                          (take 99 (cycle [int? string? keyword?])))))
+                       22 "xyz" :bar
+                       33 "wqv" :baz]
+                      (take 99 (cycle [int? string? keyword?])))))
   (testing "nested non-terminating sequences"
     (are [x] (true? x)
       (valid-scalars? (take 99 (cycle [123 "abc" :foo \c])) [int? string? keyword? char?])
@@ -1221,6 +1395,243 @@
       (:valid? (apply-one-coll-spec test-data-5 test-data-5-coll-spec [:a 4 0]))
       (:valid? (apply-one-coll-spec test-data-5 test-data-5-coll-spec [:c 0]))
       (:valid? (apply-one-coll-spec test-data-5 test-data-5-coll-spec [:both-vecs?])))))
+
+
+(deftest re-key-tests
+  (are [x y] (= x y)
+    (re-key [{}])
+    '({})
+
+    (re-key [{:path 'path-predicate
+              :value 'predicate
+              :ordinal-parent-path 'ordinal-path-datum}])
+    '({:path-predicate path-predicate, :predicate predicate, :ordinal-path-datum ordinal-path-datum})
+
+    (re-key [{:path 11
+              :value 22
+              :ordinal-parent-path 33}
+             {:path 44
+              :value 55
+              :ordinal-parent-path 66}])
+    '({:path-predicate 11, :predicate 22, :ordinal-path-datum 33}
+      {:path-predicate 44, :predicate 55, :ordinal-path-datum 66})
+
+    (re-key [{:a 11} {:b 22}])
+    '({:a 11} {:b 22})))
+
+
+(deftest partition-after-tests
+  (are [x y] (= x y)
+    (partition-after coll? [11 [22] 33 44 [55] 66])
+    '((11 [22]) (33 44 [55]) (66))
+
+    (partition-after coll? '(11 22 (33) 44 55 [66] 88 #{77}))
+    '((11 22 (33)) (44 55 [66]) (88 #{77}))))
+
+
+(deftest flatten-one-level-tests
+  (are [x y] (= x y)
+    (flatten-one-level [])
+    '()
+
+    (flatten-one-level [[11]])
+    '(11)
+
+    (flatten-one-level [[11] [22] [33]])
+    '(11 22 33)
+
+    (flatten-one-level '())
+    '()
+
+    (flatten-one-level '([11]))
+    '(11)
+
+    (flatten-one-level '((11) [22] (33)))
+    '(11 22 33)
+
+    (flatten-one-level (take 3 (cycle [[11] [22] [33]])))
+    '(11 22 33)))
+
+
+(deftest recover-literal-path-1-tests
+  (are [x y] (= x y)
+    6 (recover-literal-path-1 [11 [22] 33 44 [55] 66 [[77]] 88 99]  2)
+    6 (recover-literal-path-1 '(11 (22) 33 44 [55] 66 [(77)] 88 99) 2)
+
+    4 (recover-literal-path-1 [11 [22] 33 44 [55] 66 [[77]] 88 99]  1)
+    4 (recover-literal-path-1 '(11 (22) 33 44 [55] 66 [(77) 88 99]) 1)
+
+    1 (recover-literal-path-1 [11 [22] 33 44 [55] 66 [[77]] 88 99]  0)
+    1 (recover-literal-path-1 '(11 (22) 33 44 [55] 66 [(77) 88 99]) 0)
+
+    0 (recover-literal-path-1 [[22] 33 44 [55] 66 [[77]] 88 99]  0)
+    0 (recover-literal-path-1 '((22) 33 44 [55] 66 [(77) 88 99]) 0)
+
+    :a (recover-literal-path-1 {:a []} :a)
+    [:a] (recover-literal-path-1 #{[:a]} [:a])
+    2 (recover-literal-path-1 (take 5 (repeat [77])) 2)
+    4 (recover-literal-path-1 (take 6 (cycle [[77] 44 {:a 22} 55 #{33}])) 2)))
+
+
+(deftest recover-literal-path-tests
+  (testing "empties"
+    (are [x] (= x [])
+      (recover-literal-path [] [])
+      (recover-literal-path {} [])
+      (recover-literal-path [11 [22] 33] [])
+      (recover-literal-path {:a [11]} [])))
+  (testing "non-empty ordinal-parent-paths"
+    (are [x y] (= x y)
+      ;; targeting [444]
+      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
+                            [1 2 2])
+      [4 5 3]
+
+      ;; targeting [33]
+      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
+                            [0])
+      [2]
+
+      ;; targeting [55 [66]...]
+      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
+                            [1])
+      [4]
+
+      ;; targeting [66]
+      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
+                            [1 0])
+      [4 1]
+
+      ;; targeting [88]
+      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
+                            [1 1])
+      [4 3]
+
+      ;; targeting [333]
+      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
+                            [1 2 1])
+      [4 5 2]
+
+      ;; targeting [22]
+      (recover-literal-path [11 [22]] [0])
+      [1]
+
+      ;; targeting [99]
+      (recover-literal-path {:a [11 [22] 33 {:b [44 [55] 66 [77] 88 [99]]}]}
+                            [:a 1 :b 2])
+      [:a 3 :b 5]
+
+      ;; targeting [222]
+      (recover-literal-path '(11 22 (33) 44 {:a 55 :b [66 [77] 88 [99] 111 [222]]})
+                            [1 :b 2])
+      [4 :b 5]
+
+      ;; targeting [55]
+      (recover-literal-path #{11 [[22] 33 44 [55]]}
+                            [[[22] 33 44 [55]] 1])
+      [[[22] 33 44 [55]] 3]
+
+      ;; targeting [77] ; look to the right...--->                                                                     >>>>----vvvv
+      (recover-literal-path [11 22 [33] 44 [55] 66 (take 9 (cycle [[77] 88 [99]]))] ;; => [11 22 [33] 44 [55] 66 ([77] 88 [99] [77] 88 [99] [77] 88 [99])]
+                            [2 2])
+      [6 3])))
+
+
+(deftest validate-collections-tests
+    (testing "empty data and specifications"
+      (are [x] (= [] x)
+        (validate-collections [] [])
+        (validate-collections {} {})
+        (validate-collections '() '())
+        (validate-collections #{} #{})))
+    (testing "empty data"
+      (are [x y] (= x y)
+        (validate-collections [] [vector?])
+        [{:datum [], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections {} {:is-map? map?})
+        [{:datum {}, :valid? true, :path-predicate [:is-map?], :predicate map?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections '() (list list?))
+        [{:datum (), :valid? true, :path-predicate [0], :predicate list?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections #{} #{set?})
+        [{:datum #{}, :valid? true, :path-predicate [set?], :predicate set?, :ordinal-path-datum [], :path-datum []}]))
+    (testing "empty specification"
+      (are [x] (= [] x)
+        (validate-collections [99] [])
+        (validate-collections {:a 99} {})
+        (validate-collections (list 99) '())
+        (validate-collections #{99} #{})))
+    (testing "basic validation"
+      (are [x y] (= x y)
+        (validate-collections [99] [vector?])
+        [{:datum [99], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections {:a 99} {:is-map? map?})
+        [{:datum {:a 99}, :valid? true, :path-predicate [:is-map?], :predicate map?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections '(99) (list list?))
+        [{:datum '(99), :valid? true, :path-predicate [0], :predicate list?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections #{99} #{set?})
+        [{:datum #{99}, :valid? true, :path-predicate [set?], :predicate set?, :ordinal-path-datum [], :path-datum []}]))
+    (testing "validating nested collections"
+      (are [x y] (= x y)
+        (validate-collections [11 [22]] [vector? [map?]])
+        [{:datum [11 [22]], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}
+         {:datum [22], :valid? false, :path-predicate [1 0], :predicate map?, :ordinal-path-datum [0], :path-datum [1]}]
+
+        (validate-collections {:a 11 :b {:c 22}} {:is-map? map? :b {:is-list? list?}})
+        [{:datum {:a 11, :b {:c 22}}, :valid? true, :path-predicate [:is-map?], :predicate map?, :ordinal-path-datum [], :path-datum []}
+         {:datum {:c 22}, :valid? false, :path-predicate [:b :is-list?], :predicate list?, :ordinal-path-datum [:b], :path-datum [:b]}]
+
+        (validate-collections '(11 (22)) (list list? (list map?)))
+        [{:datum '(11 (22)), :valid? true, :path-predicate [0], :predicate list?, :ordinal-path-datum [], :path-datum []}
+         {:datum '(22), :valid? false, :path-predicate [1 0], :predicate map?, :ordinal-path-datum [0], :path-datum [1]}]
+
+        (validate-collections [11 [22] 33 [44] 55 [66]] [[vector?] [list?] [map?]])
+        [{:datum [22], :valid? true, :path-predicate [0 0], :predicate vector?, :ordinal-path-datum [0], :path-datum [1]}
+         {:datum [44], :valid? false, :path-predicate [1 0], :predicate list?, :ordinal-path-datum [1], :path-datum [3]}
+         {:datum [66], :valid? false, :path-predicate [2 0], :predicate map?, :ordinal-path-datum [2], :path-datum [5]}]
+
+        (validate-collections [11 [22 [33]]] [vector? [list? [map?]]])
+        [{:datum [11 [22 [33]]], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}
+         {:datum [22 [33]], :valid? false, :path-predicate [1 0], :predicate list?, :ordinal-path-datum [0], :path-datum [1]}
+         {:datum [33], :valid? false, :path-predicate [1 1 0], :predicate map?, :ordinal-path-datum [0 0], :path-datum [1 1]}]
+
+        (validate-collections {:a {:b 99}} {:is-map? map? :a {:is-list list?}})
+        [{:datum {:a {:b 99}}, :valid? true, :path-predicate [:is-map?], :predicate map?, :ordinal-path-datum [], :path-datum []}
+         {:datum {:b 99}, :valid? false, :path-predicate [:a :is-list], :predicate list?, :ordinal-path-datum [:a], :path-datum [:a]}]
+
+        (validate-collections {:a [99 {:b [77]}]} {:is-map? map? :a [vector? {:is-list? list? :b [set?]}]})
+        [{:datum {:a [99 {:b [77]}]}, :valid? true, :path-predicate [:is-map?], :predicate map?, :ordinal-path-datum [], :path-datum []}
+         {:datum [99 {:b [77]}], :valid? true, :path-predicate [:a 0], :predicate vector?, :ordinal-path-datum [:a], :path-datum [:a]}
+         {:datum {:b [77]}, :valid? false, :path-predicate [:a 1 :is-list?], :predicate list?, :ordinal-path-datum [:a 0], :path-datum [:a 1]}
+         {:datum [77], :valid? false, :path-predicate [:a 1 :b 0], :predicate set?, :ordinal-path-datum [:a 0 :b], :path-datum [:a 1 :b]}]
+
+        (validate-collections [11 {:a 22}] [vector? {:is-map? map?}])
+        [{:datum [11 {:a 22}], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}
+         {:datum {:a 22}, :valid? true, :path-predicate [1 :is-map?], :predicate map?, :ordinal-path-datum [0], :path-datum [1]}]))
+    (testing "multiple predicates applying to same collection"
+      (are [x y] (= x y)
+        (validate-collections [99] [vector? map?])
+        [{:datum [99], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}
+         {:datum [99], :valid? false, :path-predicate [1], :predicate map?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections {:a 99} {:is-map? map? :is-set? set?})
+        [{:datum {:a 99}, :valid? true, :path-predicate [:is-map?], :predicate map?, :ordinal-path-datum [], :path-datum []}
+         {:datum {:a 99}, :valid? false, :path-predicate [:is-set?], :predicate set?, :ordinal-path-datum [], :path-datum []}]))
+    (testing "un-paired predicate in specification (see GitHub issue #3)"
+      (are [x y] (= x y)
+        (validate-collections [99] [vector? [map?]])
+        [{:datum [99], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections {:a 99} {:is-map? map? :b {:is-set? set?}})
+        [{:datum {:a 99}, :valid? true, :path-predicate [:is-map?], :predicate map?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections {:a 99} {:a [set?]})
+        [])))
 
 
 (deftest valid-collections?-tests

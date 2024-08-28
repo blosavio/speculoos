@@ -21,10 +21,10 @@
     (prettyfy (str (eval (read-string "[11 22 33]"))))
     "[11 22 33]"
 
-    (prettyfy (str (eval (read-string "(repeat 3 (repeat 3 {:a 11 :b 22 :c 33}))"))))
+    (prettyfy (str (eval (read-string "(repeat 3 (repeat 3 {:a 11 :b 22 :c 33}))"))) 40)
     "(({:a 11, :b 22, :c 33}\n  {:a 11, :b 22, :c 33}\n  {:a 11, :b 22, :c 33})\n  ({:a 11, :b 22, :c 33}\n   {:a 11, :b 22, :c 33}\n   {:a 11, :b 22, :c 33})\n  ({:a 11, :b 22, :c 33}\n   {:a 11, :b 22, :c 33}\n   {:a 11, :b 22, :c 33}))"
 
-    (prettyfy (str (eval (read-string "(repeat 2 (repeat 2 {:a 11 :b 22}))"))))
+    (prettyfy (str (eval (read-string "(repeat 2 (repeat 2 {:a 11 :b 22}))"))) 40)
     "(({:a 11, :b 22} {:a 11, :b 22})\n  ({:a 11, :b 22} {:a 11, :b 22}))"))
 
 
@@ -71,47 +71,15 @@
     (print-form-then-eval "(map inc (range 0 23))")
     [:code "(map inc (range 0 23))\n;; => (1\n;;     2\n;;     3\n;;     4\n;;     5\n;;     6\n;;     7\n;;     8\n;;     9\n;;     10\n;;     11\n;;     12\n;;     13\n;;     14\n;;     15\n;;     16\n;;     17\n;;     18\n;;     19\n;;     20\n;;     21\n;;     22\n;;     23)"]
 
-    (print-form-then-eval "(filter #(odd? %) (range 42))")
+    (print-form-then-eval "(filter #(odd? %) (range 42))" 80 80)
     [:code "(filter #(odd? %) (range 42))\n;; => (1 3 5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35 37 39 41)"]
 
-    (print-form-then-eval "(get-in {:a {:x 11 :y 22 :z 33} :b {:x 11 :y 22 :z 33} :c {:x 11 :y 22 :z 33}} [:b :z])")
-    [:code "(get-in {:a {:x 11, :y 22, :z 33},\n         :b {:x 11, :y 22, :z 33},\n         :c {:x 11, :y 22, :z 33}}\n        [:b :z])\n;; => 33"]))
+    (print-form-then-eval "(get-in {:a {:x 11 :y 22 :z 33} :b {:x 11 :y 22 :z 33} :c {:x 11 :y 22 :z 33}} [:b :z])" 50 40)
+    [:code "(get-in {:a {:x 11, :y 22, :z 33},\n         :b {:x 11, :y 22, :z 33},\n         :c {:x 11, :y 22, :z 33}}\n        [:b :z])\n;; => 33"]
 
-
-(deftest label-tests
-  (are [x y] (= (str (label x)) y)
-    ""
-    "<label class=\"margin-toggle sidenote-number\" for=\"\"></label>"
-
-    "foo"
-    "<label class=\"margin-toggle sidenote-number\" for=\"foo\"></label>"))
-
-
-(deftest side-note-tests
-  (are [x y] (= x y)
-    (str (side-note "" ""))
-    "<input class=\"margin-toggle\" id=\"\" type=\"checkbox\"><span class=\"sidenote\"></span></input>"
-
-    (str (side-note "foo" "bar"))
-    "<input class=\"margin-toggle\" id=\"foo\" type=\"checkbox\"><span class=\"sidenote\">bar</span></input>"))
-
-
-(deftest inline-img-tests
-  (are [x y] (= x y)
-    (str (inline-img "" "" "" ""))
-    "<figure><label class=\"margin-toggle\" for=\"\">&amp;#8853;</label><input class=\"margin-toggle\" id=\"\" name=\"\" type=\"checkbox\" value=\"true\" /><span class=\"marginnote\"></span><img alt=\"\" src=\"\" /></figure>"
-
-    (str (inline-img "foo" "bar" "https://example.com" "alt text"))
-    "<figure><label class=\"margin-toggle\" for=\"foo\">&amp;#8853;</label><input class=\"margin-toggle\" id=\"foo\" name=\"foo\" type=\"checkbox\" value=\"true\" /><span class=\"marginnote\">bar</span><img alt=\"alt text\" src=\"https://example.com\" /></figure>"))
-
-
-(deftest margin-img-tests
-  (are [x y] (= x y)
-    (str (margin-img "" "" "" ""))
-    "<label class=\"margin-toggle\" for=\"\">&amp;#8853;</label><input class=\"margin-toggle\" id=\"\" name=\"\" type=\"checkbox\" value=\"true\" /><span class=\"marginnote\"><img alt=\"\" src=\"\" /></span>"
-
-    (str (margin-img "foo" "bar" "https://example.com" "alt text"))
-    "<label class=\"margin-toggle\" for=\"foo\">&amp;#8853;</label><input class=\"margin-toggle\" id=\"foo\" name=\"foo\" type=\"checkbox\" value=\"true\" /><span class=\"marginnote\"><img alt=\"alt text\" src=\"https://example.com\" />bar</span>"))
+    ;; `revert-fn-obj-rendering` assumes the CIDER nREPL; the following test fails if run from $ lein test speculoos-hiccup-test
+    #_ (print-form-then-eval "[int? string? ratio? decimal? symbol? map? vector?]" 80 80)
+    #_ [:code "[int? string? ratio? decimal? symbol? map? vector?]\n;; => [int? string? ratio? decimal? symbol? map? vector?]"]))
 
 
 (deftest long-date-tests
@@ -130,6 +98,63 @@
   (clojure.string/starts-with? (copyright) "Copyright © ")
   (clojure.string/ends-with? (copyright) " Brad Losavio.")
   (some? (re-find #"^Copyright © 20\d{2} Brad Losavio.$" (copyright))))
+
+
+(deftest line-leading-space-to-non-breaking-space-tests
+  (are [x y] (= x y)
+    (line-leading-space-to-non-breaking-space "")
+    ""
+
+    (line-leading-space-to-non-breaking-space "<pre><code>foo</code></pre>")
+    "<pre><code>foo</code></pre>"
+
+    (line-leading-space-to-non-breaking-space "<pre><code>foo\n</code></pre>")
+    "<pre><code>foo\n</code></pre>"
+
+    (line-leading-space-to-non-breaking-space "<pre><code>foo\n </code></pre>")
+    "<pre><code>foo\n&nbsp;</code></pre>"
+
+    (line-leading-space-to-non-breaking-space "<pre><code>foo\n    bar\n    baz</code></pre>")
+    "<pre><code>foo\n&nbsp;   bar\n&nbsp;   baz</code></pre>"))
+
+
+(deftest non-breaking-space-ize-tests
+  (are [x y] (= x y)
+    (non-breaking-space-ize "")
+    ""
+
+    (non-breaking-space-ize "<pre><code>foo</code></pre>")
+    "<pre><code>foo</code></pre>"
+
+    (non-breaking-space-ize "<pre><code>foo\n</code></pre>")
+    "<pre><code>foo\n</code></pre>"
+
+    (non-breaking-space-ize "<pre><code>foo\n </code></pre>")
+    "<pre><code>foo\n&nbsp;</code></pre>"
+
+    (non-breaking-space-ize "<pre><code>foo\n    bar\n    baz</code></pre>")
+    "<pre><code>foo\n&nbsp;   bar\n&nbsp;   baz</code></pre>"
+    (non-breaking-space-ize "<pre><code>foo\n    bar\n    baz</code></pre>\n\n<pre><code>zim\n    zam\n    zoom</code></pre>")
+    "<pre><code>foo\n&nbsp;   bar\n&nbsp;   baz</code></pre>\n\n<pre><code>zim\n&nbsp;   zam\n&nbsp;   zoom</code></pre>"))
+
+
+;; lein REPL renders the objects differently, so these tests do not pass when run from $ lein test speculoos-hiccup-test
+#_ (deftest revert-fn-obj-rendering-tests
+     (are [x] (= x (-> x render-fn-obj-str revert-fn-obj-rendering))
+       "int?"
+       "string?"
+       "symbol?"
+       "pos-int?"
+       "zero?"
+       "keyword?"
+       "ratio?"
+       "decimal?"
+
+       "vector?"
+       "map?"
+       "set?"
+       "list?"
+       "coll?"))
 
 
 (run-tests)

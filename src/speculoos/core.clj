@@ -4,57 +4,33 @@
 
   Terminology:
 
-  * `validate`: To systematically apply predicates to datums.
-  * `valid`: All datums satisfy their corresponding predicates.
+  * `data`: A heterogeneous, arbitrarily-nested Clojure data structure that
+    represents information.
   * `scalar`: A non-divisible datum, such as a number, string, boolean, etc.
   * `collection`: A composite data structure, such as a vector, list, map, set,
   lazy-sequence, etc., composed of scalars and other collections.
+  * `specification`: A human- and machine-readable description of data.
+  * `validate`: To systematically apply predicates to datums.
+  * `valid`: All datums satisfy their corresponding predicates; more
+     specifically, *zero invalid datum-predicate pairs*.
   * `path`: A vector of indexes/keys that uniquely locate a datum.
   * `predicate`: A function that returns `true`/`false`, usually 1-arity, but in
   particular circumstances may be more.
   * `ordinal`: A mode of operation wherein a nested collection's path considers
-  only its ordering relative to other collections."
+  only its ordering relative to other collections.
+
+  Remember three mantras:
+
+  1. Validate scalars separately from validating collections.
+  2. Make the specification mimic the shape of the data.
+  3. Validation ignores un-paired predicates and un-paired datums."
   (:require
    [clojure.set :as set]
    [clojure.string :as str]
-   #_ [speculoos.collection-hierarchy :refer [create-collection-hierarchy]]
-   [speculoos.collection-functions :refer [reduce-indexed]]
-   [speculoos.fn-in :refer [get-in* assoc-in*]]))
+   [fn-in.core :refer [get-in* assoc-in*]]))
 
 
-;;(create-collection-hierarchy)
-(derive clojure.lang.PersistentList ::list)
-(derive clojure.lang.PersistentList$EmptyList ::list)
-
-(derive clojure.lang.Cons ::list)
-
-(derive clojure.lang.PersistentVector ::vector)
-(derive clojure.lang.PersistentVector$ChunkedSeq ::vector)
-
-(derive clojure.lang.PersistentArrayMap ::map)
-(derive clojure.lang.PersistentHashMap ::map)
-(derive clojure.lang.PersistentTreeMap ::map)
-
-(derive clojure.lang.MapEntry ::map-entry)
-
-(derive clojure.lang.PersistentHashSet ::set)
-(derive clojure.lang.PersistentTreeSet ::set)
-
-(derive ::list ::non-map-entry-collection)
-(derive ::vector ::non-map-entry-collection)
-(derive ::map ::non-map-entry-collection)
-(derive ::set ::non-map-entry-collection)
-
-(derive ::list ::non-map)
-(derive ::vector ::non-map)
-(derive ::set ::non-map)
-
-(derive clojure.lang.Cycle ::non-terminating)
-(derive clojure.lang.Iterate ::non-terminating)
-(derive clojure.lang.LazySeq ::non-terminating)
-(derive clojure.lang.LongRange ::non-terminating)
-(derive clojure.lang.Range ::non-terminating)
-(derive clojure.lang.Repeat ::non-terminating)
+(load "/fn_in/collection_hierarchy")
 
 
 (defn assoc-vector-tail
@@ -128,6 +104,63 @@
 ;;  (remove-all-methods all-paths-sub-function)
 
 
+(defn reduce-indexed
+  "Systematically apply `f` to elements of `coll`, carrying an index along with
+  the accumulating value, analogous to how
+  [map-indexed](https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/map-indexed)
+  relates to [map](https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/map).
+  Function `f` should be a function of 3 arguments: zero-indexed integer, the
+  accumulating value, and the next element of `coll`. `coll` may be any Clojure
+  collection.
+
+  If `val` is not supplied:
+
+    * `reduce-indexed` returns the result of applying `f` to the first 2 items
+    coll, then applying `f` to that result and the 3rd item, etc.
+    * If `coll` contains zero items, `f` must accept no arguments as well, and
+    `reduce-indexed` returns the result of calling `f` with no arguments.
+    * If `coll` has only one item, it is returned and `f` is not called.
+
+  If `val` is supplied:
+
+    * `reduce-indexed` returns the result of applying `f` to `val` and the
+      first item in `coll`, then applying `f` to that result and the 2nd item,
+      etc.
+    * If `coll` contains zero items, returns `val` and `f` is not called.
+
+  Note:
+
+  1. Implemented with only `first`, `next`, etc., and therefore currently makes
+     no consideration for performance.
+  2. Hash-map and array-map elements are peeled off as instances of
+     `clojure.lang.MapEntry`, a pseudo-vector of `[key value]`.
+  3. Set elements are consumed in an un-defined order.
+
+  Examples:
+  ```clojure
+  (reduce-indexed #(conj %2 (vector %1 %3)) [:initial] [:item1 :item2 :item3])
+  ;; => [:initial [0 :item1] [1 :item2] [2 :item3]]
+
+  (reduce-indexed #(assoc %2 %3 %1) {:init-val 99} [:a :b :c])
+  ;; => {:init-val 99, :a 0, :b 1, :c 2}
+  ```"
+  {:UUIDv4 #uuid "f40f7bde-c704-47b5-bafe-26874f3e033e"}
+  ([f coll]
+   (let [s (seq coll)]
+     (if s
+       (reduce-indexed f (first s) (next s))
+       (f))))
+  ([f val coll]
+   ((fn reduce-i [f idx val coll]
+      (if-let [s (seq coll)]
+        (reduce-i f
+                  (inc idx)
+                  (f idx val (first s))
+                  (next s))
+        val))
+    f 0 val coll)))
+
+
 (defmulti all-paths-sub-function
   "Sub-function in service to (all-paths) to dispatch on collection type."
   {:UUIDv4 #uuid "ca992418-70a4-40f8-9331-a2ebe6130b46"
@@ -164,14 +197,43 @@
 
   Examples:
   ```clojure
-  (all-paths [42 :foo \\c]) ;; => [{:path [], :value [42 :foo \\c]} {:path [0], :value 42} {:path [1], :value :foo} {:path [2], :value \\c}]
-  (all-paths {:a 1 :b 2}) ;; => [{:path [], :value {:a 1, :b 2}} {:path [:a], :value 1} {:path [:b], :value 2}]
-  (all-paths (list 1 2)) ;; => [{:path [], :value (1 2)} {:path [0], :value 1} {:path [1], :value 2}]
-  (all-paths #{:red :blue}) ;; => [{:path [], :value #{:red :blue}} {:path [:red], :value :red} {:path [:blue], :value :blue}]
+  ;; vector path elements are zero-indexed integers
+  (all-paths [42 :foo 22/7])
+  ;; => [{:path [], :value [42 :foo 22/7]}
+  ;;     {:path [0], :value 42}
+  ;;     {:path [1], :value :foo}
+  ;;     {:path [2], :value 22/7}]
 
-  ;; heterogeneous, nested collections
-  (all-paths [42 {:a 'foo}]) ;; => [{:path [], :value [42 {:a foo}]} {:path [0], :value 42} {:path [1], :value {:a foo}} {:path [1 :a], :value foo}]
-  (all-paths {:x #{99}}) ;; => [{:path [], :value {:x #{99}}} {:path [:x], :value #{99}} {:path [:x 99], :value 99}]
+  ;; map path elements are keys (often keywords, but not always)
+  (all-paths {:a 11 :b 22})
+  ;; => [{:path [], :value {:a 11, :b 22}}
+  ;;     {:path [:a], :value 11}
+  ;;     {:path [:b], :value 22}]
+
+  ;; list path elements are zero-indexed integers
+  (all-paths (list 11 22))
+  ;; => [{:path [], :value (11 22)}
+  ;;     {:path [0], :value 11}
+  ;;     {:path [1], :value 22}]
+
+  ;; set path elements are the values themselves
+  (all-paths #{:red :blue})
+  ;; => [{:path [], :value #{:red :blue}}
+  ;;     {:path [:red], :value :red}
+  ;;     {:path [:blue], :value :blue}]
+
+  ;; heterogeneous, nested collections; multi-element paths composed of integer indexes and keys
+  (all-paths [42 {:a 'foo}])
+  ;; => [{:path [], :value [42 {:a foo}]}
+  ;;     {:path [0], :value 42}
+  ;;     {:path [1], :value {:a foo}}
+  ;;     {:path [1 :a], :value foo}]
+
+  (all-paths {:x #{99}})
+  ;; => [{:path [], :value {:x #{99}}}
+  ;;     {:path [:x], :value #{99}}
+  ;;     {:path [:x 99], :value 99}]
+
   ```"
   {:implementation-details "(reduce-indexed) is intended to transparently consume all collections."
    :UUIDv4 #uuid "f09bd6bf-5d5c-40ab-b8db-647a5a75cd09"}
@@ -275,16 +337,16 @@
 
 (defn apply-all-predicates-within-spec-set
   "Helper function for (validate-set-elements). Applies every predicate
-   contained within spec-set to every scalar within data-set. Returns
-   validation maps with keys :path, :datum, :predicate, :valid?, one only for
-   each predicate. Order of validation results is an implementation detail
-   and is not guaranteed."
+  contained within spec-set to every scalar within data-set. Returns
+  validation maps with keys :path, :datums-set, :predicate, :valid?, one only
+  for each predicate. Order of validation results is an implementation detail
+  and is not guaranteed."
   {:UUIDv4 #uuid "92b8993c-d591-470c-8b6b-bc3e992450de"
    :no-doc true}
   [data-set spec-set path]
   (if (and (not-empty data-set) (not-empty spec-set))
     (reduce (fn [acc pred] (conj acc {:path path
-                                      :datum data-set
+                                      :datums-set data-set
                                       :predicate pred
                                       :valid? (every? pred data-set)}))
             []
@@ -308,7 +370,7 @@
      (reduce (fn [acc dpath] (if (data-spec-intersec (:path dpath))
                                (let [data-set (get-in* clamped-data (:path dpath))
                                      spec-set (get-in* clamped-spec (:path dpath))]
-                                 (concat acc (apply-all-predicates-within-spec-set data-set spec-set dpath)))
+                                 (concat acc (apply-all-predicates-within-spec-set data-set spec-set (:path dpath))))
                                acc))
              (validate-set-as-predicate data spec accumulator)
              data-paths))))
@@ -389,56 +451,65 @@
   (instance? java.util.regex.Pattern x))
 
 
-(defn validate-scalars
-  "For every scalar datum in `data`, test corresponding predicate in
-  specification `spec`. Tests predicates on scalars, non-collection leaf nodes
-  of a collection. `data` is a heterogeneous, arbitrarily-nested data structure
-  of arbitrary values. `spec` is a corresponding 'shape', i.e., all nested
-  structures are of the same type and length, containing predicates to test
-  against. `validate-scalars` recursively descends into all nested data
-  structures and produces a flattened sequence of
-  `{:path _ :value _ :predicate _}` hash-maps for each datum-predicate pair.
+(def ^:dynamic ^:no-doc *notice-on-validation-bare-scalar* true)
 
-  `:path` is a vector suitable for sending to
-  [[get-in*]], [[assoc-in*]], [[update-in*]], and friends. `:value` is the entity
-  in data. `:predicate` is a 1-arity function-like thing that returns
-  truthy/falsey; i.e, regexes and sets can serve as a predicate. Only validates
-  nodes that are in both `data` and `spec`.
 
-   The ordering of results is an implementation detail and not specified.
+(defn- prerr
+  "println to `*err*`."
+  {:UUIDv4 #uuid "2eab623f-8073-40ea-9a6a-d19d6a94f60f"
+   :no-doc true}
+  [& args]
+  (binding [*out* *err*]
+    (apply println args)))
 
-  Examples:
+
+(defn validate-bare-scalar
+  "**Undocumented Feature**
+
+  Returns result of applying `predicate` to `scalar`, a non-collection.
+  `predicate` is a either a 1-arity function that returns truthy/falsey, a set,
+  or a regex. Validation result is a vector containining a hash-map
+  `{:path nil :datum _ :predicate _ :valid? _ :speculoos/undocumented-feature <notice>}`
+  that mimics the return of [[validate-scalars]]. Key `:path` is associated to
+  nil to indicate that scalar and predicate are not contained in a collection.
+
+  Bind `*notice-on-validation-bare-scalar*` to `false` to suppress notices to
+  *out* and associated key-val.
+
   ```clojure
-  (validate-scalars [42 :foo \\c] [int? keyword? char?])
-  ;; => [{:path [0], :datum 42, :predicate int?, :valid? true}
-  ;;     {:path [1], :datum :foo, :predicate keyword?, :valid? true}
-  ;;     {:path [2], :datum \\c, :predicate char?, :valid? true}]
+  (validate-bare-scalar 42 int?)
+  ;; => [{:path nil, :datum 42, :predicate #function[clojure.core/int?], :valid? true, :speculoos/undocumented-feature \"See *err* for details\"}]
 
-  (validate-scalars {:a 42 :b 'foo} {:a int? :b symbol?})
-  ;; => [{:path [:a], :datum 42, :predicate int?, :valid? true}
-  ;;     {:path [:b], :datum foo, :predicate symbol?, :valid? true}]
+  (binding [*notice-on-validation-bare-scalar* false]
+    (validate-bare-scalar :red #{:red :green :blue}))
+  ;; => [{:path nil, :datum :red, :predicate #{:green :red :blue}, :valid? :red}]
 
-  ;; nested data and specification
-  (validate-scalars [42 {:z 'baz}] [ratio? {:z keyword?}])
-  ;; => [{:path [0], :datum 42, :predicate ratio?, :valid? false}
-  ;;     {:path [1 :z], :datum baz, :predicate keyword?], :valid? false}]
-
-  ;; data and specification not same length
-  (validate-scalars [42 :foo 22/7] [int?])
-  ;; => [{:path [0], :datum 42, :predicate int?, :valid? true}]
-
-  (validate-scalars [42] [decimal? keyword? char?])
-  ;; => [{:path [0], :datum 42, :predicate decimal?, :valid? false}]
-
-  ;; regular expression predicate
-  (validate-scalars [\"foo\"] [#\"f..\"])
-  ;; => [{:path [0], :datum \"foo\", :predicate #\"f..\", :valid? \"foo\"}]
-
-  ;; set as a membership predicate
-  (validate-scalars [:green] [#{:red :green :blue}])
-  ;; => [{:path [0], :datum :green, :predicate #{:green :red :blue}, :valid? :green}]
+  (binding [*notice-on-validation-bare-scalar* false]
+    (validate-bare-scalar \"abc\" #\"a.c\"))
+  ;; => [{:path nil, :datum \"abc\", :predicate #\"a.c\", :valid? \"abc\"}]
   ```"
+  {:UUIDv4 #uuid "b7604d74-55e7-4083-b73a-d243d91490d6"
+   :no-doc true}
+  [scalar predicate]
+  (let [result [{:path nil
+                 :datum scalar
+                 :predicate predicate
+                 :valid? (if (regex? predicate)
+                           (re-matches predicate scalar)
+                           (predicate scalar))}]
+        short-notice "See *err* for details."
+        long-notice "Validating 'bare' scalars with 'bare' predicates is an undocumented feature provided for convenience, but is not guarnanteed in future versions. Bind *notice-on-validation-bare-scalar* to false to suppress this notice and associated key-val of the returned map."]
+    (if *notice-on-validation-bare-scalar*
+      (do
+        (prerr long-notice)
+        (assoc-in result [0 :speculoos/undocumented-feature] short-notice))
+      result)))
+
+
+(defn validate-scalars-dispatch
+  "Dispatch target for `validate-scalars` multimethod."
   {:UUIDv4 #uuid "da127bee-6f28-4943-a76c-6bb2b0819ca6"
+   :no-doc true
    :implementation-notes
    "Algorithm: Generate [all-paths] for both data and spec.
                Calc the intersection of their path elements (i.e., do not attempt to validate unless there is both a datum and predicate at the same address).
@@ -465,6 +536,207 @@
                               acc))
             (validate-set-elements data spec)
             data-paths)))
+
+
+(defmulti validate-scalars
+  "Returns a sequence of `{:path _ :datum _ :predicate _ :valid? _}` hash-maps
+  for every **scalar** datum in `data` with a corresponding predicate in
+  scalar specification `spec`. `data` is a heterogeneous, arbitrarily-nested
+  data structure of arbitrary values. `spec` is a corresponding 'shape', i.e.,
+  all nested structures are of the same type and length, containing predicates
+  to test against. `validate-scalars` recursively descends into all nested
+  collections. Only validates complete datum-predicate pairs, i.e., only nodes
+  that are in both `data` and in `spec`. See [[valid-scalars?]] and
+  [[thoroughly-valid-scalars?]] for high-level summaries of scalar validation.
+
+  * `:path` is a vector suitable for sending to [[get-in*]], [[assoc-in*]],
+    [[update-in*]], and friends.
+  * `:datum` is the scalar entity in `data`.
+  * `:predicate` is a 1-arity function-like thing that returns truthy/falsey,
+    i.e, regexes and sets may serve as predicates.
+  * `:valid?` is the result of invoking the predicate with the scalar datum.
+
+  The ordering of results is an implementation detail and not specified.
+
+  Remember two mantras:
+
+  1. Shape your specification (mostly) like your data.
+  2. Validation looks at *either* scalars *or* collections, not both.
+     `validate-scalars` only looks at scalars.
+
+  Examples:
+  ```clojure
+  (validate-scalars [42   :foo     \\c   ] ;; <-- data
+                    [int? keyword? char?]) ;; <-- specification
+  ;; => [{:path [0], :datum 42, :predicate int?, :valid? true}
+  ;;     {:path [1], :datum :foo, :predicate keyword?, :valid? true}
+  ;;     {:path [2], :datum \\c, :predicate char?, :valid? true}]
+
+  (validate-scalars {:a 42    :b 'foo  }  ;; <-- data
+                    {:a int? :b symbol?}) ;; <-- specification
+  ;; => [{:path [:a], :datum 42, :predicate int?, :valid? true}
+  ;;     {:path [:b], :datum foo, :predicate symbol?, :valid? true}]
+
+  ;; nested data and specification
+  (validate-scalars [42     {:z 'baz}    ]
+                    [ratio? {:z keyword?}])
+  ;; => [{:path [0], :datum 42, :predicate ratio?, :valid? false}
+  ;;     {:path [1 :z], :datum baz, :predicate keyword?], :valid? false}]
+
+  ;; data and specification not same length
+  (validate-scalars [42 :foo 22/7]
+                    [int?        ])
+  ;; => [{:path [0], :datum 42, :predicate int?, :valid? true}]
+
+  (validate-scalars [42                     ]
+                    [decimal? keyword? char?])
+  ;; => [{:path [0], :datum 42, :predicate decimal?, :valid? false}]
+
+  ;; regular expression predicate
+  (validate-scalars [ \"foo\"]
+                    [#\"f..\"])
+  ;; => [{:path [0], :datum \"foo\", :predicate #\"f..\", :valid? \"foo\"}]
+
+  ;; set as a membership predicate
+  (validate-scalars [:green              ]
+                    [#{:red :green :blue}])
+  ;; => [{:path [0], :datum :green, :predicate #{:green :red :blue}, :valid? :green}]
+  ```
+
+  Within a scalar specification, a bare regular expression literal `#\"...\"` is
+  automatically treated as `#(re-matches #\"...\")`.
+
+  ```clojure
+  (validate-scalars [\"abc\" \"xyz\"]
+                    [#\"a.c\" #\"^[wxyz]{3}$\"])
+  ;; => [{:path [0], :datum \"abc\", :predicate #\"a.c\", :valid? \"abc\"}
+  ;;     {:path [1], :datum \"xyz\", :predicate #\"^[wxyz]{3}$\", :valid? \"xyz\"}]
+  ```
+
+  Within a scalar specification, a set is treated as a membership predicate when
+  the data at that same path in the data contains a scalar...
+
+  ```clojure
+  (validate-scalars [11    :red]
+                    [int? #{:blue :green :red}]) ;; <-- set in specification, but not in data
+  ;; => [{:path [1], :datum :red, :predicate #{:green :red :blue}, :valid? :red}
+  ;;     {:path [0], :datum 11, :predicate int?, :valid? true}]
+  ```
+
+  ... whereas a set in the scalar specification at the same path as a set in the
+  data is treated as a regular nested collection: The set mimics a container in
+  the data. Any predicates within the specification set are applied to *all*
+  scalars contained in the data as if `#(every? keyword? %)`. The key is changed
+  from `:datum` to `:datums-set` to emphasize this behavior.
+
+  ```clojure
+  (validate-scalars [11   #{:tea :coffee :water}]  ;; <-- sets in both data...
+                    [int? #{:keyword?}          ]) ;; <-- ... and in specification
+  ;; => ({:path [0], :datum 11, :predicate #function[clojure.core/int?], :valid? true}
+  ;;     {:path [1], :datums-set #{:coffee :tea :water}, :predicate :keyword?, :valid? false})
+  ```
+
+  Non-terminating sequences in `data` are acceptable as long as the
+  corresponding sequence (i.e., at the same path) in `spec` terminates, and
+  _vice versa_.
+  ```clojure
+  (validate-scalars (cycle [42 'foo 22/7])   ;; <-- data is an infinite sequence
+                    [int? keyword? ratio?])  ;; <-- specification terminates
+  ;; => [{:path [0], :datum 42, :predicate int?, :valid? true}
+  ;;     {:path [1], :datum foo, :predicate keyword?, :valid? false}
+  ;;     {:path [2], :datum 22/7, :predicate ratio?, :valid? true}]
+
+  (validate-scalars [11 22 33]     ;; <-- data terminates
+                    (repeat int?)) ;; <-- specification is an infinite sequence
+  ;; => [{:path [0], :datum 11, :predicate int?, :valid? true}
+  ;;     {:path [1], :datum 22, :predicate int?, :valid? true}
+  ;;     {:path [2], :datum 33, :predicate int?, :valid? true}]
+  ```
+
+  Overview of the algorithm.
+
+  1. Run [[all-paths]] on the data.
+      ```clojure
+      ;; data is a three-element vector composed of an integer, a symbol, and a ratio
+      (all-paths [42 'foo 22/7])
+      ;; => [{:path [], :value [42 foo 22/7]}
+      ;;     {:path [0], :value 42}
+      ;;     {:path [1], :value foo}
+      ;;     {:path [2], :value 22/7}]
+
+      ;; Four total elements: one vector and three scalars.
+      ```
+
+  2. Run [[all-paths]] on the specification.
+       ```clojure
+      ;; specification is a two-element vector composed of an `int?` predicate and a `keyword?` predicate
+      ;; will only validate first and second elements of data
+      (all-paths [int? keyword?])
+      ;; => [{:path [], :value [int? keyword?]}
+      ;;     {:path [0], :value int?}
+      ;;     {:path [1], :value keyword?}
+
+      ;; Three total elements: one vector and two scalars (i.e., predicate functions).
+      ```
+
+  3. Remove collections elements from each result.
+      ```clojure
+      ;; remove non-collections from data's all-paths sequence
+      (only-non-collections [{:path [], :value [42 'foo 22/7]}
+                             {:path [0], :value 42}
+                             {:path [1], :value 'foo}
+                             {:path [2], :value 22/7}])
+      ;; => [{:path [0], :value 42}
+      ;;     {:path [1], :value foo}
+      ;;     {:path [2], :value 22/7}]
+
+      ;; remove non-collections from specification's all-paths sequence
+      (only-non-collections [{:path [], :value [int? keyword?]}
+                             {:path [0], :value int?}
+                             {:path [1], :value keyword?}])
+      ;; => [{:path [0], :value int?}
+      ;;     {:path [1], :value keyword?}]
+      ```
+
+  4. Remove from data scalars that lack a predicate in the specification.
+      ```clojure
+      ;; => [{:path [0], :value 42}
+      ;;     {:path [1], :value foo}
+
+      ;; third element of data vector does not have a corresponding predicate
+      ```
+
+  5. Remove from specification predicates that lack a scalar in the data.
+      ```clojure
+      ;; => [{:path [0], :value int?}
+      ;;     {:path [1], :value keyword?}]
+
+      ;; both predicates contained in specification have a corresponding scalar
+      ```
+
+  6. For each scalar-predicate pair, apply the predicate to the scalar.
+      ```clojure
+      (int? 42) ;; => true
+      (keyword? 'foo) ;; => false
+
+      ;; or, all at once
+      (validate-scalars [42   'foo     22/7]  ;; <-- data, a three-element vector
+                        [int? keyword?     ]) ;; <-- specification, a two-element vector
+      ;; [{:path [0], :datum 42, :predicate int?, :valid? true}
+          {:path [1], :datum foo, :predicate keyword?, :valid? false}]
+      ```"
+  {:UUIDv4 #uuid "50c58e7b-27cc-4d0a-b367-e740166a4e35"}
+  (fn [data spec] [(coll? data) (coll? spec)]))
+
+
+#_ (ns-unmap *ns* 'validate-scalars) ;; dev time convenience
+
+
+(defmethod validate-scalars [false false] [scalar predicate] (validate-bare-scalar scalar predicate))
+(defmethod validate-scalars [false true] [scalar predicate] (validate-bare-scalar scalar predicate))
+(defmethod validate-scalars [true false] [_ _] []) ;; supply an empty seq for combo-valid? in the cases when `spec` is nil
+(defmethod validate-scalars [true true] [data spec] (validate-scalars-dispatch data spec))
+#_(defmethod validate-scalars :default [_ _] (println "Invalid args: `data` and `spec` must both be collections.")) ;; fail with stack trace
 
 
 (defn dual-validate-scalars
@@ -518,15 +790,17 @@
 
 
 (defn only-valid
-  "Returns only validation entries where `:value` satisfies `:predicate`.
-   I.e., `:valid?` is neither `false` nor `nil`.
+  "Returns only validation entries where `:datum` satisfies `:predicate`, i.e.,
+  `:valid?` is neither `false` nor `nil`.
 
   Examples:
   ```clojure
-  (only-valid (validate-scalars [42 :foo 22/7] [decimal? symbol? ratio?]))
+  (only-valid (validate-scalars [42       :foo    22/7  ]
+                                [decimal? symbol? ratio?]))
   ;; => ({:path [2], :datum 22/7, :predicate ratio?, :valid? true})
 
-  (only-valid (validate-collections [42 (list :foo)] [list? [list?]]))
+  (only-valid (validate-collections [42    (list :foo)]
+                                    [list? [list?]    ]))
   ;; => ({:path [1 0], :value list?, :datum (:foo), :ordinal-parent-path [0], :valid? true})
   ```"
   {:UUIDv4 #uuid "7f5912e8-52e5-4aab-820a-3bac2739cc65"}
@@ -535,15 +809,17 @@
 
 
 (defn only-invalid
-  "Returns only validation entries where `:value` does not satisfy `:predicate.`
-   I.e., `:valid?` is `false` or `nil`.
+  "Returns only validation entries where `:datum` does **not** satisfy
+  `:predicate`, i.e., `:valid?` is `false` or `nil`.
 
   Examples:
   ```clojure
-  (only-invalid (validate-scalars [42 :foo 22/7] [int? keyword? symbol?]))
+  (only-invalid (validate-scalars [42   :foo     22/7   ]
+                                  [int? keyword? symbol?]))
   ;; => ({:path [2], :datum 22/7, :predicate symbol?, :valid? false})
 
-  (only-invalid (validate-collections [42 (list :foo)] [list? [list?]]))
+  (only-invalid (validate-collections [42    (list :foo)]
+                                      [list? [list?]    ]))
   ;; => ({:path [0], :value list?, :datum [42 (:foo)], :ordinal-parent-path [], :valid? false})
   ```"
   {:UUIDv4 #uuid "8c1a8a78-20b4-473f-ade8-b09804c92a31"}
@@ -552,22 +828,37 @@
 
 
 (defn valid-scalars?
-  "`true` if every element in `data` satisfies corresponding predicate in scalar
-  specification `spec`, `false` otherwise. Note, if a corresponding
-  specification predicate does not exist, that element of data will not be
-  checked. Use [[scalars-without-predicates]] to locate elements of data that
-  lack corresponding predicates in `spec`.
+  "Following validation with [[validate-scalars]], returns `true` if every
+  **scalar** element in `data` satisfies every corresponding predicate in scalar
+  specification `spec`, `false` otherwise.
+
+  Note: `valid-scalars?` returns `true` if validation returns zero
+  `{:valid? falsey}` results.
+
+  Note: If a corresponding specification predicate does not exist, that element
+  of data will not be checked. Use [[scalars-without-predicates]] to locate
+  elements of `data` that lack corresponding predicates in `spec`. Use
+  [[thoroughly-valid-scalars?]] to require that every scalar in `data` is
+  validated.
+
+  See [[validate-scalars]] for details on the mechanics of scalar validation.
 
   Examples:
   ```clojure
-  (valid-scalars? [42 :foo 22/7] [int? keyword? ratio?]) ;; => true
-  (valid-scalars? {:a 42 :b 'foo} {:a string? :b symbol?}) ;; => false
+  (valid-scalars? [42   :foo     22/7  ]  ;; <-- data
+                  [int? keyword? ratio?]) ;; <-- specification
+  ;; => true
 
-  ;; unmatched datums
-  (valid-scalars? [42 :foo 22/7] [int?]) ;; => true
+  (valid-scalars? {:a 42 :b 'foo}
+                  {:a string? :b symbol?}) ;; => false
 
-  ;; unmatched predicates
-  (valid-scalars? {:a 42} {:b symbol?}) ;; => true
+  ;; un-paired datums
+  (valid-scalars? [42 :foo 22/7]
+                  [int?        ]) ;; => true
+
+  ;; un-paried predicates
+  (valid-scalars? {:a 42     }
+                  {:b symbol?}) ;; => true
   ```"
   {:UUIDv4 #uuid "563d6131-b607-46d3-8a16-a7d2e249e288"}
   [data spec]
@@ -764,16 +1055,192 @@
   (let [pred (get-in* coll-spec literal-path)
         datum (ordinal-get-in data (ordinal-path-of-parent coll-spec literal-path))
         ordinal-parent-path  (ordinal-path-of-parent coll-spec literal-path)]
-    { ;;:predicate pred
-     :datum datum
+    {:datum datum
      :ordinal-parent-path ordinal-parent-path
      :valid? (pred datum)}))
 
 
+(defn re-key
+  "Re-name keys of [[validate-collections]] output `val-out` to be consistent
+  with the output of [[validate-scalars]], and also more understandable. Did not
+  re-name keys during processing to retain internal consistency."
+  {:UUIDv4 #uuid "71d59178-9a45-44b1-b02c-8a715786c1b0"
+   :no-doc true}
+  [val-out]
+  (map #(clojure.set/rename-keys % {:path :path-predicate
+                                    :value :predicate
+                                    :ordinal-parent-path :ordinal-path-datum})
+       val-out))
+
+
+(defn partition-between
+  "Applies `pred` to successive values in `coll`, splitting it each time
+  `(pred prev-item item)` returns logical `true`.
+
+  Unlike original, this version is hollowed out to not return a transducer when
+  no collection is provided.
+
+  Adapted from [James Reeves' Medley](https://github.com/weavejester/medley)
+  [source](https://github.com/weavejester/medley/blob/1.8.0/src/medley/core.cljc#L443)"
+  {:added "1.7.0"
+   :UUIDv4 #uuid "34793280-6d1c-4bf1-beb7-bf53d5fe506a"
+   :no-doc true}
+  [pred coll]
+  (lazy-seq
+   (letfn [(take-part [prev coll]
+             (lazy-seq
+              (when-let [[x & xs] (seq coll)]
+                (when-not (pred prev x)
+                  (cons x (take-part x xs))))))]
+     (when-let [[x & xs] (seq coll)]
+       (let [run (take-part x xs)]
+         (cons (cons x run)
+               (partition-between pred
+                                  (lazy-seq (drop (count run) xs)))))))))
+
+
+(defn partition-after
+  "Returns a lazy sequence of partitions, splitting after `(pred item)` returns
+  true. Unlike original, this version does not return a transducer when no
+  collection is provided.
+
+  Adapted from [James Reeves' Medley](https://github.com/weavejester/medley)
+  [source](https://github.com/weavejester/medley/blob/1.8.0/src/medley/core.cljc#L485)"
+  {:added "1.5.0"
+   :UUIDv4 #uuid "cb373c2e-a28f-412d-af05-073f9157f17a"
+   :no-doc true}
+  [pred coll]
+  (partition-between (fn [x _] (pred x)) coll))
+
+
+(defn flatten-one-level
+  "Given sequence `v` containing strictly collections, 'flatten', but only one
+  level deep."
+  {:UUIDv4 #uuid "6066f9b5-0925-43ad-9362-4c475555bd1d"
+   :no-doc true}
+  [v]
+  (apply concat v))
+
+
+(defn recover-literal-path-1
+  "Given collection `form` and ordinal index `ord-idx`, returns the literal path
+  index to the nested child collection addressed by `ord-idx`. Only operates on
+  sequences; maps and sets are passed through."
+  {:UUIDv4 #uuid "232e6aa0-7305-4d7b-86c5-6e235042cdc2"
+   :no-doc true}
+  [form ord-idx]
+  (if (sequential? form)
+    (->> form
+         (partition-after coll?)
+         (take (inc ord-idx))
+         flatten-one-level
+         count
+         dec)
+    ord-idx))
+
+
+(defn recover-literal-path
+  "Given heterogeneous, arbitrarily-nested data structure `form` and ordinal
+  collection path `ord-path`, returns the literal path to the nested child
+  collection.
+
+  Examples:
+  ```clojure
+  (recover-literal-path [11 [22] 33 [44] 55 [66]] [2])
+  ;; => [5]
+
+  (recover-literal-path {:a {:b [11 [22] 33 [44]]}}
+                        [:a :b 1])
+  ;; => [:a :b 3]
+
+  (recover-literal-path (list 11 22 [33 [44] [55] [66]])
+                        [1 2])
+  ;; => [2 3]
+  ```"
+  {:UUIDv4 #uuid "d892eda9-4369-432c-b0c4-2c2b3ee929b7"}
+  [form ord-path]
+  (reduce
+   (fn [accumulating-literal-path ordinal-index]
+     (conj accumulating-literal-path
+           (recover-literal-path-1 (get-in* form accumulating-literal-path) ordinal-index)))
+   []
+   ord-path))
+
+
 (defn validate-collections
-  "Given `data`, an arbitrarily-nested, heterogeneous data structure, apply all
-  predicates within `spec`, a collection specification. Only elements of `spec`
-  that satisfy `fn?` are tested.
+  "Returns a sequence of
+  `{:path-predicate _ :predicate _ :path-datum _ :datum _ :ordinal-path-datum _ :valid? _}`
+  hash-maps for every **collection** datum in `data` with a corresponding
+  predicate in collection specification `spec`. `data` is an arbitrarily-nested,
+  heterogeneous data structure. `spec` is a corresponding 'shape', i.e., all
+  nested structures are of the same type and position. Only elements of `spec`
+  that satisfy `fn?` are used. `validate-collections` descends into all neseted
+  collections. `validate-collections` only validates complete datum-predicate
+  pairs., i.e., only collections in `data` that have a corresponding predicate
+  in `spec`. See [[valid-collections?]] and [[thoroughly-valid-collections?]]
+  for high-level summaries of collection validation.
+
+  * `:path-predicate` is a vector suitable for sending to [[get-in*]],
+    [[assoc-in*]], [[update-in*]], etc., that locates the predicate within the
+    specification.
+  * `:path-datum` is the literal path to the datum within `data` to which the
+    the collection predicate is applied.
+  * `:ordinal-path-datum` is a vector suitable for sending to [[ordinal-get]]
+    and [[ordinal-get-in]], which locates the collection within `data` to which
+    the collection predicate is applied.
+  * `:predicate` is a 1-arity function which returns truthy/falsey.
+  * `:datum` is the collection entity in `data`.
+  * `:valid?` is the result of invoking the predicate with the collection datum.
+
+  The ordering of results is an implementation detail and not specified.
+
+  Remember two mantras:
+
+  1. Shape your specification (mostly) like your data.
+  2. Validation looks at *either* scalars *or* collections, not both.
+     `validate-collections` only looks at collections.
+
+  Predicates at `path` within the collection specification are applied to the
+  collection located at `(drop-last path)` within `data`. Generally, the
+  predicate is applied to the 'parent' collection that contains it.
+
+  Examples:
+  ```clojure
+  (validate-collections [42      [99     ]]  ;; <-- data
+                        [vector? [vector?]]) ;; <-- specification
+  ;; => ({:datum [42 [99]], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}
+  ;;     {:datum [99], :valid? true, :path-predicate [1 0], :predicate vector?, :ordinal-path-datum [0], :path-datum [1]})
+
+  ;; predicate `vector?` at path [0] in specification is applied to the collection at path (drop-last [0]) in data
+  ;; predicate `vector?` at path [1 0] in specification is applied to the collection at path (drop-last [1 0]) in data
+
+  (validate-collections {                :a 42 :b {                   :c 99}}
+                        {:root-coll map?       :b {:child-coll? list?      }})
+  ;; => ({:datum {:a 42, :b {:c 99}}, :valid? true, :path-predicate [:root-coll], :predicate map?, :ordinal-path-datum [], :path-datum []}
+  ;;     {:datum {:c 99}, :valid? false, :path-predicate [:b :child-coll?], :predicate list?, :ordinal-path-datum [:b], :path-datum [:b]})
+
+  ;; predicate `map?` at path [:root-coll] in specification is applied to the collection at path (drop-last [:root-coll]) in data
+  ;; predicate `list?` at path [:b :child-coll?] in specification is applied to the collection at path (drop-last [:b :child-coll?]) in data
+  ```
+
+  Only complete collection-predicate pairs are validated. Un-paired collections
+  and un-paired predicates are ignored.
+
+  ```clojure
+  ;; nested vector in data is not paired with a corresponding predicate in specification
+  (validate-collections [11 22 33 [44 55 66]] ;;  <-- data
+                        [vector?  [        ]]) ;; <-- specification
+  ;; => ({:datum [11 22 33 [44 55 66]], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []})
+
+  ;; specification's map does not contain a predicate that corresponds to data's outer map
+  (validate-collections {:a 11 :b [22 33]}  ;; <-- data
+                        {      :b [list?]}) ;; <-- specification
+  ;; => ({:datum [22 33], :valid? false, :path-predicate [:b 0], :predicate list?, :ordinal-path-datum [:b], :path-datum [:b]})
+
+  ;; un-paired list? and set? predicates in collection specification are ignored
+  (validate-collections [99] [vector? [list?] [set?]])
+  ;; => ({:datum [99], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []})
+  ```
 
   Note: (Possibly) non-terminating sequences are clamped at the length of the
   corresponding element in the other collection. Therefore, if there are
@@ -783,31 +1250,149 @@
   heuristic by which to clamp a non-terminating sequence with in-band
   information.)
 
-  Examples:
   ```clojure
-  (validate-collections [42 [99]] [vector? [vector?]])
-  ;; => ({:path [0], :value vector?, :datum [42 [99]], :ordinal-parent-path [], :valid? true}
-  ;;     {:path [1 0], :value vector?, :datum [99], :ordinal-parent-path [0], :valid? true})
+  ;; non-terminating specification is clamped at the length of the data
+  (validate-collections [[11] [22] [33]]
+                        (repeat [vector?]))
+  ;; => ({:datum [11], :valid? true, :path-predicate [0 0], :predicate vector?, :ordinal-path-datum [0], :path-datum [0]}
+  ;;     {:datum [22], :valid? true, :path-predicate [1 0], :predicate vector?, :ordinal-path-datum [1], :path-datum [1]}
+  ;;     {:datum [33], :valid? true, :path-predicate [2 0], :predicate vector?, :ordinal-path-datum [2], :path-datum [2]})
 
-  (validate-collections {:a 42 :b {:c 99}} {:root-coll map? :b {:child-coll? list?}})
-  ;; => ({:path [:root-coll], :value map?, :datum {:a 42, :b {:c 99}}, :ordinal-parent-path [], :valid? true}
-  ;;     {:path [:b :child-coll?], :value list?, :datum {:c 99}, :ordinal-parent-path [:b], :valid? false})
-  ```"
+  ;; non-terminating data is clamped at the length of the specification
+  (validate-collections (cycle [[11] [22] [33]])
+                        [[vector?]])
+  ;; => ({:datum [11], :valid? true, :path-predicate [0 0], :predicate vector?, :ordinal-path-datum [0], :path-datum [0]})
+
+  ;; only the first nested vector is validated because the data's non-terminating sequence
+  ;; was clamped to the length of the specification
+
+  ;; padding the specification to catch the full cycle of the data
+  (validate-collections (cycle [[11] [22] [33]])
+                        [[vector?] [any?] [any?]])
+  ;; => ({:datum [11], :valid? true, :path-predicate [0 0], :predicate vector?, :ordinal-path-datum [0], :path-datum [0]}
+  ;;     {:datum [22], :valid? true, :path-predicate [1 0], :predicate any?, :ordinal-path-datum [1], :path-datum [1]}
+  ;;     {:datum [33], :valid? true, :path-predicate [2 0], :predicate any?, :ordinal-path-datum [2], :path-datum [2]})
+  ```
+
+  Overview of the algorithm.
+
+  1. Run [[all-paths]] on the data.
+      ```clojure
+      (all-paths [11 {:b 22} [[33]]])
+      ;; => [{:path [], :value [11 {:b 22} [[33]]]}
+      ;;     {:path [0], :value 11}
+      ;;     {:path [1], :value {:b 22}}
+      ;;     {:path [1 :b], :value 22}
+      ;;     {:path [2], :value [[33]]}
+      ;;     {:path [2 0], :value [33]}
+      ;;     {:path [2 0 0], :value 33}]
+
+      ;; Seven total elements: four collections, three scalars.
+      ```
+  2. Run [[all-paths]] on the specification.
+      ```clojure
+      (all-paths [vector? {:coll-type? map?} [[list?]]])
+      ;; => [{:path [], :value [vector? {:coll-type? map?} [[list?]]]}
+      ;;     {:path [0], :value vector?}
+      ;;     {:path [1], :value {:coll-type? map?}}
+      ;;     {:path [1 :coll-type?], map?}
+      ;;     {:path [2], :value [[list?]]}
+      ;;     {:path [2 0], :value [list?]}
+      ;;     {:path [2 0 0], :value list?}]
+
+      ;; Seven total elements: four collections, three predicates.
+      ```
+
+  3. Remove **scalar** elements from the data.
+      ```clojure
+      (filter #(coll? (:value %)) (all-paths [11 {:b 22} [[33]]]))
+      ;; => ({:path [], :value [11 {:b 22} [[33]]]}
+      ;;     {:path [1], :value {:b 22}}
+      ;;     {:path [2], :value [[33]]}
+      ;;     {:path [2 0], :value [33]})
+
+      ;; Four collections in data.
+      ```
+
+  4. Remove **collections** from the specification.
+      ```clojure
+      (only-fns (all-paths [vector? {:coll-type? map?} [[list?]]]))
+      ;; => [{:path [0], :value vector?}
+      ;;     {:path [1 :coll-type?], :value map?}
+      ;;     {:path [2 0 0], :value list?}]
+
+      ;; Three predicates in specification.
+      ```
+
+  5. Associate predicates in the specification with collections in the data. The
+     collections in the data correspond to the *containers/parent* of the
+     predicate within the specification. Basically, the predicate at `path` in
+     the specification will be applied to the collection at `(drop-last)` in the
+     data.
+      ```clojure
+      ;; predicate `vector?` at path [0] in spec is paired with entity at path (drop-last [0]) in data
+      ;; predicate `map?` at path [1 :coll-type?] in spec is paired with entity at path (drop-last [1 :coll-type?]) in data
+      ;; predicate `list?` at path [2 0 0] in spec is paired with entity at path (drop-last [2 0 0]) in data
+      ;; the nested vector at path [2] in data does not have a corresponding predicate in specification; it will not be validated
+      ```
+
+  6. For each collection-predicate pair, apply the predicate to the collection.
+      ```clojure
+      (vector? [11 {:b 22} [[33]]]) ;; true
+      (map? {:b 22}) ;; true
+      (list? [33]) ;; false
+
+      ;; or, all at once             v-----------------------v-----v--------- these scalars in data are ignored
+      (validate-collections [        11 {                 :b 22} [[33   ]]]  ;; <-- data
+                            [vector?    {:coll-type? map?      } [[list?]]]) ;; <-- specification
+      ;;                     ^-----------------------^-------------^--------- these predicates in spec are applied
+      ;;                                                                      to the parent containers in data
+
+      ;; => ({:datum [11 {:b 22} [[33]]], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}
+      ;;     {:datum {:b 22}, :valid? true, :path-predicate [1 :coll-type?], :predicate map?, :ordinal-path-datum [0], :path-datum [1]}
+      ;;     {:datum [33], :valid? false, :path-predicate [2 0 0], :predicate list?, :ordinal-path-datum [1 0], :path-datum [2 0]})
+      ```"
   {:UUIDv4 #uuid "e0308c59-272d-4eeb-b42c-f63a20173420"}
   [data spec]
-  (let [[clamped-data clamped-spec] (expand-and-clamp data spec)]
-    (map #(merge % (apply-one-coll-spec clamped-data clamped-spec (:path %)))
-         (only-fns (all-paths clamped-spec)))))
+  (let [[clamped-data clamped-spec] (expand-and-clamp data spec)
+        results-orig-keys (map #(merge % (apply-one-coll-spec clamped-data clamped-spec (:path %)))
+                               (only-fns (all-paths clamped-spec)))
+        results-orig-keys-unvalidated-removed (filter #(coll? (:datum %)) results-orig-keys)
+        results-re-keyed (re-key results-orig-keys-unvalidated-removed)]
+    (map #(assoc % :path-datum (recover-literal-path data (:ordinal-path-datum %))) results-re-keyed)))
 
 
 (defn valid-collections?
-  "Returns `true` if [[validate-collections]] on `data` and collection
-  specification `spec` all validate truthy.
+  "Following validation with [[validate-collections]], returns `true` if every
+  **collection** element in `data` satisfies every corresponding predicate in
+  collection specification `spec`, `false` otherwise.
+
+  Note: `valid-collections?` returns `true` if validation returns zero
+  `{:valid? falsey}` results.
+
+  Note: If a corresponding specification predicate does not exist, that element
+  of data will not be checked. Use [[collections-without-predicates]] to locate
+  elements of `data` that lack corresponding predicates in `spec`. Use
+  [[thoroughly-valid-collections?]] to require that every collection in `data`
+  is validated.
+
+  See [[validate-collections]] for details on the mechanics of collection
+  validation.
 
   Examples:
   ```clojure
-  (valid-collections? [42 [:foo]] [list? [vector?]]) ;; => false
-  (valid-collections? {:a 42 :b {:c 'foo}} {:outer-coll map? :b {:inner-coll map?}}) ;; => true
+  (valid-collections? [      42 [        :foo]]  ;; <-- data
+                      [list?    [vector?     ]]) ;; <-- specification
+  ;; => false
+
+  (valid-collections? {                 :a 42 :b {                 :c 'foo}} ;; <-- data
+                      {:outer-coll map?       :b {:inner-coll map?        }});; <-- specification
+  ;; => true
+
+  ;; un-paired datum; nested vector in data not tested
+  (valid-collections? [        11     [22]]
+                      [vector?            ])
+  ;; => true
   ```"
   {:UUIDv4 #uuid "bd03894b-c45a-4875-972a-d5be8a092920"}
   [data spec]
@@ -817,17 +1402,55 @@
 ;;;; Combined specs
 
 (defn validate
-  "Run respective validations of both `scalar-spec` and `collection-spec` on `data`.
-   Returns a merged vector of results. See [[validate-scalars]] and
-  [[validate-collections]].
+  "Perform a scalar validation of `data` using scalar specification
+  `scalar-spec`, then immediately perform a collection validation of `data`
+  using collection specification `collection-spec`, then return the merged
+  vector of each result. See [[validate-scalars]] and [[validate-collections]].
+
+  Remember two mantras:
+
+  1. Shape your specification (mostly) like your data.
+  2. Validation looks at *either* scalars *or* collections, not both.
+
+  `validate` performs two separate validations, in two distinct steps, then
+   returns a single summary that merges both results. First, `data`'s scalars
+   are validated, then `data`'s collections are validated. Finally, the results
+  of those two distinct validations are merged into a comprehensive summary.
 
   Examples:
   ```clojure
-  (validate [42] [int?] [vector?])
+  ;; only scalar validation with `validate-scalars`
+  (validate-scalars [42]    ;; data
+                    [int?]) ;; scalar specification
+  ;; => [{:path [0], :datum 42, :predicate int?, :valid? true}]
+
+  ;; only collection validation with `validate-collections`
+  (validate-collections [42]       ;; data
+                        [vector?]) ;; collection specification
+  ;; => ({:path [0], :value vector?, :datum [42], :ordinal-parent-path [], :valid? true})
+
+  ;; scalar validation, then collection validation, with a single invocation
+  (validate [42]       ;; data
+            [int?]     ;; scalar specification
+            [vector?]) ;; collection specification
   ;; => ({:path [0], :datum 42, :predicate int?, :valid? true}
   ;;     {:path [0], :value vector?, :datum [42], :ordinal-parent-path [], :valid? true})
 
-  (validate {:a 11} {:a string?} {:coll-type? map?})
+
+  ;; only scalar validation with `validate-scalars`
+  (validate-scalars {:a 11}       ;; data
+                    {:a string?}) ;; scalar specification
+  ;; [{:path [:a], :datum 11, :predicate #function[clojure.core/string?--5475], :valid? false}]
+
+  ;; only collection validation with `validate-collections`
+  (validate-collections {                 :a 11}  ;; data
+                        {:coll-type? map?      }) ;; collection specification
+  ;; ({:path [:coll-type?], :value map?, :datum {:a 11}, :ordinal-parent-path [], :valid? true})
+
+  ;; scalar validation, then collection validation, with a single invocation
+  (validate {:a 11}             ;; data
+            {:a string?}        ;; scalar specfication
+            {:coll-type? map?}) ;; collection specification
   ;; => ({:path [:a], :datum 11, :predicate string?, :valid? false}
   ;;     {:path [:coll-type?], :value map?, :datum {:a 11}, :ordinal-parent-path [], :valid? true})
   ```"
@@ -838,15 +1461,34 @@
 
 
 (defn valid?
-  "Returns `true` if `data` fully satisfies both `scalar-spec` and
-  `collection-spec`. See [[valid-scalars?]] and [[valid-collections?]].
+  "Following validations with [[validate-scalars]] and then with
+  [[validate-collections]], returns `true` if `data` satisfies every
+  corresponding predicate in scalar specification `scalar-spec` and every
+  corresponding predicate in collection specification `colleciton-spec`,
+  `false` otherwise.
+
+  `valid?` provides a combined interface to [[valid-scalars?]] and
+  [[valid-collections?]]. Scalar validation and collection validation are
+  performed in completely distinct operations. Their results are merely combined
+  into a single `true`/`false` high-level summary. Use [[validate]] to generate
+  a detailed report of scalar and collection validation.
+
+  Note: `valid?` returns `true` if validations return zero `{:valid? falsey}`
+  results.
+
+  See [[validate-scalars]] and [[validate-collections]] for details on the the
+  mechanics of validation.
 
   Examples:
   ```clojure
-  (valid? [42 [:foo [22/7]]] [int? [keyword? [ratio?]]] [vector? [vector? [vector?]]])
+  (valid? [42 [:foo [22/7]]]             ;; data
+          [int? [keyword? [ratio?]]]     ;; scalar specification
+          [vector? [vector? [vector?]]]) ;; collections specification
   ;; => true
 
-  (valid? {:a 42 :b {:c ['foo true]}} {:a int? :b {:c [keyword? boolean?]}} {:root-coll map? :b {:c [vector?]}})
+  (valid? {:a 42 :b {:c ['foo true]}}           ;; data
+          {:a int? :b {:c [keyword? boolean?]}} ;; scalar specification
+          {:root-coll map? :b {:c [vector?]}})  ;; collection specification
   ;; => false
   ```"
   {:UUIDv4 #uuid "2f95850d-9cc5-4f02-8020-a86f3e64cbfe"}
@@ -905,6 +1547,8 @@
   Note: Many entities that appear to be a function in a macro expansion are, in
   fact, symbols.
 
+  Use [[valid-macro?]] to produce a high-level summary result.
+
   Example:
   ```clojure
   (defmacro example-macro [f & args] `(~f ~@args))
@@ -935,6 +1579,8 @@
    Note 2: Macro expansion works subtly different between the CIDER nREPL and
    from the CLI, e.g. `$ lein test`. Use syntax quote ` as a workaround.
 
+  Use [[validate-macro-with]] to produce a detailed validation report.
+
   Example:
   ```clojure
   (defmacro example-macro [f & args] `(~f ~@args))
@@ -960,7 +1606,7 @@
   elements (scalar and/or collections) in `data`, supplied in-order to the
   function associated with `:predicate`, whose arity matches the number of paths
   in `:paths`. The function should return truthy or falsey values (strict
-  true/false is recommended, but not required).
+  `true`/`false` is recommended, but not required).
 
   Examples:
   ```clojure

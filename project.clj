@@ -1,4 +1,4 @@
-(defproject com.sagevisuals/speculoos "1"
+(defproject com.sagevisuals/speculoos "2-SNAPSHOT0"
   :description "A library for validating Clojure data."
   :url "https://blosavio.github.io/speculoos/home.html"
   :license {:name "MIT License"
@@ -6,7 +6,8 @@
             :distribution :repo}
   :dependencies [[org.clojure/clojure "1.11.3"]
                  [org.clojure/test.check "1.1.1"]
-                 [re-rand "0.1.0"]]
+                 [re-rand "0.1.0"]
+                 [com.sagevisuals/fn-in "1"]]
   :repl-options {:init-ns speculoos.core}
   :plugins []
   :profiles {:dev {:dependencies [[hiccup "2.0.0-RC3"]
@@ -16,7 +17,10 @@
              :repl {}}
   :codox {:metadata {:doc/format :markdown}
           :namespaces [#"^speculoos\.(?!scratch)(?!generators)"]
+          :target-path "doc"
           :output-path "doc"
-          :themes [:speculoos]
-          :source-uri "https://github.com/blosavio/speculoos/blob/main/{filepath}#L{line}"}
+          :doc-files []
+          :source-uri "https://github.com/blosavio/speculoos/blob/main/{filepath}#L{line}"
+          :html {:transforms [[:div.sidebar.primary] [:append [:ul.index-link [:li.depth-1 [:a {:href "https://github.com/blosavio/speculoos"} "Project Home"]]]]]}
+          :project {:name "Speculoos" :version "version 2-SNAPSHOT0"}}
   :scm {:name "git" :url "https://github.com/blosavio/speculoos"})

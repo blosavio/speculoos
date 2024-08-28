@@ -5,7 +5,7 @@
    [re-rand :refer [re-rand]]
    [speculoos.core :refer [all-paths valid-scalars? valid-collections? valid?
                            only-non-collections]]
-   [speculoos.fn-in :refer [get*]]
+   [fn-in.core :refer [get* assoc-in* dissoc-in*]]
    [speculoos.utility :refer :all]))
 
 
@@ -160,20 +160,23 @@
   (testing "some scalars within a set do not have a predicate"
     (are [x y] (= x y)
       (scalars-without-predicates [11 22 33] [int? int?])
-      [{:path [2], :value 33}]
+      #{{:path [2], :value 33}}
 
       (scalars-without-predicates {:a 11 :b [22 [33]]} {:a int? :b [int?]})
-      [{:path [:b 1 0], :value 33}]
+      #{{:path [:b 1 0], :value 33}}
 
       (scalars-without-predicates [11 [22 [33]]] [int? [int?] int?])
-      [{:path [1 1 0], :value 33}]
+      #{{:path [1 1 0], :value 33}}
 
       (scalars-without-predicates #{11 22 33} #{})
-      [{:path [33], :value 33} {:path [22], :value 22} {:path [11], :value 11}]
+      #{{:path [33], :value 33}
+        {:path [22], :value 22}
+        {:path [11], :value 11}}
 
       (scalars-without-predicates [11   {:x 22   :y [33   44   #{55}]} #{66}]
-                          [int? {:x int? :y [int? int? #{}  ]} #{}  ])
-      [{:path [1 :y 2 55], :value 55} {:path [2 66], :value 66}])))
+                                  [int? {:x int? :y [int? int? #{}  ]} #{}  ])
+      #{{:path [1 :y 2 55], :value 55}
+        {:path [2 66], :value 66}})))
 
 
 (deftest scalars-with-predicates-tests
@@ -352,24 +355,6 @@
     [int? boolean? string?](swap-non-predicates [int? :problem string?] boolean?)
     {:a int? :b any?} (swap-non-predicates {:a int? :b :kw})
     [int? [string? keyword?] {:a char? :b [keyword?]}] (swap-non-predicates [int? [string? :its-a-me] {:a char? :b [:this-one-too]}] keyword?)))
-
-
-(deftest nil-out-tests
-  (are [x y] (= x y)
-    {:data [] :spec []} (nil-out [] [])
-    {:data [11] :spec [int?]} (nil-out [11] [int?])
-    {:data [11 nil] :spec [int? nil?]} (nil-out [11 22] [int? string?])
-    {:data [11 [nil [33 "abc"]]] :spec [int? [nil? [int? string?]]]} (nil-out [11 [22 [33 "abc"]]] [int? [string? [int? string?]]])))
-
-
-(deftest bed-of-procrustes-tests
-  (are [x y] (= x y)
-    {:data [], :spec []} (bed-of-procrustes [] [])
-    {:data [11], :spec [int?]} (bed-of-procrustes [11] [int?])
-    {:data [], :spec []} (bed-of-procrustes [11] [string?])
-    {:data [11], :spec [int?]} (bed-of-procrustes [11 22] [int? string?])
-    {:data [11 {:b 33}], :spec [int? {:b int?}]} (bed-of-procrustes [11 {:a 22 :b 33} 44] [int? {:a string? :b int?} string?])
-    {:data {:a [11 []] :b [[44]]}, :spec {:a [int? []] :b [[int?]]}} (bed-of-procrustes {:a [11 [22]] :b [33 [44]]} {:a [int? [string?]] :b [string? [int?]]})))
 
 
 (deftest apathetic-tests
@@ -702,42 +687,6 @@
 (def all-correct-data [4 [3.3 [22/7]] "abc" {:first \e :second true} :kw])
 (def all-incorrect-spec [fn? [int? [int?]] int? {:first int? :second int?} int?])
 
-(deftest bazooka-swatting-flies-tests
-  (testing "basic output"
-    (are [x y] (= x y)
-      [] (bazooka-swatting-flies [] [])
-      [int?] (bazooka-swatting-flies [11] [char?])
-      [int? string? keyword?] (bazooka-swatting-flies [11 "abc" :kw] [int? boolean? keyword?])
-      {:a int? :b string? :c char?} (bazooka-swatting-flies {:a 11 :b "abc" :c \z} {:a string? :b string? :c char?})
-      [int? [string? [boolean? [keyword?]]]] (bazooka-swatting-flies [11 ["abc" [true [:kw]]]] [string? [string? [boolean? [char?]]]])
-
-      {:a [int? keyword?] :b {:c string? :d [[boolean?] int?]}}
-      (bazooka-swatting-flies {:a [99 :foo] :b {:c "yay" :d [[false ] 55]}}
-                              {:a [boolean? keyword?] :b {:c char? :d [[int?] int?]}})))
-  (testing "round-tripping"
-    (is (valid-scalars? all-correct-data (bazooka-swatting-flies all-correct-data all-incorrect-spec)))))
-
-
-(deftest smash-data-tests
-  (are [x y] (= x y)
-    [] (smash-data [] [])
-    ["abc"] (smash-data [11] [string?])
-    [11 "abc" 33] (smash-data [11 22 33] [int? string? int?])
-
-    [11 ["abc" [\c [true]]]]
-    (smash-data [11 ["abc" [22 [true]]]]
-                [int? [string? [char? [boolean?]]]])
-
-    {:a 11 :b 1M :c true}
-    (smash-data {:a 11 :b "abc" :c true} {:a int? :b decimal? :c boolean?})
-
-    {99 :foo 88 \c 77 true 66 [11 true 33]}
-    (smash-data {99 :foo 88 "abc" 77 true 66 [11 22 33]}
-                {99 keyword? 88 char? 77 boolean? 66 [int? boolean? int?]})
-
-    {:a {:b {:c "abc" :d "blah" :e 99}}}
-    (smash-data {:a {:b {:c :foo :d "blah" :e 99}}} {:a {:b {:c string? :d string? :e int?}}})))
-
 
 (deftest make-empty-test
   (are [x y] (= x y)
@@ -1062,123 +1011,6 @@
     [[vector?] {:speculoos.utility/collection-predicate map?} (list list?) vector?])))
 
 
-(deftest partition-after-tests
-  (are [x y] (= x y)
-    (partition-after coll? [11 [22] 33 44 [55] 66])
-    '((11 [22]) (33 44 [55]) (66))
-
-    (partition-after coll? '(11 22 (33) 44 55 [66] 88 #{77}))
-    '((11 22 (33)) (44 55 [66]) (88 #{77}))))
-
-
-(deftest flatten-one-level-tests
-  (are [x y] (= x y)
-    (flatten-one-level [])
-    '()
-
-    (flatten-one-level [[11]])
-    '(11)
-
-    (flatten-one-level [[11] [22] [33]])
-    '(11 22 33)
-
-    (flatten-one-level '())
-    '()
-
-    (flatten-one-level '([11]))
-    '(11)
-
-    (flatten-one-level '((11) [22] (33)))
-    '(11 22 33)
-
-    (flatten-one-level (take 3 (cycle [[11] [22] [33]])))
-    '(11 22 33)))
-
-
-(deftest recover-literal-path-1-tests
-  (are [x y] (= x y)
-    6 (recover-literal-path-1 [11 [22] 33 44 [55] 66 [[77]] 88 99]  2)
-    6 (recover-literal-path-1 '(11 (22) 33 44 [55] 66 [(77)] 88 99) 2)
-
-    4 (recover-literal-path-1 [11 [22] 33 44 [55] 66 [[77]] 88 99]  1)
-    4 (recover-literal-path-1 '(11 (22) 33 44 [55] 66 [(77) 88 99]) 1)
-
-    1 (recover-literal-path-1 [11 [22] 33 44 [55] 66 [[77]] 88 99]  0)
-    1 (recover-literal-path-1 '(11 (22) 33 44 [55] 66 [(77) 88 99]) 0)
-
-    0 (recover-literal-path-1 [[22] 33 44 [55] 66 [[77]] 88 99]  0)
-    0 (recover-literal-path-1 '((22) 33 44 [55] 66 [(77) 88 99]) 0)
-
-    :a (recover-literal-path-1 {:a []} :a)
-    [:a] (recover-literal-path-1 #{[:a]} [:a])
-    2 (recover-literal-path-1 (take 5 (repeat [77])) 2)
-    4 (recover-literal-path-1 (take 6 (cycle [[77] 44 {:a 22} 55 #{33}])) 2)))
-
-
-(deftest recover-literal-path-tests
-  (testing "empties"
-    (are [x] (= x [])
-      (recover-literal-path [] [])
-      (recover-literal-path {} [])
-      (recover-literal-path [11 [22] 33] [])
-      (recover-literal-path {:a [11]} [])))
-  (testing "non-empty ordinal-parent-paths"
-    (are [x y] (= x y)
-      ;; targeting [444]
-      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
-                            [1 2 2])
-      [4 5 3]
-
-      ;; targeting [33]
-      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
-                            [0])
-      [2]
-
-      ;; targeting [55 [66]...]
-      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
-                            [1])
-      [4]
-
-      ;; targeting [66]
-      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
-                            [1 0])
-      [4 1]
-
-      ;; targeting [88]
-      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
-                            [1 1])
-      [4 3]
-
-      ;; targeting [333]
-      (recover-literal-path [11 22 [33] 44 [55 [66] 77 [88] 99 [111 [222] [333] [444]]]]
-                            [1 2 1])
-      [4 5 2]
-
-      ;; targeting [22]
-      (recover-literal-path [11 [22]] [0])
-      [1]
-
-      ;; targeting [99]
-      (recover-literal-path {:a [11 [22] 33 {:b [44 [55] 66 [77] 88 [99]]}]}
-                            [:a 1 :b 2])
-      [:a 3 :b 5]
-
-      ;; targeting [222]
-      (recover-literal-path '(11 22 (33) 44 {:a 55 :b [66 [77] 88 [99] 111 [222]]})
-                            [1 :b 2])
-      [4 :b 5]
-
-      ;; targeting [55]
-      (recover-literal-path #{11 [[22] 33 44 [55]]}
-                            [[[22] 33 44 [55]] 1])
-      [[[22] 33 44 [55]] 3]
-
-      ;; targeting [77] ; look to the right...--->                                                                     >>>>----vvvv
-      (recover-literal-path [11 22 [33] 44 [55] 66 (take 9 (cycle [[77] 88 [99]]))] ;; => [11 22 [33] 44 [55] 66 ([77] 88 [99] [77] 88 [99] [77] 88 [99])]
-                            [2 2])
-      [6 3])))
-
-
 (deftest collections-without-predicates-tests
   (testing "empty data, empty specifications"
     (are [x y] (= x y)
@@ -1234,6 +1066,55 @@
       #{{:path [[22]], :value [22]}})))
 
 
+(deftest predicates-without-collections-tests
+  (testing "empty specifications"
+    (are [x] (empty? x)
+      (predicates-without-collections [99] [])
+      (predicates-without-collections {:a 99} {})
+      (predicates-without-collections (list 99) ())
+      (predicates-without-collections #{99} #{})))
+  (testing "empty data"
+    (are [x] (empty? x)
+      (predicates-without-collections [] [vector?])
+      (predicates-without-collections {} {:is-map? map?})
+      (predicates-without-collections () (list list?))
+      (predicates-without-collections #{} #{set?})))
+  (testing "all predciates paired"
+    (are [x] (empty? x)
+      (predicates-without-collections [9] [vector? map?])
+      (predicates-without-collections {:a 99} {:is-map map?})
+      (predicates-without-collections {:a 99} {:a map?}) ;; pred at spec key :a validates data root collection
+      (predicates-without-collections (list 99) (list list?))
+      (predicates-without-collections #{99} #{set?})))
+  (testing "some predicates are paired, one un-paired predciate"
+    (are [x y] (= x y)
+      (predicates-without-collections [42] [vector? [map?]])
+      #{{:path [1 0], :value map?}}
+
+      (predicates-without-collections {:a 42 :b 99} {:is-map? map? :c {:is-set? set?}})
+      #{{:path [:c :is-set?], :value set?}}
+
+      (predicates-without-collections {:a 42 :b 99} {:is-map? map? :b {:is-set? set?}}) ;; even though data has a key :b, the val is not a collection and thus not validated
+      #{{:path [:b :is-set?], :value set?}}
+
+      (predicates-without-collections #{} #{[vector?]})
+      #{{:path [[vector?] 0], :value vector?}}))
+  (testing "multiple un-paired predicates"
+    (are [x y] (= x y)
+      (predicates-without-collections [42] [[map?] [set?] [list?]])
+      #{{:path [2 0], :value list?}
+        {:path [0 0], :value map?}
+        {:path [1 0], :value set?}}
+
+      (predicates-without-collections {} {:a [int?] :b {:c set?}})
+      #{{:path [:b :c], :value set?}
+        {:path [:a 0], :value int?}}
+
+      (predicates-without-collections #{} #{[vector? map?]})
+      #{{:path [[vector? map?] 0], :value vector?}
+        {:path [[vector? map?] 1], :value map?}})))
+
+
 (def thorough-data [11 :foo {:x 22/7 :y 'bar} (list 33 44)])
 (def thorough-scalar-spec [int? keyword? {:x ratio? :y symbol?} (list int? int?)])
 (def thorough-coll-spec [vector? {:is-map map?} (list list?)])
@@ -1247,6 +1128,32 @@
   )
 
 
+(deftest thoroughly-valid-scalars?-tests
+  (testing "thoroughly valid example"
+    (are [x] (true? x)
+      (thoroughly-valid-scalars? [] [])
+      (thoroughly-valid-scalars? thorough-data thorough-scalar-spec)))
+  (testing "not thoroughly valid examples"
+    (are [x] (false? x)
+      (thoroughly-valid-scalars? [11] [])
+      (thoroughly-valid-scalars? thorough-data
+                                 (dissoc-in*  thorough-scalar-spec [3]))
+      (thoroughly-valid-scalars? thorough-data
+                                 (assoc-in* thorough-scalar-spec [1] int?)))))
+
+
+(deftest thoroughly-valid-collections?-tests
+  (testing "thoroughly valid example"
+    (are [x] (true? x)
+      (thoroughly-valid-collections? [] [vector?])
+      (thoroughly-valid-collections? thorough-data thorough-coll-spec)))
+  (testing "not thoroughly valid examples"
+    (are [x] (false? x)
+      (thoroughly-valid-collections? [] [])
+      (thoroughly-valid-collections? thorough-data (dissoc-in* thorough-coll-spec [2]))
+      (thoroughly-valid-collections? thorough-data (assoc-in* thorough-coll-spec [1 :is-map?] list?)))))
+
+
 (deftest thoroughly-valid?-tests
   (testing "thoroughly valid example"
     (are [x] (true? x)
@@ -1258,17 +1165,17 @@
     (are [x] (false? x)
       (thoroughly-valid? [] [] [])
       (thoroughly-valid? thorough-data
-                         (speculoos.fn-in/dissoc-in* thorough-scalar-spec [3])
+                         (dissoc-in* thorough-scalar-spec [3])
                          thorough-coll-spec)
       (thoroughly-valid? thorough-data
                          thorough-scalar-spec
-                         (speculoos.fn-in/dissoc-in* thorough-coll-spec [2]))
+                         (dissoc-in* thorough-coll-spec [2]))
       (thoroughly-valid? thorough-data
-                         (speculoos.fn-in/assoc-in* thorough-scalar-spec [1] int?)
+                         (assoc-in* thorough-scalar-spec [1] int?)
                          thorough-coll-spec)
       (thoroughly-valid? thorough-data
                          thorough-scalar-spec
-                         (speculoos.fn-in/assoc-in* thorough-coll-spec [1 :is-map?] list?)))))
+                         (assoc-in* thorough-coll-spec [1 :is-map?] list?)))))
 
 
 (deftest clamp-in*-tests
