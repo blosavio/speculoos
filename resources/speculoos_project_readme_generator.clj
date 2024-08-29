@@ -22,25 +22,25 @@
   [{:section-name "Setup"}
    #_{:section-name "Videos" :section-href "example.com" :skip-section-load? true}
    {:section-name "API" :section-href "https://blosavio.github.io/speculoos/index.html" :skip-section-load? true}
-   #_{:section-name "Introduction" :section-href "intro"}
+   {:section-name "Introduction" :section-href "intro"}
    {:section-name "Mantras"}
-   #_{:section-name "Mechanics"}
-   #_{:section-name "Validating Scalars" :section-href "scalar-validation"}
-   #_{:section-name "Validating Collections" :section-href "collection-validation"}
-   #_{:section-name "Validation Summaries and Thorough Validations" :section-href "valid-thorough"}
+   {:section-name "Mechanics"}
+   {:section-name "Validating Scalars" :section-href "scalar-validation"}
+   {:section-name "Validating Collections" :section-href "collection-validation"}
+   {:section-name "Validation Summaries and Thorough Validations" :section-href "valid-thorough"}
    {:section-name "Validating Functions" :section-href "function-validation"}
-   #_{:section-name "Generating Random Samples and Exercising" :section-href "exercising"}
-   #_{:section-name "Utilities"}
-   #_{:section-name "Predicates"}
-   #_{:section-name "Non-terminating Sequences" :section-href "non-terminating-sequences"}
-   #_{:section-name "Sets"}
-   #_{:section-name "Comparison to spec.alpha" :section-href "diff.html" :skip-section-load? true}
-   #_{:section-name "Maybe so" :section-href "maybe_so.html" :skip-section-load? true}
-   #_{:section-name "Recipes" :section-href "recipes.clj" :skip-section-load? true}
-   #_{:section-name "Troubleshooting"}
+   {:section-name "Generating Random Samples and Exercising" :section-href "exercising"}
+   {:section-name "Utilities"}
+   {:section-name "Predicates"}
+   {:section-name "Non-terminating Sequences" :section-href "non-terminating-sequences"}
+   {:section-name "Sets"}
+   {:section-name "Comparison to spec.alpha" :section-href "diff.html" :skip-section-load? true}
+   {:section-name "Maybe so" :section-href "maybe_so.html" :skip-section-load? true}
+   {:section-name "Recipes" :section-href "recipes.clj" :skip-section-load? true}
+   {:section-name "Troubleshooting"}
    #_{:section-name "Case Study" :section-href "case-study"}
-   #_{:section-name "Alternatives"}
-   #_{:section-name "Glossary"}
+   {:section-name "Alternatives"}
+   {:section-name "Glossary"}
    {:section-name "Contact" :section-href "https://github.com/blosavio" :skip-section-load? true}])
 
 
