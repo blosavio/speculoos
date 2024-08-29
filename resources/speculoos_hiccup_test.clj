@@ -157,4 +157,19 @@
        "coll?"))
 
 
+(deftest revert-fn-obj-rendering-tests-2
+  (testing "pre-made function object strings"
+    (are [x y] (= x y)
+      "int?"             (revert-fn-obj-rendering "#function[clojure.core/int?]")
+      "int?"             (revert-fn-obj-rendering "#function [clojure.core/int?]")
+      "map?"             (revert-fn-obj-rendering "#function[clojure.core/map?--5477]")
+      "map?"             (revert-fn-obj-rendering "#function [clojure.core/map?--5477]")
+      "reversed?"        (revert-fn-obj-rendering "#function[speculoos.core/reversed?]")
+      "validate-fn-with" (revert-fn-obj-rendering "#function[speculoos.function-specs/validate-fn-with]")
+      "validate-fn-with" (revert-fn-obj-rendering "#function [speculoos.function-specs/validate-fn-with]")
+      "reversed?"        (revert-fn-obj-rendering "#function ;;\n[speculoos-project-readme-generator/reversed?]")
+      "reversed?"        (revert-fn-obj-rendering "#function\n;; [speculoos-project-readme-generator/reversed?]")
+      "reversed?"        (revert-fn-obj-rendering "#function\n   ;;                   [speculoos-project-readme-generator/reversed?]"))))
+
+
 (run-tests)

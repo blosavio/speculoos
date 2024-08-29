@@ -739,35 +739,6 @@
 #_(defmethod validate-scalars :default [_ _] (println "Invalid args: `data` and `spec` must both be collections.")) ;; fail with stack trace
 
 
-(defn dual-validate-scalars
-  "Analogous to (validate-scalars), but with two input data sets,
-   data-1 and data-2. The 'predicates' in spec must accept two arguments, an
-   element from each respective data set. data-1 is priveledged in that it is
-   used in the 'clamp' procedure with spec.
-   Note: Sets are not validated, in constrast to (validate-scalars)."
-  {:UUIDv4 #uuid "205476af-591d-4403-b28a-f3d260d1ef5b"
-   :no-doc true}
-  [data-1 data-2 spec]
-  (let [[clamped-data-1 clamped-spec] (expand-and-clamp data-1 spec)
-        [clamped-data-2 _] (expand-and-clamp data-2 spec)
-        data-1-paths (only-non-collections (all-paths clamped-data-1))
-        data-2-paths (only-non-collections (all-paths clamped-data-2))
-        spec-paths (only-non-collections (all-paths clamped-spec))
-        data-spec-intersec (intersection-of-paths-3 data-1-paths data-2-paths spec-paths)]
-    (reduce (fn [acc dpath] (if (data-spec-intersec (:path dpath))
-                              (let [datum-1 (get-in* data-1 (:path dpath))
-                                    datum-2 (get-in* data-2 (:path dpath))
-                                    predicate (get-in* spec (:path dpath))]
-                                (conj acc {:path (:path dpath)
-                                           :datum-1 datum-1
-                                           :datum-2 datum-2
-                                           :predicate predicate
-                                           :valid? (predicate datum-1 datum-2)}))
-                              acc))
-            [] ;;(validate-set-elements data spec)
-            data-1-paths)))
-
-
 (defn truthy
   {:UUIDv4 #uuid "ee872c9f-73da-4a26-b572-31e562727c3a"
    :no-doc true}
@@ -863,17 +834,6 @@
   {:UUIDv4 #uuid "563d6131-b607-46d3-8a16-a7d2e249e288"}
   [data spec]
   (empty? (only-invalid (validate-scalars data spec))))
-
-
-(defn valid-dual-scalar-spec?
-  "`true` if each element in `data-1` and `data-2` both satisfy corresponding
-  predicate in specification `spec`. Analgous to [[valid-scalars?]]."
-  {:UUIDv4 #uuid "74043f31-8afc-4b65-a8ed-8aa372a0c9bf"
-   :no-doc true}
-  [data-1 data-2 spec]
-  (let [validate-results (dual-validate-scalars data-1 data-2 spec)
-        invalids (only-invalid validate-results)]
-    (empty? invalids)))
 
 
 ;;;; Collection Specs
@@ -1512,29 +1472,6 @@
      :datum-2 datum-2
      :ordinal-parent-path ordinal-parent-path
      :valid? (pred datum-1 datum-2)}))
-
-
-(defn dual-validate-collections
-  "Two-collection version of (validate-collections). Predicates contained
-   in spec must accept two arguments, one from each data collection.
-   data-1 is priviledged to be the reference by which non-terminating
-   sequences are clamped."
-  {:UUIDv4 #uuid "b893bbd0-2022-4f5e-b045-77d0782f5e27"
-   :no-doc true}
-  [data-1 data-2 spec]
-  (let [[clamped-data-1 clamped-spec] (expand-and-clamp data-1 spec)
-        [clamped-data-2 _] (expand-and-clamp data-2 spec)]
-    (map #(merge % (apply-one-coll-spec-to-two clamped-data-1 clamped-data-2 clamped-spec (:path %)))
-         (only-fns (all-paths clamped-spec)))))
-
-
-(defn valid-dual-collection-spec?
-  "Two-collection version of (valid-collections?). Returns true if data-1
-   and data-2 both validate against spec."
-  {:UUIDv4 #uuid "3f6ba989-3283-4e55-88bf-b7a46c104a83"
-   :no-doc true}
-  [data-1 data-2 spec]
-  (every? #(true? (:valid? %)) (dual-validate-collections data-1 data-2 spec)))
 
 
 ;;;; macro specs

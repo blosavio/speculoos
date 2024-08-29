@@ -6,7 +6,7 @@
 
  [:p "…and then check for invalids yourself…"]
 
- [:pre [:code "(empty? \\*1) ;; => false"]]
+ [:pre [:code "(empty? *1) ;; => false"]]
 
  [:p "…but Speculoos provides a function that does exactly that, both for scalars…"]
 

@@ -2,15 +2,15 @@
  [:h2 "Glossary"]
  [:dl
   [:dt#element "element"]
-  [:dd "A thing contained within a collection, either a scalar value or another nested collection."]
+  [:dd [:p "A thing contained within a collection, either a scalar value or another nested collection."]]
 
   [:dt#HANDS "heterogeneous, arbitrarily-nested data structure"]
-  [:dd "Exactly one Clojure collection (vector, map, list, sequence, or set) with zero or more "
-   [:a {:href "#element"} "elements"]
-   ", nested to any depth."]
+  [:dd [:p "Exactly one Clojure collection (vector, map, list, sequence, or set) with zero or more "
+        [:a {:href "#element"} "elements"]
+        ", nested to any depth."]]
 
   [:dt#non-term-seq "non-terminating sequence"]
-  [:dd "One of " [:code "clojure.lang.{Cycle,Iterate,LazySeq,LongRange,Range,Repeat}"] " that may or may not be realized, and possibly infinite. (I am not aware of any way to determine if such a sequence is infinite, so Speculoos treats them as if they are.)"]
+  [:dd [:p "One of " [:code "clojure.lang.{Cycle,Iterate,LazySeq,LongRange,Range,Repeat}"] " that may or may not be realized, and possibly infinite. (I am not aware of any way to determine if such a sequence is infinite, so Speculoos treats them as if they are.)"]]
 
   [:dt#path "path"]
   [:dd
@@ -31,30 +31,33 @@
     " addresses the outermost, containing collection."]]
 
   [:dt#predicate "predicate"]
-  [:dd "A function, or something that implements "
-   [:code "IFn"]
-   ", like a set, that returns a truthy or falsey value.  In the vast majority of instances, a function of one argument, but in certain corners of Speculoos, such as in argument-vs-return specifications, the function consumes more than one argument. Some Speculoos functions, such as "
-   [:code "validate-scalars"]
-   " and "
-   [:code "valid-scalars?"]
-   " also regard a regular expression as a competant predicate."]
+  [:dd [:p "A function, or something that implements "
+        [:code "IFn"]
+        ", like a set, that returns a truthy or falsey value.  In most instances, a predicate is a function of one argument. Some Speculoos functions, such as "
+        [:code "validate-scalars"]
+        " and "
+        [:code "valid-scalars?"]
+        " also regard a regular expression as a competant predicate."]]
+
+  [:dt#relationship "relationship"]
+  [:dd [:p "A human- and machine-readable declaration about the congruence between to elements. Speculoos function validation may involve specifying a relationship between the function's argument and the function's return value."]]
 
   [:dt#scalar "scalar"]
-  [:dd "A single, non-divisible datum, such as an integer, string, boolean, etc. Essentially, a shorter term for " [:em "non-collection"] "."]
+  [:dd [:p "A single, non-divisible datum, such as an integer, string, boolean, etc. Essentially, a shorter term for " [:em "non-collection"] "."]]
 
   [:dt#specification "specification"]
-  [:dd "A human- and machine- readable declaration about properties of data, composed of a " [:a {:href "#HANDS"} "heterogeneous, arbitrarily-nested data collection"] " and " [:a {:href "#predicate"} "predicates"] "."]
+  [:dd [:p "A human- and machine-readable declaration about properties of data, composed of a " [:a {:href "#HANDS"} "heterogeneous, arbitrarily-nested data collection"] " and " [:a {:href "#predicate"} "predicates"] "."]]
 
   [:dt#validate "validate"]
-  [:dd "An action that returns an exhaustive listing of all datum+predicate pairs, their paths, and whether the datum satisfies the predicate. Note: Validation requires "
-   [:em "two"]
-   " components, a datum and a predicate. Any unpaired datum or any unpaired predicate, will not participate in validation."]
+  [:dd [:p "An action that returns an exhaustive listing of all datum+predicate pairs, their paths, and whether the datum satisfies the predicate. Note: Validation requires "
+        [:em "two"]
+        " components, a datum and a predicate. Any unpaired datum or any unpaired predicate, will not participate in validation."]]
 
   [:dt#valid "valid?"]
-  [:dd "An action that returns "
-   [:code "true"]
-   " if all paired datums satisfy their predicates during a validation, "
-   [:code "false"]
-   " otherwise. Note: A validation operation's result is considered "
-   [:em "valid"]
-   " if there are zero datum+predicates."]]]
+  [:dd [:p "An action that returns "
+        [:code "true"]
+        " if all paired datums satisfy their predicates during a validation, "
+        [:code "false"]
+        " otherwise. Note: A validation operation's result is considered "
+        [:em "valid"]
+        " if there are zero datum+predicates."]]]]

@@ -83,7 +83,7 @@
   (print-form-then-eval "(get-in* '(100 101 {:x [102]}) [2 :x 0])")]
  [:p [:code "102"] " is contained in three levels of nesting, so its path is comprised of three pieces."]
 
- [:p "Speculoos provides a little machine to wrangle paths for you. When supplied with a heterogeneous, arbitrarily-nested data structure, " [:code "speculoos.core/all-paths"] " returns a sequence of " [:code "{:path _ :value _ }"] " for every element, both scalars and collections."]
+ [:p "Speculoos provides a little machine to wrangle paths for you. When supplied with a heterogeneous, arbitrarily-nested data structure, " [:code "speculoos.core/all-paths"] " returns a sequence of " [:code "{:path … :value …}"] " for every element, both scalars and collections."]
 
  [:pre
   (print-form-then-eval "(require '[speculoos.core :refer [all-paths]])")

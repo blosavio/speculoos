@@ -533,33 +533,33 @@
 
 
 (comment
-  (                      fn-with-meta-specs-scalar-return    2 3 4)
-  (validate-fn-with      fn-with-meta-specs-scalar-return {} 2 3 4)
-  (validate-fn-meta-spec fn-with-meta-specs-scalar-return    2 3 4)
+  (                 fn-with-meta-specs-scalar-return    2 3 4)
+  (validate-fn-with fn-with-meta-specs-scalar-return {} 2 3 4)
+  (validate-fn      fn-with-meta-specs-scalar-return    2 3 4)
 
-  (                      fn-without-meta-specs    2 3 4)
-  (validate-fn-with      fn-without-meta-specs {} 2 3 4)
-  (validate-fn-meta-spec fn-without-meta-specs    2 3 4)
-  (validate-fn-with      fn-without-meta-specs {:speculoos/arg-scalar-spec [int? int? int?]} 2 3 4)
-  (validate-fn-with      fn-without-meta-specs {:speculoos/arg-scalar-spec [int? int? double?]} 2 3 4)
-  (validate-fn-with      fn-without-meta-specs {:speculoos/arg-scalar-spec [int? int? double?]
-                                                :speculoos/ret-scalar-spec double?} 2 3 4)
+  (                 fn-without-meta-specs    2 3 4)
+  (validate-fn-with fn-without-meta-specs {} 2 3 4)
+  (validate-fn      fn-without-meta-specs    2 3 4)
+  (validate-fn-with fn-without-meta-specs {:speculoos/arg-scalar-spec [int? int? int?]} 2 3 4)
+  (validate-fn-with fn-without-meta-specs {:speculoos/arg-scalar-spec [int? int? double?]} 2 3 4)
+  (validate-fn-with fn-without-meta-specs {:speculoos/arg-scalar-spec [int? int? double?]
+                                           :speculoos/ret-scalar-spec double?} 2 3 4)
   )
 
 
-(deftest validate-fn-meta-spec-tests
+(deftest validate-fn-tests
   (testing "'container'-ed return"
     (are [x y] (= x y)
-      [25 :baz "oof"] (validate-fn-meta-spec fn-with-meta-specs 5 "foo" 5 :baz)
-      false (empty? (filter #(false? (:valid? %)) (validate-fn-meta-spec fn-with-meta-specs 5 "foo" 5 \z)))
-      false (empty? (filter #(false? (:valid? %)) (validate-fn-meta-spec fn-with-meta-specs 5 "foo" 7 :baz)))))
+      [25 :baz "oof"] (validate-fn fn-with-meta-specs 5 "foo" 5 :baz)
+      false (empty? (filter #(false? (:valid? %)) (validate-fn fn-with-meta-specs 5 "foo" 5 \z)))
+      false (empty? (filter #(false? (:valid? %)) (validate-fn fn-with-meta-specs 5 "foo" 7 :baz)))))
   (testing "'bare' scalar return"
     (are [x y] (= x y)
-      10.0 (validate-fn-meta-spec fn-with-meta-specs-scalar-return 3 4.5 5/2)
-      false (empty? (filter #(false? (:valid? %)) (validate-fn-meta-spec fn-with-meta-specs-scalar-return 3.0 4.5 5/2)))
-      false (empty? (filter #(false? (:valid? %)) (validate-fn-meta-spec fn-with-meta-specs-scalar-return 3 4 5/2)))
-      false (empty? (filter #(false? (:valid? %)) (validate-fn-meta-spec fn-with-meta-specs-scalar-return 3 4.5 5)))
-      true (= 3 (count  (filter #(false? (:valid? %)) (validate-fn-meta-spec fn-with-meta-specs-scalar-return 3.0 4 5)))))))
+      10.0 (validate-fn fn-with-meta-specs-scalar-return 3 4.5 5/2)
+      false (empty? (filter #(false? (:valid? %)) (validate-fn fn-with-meta-specs-scalar-return 3.0 4.5 5/2)))
+      false (empty? (filter #(false? (:valid? %)) (validate-fn fn-with-meta-specs-scalar-return 3 4 5/2)))
+      false (empty? (filter #(false? (:valid? %)) (validate-fn fn-with-meta-specs-scalar-return 3 4.5 5)))
+      true (= 3 (count  (filter #(false? (:valid? %)) (validate-fn fn-with-meta-specs-scalar-return 3.0 4 5)))))))
 
 
 (defn HOF-1 [] 99)
@@ -862,17 +862,17 @@
   (type (adder 5))
   (isa? clojure.lang.AFunction$1 (type (adder 5)))
   (:speculoos/hof-specs (fn-meta adder))
-  (validate-fn-meta-spec adder 5)
-  (validate-fn-meta-spec adder 5.5)
-  ((validate-fn-meta-spec adder 5) 10)
+  (validate-fn adder 5)
+  (validate-fn adder 5.5)
+  ((validate-fn adder 5) 10)
   (rearrange-specs (flatten-nested-hof-fn-specs adder) :speculoos/arg-scalar-spec)
 
   (ns-unmap *ns* 'multiplier)
   (fn-meta multiplier)
   ((multiplier 10) [11 22 33])
-  (validate-fn-meta-spec multiplier 10)
-  ((validate-fn-meta-spec multiplier 10) [11 22 33])
-  (validate-fn-meta-spec multiplier "a")
+  (validate-fn multiplier 10)
+  ((validate-fn multiplier 10) [11 22 33])
+  (validate-fn multiplier "a")
   )
 
 
@@ -1034,10 +1034,10 @@
 
 (comment
   (exercise-fn-example-fn 7 "Hello!" :Happy-Day "F5Qv")
-  (validate-fn-meta-spec exercise-fn-example-fn 7 "Hello!" :Happy-Day "F5Qv")
+  (validate-fn exercise-fn-example-fn 7 "Hello!" :Happy-Day "F5Qv")
 
   (exercise-fn-example-fn 'foo "Hello!" :Happy-Day "F7Qy")
-  (validate-fn-meta-spec exercise-fn-example-fn 'foo "Hello!" :Happy-Day "F5Q9")
+  (validate-fn exercise-fn-example-fn 'foo "Hello!" :Happy-Day "F5Q9")
   )
 
 

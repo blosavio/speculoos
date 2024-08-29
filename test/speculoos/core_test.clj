@@ -986,46 +986,6 @@
       (valid-scalars? (zipmap [:a :b :c] [1 2 3]) (zipmap [:a :b :c] [int? int? int?])))))
 
 
-(deftest valid-dual-scalar-spec?-tests
-  (testing "empty and nil data and specs"
-    (are [x] (= [] x)
-      (dual-validate-scalars [] [] nil)
-      (dual-validate-scalars [] nil [])
-      (dual-validate-scalars [] nil nil)
-      (dual-validate-scalars [] [] [])))
-  (testing "non-nested data and specs"
-    (are [x] (true? x)
-
-      (valid-dual-scalar-spec? [\x] [\y] [#(and (char? %1)
-                                                (char? %2))])
-      (valid-dual-scalar-spec? [11 22 33]
-                               [44 55 66]
-                               [#(and (int? %1)
-                                      (int? %2))
-                                #(and (int? %1)
-                                      (int? %2))
-                                #(and (int? %1)
-                                      (int? %2))])
-
-      (valid-dual-scalar-spec? [11 22 33]
-                               [:foo :bar :baz]
-                               (repeat 3 #(and (int? %1)
-                                               (keyword? %2))))
-
-      (valid-dual-scalar-spec? [11 22 33]
-                               [12 :not-validated :not-validated]
-                               [#(= (+ 1 %1) %2)])
-
-      (valid-dual-scalar-spec? {:a true :c 55}
-                               {:a false :c -55}
-                               {:a #(every? true? [%1 (not %2)])
-                                :c #(= (- %1) %2)})))
-  (testing "nested data and specs"
-    (is (valid-dual-scalar-spec? [[[99]]]
-                                 [[[99]]]
-                                 [[[#(= %1 %2)]]]))))
-
-
 (deftest filter-validatation-tests
   (are [x y] (= x y)
     [] (filter-validation (validate-scalars [11 "abc" :foo] [int? string? keyword?]) falsey)
@@ -1663,42 +1623,6 @@
     (valid? data-1 nil nil)
     (valid? data-1 scalar-spec-1 coll-spec-1)
     (valid? data-2 scalar-spec-2 coll-spec-2)))
-
-
-(deftest validate-dual-collection-spec-tests
-  (testing "validate on empty"
-    (are [x] (= [] x)
-      (dual-validate-collections [] [] [])
-      (dual-validate-collections [] nil [])
-      (dual-validate-collections [] [] nil)
-      (dual-validate-collections [] nil nil)))
-  (testing "validate and valid?"
-    (are [x] (true? x)
-      (valid-dual-collection-spec? [11 22 33]
-                                   [44 55 66]
-                                   [#(= (count %1)
-                                        (count %2))])
-
-      (valid-dual-collection-spec? [11 [22] 33 [44] 55]
-                                   [[66] 77 [88] 99 [111]]
-                                   [#(< (count (filter vector? %1))
-                                        (count (filter vector? %2)))
-                                    #(> (count (filter int? %1))
-                                        (count (filter int? %2)))])
-
-      (valid-dual-collection-spec? [11 [22 [33 [44 55 66]]]]
-                                   [11 [22 [33 [44 55 66]]]]
-                                   [[[[#(= (count %1)
-                                           (count %2))]]]])
-
-      (valid-dual-collection-spec? {:a [11] :b [22 33 44]}
-                                   {:a [55] :b [66 77 88]}
-                                   {:a [#(= (count %1)
-                                            (count %2))]
-                                    :b [#(and (= 3 (count %1))
-                                              (= 3 (count %2)))]
-                                    :both-vecs? #(and (vector? (:b %1))
-                                                      (vector? (:b %2)))}))))
 
 
 (defmacro silly-macro [f & args] `(~f ~@args))

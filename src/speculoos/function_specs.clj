@@ -18,8 +18,7 @@
    [clojure.repl :refer [demunge]]
    [clojure.set :as set]
    [clojure.string :as str]
-   [speculoos.core :refer [validate only-invalid dual-validate-scalars
-                           dual-validate-collections all-paths regex?
+   [speculoos.core :refer [validate only-invalid all-paths regex?
                            validate-scalars validate-collections]]
    [speculoos.utility :refer [data-from-spec]]))
 
@@ -108,7 +107,7 @@
 (def ^{:doc "A sequence that contains the only allowed pseudo-qualified keys to
  be added to, or referred from, a function's metadata. Only governs behavior of
  utilities provided by this namespace, such as [[instrument]], [[unstrument]],
- [[validate-fn-with]], and [[validate-fn-meta-spec]]. Does not affect anything
+ [[validate-fn-with]], and [[validate-fn]]. Does not affect anything
  outside this namespace."}
   recognized-spec-keys (with-meta [:speculoos/arg-scalar-spec
                                    :speculoos/arg-collection-spec
@@ -342,7 +341,7 @@
       non-satisfied-specs)))
 
 
-(defn validate-fn-meta-spec
+(defn validate-fn
   "Validates function `f` in the manner of [[validate-fn-with]], except
   specifications are supplied by the function's metadata, addressed by
   [[recognized-spec-keys]].
@@ -358,12 +357,12 @@
   (inject-specs! foo foo-spec) ;; => nil
 
   ;; supplying valid arguments; function returns
-  (validate-fn-meta-spec foo 7 \"8\") ;; 15
+  (validate-fn foo 7 \"8\") ;; 15
 
   ;; supplying invalid argument (arg2 is not a string); yields a report
-  (validate-fn-meta-spec foo 7 8)
+  (validate-fn foo 7 8)
   ;; => ({:path [1], :datum 8, :predicate string?, :valid? false, :fn-spec-type :speculoos/argument}
-  ;;     {:path nil, :datum [], :predicate number?, :valid? false, :fn-spec-type :speculoos/return})
+  ;; foo was not able to yield a value, therefore the return was not validated
   ```"
   {:UUIDv4 #uuid "be89a74f-5489-4901-9c88-37cb49b37482"}
   [f & args]

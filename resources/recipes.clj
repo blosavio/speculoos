@@ -487,7 +487,7 @@
                 [:h3 "Validating functions with external metadata"]
                 [:p [:em "ad hoc"] " function specification by wrapping function with metadata."]
                 [:pre
-                 (print-form-then-eval "(require '[speculoos.function-specs :refer [validate-fn-with validate-fn-meta-spec inject-specs! validate-higher-order-fn exercise-fn instrument unstrument]])")
+                 (print-form-then-eval "(require '[speculoos.function-specs :refer [validate-fn-with validate-fn inject-specs! validate-higher-order-fn exercise-fn instrument unstrument]])")
                  [:br]
                  (print-form-then-eval "(validate-fn-with + {:speculoos/arg-scalar-spec [int? int?]} 1 2)")
                  [:br]
@@ -497,9 +497,9 @@
                 [:pre
                  (print-form-then-eval "(inject-specs! + {:speculoos/arg-scalar-spec [int? int?]})")
                  [:br]
-                 (print-form-then-eval "(validate-fn-meta-spec + 1 2)")
+                 (print-form-then-eval "(validate-fn + 1 2)")
                  [:br]
-                 (print-form-then-eval "(validate-fn-meta-spec + 1 9.87)")]
+                 (print-form-then-eval "(validate-fn + 1 9.87)")]
                 [:p "Metadata specifications are consulted only when Speculoos explicitly validates."]
                 [:pre (print-form-then-eval "(+ 1 9.87)")]
                 [:p "Argument sequence validated as a collection."]
@@ -525,9 +525,9 @@
                  (print-form-then-eval "(add-two-things 1.23 22/7)")
                  (print-form-then-eval "(add-two-things 1 2)")
                  [:br]
-                 (print-form-then-eval "(validate-fn-meta-spec add-two-things 1.23 22/7)")
+                 (print-form-then-eval "(validate-fn add-two-things 1.23 22/7)")
                  [:br]
-                 (print-form-then-eval "(validate-fn-meta-spec add-two-things 1 2)")]
+                 (print-form-then-eval "(validate-fn add-two-things 1 2)")]
                 [:h3 "Validating higher-order functions"]
                 [:p "Supply enough arguments so that the " [:span.small-caps "hof"] " returns a non-function."]
                 [:pre

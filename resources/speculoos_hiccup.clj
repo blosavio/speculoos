@@ -39,7 +39,7 @@
     (clojure.string/replace arrow-prefixed-str "\n" indent)))
 
 
-(def fn-obj-regex #"#function ?\[clojure.core\/([\w-]+\?)(--\d+)?\]")
+(def fn-obj-regex #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]")
 
 
 (defn revert-fn-obj-rendering
@@ -48,6 +48,51 @@
   {:UUIDv4 #uuid "ca3e8813-3398-4663-b96a-b8289346794e"}
   [s]
   (clojure.string/replace s fn-obj-regex "$1"))
+
+
+(comment
+
+  ;; explore matching and negative lookahead at https://regexr.com/85b0a
+
+  #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]"
+
+  ;; #function   match literal #function
+  ;; [;\n\ ]*    match zero-or-more semicolons, newlines, or spaces
+  ;; \[          match literal open bracket
+  ;; [\w\.\-\?]* match zero-or-more word, periods, hyphens, or question marks
+  ;; \/          match literal forward slash
+  ;; (           begin capture group #1
+  ;; [\w\?]*     match zero-or-more word or question marks
+  ;; (           begin capture group #2
+  ;; \-          match literal hyphen, but...
+  ;; (?!\-)      negative lookahead, ...only if not followed by another hyphen
+  ;; [\w\?]*     match zero-or-more word or question marks
+  ;; )*          end capture group #2, zero-or-more
+  ;; )*          end capture group #1, zero-or-more
+  ;; (?:--\d+)?  zero-or-one non-capturing groups, two hyphens followed by one-or-more digits
+  ;; \]          match literal close bracket
+
+  ;; sample function object rendering strings
+
+  "#function[clojure.core/int?]"
+  "#function [clojure.core/int?]"
+  "#function[clojure.core/map?--5477]"
+  "#function [clojure.core/map?--5477]"
+  "#function [clojure.core/map--5477]"
+  "#function[speculoos.core/reversed?]"
+  "#function[speculoos.function-specs/validate-fn-with]"
+  "#function [speculoos.function-specs/validate-fn-with]"
+
+  "#function ;;
+  [speculoos-project-readme-generator/reversed?]"
+
+  "#function
+  ;; [speculoos-project-readme-generator/reversed?]"
+
+  "#function
+   ;;                   [speculoos-project-readme-generator/reversed?]"
+
+  )
 
 
 (defn render-fn-obj-str
@@ -236,3 +281,12 @@
   {:UUIDv4 #uuid "67da63e5-d7ab-4427-86ef-0e03beef5e3d"}
   [html-str]
   (clojure.string/replace html-str pre-code-block-regex line-leading-space-to-non-breaking-space))
+
+
+(defn escape-markdowners
+  "Replace all underscores/asterisks in string `html-str` with escaped
+  characters. GitHub markdown processing treats underscores and asterisks within
+  pre-formatted code blocks as italicizing delimiters."
+  {:UUIDv4 #uuid "2450029a-08b3-4eb0-9dfe-827342543d0e"}
+  [html-str]
+  (clojure.string/replace html-str #"(_|\*)" "\\\\$1"))
