@@ -169,7 +169,8 @@
       "validate-fn-with" (revert-fn-obj-rendering "#function [speculoos.function-specs/validate-fn-with]")
       "reversed?"        (revert-fn-obj-rendering "#function ;;\n[speculoos-project-readme-generator/reversed?]")
       "reversed?"        (revert-fn-obj-rendering "#function\n;; [speculoos-project-readme-generator/reversed?]")
-      "reversed?"        (revert-fn-obj-rendering "#function\n   ;;                   [speculoos-project-readme-generator/reversed?]"))))
+      "reversed?"        (revert-fn-obj-rendering "#function\n   ;;                   [speculoos-project-readme-generator/reversed?]")
+      "="                (revert-fn-obj-rendering "#function\n;;                        [clojure.core/=]"))))
 
 
 (run-tests)

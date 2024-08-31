@@ -39,7 +39,7 @@
     (clojure.string/replace arrow-prefixed-str "\n" indent)))
 
 
-(def fn-obj-regex #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]")
+(def fn-obj-regex #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?\=]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]")
 
 
 (defn revert-fn-obj-rendering
@@ -54,7 +54,7 @@
 
   ;; explore matching and negative lookahead at https://regexr.com/85b0a
 
-  #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]"
+  #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?\=]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]"
 
   ;; #function   match literal #function
   ;; [;\n\ ]*    match zero-or-more semicolons, newlines, or spaces
@@ -62,7 +62,7 @@
   ;; [\w\.\-\?]* match zero-or-more word, periods, hyphens, or question marks
   ;; \/          match literal forward slash
   ;; (           begin capture group #1
-  ;; [\w\?]*     match zero-or-more word or question marks
+  ;; [\w\?\=]*   match zero-or-more word, question mark, or equal signs
   ;; (           begin capture group #2
   ;; \-          match literal hyphen, but...
   ;; (?!\-)      negative lookahead, ...only if not followed by another hyphen

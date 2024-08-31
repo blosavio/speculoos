@@ -65,7 +65,7 @@
 
   [:li [:p "The " [:a {:href "https://blosavio.github.io/speculoos/speculoos.utility.html"} [:code "speculoos.utility"]] " namespace provides many functions for creating, viewing, analyzing, and modifying both scalar and collection specifications."]]
 
-  [:li[:p "When the going really gets tough, break out " [:code "speculoos.core/all-paths"] " and apply it to your data, then to your specification, and then step through the validtion with your eyes."]
+  [:li [:p "When the going really gets tough, break out " [:code "speculoos.core/all-paths"] " and apply it to your data, then to your specification, and then step through the validtion with your eyes."]
 
    [:pre
     (print-form-then-eval "(all-paths {:a [99]})")
@@ -76,6 +76,45 @@
     [:br]
     [:code ";; Aha! The predicate int? at path [:a] and the integer 99 at path [:a 0] do not share a path!"]]]
 
+  [:li
+   [:p "When validating a function's arguments, remember that arguments are contained in an implicit sequence."]
+
+   [:pre
+    (print-form-then-eval "(defn arg-passthrough [& args] args)")
+    [:br]
+    [:br]
+    (print-form-then-eval "(arg-passthrough [1 2 3])")
+    [:br]
+    [:br]
+    (print-form-then-eval "(arg-passthrough [1 2 3] [4 5 6])")]
+
+   [:p "If you're passing only a single value, it's easy to forget that the single value is contained in the argument sequence. Validating a function's arguments validates the " [:em "argument sequence"] ", not just the first lonely element that happens to also be a sequence."]
+
+   [:pre
+    [:code ";; seemingly single vector in, single integer out..."]
+    [:br]
+    (print-form-then-eval "(first [1 2 3])")
+    [:br]
+    [:br]
+    [:code ";; shouldn't integer `1` fail to satisfy predicate `string?`"]
+    [:br]
+    (print-form-then-eval "(validate-fn-with first {:speculoos/arg-scalar-spec [string?]} [1 2 3])")]
+
+   [:p [:code "validate-fn-with"] " passes through the value returned by " [:code "first"] " because " [:code "validate-fn-with"] " did not find any invalid results. Why not? In this example, " [:code "1"] " and " [:code "string?"] " do not share a path, and therefore " [:code "validate-fn-with"] " preformed zero validations. Let's take a look."]
+
+   [:pre
+    (print-form-then-eval "(all-paths [[1 2 3]])")
+    [:br]
+    [:br]
+    (print-form-then-eval "(all-paths [string?])")]
+
+   [:p "We  find " [:code "1"] " at path " [:code "[0 0]"] " in the " [:em "argument sequence"] ", while scalar predicate " [:code "string?"] " is located at path " [:code "[0]"] " in the scalar specification. The two do not share paths are not paired, thus no validation. The fix is to make the specification mimic the shape of the data, the 'data' in this case being the " [:em "argument sequence"] "."]
+
+   [:pre (print-form-then-eval "(validate-fn-with first {:speculoos/arg-scalar-spec [[string?]]} [1 2 3])")]
+
+   [:p "Now that argument scalar specification mimics the shape of the " [:em "argument sequence"] ", scalar " [:code "1"] " and scalar predicate " [:code "string?"] " share a path " [:code "[0 0]"] ", and " [:code "validate-fn-with"] " performs a scalar validation. " [:code "1"] " fails to satisfy " [:code "string?"] "."]
+
+   [:p "This also applies to validating arguments that are collections."]]
   ]
 
  [:p "Finally, if you hit a wall, file a " [:a {:href "https://github.com/blosavio/speculoos/issues"} "bug report"] " or " [:a {:href "https://github.com/blosavio"} " email me"] "."]]
