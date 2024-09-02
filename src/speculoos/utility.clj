@@ -527,10 +527,11 @@ retrieved on 2024Mar12."}
 
 (defn data-from-spec
   "Given heterogeneous, arbitrarily-nested scalar specification `spec`, create a
-  sample data structure whose values validate to that specification. Only works
-  for singular, clojure.core predicates, e.g., `int?`, `string?`. Does not work
-  for something like `#(and (int? %) (< 5 %))`. Unknown predicates yield `nil`.
-  Defaults to canonical values, i.e., `'abc'` for `string?`.
+  sample data structure whose values validate to that specification. Works
+  for singular, clojure.core predicates, e.g., `int?`, `string?`, or for
+  `#(and (int? %) (< 5 %))` with generators at metadata key
+  `:speculoos/predicate->generator`. Unknown predicates yield `nil`. Defaults
+  to canonical values, i.e., `'abc'` for `string?`.
 
   Optional trailing arg `:random` uses `clojure.test.check` generators when
   available. Trailing arg `:canonical` (default) uses lookup table to supply
@@ -742,6 +743,9 @@ retrieved on 2024Mar12."}
   specification `spec` and maps [[valid-scalars?]] over them, returning a
   sequence of `[val valid?]` tuples.
 
+  If `n` is `:canonical`, only one data set is produced, consisting of the
+  predicates' canonical values.
+
   See [[data-from-spec]] for details on predicates.
 
   Examples, passing optional count `n` `3` for brevity:
@@ -755,14 +759,20 @@ retrieved on 2024Mar12."}
   ;; => ([{:a U8D_/gs+H,   :b [17 1M \\Z]} true]
   ;;     [{:a b-187+/Xv,   :b [27 1M \\3]} true]
   ;;     [{:a ?l4zv/Y.Ro!, :b [22 1M \\G]} true])
+  ```
+
+  Example with canonical values:
+  ```clojure
+  (exercise [int? char? ratio? string? double?] :canonical)
+  ;; => ([[42 \\c 22/7 \"abc\" 1.0E32] true])
   ```"
   {:UUIDv4 #uuid "aaa11058-7781-4b60-bedf-2e623b01c0ee"}
   ([spec] (exercise spec 10))
   ([spec n]
-   (letfn [(f [] (let [d-from-s (data-from-spec spec :random)
+   (letfn [(f [] (let [d-from-s (data-from-spec spec (if (= n :canonical) :canonical :random))
                        v? (valid-scalars? d-from-s spec)]
                    (vector d-from-s v?)))]
-     (repeatedly n f))))
+     (repeatedly (if (= n :canonical) 1 n) f))))
 
 
 ;; Collection spec utilities
@@ -1506,8 +1516,10 @@ Example:
 
 (defn inspect-fn
   "Inspect expression `f` to attempt to create a random sample generator. If
-  unable to do so, returns `nil`.`f` must be of the form `(fn [...] ...)`
-  or `#(...)`.
+  unable to do so, returns `nil`. `f` must be of the form `(fn [...] ...)`
+  or `#(...)`. Returns a vector whose first element is the symbolic
+  representation of the generator and whose second element is an invocable
+  generator object.
 
   *This implementation is a proof-of-concept* that only descends to a maximum
   depth of two levels. It does not generically handle arbitrary nesting depths
@@ -1517,7 +1529,7 @@ Example:
 
   1. The first symbol must be `and`, `or`, or a basic predicate for a Clojure
      built-in scalar, such as `int?` that is registered at
-     `speculoos.utility/preddicate->generator`.
+     `speculoos.utility/predicate->generator`.
   2. The first clause after `and` or `or` must contain a `clojure.core`
      predicate for a scalar, such as `int?`.
   3. Subsequent clauses of `and` will be injected into a

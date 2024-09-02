@@ -676,11 +676,26 @@
                          (not (clojure.string/starts-with? % ":good")))))))
 
 
+(speculoos.utility/defpred pred-1 (constantly :ignored) (constantly :ignored) :pred-1-canonical-value)
+(speculoos.utility/defpred pred-2 (constantly :ignored) (constantly :ignored) 'pred-2-canonical-value)
+
+
 (deftest exercise-tests
-  (are [x y] (= x y)
-    '() (exercise [int? string? char?] 0)
-    true (every? #(true? (second %)) (exercise [int? string? char?]))
-    3 (count (exercise [int? string? char?] 3))))
+  (testing "general exercise with :random"
+    (are [x y] (= x y)
+      '() (exercise [int? string? char?] 0)
+      true (every? #(true? (second %)) (exercise [int? string? char?]))
+      3 (count (exercise [int? string? char?] 3))))
+  (testing "exercise canonical values"
+    (are [x y] (= x y)
+      (exercise [int? char? string?] :canonical)
+      [[[42 \c "abc"] true]]
+
+      (exercise {:x ratio? :y double? :z keyword?} :canonical)
+      [[{:x 22/7, :y 1.0E32, :z :kw} true]]
+
+      (exercise {:q pred-1 :w pred-2} :canonical)
+      [[{:q :pred-1-canonical-value, :w 'pred-2-canonical-value} true]])))
 
 
 ;; test data for (bazooka) function

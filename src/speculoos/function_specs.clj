@@ -661,6 +661,9 @@
   Returns a sequence of tuples of `[args ret]`. Does not currently handle
   higher-order-functions.
 
+  If `n` is `:canonical`, only one data set is produced, consisting of the
+  predicates' canonical values.
+
   See [[data-from-spec]] for details on predicates.
 
   Example:
@@ -675,12 +678,25 @@
   ;; => ([[76 :i-:!7S] \"176 is not equivalent to :i-:!7S\"]
   ;;     [[-381 :W] \"-281 is not equivalent to :W\"]
   ;;     [[-940 :LS1-:i] \"-840 is not equivalent to :LS1-:i\"])
+  ```
+
+  Examples with canonical values:
+  ```clojure
+  (defn bar
+    {:speculoos/arg-scalar-spec [int? ratio? float?]}
+    [x y z]
+    (+ x y z))
+
+  (exercise-fn bar :canonical)
+  ;; => ([[42 22/7 1.23] 46.372857142857136])
   ```"
   {:UUIDv4 #uuid "d1db8e1f-1974-44c6-9056-d61e278e0f24"}
   ([f] (exercise-fn f 10))
   ([f n]
    (let [spec (:speculoos/arg-scalar-spec (fn-meta f))
-         repeatedly-f (fn [] (let [data (data-from-spec spec :random)
+         repeatedly-f (fn [] (let [data (data-from-spec spec (if (= n :canonical)
+                                                               :canonical
+                                                               :random))
                                    ret (apply f data)]
                                (vector data ret)))]
-     (repeatedly n repeatedly-f))))
+     (repeatedly (if (= n :canonical) 1 n) repeatedly-f))))

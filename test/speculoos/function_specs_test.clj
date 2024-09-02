@@ -1032,20 +1032,43 @@
   (str "third keyword is " k ", first integer is " x ", middle string is " s ", last string is " r))
 
 
+(defn exercise-fn-example-fn-2
+  {:speculoos/arg-scalar-spec [int? ratio? float?]}
+  [x y z]
+  (+ x y z))
+
+
+(defn exercise-fn-example-fn-3
+  {:speculoos/arg-scalar-spec [{:x string? :y char? :z symbol?}]}
+  [q]
+  (str "The string is " (q :x) ", the char is " (q :y) ", the symbol is " (q :z)))
+
+
 (comment
   (exercise-fn-example-fn 7 "Hello!" :Happy-Day "F5Qv")
   (validate-fn exercise-fn-example-fn 7 "Hello!" :Happy-Day "F5Qv")
 
   (exercise-fn-example-fn 'foo "Hello!" :Happy-Day "F7Qy")
   (validate-fn exercise-fn-example-fn 'foo "Hello!" :Happy-Day "F5Q9")
+
+  (efn-ex-2 3 2/4 1.25)
+  (efn-ex-3 {:x "foo" :y \Z :z 'bar})
   )
 
 
 (deftest exercise-fn-tests
-  (are [x] (true? x)
-    (every? #(valid-scalars? (first %) [int? string? keyword? #"F\dQ[a-z]"]) (exercise-fn exercise-fn-example-fn 9))
-    (every? #(string? (second %)) (exercise-fn exercise-fn-example-fn 7))
-    (= 10 (count (exercise-fn exercise-fn-example-fn)))))
+  (testing "generated random values"
+    (are [x] (true? x)
+      (every? #(valid-scalars? (first %) [int? string? keyword? #"F\dQ[a-z]"]) (exercise-fn exercise-fn-example-fn 9))
+      (every? #(string? (second %)) (exercise-fn exercise-fn-example-fn 7))
+      (= 10 (count (exercise-fn exercise-fn-example-fn)))))
+  (testing "canonical values"
+    (are [x y] (= x y)
+      (exercise-fn exercise-fn-example-fn-2 :canonical)
+      [[[42 22/7 1.23] 46.372857142857136]]
+
+      (exercise-fn exercise-fn-example-fn-3 :canonical)
+      [[[{:x "abc", :y \c, :z 'speculoos/canonical-symbol}] "The string is abc, the char is c, the symbol is speculoos/canonical-symbol"]])))
 
 
 (run-tests)
