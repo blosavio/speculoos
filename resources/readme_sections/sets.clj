@@ -113,7 +113,7 @@
 
  [:pre (print-form-then-eval " (validate-scalars {:x 42 :y :red} {:x int? :y #{:red :green :blue}})" 55 45)]
 
- [:p "Scalar "[:code "42"] " pairs with predicate " [:code "int?"] " at path " [:code "[:x]"] " and scalar " [:code ":red"] " pairs with set-predciate " [:code "#{:red :green :blue}"] " at path " [:code "[:y]"] "."]
+ [:p "Scalar "[:code "42"] " pairs with predicate " [:code "int?"] " at path " [:code "[:x]"] " and scalar " [:code ":red"] " pairs with set-predicate " [:code "#{:red :green :blue}"] " at path " [:code "[:y]"] "."]
  
  [:h3 "2. Validate Scalars within Set"]
 
@@ -134,7 +134,7 @@
  
  [:p "First, notice how the scalar specification looks a lot like the data. Because the shapes are similar, " [:code "validate-scalars"] " is able to systematically apply predicates from the specification to scalars in the data. Speculoos validates " [:code "42"] " against predicate " [:code "int?"] " because they share paths in their respective vectors. At vector index " [:code "1"] " our data and specification both hold sets, so Speculoos enters " [:em "validate-scalars-within-a-set-mode"] ". Every predicate contained in the specification set is applied to every datum in the data's set. In this example, " [:code "keyword?"] " is individually applied to " [:code ":glass"] ", " [:code ":rubber"] ", and " [:code ":paper"] ", and since each satisfy the predicate, the validation returns " [:code "true"] "."]
  
- [:p "One of the defining features of Clojure sets is that they're amorphous bags of items, without any inherent ordereing. Within the conext of a set, it doesn't make sense to target one scalar predicate towards one particular scalar datum. Therefore, Speculoos validates scalars contained within a set more broadly. If our specification set contains more than one predicate, each of the predicates is applied to " [:em "all"] " the scalars in the data's set. In the next example, the specification set contains two predicates."]
+ [:p "One of the defining features of Clojure sets is that they're amorphous bags of items, without any inherent ordering. Within the context of a set, it doesn't make sense to target one scalar predicate towards one particular scalar datum. Therefore, Speculoos validates scalars contained within a set more broadly. If our specification set contains more than one predicate, each of the predicates is applied to " [:em "all"] " the scalars in the data's set. In the next example, the specification set contains two predicates."]
  
  [:pre (print-form-then-eval "(validate-scalars #{:chocolate} #{keyword? qualified-keyword?})" 55 55)]
 
@@ -183,7 +183,7 @@
 
  [:pre (print-form-then-eval "(validate-collections [42 #{:puppy :kitten :goldfish}] [vector? #{set?}])" 55 45)]
 
- [:p [:code "validate-collections"] " was able to pair two collections in the data with two predicates in the specification, and we received two validation results. Collection predicate " [:code "vector?"] " at path " [:code "[0]"] " in the specification was applied to whatever is at path " [:code "(drop-last [0])"] " in the data, which happens to be the root collection. Collection predicate " [:code "set?"] " at path " [:code "[1 set?]"] " in the specification was applied to path " [:code "(drop-last [1 set?])"] " in the data, which happens to be our nested set containg pet keywords."]
+ [:p [:code "validate-collections"] " was able to pair two collections in the data with two predicates in the specification, and we received two validation results. Collection predicate " [:code "vector?"] " at path " [:code "[0]"] " in the specification was applied to whatever is at path " [:code "(drop-last [0])"] " in the data, which happens to be the root collection. Collection predicate " [:code "set?"] " at path " [:code "[1 set?]"] " in the specification was applied to path " [:code "(drop-last [1 set?])"] " in the data, which happens to be our nested set containing pet keywords."]
  
   [:p "Remember: Scalar predicates apply to the scalar at their exact location. Collection predicates apply to the collection directly hugging them."]
  ]

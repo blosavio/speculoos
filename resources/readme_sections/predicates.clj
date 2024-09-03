@@ -43,7 +43,7 @@
  
  [:p "Speculoos is fairly ambivalent about the predicate return value. The " [:code "validate…"] " family of functions mindlessly churns through its sequence of predicate-datum pairs, evaluates them, and stuffs the results into " [:code ":valid?"] " keys. The " [:code "valid…?"] " family of functions rips through " [:em "that"] " sequence, and if none of the results are falsey, returns " [:code "true"] ", otherwise it returns " [:code "false"] "."]
 
- [:p "For most of this document, we've been using the built-in predicates offered by " [:code "clojure.core"] " such as " [:code "int?"] " and " [:code "vector?"] " because they're short, understandable, and they render well. But in practice, it's not terribly useful to validate an element with a mere " [:em "Is this scalar an integer?"] " or " [:em "Is this collection a vector?"] " Often, we'll want to combine multiple predciates to make the validation more specific. We could certainly use " [:code "clojure.core/and"]]
+ [:p "For most of this document, we've been using the built-in predicates offered by " [:code "clojure.core"] " such as " [:code "int?"] " and " [:code "vector?"] " because they're short, understandable, and they render well. But in practice, it's not terribly useful to validate an element with a mere " [:em "Is this scalar an integer?"] " or " [:em "Is this collection a vector?"] " Often, we'll want to combine multiple predicates to make the validation more specific. We could certainly use " [:code "clojure.core/and"]]
  
  [:pre [:code "#(and (int? %) (pos? %) (even? %))"]]
  

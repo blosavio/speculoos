@@ -92,7 +92,7 @@
   [:br]
   (print-form-then-eval "(only-invalid (validate-scalars {:a (repeat 42) :b [22/7 true]} {:a [int? int? string?] :b (repeat ratio?)}))")]
  
- [:p "In both cases above, the data contains a non-terminating sequence at key " [:code ":a"] ", while the specification contains a non-terminating sequence at key " [:code ":b"] ". Since in both cases, the two inifinite sequences do not share a path, validation can proceed to completion."]
+ [:p "In both cases above, the data contains a non-terminating sequence at key " [:code ":a"] ", while the specification contains a non-terminating sequence at key " [:code ":b"] ". Since in both cases, the two infinite sequences do not share a path, validation can proceed to completion."]
  
  [:p "So what's going on? Internally, Speculoos finds all the potentially non-terminating sequences in both the data and the specification. For each of those hits, Speculoos looks into the other nested structure to determine how long the counterpart sequence is. Speculoos then " [:em "clamps"] " the non-terminating sequence to that length. Validation proceeds with the clamped sequences. Let's see the clamping in action."]
  

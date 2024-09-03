@@ -35,7 +35,7 @@
  [:p [:strong "» Within the Speculoos library, " [:code "valid?"] " means " [:em " zero invalids. «"]]]
 
  [:h3 "Combo validation"]
- [:p "Validating scalars separately from validating collections is a core principle embodied by the Speculoos library. I believe that separating the two into distinct processes carries solid advantages because the specifications are more straightforward, the mental model is clearer, the implementation code is simpler, and it makes validation " [:em "à la carte"] ". Much of the time, you can probably get away with just a scalar spefication."]
+ [:p "Validating scalars separately from validating collections is a core principle embodied by the Speculoos library. I believe that separating the two into distinct processes carries solid advantages because the specifications are more straightforward, the mental model is clearer, the implementation code is simpler, and it makes validation " [:em "à la carte"] ". Much of the time, you can probably get away with just a scalar specification."]
 
  [:p "All that said, it is not possible to specify and validate every aspect of your data with only scalar validation or only collection validation. When you really need to be strict and validate both scalars and collections, you could manually combine like this."]
 
@@ -49,7 +49,7 @@
   [:br]
   (print-form-then-eval "(valid? [42] [int?] [vector?])" 20 80)]
 
- [:p "Let me emphasize what " [:code "valid?"] " is doing here, because it is " [:em "not"] " violating the first Mantra about separately validating scalars and collectios. First, " [:code "valid?"] " performs a scalar validation on the data, and puts that result on the shelf. Then, in a completely distinct operation, it performs a collection validation. " [:code "valid?"] " then pulls the scalar validation results off the shelf and combines it with the collection validation results, and returns a singular " [:code "true/false"] ".  (Look back at the first example of this sub-section to see the separation.)"]
+ [:p "Let me emphasize what " [:code "valid?"] " is doing here, because it is " [:em "not"] " violating the first Mantra about separately validating scalars and collections. First, " [:code "valid?"] " performs a scalar validation on the data, and puts that result on the shelf. Then, in a completely distinct operation, it performs a collection validation. " [:code "valid?"] " then pulls the scalar validation results off the shelf and combines it with the collection validation results, and returns a singular " [:code "true/false"] ".  (Look back at the first example of this sub-section to see the separation.)"]
 
  [:p "I reserved the shortest, most mnemonic function name, " [:code "valid?"] ", to signal how important it is to separate scalar and collection validation."]
 
@@ -57,7 +57,7 @@
 
  [:pre (print-form-then-eval "(validate [42 \"abc\" 22/7] [int? symbol? ratio?] [vector?])" 50 40)]
 
- [:p [:code "validate"] " gives you the exact results as if we had run " [:code "validate-scalars"] " and then immediately thereafter " [:code "validate-collections"] ". " [:code "validate"] " merely gives us the convenience of quickly running both in succession without having to re-type the data. With one invocation, we can validate " [:em "all"] " aspects of our data, both scalars and collections, and we never violated Matra #1."]
+ [:p [:code "validate"] " gives you the exact results as if we had run " [:code "validate-scalars"] " and then immediately thereafter " [:code "validate-collections"] ". " [:code "validate"] " merely gives us the convenience of quickly running both in succession without having to re-type the data. With one invocation, we can validate " [:em "all"] " aspects of our data, both scalars and collections, and we never violated Mantra #1."]
 
  [:h3 "Thorough validation"]
 
@@ -70,7 +70,7 @@
    [:li [:strong [:code "…-collections"]] " functions consider only non-scalar datums."]
    [:li [:strong [:code "thoroughly-…"]] " functions return " [:code "true"] " only if every element (scalar or collection, as the case may be) is paired with a predicate, and every element satisfies its predicate."]]
   
-  "'Plain' functions (i.e., " [:code "validate"] ", " [:code "valid?"] ", and " [:code "thoroughly-valid?"] ") perform a scalar validation, followed by performing a distict collection validation, and returns a single comprehensive response that merges the results of both."]
+  "'Plain' functions (i.e., " [:code "validate"] ", " [:code "valid?"] ", and " [:code "thoroughly-valid?"] ") perform a scalar validation, followed by performing a distinct collection validation, and returns a single comprehensive response that merges the results of both."]
 
  [:p "Here's how those terms are put together, and what they do."]
 

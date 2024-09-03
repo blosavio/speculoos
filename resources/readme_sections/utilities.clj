@@ -91,7 +91,7 @@
  
  [:pre (print-form-then-eval "(basic-collection-spec-from-data [55 {:q 33 :r ['foo 'bar]} '(22 44 66)])" 75 95)]
  
- [:p "Which produces a specification that is prehaps not immediately useful, but does provide a good starting template, because collection specifications can be tricky to get just right."]
+ [:p "Which produces a specification that is perhaps not immediately useful, but does provide a good starting template, because collection specifications can be tricky to get just right."]
  
  [:p#custom-generators "The " [:code "utility"] " namespace contains a trio of functions to assist writing, checking, and locating compound predicates that can be used by " [:code "data-from-spec"] " and the function validation functions to generate valid random sample data. A compound predicate such as " [:code "#(and (int? %) (< % 100))"] " does not have built-in generator provided by " [:code "clojure.test.check.generators"] ". However, " [:code "data-from-spec"] " can extract a generator residing in the predicate's metadata. Here's an example of how to add a hand-written generator to a scalar predicate. We'll write a scalar specification requiring a vector composed of a keyword followed by a number less than one-hundred. "]
  

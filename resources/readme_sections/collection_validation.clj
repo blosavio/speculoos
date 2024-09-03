@@ -42,7 +42,7 @@
  [:p "Okay, that scenario maybe kinda could work. But what about this scenario: " [:em "A three-element vector nested within a two-element vector"] ". The paths would look like this."]
  [:pre (print-form-then-eval "(all-paths [11 [22 33 44]])")]
 
- [:p "Oh. Still ignoring the scalars, there are now two vectors which would be targets for our predicate, one at the root, and one at path " [:code "[1]"] ". We can't merely supply a pair of bare predicates to our " [:code "imaginary-validate-collection"] " function and have it magically know how to apply the predicates to the correct vector.  It quickly becomes apparent that we need to somehow arrange our collection predicates inside some kind of structure that will instruct the validtion function where to apply the predicates. One of Speculoos' principles is " [:em "Make the specification shaped like the data"] ". Let me propose this structure."]
+ [:p "Oh. Still ignoring the scalars, there are now two vectors which would be targets for our predicate, one at the root, and one at path " [:code "[1]"] ". We can't merely supply a pair of bare predicates to our " [:code "imaginary-validate-collection"] " function and have it magically know how to apply the predicates to the correct vector.  It quickly becomes apparent that we need to somehow arrange our collection predicates inside some kind of structure that will instruct the validation function where to apply the predicates. One of Speculoos' principles is " [:em "Make the specification shaped like the data"] ". Let me propose this structure."]
 
  [:pre [:code "[len-3? [len-3?]]"]]
 
@@ -64,7 +64,7 @@
    [:li "Run " [:code "all-paths"] " on both the data, then the specification."]
    [:li "Remove " [:em "scalar"] " elements from the data, keeping only the collection elements."]
    [:li "Remove " [:em "non-predicate"] " elements from the collection specification."]
-   [:li "Pair predicates at path " [:code "pth"] " in the spefication with collections at path " [:code "(drop-last pth)"] " in the data. Discard all other un-paired collections and un-paired predicates."]
+   [:li "Pair predicates at path " [:code "pth"] " in the specification with collections at path " [:code "(drop-last pth)"] " in the data. Discard all other un-paired collections and un-paired predicates."]
    [:li "For each remaining collection+predicate pair, apply the predicate to the collection."]]]
  
  [:p "Speculoos provides a function, " [:code "validate-collections"] ", that does that for us. Let's see."]
@@ -81,16 +81,16 @@
  
  [:pre (print-form-then-eval "(all-paths {:x 11 :y {:z 22}})")]
 
- [:p "Two scalars, which " [:code "validate-collections"] " ignores, and two collections. Let's apply our rule: the predicate in the specfication applies to the collection in the data whose path is one element shorter. The two collections are located at paths " [:code "[]"] " and " [:code "[:y]"] ". To write a collection specification, we'd mimic the shape of the data, inserting predicates that apply to the parent. We can't simply write"]
+ [:p "Two scalars, which " [:code "validate-collections"] " ignores, and two collections. Let's apply our rule: the predicate in the specification applies to the collection in the data whose path is one element shorter. The two collections are located at paths " [:code "[]"] " and " [:code "[:y]"] ". To write a collection specification, we'd mimic the shape of the data, inserting predicates that apply to the parent. We can't simply write"]
  [:pre [:code "{map? {map?}}"]]
- [:p "because maps must contain an even number of forms. Technically, you could key your collection predicates however you want, but I strongly recommend chosing a key that doesn't appear in the data. This example shows why. We could put a predicate at key " [:code ":y"] " of the specification, and " [:code "validate-collections"] " will merrily chug along."]
+ [:p "because maps must contain an even number of forms. Technically, you could key your collection predicates however you want, but I strongly recommend choosing a key that doesn't appear in the data. This example shows why. We could put a predicate at key " [:code ":y"] " of the specification, and " [:code "validate-collections"] " will merrily chug along."]
  
  [:pre (print-form-then-eval "(validate-collections {:x 11 :y {:z 22}} {:y map?})" 45 80)]
  
- [:p "We can see that the singular " [:code "map?"] " predicate located at specificition path " [:code "[:y]"] " was indeed applied to the root container at data path " [:code "(drop-last [:y])"] " which evaluates to path " [:code "[]"] ". But now we've consumed that key, and it cannot be used to target the nested map " [:code "{:z 22}"] " at " [:code "[:y]"] " in the data. If we had instead invented a synthetic key, " [:code "drop-last"] " would trim it off the right end and the predicate would still be applied to the root container, while key " [:code ":y"] " remains available to target the nested map. In practice, I like to invent keys that are descriptive of the predicate so the validtion results are easier to scan."]
+ [:p "We can see that the singular " [:code "map?"] " predicate located at specification path " [:code "[:y]"] " was indeed applied to the root container at data path " [:code "(drop-last [:y])"] " which evaluates to path " [:code "[]"] ". But now we've consumed that key, and it cannot be used to target the nested map " [:code "{:z 22}"] " at " [:code "[:y]"] " in the data. If we had instead invented a synthetic key, " [:code "drop-last"] " would trim it off the right end and the predicate would still be applied to the root container, while key " [:code ":y"] " remains available to target the nested map. In practice, I like to invent keys that are descriptive of the predicate so the validation results are easier to scan."]
  [:pre
   (print-form-then-eval "(validate-collections {:x 11 :y {:z 22}} {:is-a-map? map? :y {:is-a-set? set?}})")]
- [:p "Notice that " [:code "validate-collections"] " completely ignored the scalars " [:code "11"] " and " [:code "22"] " at data keys " [:code ":x"] " and " [:code ":z"] ". It only applied predicate " [:code "map?"] " to the root of data and predciate " [:code "set?"] " to the nested map at key " [:code ":y"] ", which failed to satisfy. Let me emphasize: within a collection specification, the name of the predicate keys targeting a nested map have " [:em "absolutely no bearing on the operation of the validation"] "; they get truncated by the " [:code "drop-last"] " operation. We could have used something misleading like this."]
+ [:p "Notice that " [:code "validate-collections"] " completely ignored the scalars " [:code "11"] " and " [:code "22"] " at data keys " [:code ":x"] " and " [:code ":z"] ". It only applied predicate " [:code "map?"] " to the root of data and predicate " [:code "set?"] " to the nested map at key " [:code ":y"] ", which failed to satisfy. Let me emphasize: within a collection specification, the name of the predicate keys targeting a nested map have " [:em "absolutely no bearing on the operation of the validation"] "; they get truncated by the " [:code "drop-last"] " operation. We could have used something misleading like this."]
 
  [:pre
   [:code ";;             this keyword… ---v         v--- …gives the wrong impression about this predicate"]
@@ -127,7 +127,7 @@
 
  [:pre (print-form-then-eval "(validate-collections [{:a 11} 22 (list 33) 44 #{55}] [{}()#{}])")]
 
- [:p "Validation ignores collections in the data that are not paried with a predicate in the specification."]
+ [:p "Validation ignores collections in the data that are not paired with a predicate in the specification."]
 
  [:p "Okay, let's add a predicate. Let's specify that the second nested collection is a list. Predicates apply to their container, so we'll insert " [:code "list?"] " into the corresponding collection."]
 
@@ -135,7 +135,7 @@
 
  [:p "One predicate in the specification pairs with one collection in the data, so we receive one validation result. The " [:code "list?"] " predicate at path " [:code "[1 0]"] " in the specification was applied to the collection located at path " [:code "[2]"] " in the data. That nested collection is indeed a list, so " [:code ":valid?"] " is " [:code "true"] "." ]
 
- [:p " Notice how " [:code "valiate-collections"] " did some tedious and boring calculations to achieve the general effect of " [:em "The predicate in the second collection of the specification applies to the second collection of the data."] " It kinda skipped over that " [:code "22"] " because it ignores scalars, and we're validating collections."]
+ [:p " Notice how " [:code "validate-collections"] " did some tedious and boring calculations to achieve the general effect of " [:em "The predicate in the second collection of the specification applies to the second collection of the data."] " It kinda skipped over that " [:code "22"] " because it ignores scalars, and we're validating collections."]
 
  [:p "Let's clear the slate and specify that nested set at the end."]
 
@@ -189,7 +189,7 @@
 
  [:pre (print-form-then-eval "(validate-collections {:a [99] :b (list 77)} {:a [vector?] :b (list list?)})" 55 80)]
 
- [:p "Checklist time: Specification shape mimics data? Check. Validating collections, ignoring scalars? Check. Two paired predciates, two validations? Check. There's a subtlety to pay attention to: the " [:code "vector?"] " and " [:code "list?"] " predicates are contained within a vector and list, respectively. Those two predicates apply to their " [:em "immediate"] " parent container. " [:code "validate-collections"] " needs those " [:code ":a"] " and " [:code ":b"] " keys to find that vector and that list. You only use a sham key when validating the map immediately above your head. Let's re-use that validation and tack on a sham key with a predicate aimed at the root map."]
+ [:p "Checklist time: Specification shape mimics data? Check. Validating collections, ignoring scalars? Check. Two paired predicates, two validations? Check. There's a subtlety to pay attention to: the " [:code "vector?"] " and " [:code "list?"] " predicates are contained within a vector and list, respectively. Those two predicates apply to their " [:em "immediate"] " parent container. " [:code "validate-collections"] " needs those " [:code ":a"] " and " [:code ":b"] " keys to find that vector and that list. You only use a sham key when validating the map immediately above your head. Let's re-use that validation and tack on a sham key with a predicate aimed at the root map."]
 
  [:pre (print-form-then-eval "(validate-collections {:a [99] :b (list 77)} {:a [vector?] :b (list list?) :howdy map?})" 75 90)]
 
@@ -221,8 +221,8 @@
 
  [:pre (print-form-then-eval "(validate-collections {:a [99] :b (list 77)} {:a [vector?] :flamingo [coll?]})" 60 90)]
 
- [:p "In this example, there is only one predciate+collection pair. " [:code "vector?"] " applies to the vector at " [:code ":a"] ". You might have expected " [:code "coll?"] " to be applied somewhere because " [:code ":flamingo"] " doesn't appear in the map, but notice that " [:code "coll?"] " is " [:em "contained"] " in a vector. It would only ever apply to the thing that contained it. Since the data's root doesn't contain a collection at that key, the predicate is unpaired, and thus ignored. If we wanted to apply " [:code "coll?"] " to the root, we shed its immediate container."]
+ [:p "In this example, there is only one predicate+collection pair. " [:code "vector?"] " applies to the vector at " [:code ":a"] ". You might have expected " [:code "coll?"] " to be applied somewhere because " [:code ":flamingo"] " doesn't appear in the map, but notice that " [:code "coll?"] " is " [:em "contained"] " in a vector. It would only ever apply to the thing that contained it. Since the data's root doesn't contain a collection at that key, the predicate is unpaired, and thus ignored. If we wanted to apply " [:code "coll?"] " to the root, we shed its immediate container."]
 
  [:pre (print-form-then-eval "(validate-collections {:a [99] :b (list 77)} {:a [vector?] :emu coll?})" 65 80)]
 
- [:p [:em "Now, "] [:code "coll?"] "'s immediate continer is the root. Since it is now properly paired with a collection, it participates in validation. "]]
+ [:p [:em "Now, "] [:code "coll?"] "'s immediate container is the root. Since it is now properly paired with a collection, it participates in validation. "]]

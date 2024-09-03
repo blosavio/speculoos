@@ -37,7 +37,7 @@
         [:code "validate-scalars"]
         " and "
         [:code "valid-scalars?"]
-        " also regard a regular expression as a competant predicate."]]
+        " also regard a regular expression as a competent predicate."]]
 
   [:dt#relationship "relationship"]
   [:dd [:p "A human- and machine-readable declaration about the congruence between to elements. Speculoos function validation may involve specifying a relationship between the function's argument and the function's return value."]]

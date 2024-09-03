@@ -39,7 +39,7 @@
 
      [:li [:strong "Validation ignores un-paired predicates and un-paired datums."]
 
-      [:p "A decent number of surprsing validations result from predicates pairing to unexpected datums or not being paired at all."]
+      [:p "A decent number of surprising validations result from predicates pairing to unexpected datums or not being paired at all."]
 
       [:pre
        [:code ";; Oops! specification contains un-paired key :c; string \"abc\" isn't validated"]
@@ -65,7 +65,7 @@
 
   [:li [:p "The " [:a {:href "https://blosavio.github.io/speculoos/speculoos.utility.html"} [:code "speculoos.utility"]] " namespace provides many functions for creating, viewing, analyzing, and modifying both scalar and collection specifications."]]
 
-  [:li [:p "When the going really gets tough, break out " [:code "speculoos.core/all-paths"] " and apply it to your data, then to your specification, and then step through the validtion with your eyes."]
+  [:li [:p "When the going really gets tough, break out " [:code "speculoos.core/all-paths"] " and apply it to your data, then to your specification, and then step through the validation with your eyes."]
 
    [:pre
     (print-form-then-eval "(all-paths {:a [99]})")

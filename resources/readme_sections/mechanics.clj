@@ -65,7 +65,7 @@
   (print-form-then-eval "(get-in [100 [101 [102]]] [1 1 0])")]
  [:p "The " [:code "102"] " is buried three levels deep, so we use a path with that many entries."]
  
- [:p "This system works similary for maps. Elements contained in un-nested collections are located with a path of length one."]
+ [:p "This system works similarly for maps. Elements contained in un-nested collections are located with a path of length one."]
  [:pre (print-form-then-eval "(get-in {:x 100 :y 101 :z 102} [:z])")]
  [:p "In this example, " [:code "102"] " is located with a path composed of a single key, keyword " [:code ":z"] ". If we now consider a map nested within another map…"]
  [:pre (print-form-then-eval "(get-in {:x 100 :y 101 :z {:w 102}} [:z :w])")]
@@ -114,7 +114,7 @@
 
  [:pre (print-form-then-eval "(all-paths [42 (list 'foo 'bar 'baz)])")]
 
- [:p "Likewise, sets are indispensible in some situations, so " [:code "all-paths"] " can handle it."]
+ [:p "Likewise, sets are indispensable in some situations, so " [:code "all-paths"] " can handle it."]
 
  [:pre (print-form-then-eval "(all-paths {:a 42 :b #{:chocolate :vanilla :strawberry}})" 60 70)]
 

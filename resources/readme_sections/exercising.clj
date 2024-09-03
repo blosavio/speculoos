@@ -6,7 +6,7 @@
 
  [:p "Speculoos can do some fun things with random samples. But first, we must understand how to create a random sample generator and where to put it. Random sample generators are closely related to predicates. A predicate is a thing that can answer " [:em "Is the value you put in my hand an even, positive integer between ninety and one-hundred?"] " A random sample generator is a thing that says " [:em "I'm putting in your hand an even, positive integer between ninety and one-hundred"] "."]
 
- [:p "Starting with a quick demonstration, Speculoos can generate valid data when given a scalar specificaiton."]
+ [:p "Starting with a quick demonstration, Speculoos can generate valid data when given a scalar specification."]
 
  [:pre
   (print-form-then-eval "(require '[speculoos.utility :refer [data-from-spec]])")
@@ -14,7 +14,7 @@
   [:br]
   (print-form-then-eval "(data-from-spec [int? string? keyword?] :random)")]
  
- [:p "When dealing with the basic " [:code "clojure.core"] " predicates, such as " [:code "int?"] ", " [:code "string?"] ", " [:code "keyword?"]  ", etc., Speculoos provides pre-made random sample generators that satisfy those predicates. (There are a few expections, due to the fact that there is not a one-to-one-to-one correspondence between scalar data types, "  [:code "clojure.core"] " predicates, and " [:code "clojure.test.check"] " generators.)"]
+ [:p "When dealing with the basic " [:code "clojure.core"] " predicates, such as " [:code "int?"] ", " [:code "string?"] ", " [:code "keyword?"]  ", etc., Speculoos provides pre-made random sample generators that satisfy those predicates. (There are a few exceptions, due to the fact that there is not a one-to-one-to-one correspondence between scalar data types, "  [:code "clojure.core"] " predicates, and " [:code "clojure.test.check"] " generators.)"]
 
  [:p "Speculoos can also generate random scalar samples from predicate-like things, such as regular expressions and sets."]
 
@@ -27,7 +27,7 @@
 
  [:h3#create-gen "Creating Sample Generators"]
 
- [:p "This document often uses 'basic' predicates like " [:code "int?"] " and " [:code "string?"] " because they're short to type and straighforward to understand. In real life, we'll want to specify our data with more precision. Instead of merely " [:em "An integer"] ", we'll often want to express " [:em "An even positive integer between ninety and one-hundred."] " To do that, we need to create custom generators."]
+ [:p "This document often uses 'basic' predicates like " [:code "int?"] " and " [:code "string?"] " because they're short to type and straightforward to understand. In real life, we'll want to specify our data with more precision. Instead of merely " [:em "An integer"] ", we'll often want to express " [:em "An even positive integer between ninety and one-hundred."] " To do that, we need to create custom generators."]
 
  [:p [:code "clojure.test.check"] " provides a group of powerful, flexible, generators."]
 
@@ -97,16 +97,16 @@
 
  [:p [:code "defpred"] " automatically puts " [:code "generate-nineties"] " into the predicate " [:code "NINEties?"] " metadata. Later, we'll discuss another couple of benefits to using " [:code "defpred"] ". Whichever way we accomplished getting the generator into the metadata at " [:code ":speculoos/predicate->generator"] ", Speculoos can now find it."]
 
- [:p "Speculoos uses function metadata for two purpsoses, and it's important to keep clear in our minds which is which."
+ [:p "Speculoos uses function metadata for two purposes, and it's important to keep clear in our minds which is which."
   
   [:ul
-   [:li [:p "Store " [:em "function specifications"] " in the metadata for that fuction. For example, if we have a " [:code "reverse"] " function, we put the specification to test " [:code "equal-lengths?"] " in the metadata at " [:code ":speculoos/argument-return-relationships"] "."]]
+   [:li [:p "Store " [:em "function specifications"] " in the metadata for that function. For example, if we have a " [:code "reverse"] " function, we put the specification to test " [:code "equal-lengths?"] " in the metadata at " [:code ":speculoos/argument-return-relationships"] "."]]
    
    [:li [:p "Store " [:em "random sample generators"] " in the metadata for that predicate. If we have a " [:code "nineties?"] " predicate, we put the random sample generator " [:code "generate-nineties"] " in the metadata at " [:code ":speculoos/predicate->generator"] "."]]]]
 
  [:h3#auto-sample "Creating Sample Generators Automatically"]
 
- [:p [:code "defpred"] " does indeed relieve us of some tedious keyboarding, but it offers another benefit. If we arrange the predicate definition according to " [:code "defpred"] "'s expecatations, it can automatically create a random sample generator for that predicate. Let's see it in action and then we'll examine the details."]
+ [:p [:code "defpred"] " does indeed relieve us of some tedious keyboarding, but it offers another benefit. If we arrange the predicate definition according to " [:code "defpred"] "'s expectations, it can automatically create a random sample generator for that predicate. Let's see it in action and then we'll examine the details."]
 
  [:pre
   (print-form-then-eval "(defpred auto-nineties? (fn [n] (and (int? n) (<= 90 n 99))))")
@@ -132,9 +132,9 @@
     [:code "(or (...)) ;; okay"] [:br]
     [:code "(int? ...) ;; okay"] [:br]
     [:code "(let ...) ;; not okay"] [:br]]]
-  [:li "The first clause after " [:code "and"] " and all immediate decendants of " [:code "or"] " must start with a basic predicate described above."]]
+  [:li "The first clause after " [:code "and"] " and all immediate descendants of " [:code "or"] " must start with a basic predicate described above."]]
 
- [:p "Subsequent clauses of " [:code "and"] " will be used to create " [:code "test.check.generators/such-that"] " modifiers. Direct decendants of a top-level " [:code "or"] " will prodcue" [:code "n"] " separate random sample generators, each with " [:code "1/n"] " probability."]
+ [:p "Subsequent clauses of " [:code "and"] " will be used to create " [:code "test.check.generators/such-that"] " modifiers. Direct descendants of a top-level " [:code "or"] " will produce" [:code "n"] " separate random sample generators, each with " [:code "1/n"] " probability."]
 
  [:p "Speculoos exposes the internal tool " [:code "defpred"] " uses to create a generator, so we can inspect how it works. (I've lightly edited the output for clarity.)"]
  
@@ -153,7 +153,7 @@
   [:br]
   [:code ";; => (gen/such-that (fn [i] (and (even? i) (pos? i)))\n;;       gen/small-integer {:max-tries speculoos.utility/*such-that-max-tries*}) "]]
  
- [:p [:code "int?"] " elicits a small-integer generator. " [:code "inspect-fn"] " then uses the subsequent clauses of the " [:code "and"] " expression to create a " [:code "such-that"] " modifier that generates only postive, even numbers."]
+ [:p [:code "int?"] " elicits a small-integer generator. " [:code "inspect-fn"] " then uses the subsequent clauses of the " [:code "and"] " expression to create a " [:code "such-that"] " modifier that generates only positive, even numbers."]
 
  [:p "Let's see what happens with an " [:code "or"] "."]
 
@@ -213,13 +213,13 @@
   [:br]
   (print-form-then-eval "(unfindable-generators [i? s? c?])")]
 
- [:p [:code "unfindable-generators"] " informs us that if we had tried to do a task that " [:a {:href "#using-gen"} "uses a sample generator"] ", we'd have failed. With this knowlege, we could go back and add random sample generators to " [:code "i?"] ", " [:code "s?"] ", and " [:code "c?"] "."]
+ [:p [:code "unfindable-generators"] " informs us that if we had tried to do a task that " [:a {:href "#using-gen"} "uses a sample generator"] ", we'd have failed. With this knowledge, we could go back and add random sample generators to " [:code "i?"] ", " [:code "s?"] ", and " [:code "c?"] "."]
 
  [:h3#using-gen "Using Sample Generators"]
  
  [:p "Speculoos can do three things with random sample generators."
   [:ul
-   [:li "Create a hetergeneous, arbitrarily-nested data structure when given a scalar specification."]
+   [:li "Create a heterogeneous, arbitrarily-nested data structure when given a scalar specification."]
    [:li "Exercise a scalar specification."]
    [:li "Exercise a function with a scalar specification."]]]
 
@@ -235,7 +235,7 @@
 
  [:pre (print-form-then-eval "(data-from-spec {:x char? :y #{:red :green :blue} :z #\"fo{3,5}bar\"} :random)" 45 25)]
 
- [:p "Again, without any further assitance, " [:code "data-from-spec"] " knew how to find or create a random sample generator for each predicate in the scalar specification. " [:code "char?"] " targets a basic Clojure type, so it generated a random char. Sets in a scalar specification, in this context, are considered a membership predicate. The random sample generator is merely a random selection of one of the members. Finally, Speculoos regards a regular expression as a predicate for validating strings. " [:code "data-from-spec"] " consults the " [:a {:href "https://github.com/weavejester/re-rand"} [:code "re-rand"]] " library to generate a random string from the regular expression."]
+ [:p "Again, without any further assistance, " [:code "data-from-spec"] " knew how to find or create a random sample generator for each predicate in the scalar specification. " [:code "char?"] " targets a basic Clojure type, so it generated a random char. Sets in a scalar specification, in this context, are considered a membership predicate. The random sample generator is merely a random selection of one of the members. Finally, Speculoos regards a regular expression as a predicate for validating strings. " [:code "data-from-spec"] " consults the " [:a {:href "https://github.com/weavejester/re-rand"} [:code "re-rand"]] " library to generate a random string from the regular expression."]
 
  [:p "If our scalar specification contains custom predicates, we'll have to provide a little more information. We'll make another scalar specification containing a positive, even integer…"]
 
@@ -262,7 +262,7 @@
 
  [:pre (print-form-then-eval "(speculoos.core/valid-scalars? (data-from-spec [int? ratio? double?]) [int? ratio? double?])")]
 
- [:p "Perhaps it would be nice to do that multiple times in a row: generate some random data from a specification and feed it back into the specifation to see if it validates. Don't go off and write your own utility. Speculoos can "  [:em "exercise"] " a scalar specification."]
+ [:p "Perhaps it would be nice to do that multiple times in a row: generate some random data from a specification and feed it back into the specification to see if it validates. Don't go off and write your own utility. Speculoos can "  [:em "exercise"] " a scalar specification."]
 
  [:pre
   (print-form-then-eval "(require '[speculoos.utility :refer [exercise]])")
@@ -290,7 +290,7 @@
   [:br]
   (print-form-then-eval "(exercise-fn sum-three)" 55 75)]
 
- [:p [:code "int?"] ", " [:code "ratio?"] ", and " [:code "double?"] " all have built-in generators, so we didn't have to create any custom generators. " [:code "exercise-fn"] " extracted " [:code "sum-three"] "'s argment scalar specification, then, ten times, generated a data set from random sample generators, then invoked the function with those arguments."]
+ [:p [:code "int?"] ", " [:code "ratio?"] ", and " [:code "double?"] " all have built-in generators, so we didn't have to create any custom generators. " [:code "exercise-fn"] " extracted " [:code "sum-three"] "'s argument scalar specification, then, ten times, generated a data set from random sample generators, then invoked the function with those arguments."]
 
  [:h3#canonical "Canonical Samples"]
  
