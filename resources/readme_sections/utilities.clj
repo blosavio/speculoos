@@ -3,16 +3,7 @@
 
  [:p "You won't miss any crucial piece of Speculoos' functionality if you don't use this namespace, but perhaps something here might make your day a little nicer. Nearly every function takes advantage of " [:code "speculoos.core/all-paths"] ", which decomposes a heterogeneous, arbitrarily-nested data structure into a sequence of paths and datums. With that in hand, these not-clever functions churn through the entries and give you back something useful."]
 
- [:pre (print-form-then-eval "(require '[speculoos.utility :refer [scalars-without-predicates predicates-without-scalars collections-without-predicates predicates-without-collections
-
- thoroughly-valid?
-
- sore-thumb spec-from-data data-from-spec basic-collection-spec-from-data
-
-
-  exercise
-
-]])")]
+ [:pre (print-form-then-eval "(require '[speculoos.utility :refer [scalars-without-predicates predicates-without-scalars collections-without-predicates predicates-without-collections sore-thumb spec-from-data data-from-spec basic-collection-spec-from-data]])")]
 
  [:p "Recall that Speculoos only validates using elements in the data and predicates in the specification located at identical paths. This duo of utilities tells us where we have unmatched scalars or unmatched predicates. The first of the duo tells us about un-paired scalars."]
 
