@@ -1,10 +1,11 @@
 [:section#valid-thorough
  [:h2 "Validation Summaries and Thorough Validations"]
- [:p "Up until now, we've been using " [:code "validate-scalars"] " and " [:code "validate-collections"] ", because they're verbose. For teaching and learning purposes (and for diagnosing problems), it's useful to see all the information considered by the validators. However, in production, once you've got your specification shape nailed down, you'll want a cleaner " [:em "yes"] " or " [:em "no"] " answer on whether the data satisfied the specification. You could certainly pull out the non-truthy, invalid results yourself…"]
+
+ [:p "Up until now, we've been using " [:code "validate-scalars"] " and " [:code "validate-collections"] ", because they're verbose. For teaching and learning purposes (and for " [:a {:href "#troubleshooting"} "diagnosing problems"] "), it's useful to see all the information considered by the validators. However, in production, once we've got our specification shape nailed down, we'll want a cleaner " [:em "yes"] " or " [:em "no"] " answer on whether the data satisfied the specification. We could certainly pull out the non-truthy, invalid results ourselves…"]
 
  [:pre (print-form-then-eval "(filter #(not (:valid? %)) (validate-scalars [42 \"abc\" 22/7] [int? symbol? ratio?]))" 50 40)]
 
- [:p "…and then check for invalids yourself…"]
+ [:p "…and then check for invalids ourselves…"]
 
  [:pre [:code "(empty? *1) ;; => false"]]
 
@@ -34,14 +35,58 @@
 
  [:p [:strong "» Within the Speculoos library, " [:code "valid?"] " means " [:em " zero invalids. «"]]]
 
- [:h3 "Combo validation"]
+ [:h3#thorough "Thorough validation"]
+
+ [:p "Mantra #3 reminds us that data elements not paired with a predicate are ignored. For some tasks, we may want to ensure that all elements in the data are subjected to at least one predicate. Plain " [:code "valid?"] "  only reports if all datum+predicate pairs are " [:code "true"] "."]
+
+ [:pre (print-form-then-eval "(valid-scalars? [42 \"abc\" 22/7] [int?])" 35 45)]
+
+ [:p "In this example, only " [:code "42"] " and " [:code "int?"] " form a pair that is validated. " [:code "\"abc\""] " and " [:code "22/7"] " are not paired with predicates, and therefore ignored."]
+
+ [:p "The " [:em "thorough"] " function " [:a {:href "#fn-terminology"} "variants"] " require that all data elements be specified, otherwise, they return " [:code "false"] ". Thoroughly validating that same data with that same specification shows the difference."]
+
+ [:pre
+  (print-form-then-eval "(require '[speculoos.utility :refer [thoroughly-valid-scalars?]])"  90 90)
+  [:br]
+  [:br]
+  (print-form-then-eval "(thoroughly-valid-scalars? [42 \"abc\" 22/7] [int?])" 45 45) ]
+
+ [:p "Whereas " [:code "valid-scalars?"] " ignored the un-paired " [:code "\"abc\""] " and " [:code "22/7"] ", " [:code "thoroughly-valid-scalars?"] " notices that neither have a predicate. Even though " [:code "42"] " satisfied " [:code "int?"] ", the un-paired scalars mean that this validation is not thorough, and thus " [:code "thoroughly-valid-scalars?"] " returns " [:code "false"] "."]
+
+ [:p "The " [:code "utility"] " " [:a {:href "#utilities"} "namespace"] " provides a thorough variant for collections, as well as a variant for " [:a {:href "#combo"} "combo"] " validations. "[:code "thoroughly-valid-collections?"] " works analogously to what we've just seen."]
+
+ [:p "Let's look at a combo example. First, the 'plain' version."]
+
+ [:pre (print-form-then-eval "(valid? [42 \"abc\" 22/7] [int?] [vector?])" 35 45)]
+
+ [:p "We validated the single vector, and only one out of the three scalars. " [:code "valid?"] " only considers paired elements+predicates, so it only validated " [:code "42"] " and the root vector. " [:code "valid?"] " ignored " [:code "\"abc\""] " and " [:code "22/7"] "."]
+
+ [:p "The thorough variant, " [:code "thoroughly-valid?"] ", however, does not ignore un-paired data elements."]
+
+ [:pre
+  (print-form-then-eval "(require '[speculoos.utility :refer [thoroughly-valid?]])")
+  [:br]
+  [:br]
+  (print-form-then-eval "(thoroughly-valid? [42 \"abc\" 22/7] [int?] [vector?])" 35 45)]
+
+ [:p "Even though both predicates, " [:code "int?"] " and " [:code "vector?"] ", were satisfied, " [:code "thoroughly-valid?"] " requires that all data elements be validated. Since " [:code "42"] " and " [:code "22/7"] " are un-paired, the entire validation returns " [:code "false"] "."]
+
+ [:p "Note: Thoroughly validating does not ensure any measure of correctness or rigor. 'Thorough' merely indicates that each element was exposed to " [:em "some"] " kind of predicate. That predicate could actually be trivially permissive. In the next example, " [:code "any?"] " returns " [:code "true"] " for all values."]
+
+ [:pre (print-form-then-eval "(thoroughly-valid? [42 \"abc\" 22/7] [any? any? any?] [any?])" 35 45)]
+
+ [:p "The only thing " [:code "thoroughly-valid?"]" tells us in this example is that the one vector and all three scalars were paired with a predicate, and that all four data elements satisfied a guaranteed-to-be-satisfied predicate."]
+
+ [:p "Validation is only as good as the predicate. It's our responsibility to write a proper predicate."]
+
+ [:h3#combo "Combo validation"]
  [:p "Validating scalars separately from validating collections is a core principle embodied by the Speculoos library. I believe that separating the two into distinct processes carries solid advantages because the specifications are more straightforward, the mental model is clearer, the implementation code is simpler, and it makes validation " [:em "à la carte"] ". Much of the time, you can probably get away with just a scalar specification."]
 
- [:p "All that said, it is not possible to specify and validate every aspect of your data with only scalar validation or only collection validation. When you really need to be strict and validate both scalars and collections, you could manually combine like this."]
+ [:p "All that said, it is not possible to specify and validate every aspect of your data with only scalar validation or only collection validation. When we really need to be strict and validate both scalars and collections, we could manually combine like this."]
 
  [:pre (print-form-then-eval "(and (valid-scalars? [42] [int?]) (valid-collections? [42] [vector?]))" 45 80)]
 
- [:p "Speculoos provides a pre-made utility that does exactly that. You supply some data, then a scalar specification, then a collection specification."]
+ [:p "Speculoos provides a pre-made utility that does exactly that. We supply some data, then a scalar specification, then a collection specification."]
 
  [:pre
   (print-form-then-eval "(require '[speculoos.core :refer [valid? validate]])")
@@ -57,9 +102,9 @@
 
  [:pre (print-form-then-eval "(validate [42 \"abc\" 22/7] [int? symbol? ratio?] [vector?])" 50 40)]
 
- [:p [:code "validate"] " gives you the exact results as if we had run " [:code "validate-scalars"] " and then immediately thereafter " [:code "validate-collections"] ". " [:code "validate"] " merely gives us the convenience of quickly running both in succession without having to re-type the data. With one invocation, we can validate " [:em "all"] " aspects of our data, both scalars and collections, and we never violated Mantra #1."]
+ [:p [:code "validate"] " gives us the exact results as if we had run " [:code "validate-scalars"] " and then immediately thereafter " [:code "validate-collections"] ". " [:code "validate"] " merely gives us the convenience of quickly running both in succession without having to re-type the data. With one invocation, we can validate " [:em "all"] " aspects of our data, both scalars and collections, and we never violated Mantra #1."]
 
- [:h3 "Thorough validation"]
+ [:h3#fn-terminology "Function Naming Conventions"]
 
  [:p "Here are the general patterns regarding the function names."
   [:ul
@@ -69,7 +114,7 @@
    [:li [:strong [:code "…-scalars"]] " functions consider only non-collection datums."]
    [:li [:strong [:code "…-collections"]] " functions consider only non-scalar datums."]
    [:li [:strong [:code "thoroughly-…"]] " functions return " [:code "true"] " only if every element (scalar or collection, as the case may be) is paired with a predicate, and every element satisfies its predicate."]]
-  
+
   "'Plain' functions (i.e., " [:code "validate"] ", " [:code "valid?"] ", and " [:code "thoroughly-valid?"] ") perform a scalar validation, followed by performing a distinct collection validation, and returns a single comprehensive response that merges the results of both."]
 
  [:p "Here's how those terms are put together, and what they do."]

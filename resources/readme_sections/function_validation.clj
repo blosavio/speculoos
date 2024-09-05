@@ -1,28 +1,28 @@
 [:section#function-validation
  [:h2 "Specifying and Validating Functions"]
- 
+
  [:p "Being able to validate Clojure data enables us to check the usage and behavior of functions."]
 
  [:ol
   [:li [:strong "Validating arguments"] " Speculoos can validate any property of the arguments passed to a function when it is invoked. We can ask questions like " [:em "Is the argument passed to the function a number?"] ", a scalar validation, and " [:em "Are there an even number of arguments?"] ", a collection validation."]
-  
+
   [:li [:strong "Validating return values"] " Speculoos can validate any property of the value returned by a function. We can ask questions like " [:em "Does the function return a four-character string?"] ", a scalar validation, and " [:em "Does the function return a map containing keys " [:code ":x"] " and " [:code ":y"]] ", a collection validation."]
-  
+
   [:li [:strong "Validating function correctness"] " Speculoos can validate the correctness of a function in two ways."
-   
+
    [:ul
     [:li "Speculoos can validate the " [:em "relationships"] " between the arguments and the function's return value. We can ask questions like " [:em "Is each of the three integers in the return value larger than the three integers in the arguments?"] ", a scalar validation, and " [:em "Is the return sequence the same length as the argument sequence, and are all the elements in reverse order?"] ", a collection validation."]
-    
+
     [:li "Speculoos can " [:em "exercise"] " a function. This allows us to check " [:em "If we give this function one thousand randomly-generated valid inputs, does the function always produce a valid return value?"] " Exercising functions with randomly-generated samples is described in the "] [:a {:href "#exercising"} "next section"] "."]]]
 
  [:p "None of those six checks are strictly required. Speculoos will happily validate using only the specifications we provide."]
- 
+
  [:h3#fn-args "1. Validating Function Arguments"]
 
  [:p "When we invoke a function with a series of arguments, that series of values forms a sequence, which Speculoos can validate like any other heterogeneous, arbitrarily-nested data structure. Speculoos offers " [:a {:href "#explicit"} "a trio"] " of function-validating functions with differing levels of explicitness. We'll be primarily using " [:code "validate-fn-with"] " because it is the most explicit of the trio, and we can most easily observe what's going on."]
 
  [:p "Let's pretend we want to validate the arguments to a function " [:code "sum-three"] " that expects three integers and returns their sum."]
- 
+
  [:pre
   (print-form-then-eval "(require '[speculoos.function-specs :refer [validate-fn-with]])")
   [:br]
@@ -39,7 +39,7 @@
  [:p "When using " [:code "validate-fn-with"] ", we supply the function name, a map containing zero or more specifications, and some trailing " [:code "&-args"] " as if they had been supplied directly to the function. Speculoos can validate five aspects of a function using up to five specifications, each specification associated in that map to a particular key. We'll cover each of those five aspects in turn. To start, we want to specify the " [:em "argument scalars"] "."]
 
  [:p "Instead of individually passing each of those five specifications to " [:code "validate-fn-with"] " and putting " [:code "nil"] " placeholders where don't wish to supply a specification, we organize the specifications. To do so, we associate the arguments' scalar specification to the qualified key " [:code ":speculoos/arg-scalar-spec"] "."]
- 
+
  [:pre [:code "{:speculoos/arg-scalar-spec [int? int? int?]}"]]
 
  [:p "Then, we validate the arguments to " [:code "sum-three"] " like this."]
@@ -50,7 +50,7 @@
 
  [:pre (print-form-then-eval "(validate-fn-with sum-three {:speculoos/arg-scalar-spec [int? int? int?]} 1.0 20 300)" 75 45)]
 
- [:p "Hey, that kinda looks familiar. It looks a lot like something " [:code "validate-scalars"] " would emit if we filtered to keep only the invalids. We see that " [:code "1.0"] " at path " [:code "[0]"] " failed to satisfy its " [:code "int?"] " scalar predicate. We can also see that the function specification type is " [:code ":speculoos/argument"] ". Since Speculoos can validate scalars and collections of both arguments and collections, that key-val is a little signpost to help us pinpoint exactly what and where. Let's invoke " [:code "sum-three"] " with a second invalid argument, a ratio " [:code "22/7"] " instead of integer " [:code "300"] "."]
+ [:p "Hey, that kinda " [:a {:href "#scalar-validation"} "looks familiar"] ". It looks a lot like something " [:code "validate-scalars"] " would emit if we filtered to keep only the invalids. We see that " [:code "1.0"] " at path " [:code "[0]"] " failed to satisfy its " [:code "int?"] " scalar predicate. We can also see that the function specification type is " [:code ":speculoos/argument"] ". Since Speculoos can validate scalars and collections of both arguments and collections, that key-val is a little signpost to help us pinpoint exactly what and where. Let's invoke " [:code "sum-three"] " with a second invalid argument, a ratio " [:code "22/7"] " instead of integer " [:code "300"] "."]
 
  [:pre (print-form-then-eval "(validate-fn-with sum-three {:speculoos/arg-scalar-spec [int? int? int?]} 1.0 20 22/7)" 75 45)]
 
@@ -60,7 +60,7 @@
 
  [:p "…validating scalars with " [:code "validate-scalars"] " and keeping only the invalids."]
 
- [:p "Okay, we see that term " [:em "scalar"] " buzzing around, so there must be something else about validating collections. Yup. We can also validate collection properties of the argument sequence. Let's specify that the argument sequence must contain three elements with a custom collection predicate."]
+ [:p "Okay, we see that term " [:em "scalar"] " buzzing around, so there must be something else about validating collections. Yup. We can also validate collection properties of the argument sequence. Let's specify that the argument sequence must contain three elements, using a custom collection predicate."]
 
  [:pre (print-form-then-eval "(defn count-3? [v] (= 3 (count v)))")]
 
@@ -68,21 +68,23 @@
 
  [:pre (print-form-then-eval "(validate-collections [1 20 30] [count-3?])" 40 85)]
 
- [:p "That result fits with " [:a {:href "#validating-collections"} "our discussion"] " about validating collections."]
+ [:p "That result fits with " [:a {:href "#collection-validation"} "our discussion"] " about validating collections."]
 
  [:p "Next, we'll associate that collection specification into our function specification map at " [:code ":speculoos/arg-collection-spec"] " and invoke " [:code "validate-fn-with"] " with three valid arguments."]
 
  [:pre (print-form-then-eval "(validate-fn-with sum-three {:speculoos/arg-collection-spec [count-3?]} 1 20 300)" 75 85)]
 
  [:p "The argument sequence satisfies our collection specification, so " [:code "sum-three"] " returns the expected value. Now let's repeat, but with an additional argument that causes the argument list to violate its collection predicate."]
- 
+
  [:pre (print-form-then-eval "(validate-fn-with sum-three {:speculoos/arg-collection-spec [count-3?]} 1 20 300 4000)" 75 85)]
 
- [:p "This latest argument list " [:code "[1 20 300 4000]"] " failed to satisfy our " [:code "count-3?"] " collection predicate, so " [:code "validate-fn-with"] " emitted a validation report."]
+ [:p "This four-element argument list, " [:code "[1 20 300 4000]"] ", failed to satisfy our " [:code "count-3?"] " collection predicate, so " [:code "validate-fn-with"] " emitted a validation report."]
 
- [:p "Note: Don't specify and validate the " [:em "type"] " of the argument container, i.e., " [:code "vector?"] ". That's an implementation detail and not guaranteed."]
+ [:p "Note #1: Invoking " [:code "sum-three"] " with four arguments would normally trigger an arity exception. " [:code "validate-fn-with"] " catches the exception and validates as much as it can."]
 
- [:p "Let's get fancy and combine an argument scalar specification and an argument collection specification. Outside of the context of checking a function, that " [:a {:href "#valid-thorough"} "combo validation"] " would look like this."]
+ [:p "Note #2: Don't specify and validate the " [:em "type"] " of the arguments container, i.e., " [:code "vector?"] ". That's an implementation detail and not guaranteed."]
+
+ [:p "Let's get fancy and combine an argument scalar specification and an argument collection specification. Outside of the context of checking a function, that " [:a {:href "#combo"} "combo validation"] " would look like this."]
 
  [:pre (print-form-then-eval "(speculoos.core/only-invalid (validate [1.0 20 22/7 4000] [int? int? int?] [count-3?]))" 45 55)]
 
@@ -92,16 +94,16 @@
 
  [:pre (print-form-then-eval "(validate-fn-with sum-three {:speculoos/arg-scalar-spec [int? int? int?] :speculoos/arg-collection-spec [count-3?]} 1.0 20 22/7 4000)" 95 75)]
 
- [:p "Just as in the " [:code "validate"] " simulation, we see three items fail to satisfy their predicates. Scalars " [:code "1.0"] " and " [:code "22/7"] " are not integers, and the argument sequence as a whole, " [:code "[1.0 20 22/7 4000]"] ", does not contain exactly three elements as its collection predicate requires."]
- 
- 
+ [:p "Just as in the " [:code "validate"] " simulation, we see three items fail to satisfy their predicates. Scalars " [:code "1.0"] " and " [:code "22/7"] " are not integers, and the argument sequence as a whole, " [:code "[1.0 20 22/7 4000]"] ", does not contain exactly three elements, as required by its collection predicate."]
+
+
  [:h3#fn-ret "2. Validating Function Return Values"]
 
  [:p "Speculoos can also validate values returned by a function. Reusing our " [:code "sum-three"] " function, and going back to valid inputs, we can associate a " [:strong "ret"] "urn " [:strong "scalar"] " " [:strong "spec"] "ification into " [:code "validate-fn-with"] "'s specification map to key " [:code ":speculoos/ret-scalar-spec"] ". Let's stipulate that the function returns an integer. Here's how we pass that specification to " [:code "validate-fn-with"] "."]
 
  [:pre [:coce "{:speculoos/ret-scalar-spec int?}"]]
 
- [:p  "And now, the function validation."]
+ [:p  "And now, the function return validation."]
 
  [:pre (print-form-then-eval "(validate-fn-with sum-three {:speculoos/ret-scalar-spec int?} 1 20 300)" 55 55)]
 
@@ -128,7 +130,7 @@
  [:pre [:code "[int? int? int? int?]"]]
 
  [:p "And the manual validation would look like this."]
- 
+
  [:pre (print-form-then-eval "(validate-scalars [1 20 300 321] [int? int? int? int?])" 45 45)]
 
  [:p "Four paired scalars and scalar predicates yield four validation results. Let's see what happens when we validate the function return scalars."]
@@ -141,9 +143,9 @@
 
  [:pre (print-form-then-eval "(validate-fn-with enhanced-sum-three {:speculoos/ret-scalar-spec [char? int? int? boolean?]} 1 20 300)")]
 
- [:p [:code "enhanced-sum-three"] "'s function body remained the same, and we fed it the same integers as before, but we fiddled with the return scalar specification so that we got two invalid scalars. " [:code "1"] " at path " [:code "[0]"] " does not satisfy its wonky scalar predicate " [:code "char?"] " at the same path. And " [:code "321"] " at path " [:code "[3]"] " does not satisfy fraudulent scalar predicate " [:code "boolean?"] " that shares its path."]
+ [:p [:code "enhanced-sum-three"] "'s function body remained the same, and we fed it the same integers as before, but we fiddled with the return scalar specification so that we returned two invalid scalars. " [:code "1"] " at path " [:code "[0]"] " does not satisfy its wonky scalar predicate " [:code "char?"] " at the same path. And " [:code "321"] " at path " [:code "[3]"] " does not satisfy fraudulent scalar predicate " [:code "boolean?"] " that shares its path."]
 
- [:p "Let's set aside validating scalars for a moment and validate a facet of " [:code "enhanced-sum-three"] "'s return collection. First, we'll do a manual demonstration with " [:code "validate-collections"]". Let's remember: collection predicates apply to their immediate parent container. We wrote " [:code "enhanced-sum-three"] " to return a vector, but to make the validation produce something interesting to look at, we'll pretend we're expecting a list."]
+ [:p "Let's set aside validating scalars for a moment and validate a facet of " [:code "enhanced-sum-three"] "'s return collection. First, we'll do a manual demonstration with " [:code "validate-collections"]". Remember: Collection predicates apply to their immediate parent container. We wrote " [:code "enhanced-sum-three"] " to return a vector, but to make the validation produce something interesting to look at, we'll pretend we're expecting a list."]
 
  [:pre (print-form-then-eval "(validate-collections [1 20 300 321] [list?])" 40 45)]
 
@@ -157,11 +159,11 @@
 
  [:p "A scalar validation followed by an independent collection validation allows us to check every possible aspect that we could want. Now we that we've seen how to individually validate " [:code "enhance-sum-three"] "'s return scalars and return collections, we know how to do both with one invocation."]
 
- [:p "Remember Mantra #1: Validate scalars separately from validating collections. Speculoos will only ever do one or the other, but " [:code "validate"] " is a convenience function that performs a scalar validation immediately followed by a collection validation. We'll re-use the scalar specification and collection specification from the previous examples."]
+ [:p "Remember Mantra #1: Validate scalars separately from validating collections. Speculoos will only ever do one or the other, but " [:code "validate"] " is a " [:a {:href "#combo"} "convenience function"] " that performs a scalar validation immediately followed by a collection validation. We'll re-use the scalar specification and collection specification from the previous examples."]
 
  [:pre (print-form-then-eval "(speculoos.core/only-invalid (validate [1 20 300 321] [char? int? int? boolean?] [list?]))" 45 45)]
 
- [:p [:code "only-invalid"] " discards the validation where the predicates are satisfied, leaving only the invalids. Two scalars failed to satisfy their scalar predicates. Integer " [:code "1"] " at path " [:code "[0]"] " in the data fails to satisfy scalar predicate " [:code "char?"] " at path " [:code "[0]"] " in the scalar specification. Integer " [:code "321"] " fails to satisfy scalar predicate " [:code "boolean?"] " at path " [:code "[3]"] " in the scalar specification. Finally, our root vector " [:code "[1 20 300 321]"] " located at path " [:code "[]"] " fails to satisfy the collection predicate " [:code "list?"] " at path " [:code "[0]"] "."]
+ [:p [:code "only-invalid"] " discards the validations where the predicates are satisfied, leaving only the invalids. Two scalars failed to satisfy their scalar predicates. Integer " [:code "1"] " at path " [:code "[0]"] " in the data fails to satisfy scalar predicate " [:code "char?"] " at path " [:code "[0]"] " in the scalar specification. Integer " [:code "321"] " fails to satisfy scalar predicate " [:code "boolean?"] " at path " [:code "[3]"] " in the scalar specification. Finally, our root vector " [:code "[1 20 300 321]"] " located at path " [:code "[]"] " fails to satisfy the collection predicate " [:code "list?"] " at path " [:code "[0]"] "."]
 
  [:p "Now that we've seen the combo validation done manually, let's validate " [:code "enhanced-sum-three"] "'s return in the same way. Here's where we see why to organize the specifications in a container instead of passing them as individual arguments: it keeps our invocation neater."]
 
@@ -227,17 +229,15 @@
    [:li "Scalar " [:code "1"] " in the return vector fails to satisfy scalar predicate " [:code "char?"] " in the return scalar specification."]
    [:li "Scalar " [:code "321"] " in the return vector fails to satisfy scalar predicate " [:code "boolean?"] " in the return scalar specification."]
    [:li "The return vector " [:code "[1 20 300 321]"] " fails to satisfy collection predicate " [:code "list?"] " in the return collection specification."]]]
- 
+
  [:p "Also note that the validation entries have a " [:code ":fn-spec-type"] " entry associated to either " [:code ":speculoos/return"] " or " [:code ":speculoos/argument"] ", which tells us where a particular invalid was located. There may be a situation where indistinguishable invalid datums appear in both the arguments and returns. In this case, integer " [:code "1"] " was an invalid datum at path " [:code "[0]"] " for both the argument sequence and the return vector. Keyword " [:code ":fn-spec-type"] " helps resolve the ambiguity."]
 
 
-
- 
  [:h3#fn-correctness "3. Validating Function Correctness"]
 
  [:p "So far, we've seen how to validate function argument sequences and function return values, both their scalars, and their collections. Validating function argument sequences allows us to check if the function was invoked properly. Validating function return values gives a limited ability to check the internal operation of the function."]
 
- [:p " If we want another level of thoroughness checking the correctness, we can specify and validate the relationships between the functions arguments and return values. Perhaps you'd like to be able to express "  [:em "The return value is a collection, with all the same elements as the input sequence."] " Or " [:em "The return value is a concatenation of the even indexed elements of the input sequence."] " Speculoos' term for this action is " [:em "validating function argument and return value relationship"] "."]
+ [:p " If we want another level of thoroughness for checking correctness, we can specify and validate the relationships between the functions arguments and return values. Perhaps we'd like to be able to express " [:em "The return value is a collection, with all the same elements as the input sequence."] " Or " [:em "The return value is a concatenation of the even indexed elements of the input sequence."] " Speculoos' term for this action is " [:em "validating function argument and return value relationship"] "."]
 
  [:p "Let's pretend I wrote a reversing function, which accepts a sequential collection of elements and returns those elements in reversed order. If we give it…"]
 
@@ -264,7 +264,7 @@
 
  [:p "Pitiful. We can see by eye that " [:code "broken-reverse"] " fulfilled none of the three relationships. The return collection is not the same length, contains additional elements, and is not reversed. Let's codify that pitifulness."]
 
- [:p "First, we'll write three " [:a {:href "#relationships"} "relationship functions"] ". Relationship functions are a lot like predicate. They return a truthy or falsey value, but instead consume two things instead of one. The function's argument sequence is passed as the first thing and the function's return value is passed as the second thing."]
+ [:p "First, we'll write three " [:a {:href "#relationship"} "relationship functions"] ". Relationship functions are a lot like predicates. They return a truthy or falsey value, but instead consume two things instead of one. The function's argument sequence is passed as the first thing and the function's return value is passed as the second thing."]
 
  [:pre
   (print-form-then-eval "(defn same-length? [v1 v2] (= (count v1) (count v2)))")
@@ -277,6 +277,7 @@
   [:br]
   [:br]
   [:br]
+  [:br]
   (print-form-then-eval "(defn same-elements? [v1 v2] (= (sort v1) (sort v2)))")
   [:br]
   [:br]
@@ -284,6 +285,7 @@
   [:br]
   [:br]
   (print-form-then-eval "(same-elements? [11 22 33 44 55] [55 44 33 22 9999])" 45 80)
+  [:br]
   [:br]
   [:br]
   [:br]
@@ -299,7 +301,7 @@
 
  [:p "Now that we've established a few relationships, we need to establish " [:em "where"] " to apply those relationship tests. Checking " [:code "broken-reverse"] "'s argument/return relationships with " [:code "same-length?"] ", " [:code "same-elements?"] ", and " [:code "reversed?"] " will be fairly straightforward: For each, there's a single argument collection of elements, and a single return collection of elements. But we might someday want to check a more sophisticated relationship that needs to extract some slice of the argument or return value. Therefore, we must declare a path to the slices we want to check. Of the return value, we'd like to check the root collection, so the return value's path is merely " [:code "[]"] "."]
 
- [:p "When we consider how to slice the arguments, there's one tricky detail we must accommodate. The " [:code "[11 22 33 44 55]]"] " vector we're going to pass to " [:code "broken-reverse"] " is itself contained in the argument sequence. Take a look."]
+ [:p "When we consider how to extract the arguments, there's one tricky detail we must accommodate. The " [:code "[11 22 33 44 55]"] " vector we're going to pass to " [:code "broken-reverse"] " is itself contained in the argument sequence. Take a look."]
 
  [:pre
   (print-form-then-eval "(defn arg-passthrough [& args] args)")
@@ -326,7 +328,7 @@
 
  [:pre [:code "{:path-argument [0]\n :path-return []\n :relationship-fn same-length?}"]]
 
- [:p  "Within that map, both " [:code ":path-…"] " entries govern what portions of the argument and return are given to the relationship function. In this example, we want to send the first item at path " [:code "[0]"] " of the argument sequence and the entire return value at path " [:code "[]"] "."]
+ [:p  "Within that map, both " [:code ":path-…"] " entries govern what slices of the argument and return are given to the relationship function. In this example, we want to extract the first item, at path " [:code "[0]"] ", of the argument sequence and the entire return value, at path " [:code "[]"] "."]
 
  [:p "We've written three argument/function relationships to test " [:code "broken-reverse"] ", so we'll need to somehow feed them to " [:code "validate-fn-with"] ". We do that by associating them into the organizing map with keyword " [:code ":speculoos/argument-return-relationships"] ". Notice the plural " [:em "s"] ". Since there may be more than one relationship, we collect them into a vector. For the moment, let's insert only the " [:code "same-length?"] " relationship."]
 
@@ -361,7 +363,9 @@
 
  [:p [:code "clojure.core/reverse "] " satisfies all three argument/return relationships, so " [:code "validate-fn-with"] " passes through the correctly-reversed output."]
 
- [:p "Not every function consumes a collection; some function consume a scalar value. Some functions return a scalar. And some functions even have the audacity to do both. " [:code "validate-fn-with"] " can validate that kind of argument/return relationship. I'll tell you from the start, I'm planning on writing a buggy increment function. We could express two ideas about the argument/return relationship. First, an increment function, when supplied with a number, " [:code "n"] ", ought to return a number that is larger than " [:code "n"] ". Second, the return value ought to be" [:code "n"] " plus one. Let's specify those relationships."]
+ [:p "Not every function consumes a collection. Some functions consume a scalar value. Some functions return a scalar. And some functions have the audacity to do both. " [:code "validate-fn-with"] " can validate that kind of argument/return relationship. "]
+
+ [:p "I'll warn you now, I'm planning on writing a buggy increment function. We could express two ideas about the argument/return relationship. First, a correctly-working increment function, when supplied with a number, " [:code "n"] ", ought to return a number that is larger than " [:code "n"] ". Second, a correctly-working return value ought to be " [:code "n"] " plus one. Let's specify those relationships."]
 
  [:pre
   (print-form-then-eval "(defn larger-than? [n1 n2] (< n1 n2))")
@@ -408,7 +412,9 @@
 
  [:p [:code "inc"] " correctly returns " [:code "100"] " when invoked with " [:code "99"] ", so both " [:code "larger-than?"] " and " [:code "plus-one?"] " relationships are satisfied. Since all relationships were satisfied, the return value " [:code "100"] " passes through."]
 
- [:p "So far, the " [:code ":path-argument"] "s and the " [:code "path-return"] "s have been similar between relationship specifications, but they don't need to be. I'm going to invent a really contrived example. " [:code "pull-n-put"] " and " [:code "pull-n-put-n-"] " are intended to pull out emails and phone numbers and stuff them into some output vectors. First, this is the intended result."]
+ [:p "So far, the " [:code ":path-argument"] "s and the " [:code "path-return"] "s have been similar between relationship specifications, but they don't need to be. I'm going to invent a really contrived example. " [:code "pull-n-put"] " and " [:code "pull-n-whoops"] " are both intended to pull out emails and phone numbers and stuff them into some output vectors. " [:code "pull-n-put"] " is correct, " [:code "pull-n-whoops"] " is incorrect."]
+
+ [:p "First, this is the intended result, produced by " [:code "pull-n-put"] "."]
 
  [:pre
   (print-form-then-eval "(def person-1 {:email \"aragorn@sonofarath.org\" :phone \"867-5309\"})" 55 55)
@@ -446,8 +452,8 @@
   (print-form-then-eval "(pull-n-whoops person-1 person-2 person-3)" 55 55)]
 
  [:p "…" [:code "pull-n-whoops"] " does neither. It puts the phone numbers where the email addresses ought to be and inserts completely bogus phone numbers."]
- 
- [:p "We can specify a couple of relationships that show that " [:code "pull-n-whoops"] " does not produce a return value that does not validate. The scalars aren't transformed, " [:em "per se"] ", merely moved to another location. So our relationship function will merely be equality, and the paths will do all the work."]
+
+ [:p "We can specify a couple of relationships to show that " [:code "pull-n-whoops"] " produces a return value that does not validate. In a correctly-working implementation, the scalars aren't transformed, " [:em "per se"] ", merely moved to another location. So our relationship function will merely be equality, and the paths will do all the work."]
 
  [:p "Phone number " [:code "555-FILK"] " at argument path " [:code "[2 :phone]"] " ought to appear at return path " [:code "[:phone-numbers 2]"] ". That relationship specification looks like this."]
 
@@ -487,7 +493,7 @@
 
  [:p "Instead of properly reversing the argument collection, it merely appends a spurious " [:code "9999"] "."]
 
- [:p "We'll specify a decimal as the third element of the vector we pass as the first argument. The first two we pretend to not care about, so we'll use " [:code "any?"] " as placeholders. The entire "  [:em "argument sequence"] " is validated, so we must make sure the shape of the scalar specification mimics the shape of the data."]
+ [:p "We'll pass a vector as the first and only argument. Within that vector, we pretend to not care about the first two elements, so we'll use " [:code "any?"] " predicates as placeholders.  We'll specify the third element of that vector to be a decimal with a " [:code "decimal?"] " scalar predicate. The entire "  [:em "argument sequence"] " is validated, so we must make sure the shape of the scalar specification mimics the shape of the data."]
 
  [:pre [:code ":speculoos/arg-scalar-spec [[any? any? decimal?]]"]]
 
@@ -495,7 +501,7 @@
 
  [:pre [:code ":speculoos/arg-collection-spec [[list?]]"]]
 
- [:p "We know that " [:code "broken-reverse"] " returns the input collection with " [:code "9999"] " " [:code "conj"] "-ed on. We'll write the return scalar specification to expect a string in the fourth slot, just so we'll see " [:code "44"] " fail to satisfy."]
+ [:p "We know that " [:code "broken-reverse"] " returns the input collection with " [:code "9999"] " conjoined. We'll write the return scalar specification to expect a string in the fourth slot, just so we'll see " [:code "44"] " fail to satisfy."]
 
  [:pre [:code ":speculoos/ret-scalar-spec [any? any? any? string?]"]]
 
@@ -505,10 +511,10 @@
 
  [:p "Finally, we've previously demonstrated that " [:code "broken-reverse"] " fails to satisfy the " [:code "reversed?"] " argument/return relationship specification. We'll pass " [:code "reversed?"] " the first argument and the entire return."]
 
- [:pre [:code ":speculoos/argument-return-relationships [{:path-argument [0] :path-return [] :relationship-fn reversed?}]"]]
+ [:pre [:code ":speculoos/argument-return-relationships [{:path-argument [0]\n                                           :path-return []\n                                           :relationship-fn reversed?}]"]]
 
  [:p#messy "We assemble all five of those specifications into the organizing map, and invoke " [:code "validate-fn-with"] "."]
- 
+
  [:pre (print-form-then-eval "(validate-fn-with broken-reverse {:speculoos/arg-scalar-spec [[any? any? decimal?]]
                                                                  :speculoos/arg-collection-spec [[list?]]
                                                                  :speculoos/ret-scalar-spec [any? any? any? string?]
@@ -517,7 +523,7 @@
                                                                                                             :path-return []
                                                                                                             :relationship-fn reversed?}]} [11 22 33 44 55])")]
 
- [:p "We supplied five specifications, five datums failed to satisfy those specifications, and we receive five validation entries."
+ [:p "We supplied five specifications, five datums failed to satisfy those specifications, and we receive five invalidation entries."
 
   [:ul
    [:li "Argument scalar " [:code "33"] " did not satisfy " [:code "decimal?"] "."]
@@ -525,54 +531,51 @@
    [:li "Return scalar " [:code "44"] " did not satisfy " [:code "string?"] "."]
    [:li "Return collection " [:code "[11 22 33 4  55 9999]"] " did not satisfy " [:code "set?"] "."]
    [:li "Argument " [:code "[11 22 33 44 55]"] " and return " [:code "[11 22 33 44 55 9999]"] " did not satisfy relationship " [:code "reversed?"] "."]]]
- 
- 
+
 
  [:h3#recognized-metadata-keys "Recognized metadata specification keys"]
 
  [:p "Speculoos consults the following defined group of keys in a specification map when it validates."]
- 
+
  [:pre (print-form-then-eval "speculoos.function-specs/recognized-spec-keys")]
 
 
-
- 
  [:h3#explicit "Function Metadata Specifications"]
- 
+
  [:p "Speculoos offers three patterns of function validation."
   [:ol
    [:li [:code "validate-fn-with"] " performs explicit validation with a specification supplied in a separate map. The function var is not altered." ]
    [:li [:code "validate-fn"] " performs explicit validation with specifications contained in the function's metadata." ]
    [:li [:code "instrument"] " provides implicit validation with specifications contained in the function's metadata." ]]]
 
- [:p "Up until this point, we've been using the most explicit variant, " [:code "validate-fn-with"] " because its behavior is the most readily apparent. " [:code "validate-fn-with"]" is nice when we want to quickly validate a function " [:em "on-the-fly"] " without messing with the function's metadata. We merely supply the function's name, a map of specifications , and a sequence of arguments as if we were directly invoking the function."]
+ [:p "Up until this point, we've been using the most explicit variant, " [:code "validate-fn-with"] " because its behavior is the most readily apparent. " [:code "validate-fn-with"]" is nice when we want to quickly validate a function " [:em "on-the-fly"] " without messing with the function's metadata. We merely supply the function's name, a map of specifications, and a sequence of arguments as if we were directly invoking the function."]
 
- [:p "Speculoos function specifications " [:a {:href "https://clojure.org/about/spec#_dont_further_add_tooverload_the_reified_namespaces_of_clojure"} "differ"] " from " [:code "spec.alpha"] " in that they are stored and retrieved directly from the function's metadata. Speculoos is an experiment, but I thought it would be nice if I could hand you one single thing and say "]
- 
+ [:p "Speculoos function specifications " [:a {:href "https://clojure.org/about/spec#_dont_further_add_tooverload_the_reified_namespaces_of_clojure"} "differ"] " from " [:code "spec.alpha"] " in that they are stored and retrieved directly from the function's metadata. Speculoos is an experiment, so I thought it would be nice if I could hand you one single thing and say "]
+
  [:blockquote [:p  [:em "Here's a Clojure function you can use. Its name suggests what it does, its docstring tells you how to use it, and human- and machine-readable specifications check the validity of the inputs, and tests that it's working properly. All in one neat, tidy "] "S-expression."]]
-  
+
  [:p "To validate a function with metadata specifications, we use " [:code "validate-fn"] " (or as we'll " [:a {:href "#instrument"} "discuss later"] ", " [:code "instrument"] "). Speculoos offers a pair convenience functions to add and remove specifications from a function's metadata. To add, use " [:code "inject-specs!"] ". Let's inject a couple of function specifications to " [:code "sum-three"] " which we " [:a {:href "#fn-args"} "saw earlier"] "."]
-  
+
  [:pre
   (print-form-then-eval "(require '[speculoos.function-specs :refer [validate-fn inject-specs! unject-specs!]])" 90 45)
   [:br]
   [:br]
   (print-form-then-eval "(inject-specs! sum-three {:speculoos/arg-scalar-spec [int? int? int?] :speculoos/ret-scalar-spec int?})")]
-  
- [:p "We can observe that the specifications indeed live in the function's metadata. There's a lot of metadata, so we'll use " [:code "select-keys"] " to extract only the key-values associated by" [:code "inject-specs!"] "."]
+
+ [:p "We can observe that the specifications indeed live in the function's metadata. There's a lot of metadata, so we'll use " [:code "select-keys"] " to extract only the key-values associated by " [:code "inject-specs!"] "."]
 
  [:pre (print-form-then-eval "(select-keys (meta #'sum-three) speculoos.function-specs/recognized-spec-keys)" 80 55)]
 
  [:p "We see that " [:code "inject-specs!"] " injected both an argument scalar specification and a return scalar specification."]
- 
+
  [:p "If we later decided to undo that, " [:code "unject-specs!"] " removes all recognized Speculoos specification entries, regardless of how they got there. For the upcoming demonstrations, though, we'll keep those specifications in " [:code "sum-three"] "'s metadata."]
-  
- [:p "Now that " [:code "sum-three"] " holds the specifications in its metadata, we can try the second pattern of explicit validation pattern with " [:code "validate-fn"] ". It's similar to " [:code "validate-fn-with"] ", except we don't have to supply the specification map; it's already waiting in the metadata. Invoked with valid arguments, " [:code "sum-three"] " returns a valid value."]
-  
+
+ [:p "Now that " [:code "sum-three"] " holds the specifications in its metadata, we can try the second pattern of explicit validation pattern, using " [:code "validate-fn"] ". It's similar to " [:code "validate-fn-with"] ", except we don't have to supply the specification map; it's already waiting in the metadata. Invoked with valid arguments, " [:code "sum-three"] " returns a valid value."]
+
  [:pre (print-form-then-eval "(validate-fn sum-three 1 20 300)")]
-  
+
  [:p "Invoking " [:code "sum-three"] " with an invalid floating-point number, Speculoos interrupts with a validation report."]
-  
+
  [:pre (print-form-then-eval "(validate-fn sum-three 1 20 300.0)")]
 
  [:p "Scalar argument " [:code "300.0"] " failed to satisfy its paired scalar predicate " [:code "int?"] ". Also, scalar return " [:code "321.0"] " failed to satisfy its paired scalar predicate " [:code "int?"] "."]
@@ -598,9 +601,9 @@
  [:pre (print-form-then-eval "(validate-fn sum-three 1 20 300.0)")]
 
  [:p "The return value " [:code "321.0"] " merely passes through because there were zero predicates."]
- 
- [:p "We can try a more involved example. Let's inject that messy ball of metadata specifications into " [:code "broken-reverse"] "."]
- 
+
+ [:p "We can try a more involved example. Let's inject that " [:a {:href "#messy"} "messy ball"] " of metadata specifications into " [:code "broken-reverse"] "."]
+
  [:pre (print-form-then-eval "(inject-specs! broken-reverse {:speculoos/arg-scalar-spec [[any? any? decimal?]], :speculoos/arg-collection-spec [[list?]], :speculoos/ret-scalar-spec [any? any? any? string?], :speculoos/ret-collection-spec [set?], :speculoos/argument-return-relationships [{:path-argument [0], :path-return [], :relationship-fn reversed?}]})")]
 
  [:p "Now we double-check."]
@@ -613,22 +616,21 @@
 
  [:pre (print-form-then-eval "(validate-fn broken-reverse [11 22 33 44 55])")]
 
- [:p "Notice, this is the exact same validation " [:a {:href "#messy"} "as before"] ", but because all the messy specifications were already tucked away in the metadata, the validation invocation was a much cleaner " [:br] [:code "(validate-fn broken-reverse [11 22 33 44 55])"] "."]
+ [:p "Notice, this is the exact same validation " [:a {:href "#messy"} "as before"] ", but because all the messy specifications were already tucked away in the metadata, the validation invocation was a much cleaner one-liner, " [:br] [:code "(validate-fn broken-reverse [11 22 33 44 55])"] "."]
 
  [:p "Again, metadata specification have no effect when the function is directly invoked."]
 
  [:pre (print-form-then-eval "(broken-reverse [11 22 33 44 55])")]
 
  [:p "We never " [:em "unjected"] " the specifications from " [:code "broken-reverse"] "'s metadata, but they have no influence outside of Speculoos' function validation."]
-  
 
- 
+
  [:h3#instrument "Instrumenting Functions"]
 
  [:p [:strong "Beware: "] [:code "instrument"] "-style function validation is very much a work in progress. The current implementation is sensitive to invocation order and can choke on multiple calls."]
 
  [:p "Until this point in our discussion, Speculoos has only performed function validation when we explicitly called either " [:code "validate-fn-with"] " or " [:code " validate-fn"] ". With those two utilities, the specifications in the metadata are passive and produce no effect, even when invoking with arguments that would otherwise fail to satisfy the specification's predicates."]
-  
+
  [:p "Speculoos' third pattern of function validation " [:em "instruments"] " the function using the metadata specifications. Every direct invocation of the function itself automatically validates arguments and returns using any specification in the metadata. Let's explore function instrumentation using " [:code "sum-three"] " " [:a {:href "#fn-args"} "from earlier"] ". " [:code "instrument"] " will only validate with metadata specifications. First, we need to inject our specifications."]
 
  [:pre (print-form-then-eval "(inject-specs! sum-three {:speculoos/arg-scalar-spec [int? int? int?] :speculoos/ret-scalar-spec int?})")]
@@ -645,7 +647,7 @@
   [:br]
   (print-form-then-eval "(sum-three 1 20 300.0)")]
 
- [:p "That second invocation above supplied an invalid argument and an invalid return value, according to the metadata specifications. But we didn't explicitly validate with " [:code "validate-fn"] ", and " [:code "sum-three"] " is not yet instrumented, so " [:code "sum-three"] " returns the computed value " [:code "321.0"] " without interruption."]
+ [:p "That second invocation above supplied an invalid argument and produced an invalid return value, according to the metadata specifications. But we didn't explicitly validate with " [:code "validate-fn"] ", and " [:code "sum-three"] " is not yet instrumented, so " [:code "sum-three"] " returns the computed value " [:code "321.0"] " without interruption."]
 
  [:p "Let's instrument " [:code "sum-three"] " and see what happens."]
 
@@ -655,7 +657,7 @@
   [:br]
   [:code "(instrument sum-three)"]]
 
- [:p "Not much. We've only added the specifications to the metadata and instrumented " [:code "sum-three"] ". An instrumented function is only validated when its invoked.
+ [:p "Not much. We've only added the specifications to the metadata and instrumented " [:code "sum-three"] ". An instrumented function is only validated when it is invoked.
 "]
 
  [:pre [:code "(sum-three 1 20 300) ;; => 321"]]
@@ -680,7 +682,7 @@
   [:code ";; => ({:path [2], :datum 300.0, :predicate int?, :valid? false, :fn-spec-type :speculoos/argument}\n"]
   [:code ";;     {:path nil, :datum 321.0, :predicate int?, :valid? false, :fn-spec-type :speculoos/return})"]]
 
- [:p "Speculoos will implicitly validate any instrumented function with any permutation of specifications within its metadata."]
+ [:p "Speculoos will implicitly validate any instrumented function with any permutation of " [:a {:href "#recognized-metadata-keys"} "specifications within its metadata"] "."]
 
  [:p "When we want to revert " [:code "sum-three"] " back to normal, we " [:code "unstrument"] " it."]
 
@@ -713,7 +715,7 @@
    (sum-three 1 20 300.0)
 
    ;; valiation report is written to *out*
-   (with-out-str (sum-three 1 20 300.0)) ;; 
+   (with-out-str (sum-three 1 20 300.0)) ;;
    "({:path [2], :datum 300.0, :predicate int?, :valid? false, :fn-spec-type :speculoos/argument}\n"
    " {:path nil, :datum 321.0, :predicate int?, :valid? false, :fn-spec-type :speculoos/return})"
 
@@ -722,14 +724,13 @@
    (sum-three 1 20 300.0)
    )
 
- 
- 
- [:h3#hof "Validating Higher-Order Functions"]
-  
- [:p "Speculoos has a story about validating higher-order functions, too. It uses very similar patterns to first-order function validation: put some specifications in the function's metadata with the properly qualified keys, then invoke the function with some sample arguments, then Speculoos will validate the results."]
 
- [:p "The classic " [:span.small-caps "hof"] " is something like " [:code "(defn adder [x] #(+ x %))"] ". To make things a more interesting, we'll add a little flourish."]
-  
+ [:h3#hof "Validating Higher-Order Functions"]
+
+ [:p "Speculoos has a story about validating higher-order functions, too. It uses very similar patterns to first-order function validation: Put some specifications in the function's metadata with the " [:a {:href "#recognized-metadata-keys"} "proper, qualified keys"] ", then invoke the function with some sample arguments, then Speculoos will validate the results."]
+
+ [:p "The classic " [:span.small-caps "hof"] " is something like " [:code "(defn adder [x] #(+ x %))"] ". To make things a tad more interesting, we'll add a little flourish."]
+
  [:pre
   (print-form-then-eval "(require '[speculoos.function-specs :refer [validate-higher-order-fn]])")
   [:br]
@@ -738,26 +739,26 @@
   [:br]
   [:br]
   (print-form-then-eval "(((addder 7) 80) 900)")]
-  
- [:p [:code "addder"] " returns a function upon each of its first two invocations, and only on its third does it return a scalar. Specifying and validating a function object does not convey much meaning: it would merely satisfy " [:code "fn?"] " which isn't very interesting. So to validate a " [:span.small-caps "hof"] ", Speculoos requires it to be invoked until it produces a value. So we'll supply the validator with a series of arg sequences  that, when fed in order to the " [:span.small-caps "hof"] ", will produce a result. For the example above, it will look like " [:code "[7] [80] [900]"]  "."]
-  
- [:p "The last task we must do is create the specification. " [:span.small-caps "hof"] " specifications live in the function's metadata at key " [:code ":speculoos/hof-specs"] " which is a series of nested specification maps, one nesting for each returned function. For this example, we might create this " [:span.small-caps "hof"] " specification."]
-  
+
+ [:p [:code "addder"] " returns a function upon each of its first two invocations, and only on its third invocation does " [:code "addder"] " return a scalar. Specifying and validating a function object does not convey much meaning: it would merely satisfy " [:code "fn?"] " which isn't very interesting. So to validate a " [:span.small-caps "hof"] ", Speculoos requires it to be invoked until it produces a value. So we'll supply the validator with a series of argument sequences that, when fed in order to the " [:span.small-caps "hof"] ", will produce a result. For the example above, it will look like " [:code "[7] [80] [900]"]  "."]
+
+ [:p "The last task we must do is create the specification. " [:span.small-caps "hof"] " specifications live in the function's metadata at key " [:code ":speculoos/hof-specs"] ", which is a series of nested specification maps, one nesting for each returned function. For this example, we might create this " [:span.small-caps "hof"] " specification."]
+
  [:pre (print-form-then-eval "(def addder-spec {:speculoos/arg-scalar-spec [string?] :speculoos/hof-specs {:speculoos/arg-scalar-spec [boolean?] :speculoos/hof-specs {:speculoos/arg-scalar-spec [char?] :speculoos/ret-scalar-spec keyword?}}})" 100 90)]
-  
- [:p "Once again, for illustration purposes, we've crafted predicates that we know will invalidate, but will permit the function stack to evaluate to completion. (Otherwise, validation halts on exceptions."]
-  
- [:p [:span.small-caps "hof"] " validation requires that the metadata hold the specifications. So we inject them."]
-  
+
+ [:p "Once again, for illustration purposes, we've crafted a specification composed of predicates that we know will invalidate, but will permit the function stack to evaluate to completion. (Otherwise, validation halts on exceptions."]
+
+ [:p [:span.small-caps "hof"] " validation requires that the function's metadata hold the specifications. So we inject them."]
+
  [:pre (print-form-then-eval "(inject-specs! addder addder-spec)")]
-  
+
  [:p "And finally, we execute the validation with " [:code "validate-higher-order-fn"]]
-  
+
  [:pre
   (print-form-then-eval "(require '[speculoos.function-specs :refer [validate-higher-order-fn]])")
   [:br]
   [:br]
   (print-form-then-eval "(validate-higher-order-fn addder [7] [80] [900])")]
-  
+
  [:p "Let's step through the validation results. Speculoos validates " [:code "7"] " against scalar predicate " [:code "string?"] " and then invokes "[:code "addder"] " with argument " [:code "7"] ". It then validates " [:code "80"] " against scalar predicate " [:code "boolean?"] " and then invokes the returned function with argument " [:code "80"] ". It then validates " [:code "900"] " against scalar predicate " [:code "char?"] " and invokes the previously returned function with argument " [:code "900"] ". Finally, Speculoos validates the ultimate return value " [:code "987"] " against scalar predicate " [:code "keyword?"] ". If all the predicates were satisfied, " [:code "validate-higher-order-fn"] " would yield the return value of the function call. In this case, all three arguments and the return value are invalid, and Speculoos yields a validation report."]
   ]

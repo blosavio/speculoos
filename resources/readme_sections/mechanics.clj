@@ -49,7 +49,7 @@
   [:code "             #{42 :foo true 22/7}"]
   [:br]
   [:code "identities --> 42 :foo true 22/7"]]
- 
+
  [:p "A " [:em "path"] " is a sequence of indexes, keys, or identities that allow us refer to a single element buried within a nested data structure. For each level of nesting, we add an element to the path sequence. " [:code "clojure.core/get-in"] " illustrates how this works."]
  [:pre (print-form-then-eval "(get-in [100 101 102 103] [2])")]
  [:p "For a vector containing only integers, each element is addressed by a path of length one. To locate integer " [:code "102"] ", the path is " [:code "[2]"] ". If we consider a vector nested within a vector…"]
@@ -64,7 +64,7 @@
   [:br]
   (print-form-then-eval "(get-in [100 [101 [102]]] [1 1 0])")]
  [:p "The " [:code "102"] " is buried three levels deep, so we use a path with that many entries."]
- 
+
  [:p "This system works similarly for maps. Elements contained in un-nested collections are located with a path of length one."]
  [:pre (print-form-then-eval "(get-in {:x 100 :y 101 :z 102} [:z])")]
  [:p "In this example, " [:code "102"] " is located with a path composed of a single key, keyword " [:code ":z"] ". If we now consider a map nested within another map…"]
@@ -83,14 +83,14 @@
   (print-form-then-eval "(get-in* '(100 101 {:x [102]}) [2 :x 0])")]
  [:p [:code "102"] " is contained in three levels of nesting, so its path is comprised of three pieces."]
 
- [:p "Speculoos provides a little machine to wrangle paths for you. When supplied with a heterogeneous, arbitrarily-nested data structure, " [:code "speculoos.core/all-paths"] " returns a sequence of " [:code "{:path … :value …}"] " for every element, both scalars and collections."]
+ [:p "Speculoos provides a little machine to wrangle paths for us. When supplied with a heterogeneous, arbitrarily-nested data structure, " [:code "speculoos.core/all-paths"] " returns a sequence of " [:code "{:path … :value …}"] " for every element, both scalars and collections."]
 
  [:pre
   (print-form-then-eval "(require '[speculoos.core :refer [all-paths]])")
   [:br]
   [:br]
   (print-form-then-eval "(all-paths [100 101 102])")]
- [:p "Note: we receive paths for four items, three integers, plus a path to the outer container itself. The root collection always has a path " [:code "[]"] ". The integer elements each have a path of a single, zero-indexed integer that locates them within the parent vector. Here's how it works with a map."]
+ [:p "Note: We receive paths for four items, three integers, plus a path to the outer container itself. The root collection always has a path " [:code "[]"] ". The integer elements each have a path of a single, zero-indexed integer that locates them within the parent vector. Here's how it works with a map."]
  [:pre (print-form-then-eval "(all-paths {:x 100 :y 101 :z 102})" 80 45)]
  [:p "Each of the three integers has a path with a key that locates them within the parent map, and the parent map has a path of " [:code "[]"] " because it's the root collection."]
 
@@ -98,16 +98,16 @@
  [:pre (print-form-then-eval "(all-paths [100 101 [102 103]])")]
  [:p "Now, we have six elements to consider: each of the four integers have a path, and both of the collections have a path. The outer parent vector has path " [:code "[]"] " because it's the root, and the nested collection is located at path " [:code "[2]"] ", the third element of the root vector. Let's look at all the paths of nested maps."]
  [:pre (print-form-then-eval "(all-paths {:x 100 :y 101 :z {:w 102}})" 80 49)]
- [:p "Again, each of the integers has a path, and each of the maps has a path, for a total of five paths."]
- 
+ [:p "Again, each of the three integers has a path, and both of the maps have a path, for a total of five paths."]
+
  [:p "There is nothing special about integers. " [:code "all-paths"] " will treat any element, scalar or collection, the same way. " [:em "Every element has a path."] " We could replace those integers with functions, un-nested in a vector…"]
- 
+
  [:pre (print-form-then-eval "(all-paths [int? string? ratio?])" 50 45)]
- 
+
  [:p "…or nested in a map…"]
- 
+
  [:pre (print-form-then-eval "(all-paths {:x int? :y string? :z {:w ratio?}})" 80 40)]
- 
+
  [:p "The important principle to remember is this: Every element, scalar and collection, of a heterogeneous, arbitrarily-nested data structure, can be assigned an unambiguous path, regardless of its container type."]
 
  [:p "If you ever find yourself with a nested list on your hands, " [:code "all-paths"] " has got you covered."]

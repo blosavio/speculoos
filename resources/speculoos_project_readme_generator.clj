@@ -13,8 +13,9 @@
 
 
 (def readme-UUID #uuid "b7613e59-3656-411e-8be6-f3cb8b5d8107")
+
 (alter-var-root #'speculoos-hiccup/*wrap-at* (constantly 80))
-(declare predicate-1 predicate-2 predicate-3 predicate-4)
+(alter-var-root #'speculoos.utility/*such-that-max-tries* (constantly 100))
 (def ^:dynamic *eval-separator* ";; => ")
 
 
@@ -75,4 +76,4 @@
           (clojure.string/replace #"</?article>" "")
           non-breaking-space-ize
           revert-fn-obj-rendering
-          escape-markdowners))
+          #_escape-markdowners))

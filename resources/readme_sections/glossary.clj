@@ -40,7 +40,7 @@
         " also regard a regular expression as a competent predicate."]]
 
   [:dt#relationship "relationship"]
-  [:dd [:p "A human- and machine-readable declaration about the congruence between to elements. Speculoos function validation may involve specifying a relationship between the function's argument and the function's return value."]]
+  [:dd [:p "A human- and machine-readable declaration about the congruence between two elements. Specifically, Speculoos function validation may involve specifying a relationship between the function's argument and the function's return value."]]
 
   [:dt#scalar "scalar"]
   [:dd [:p "A single, non-divisible datum, such as an integer, string, boolean, etc. Essentially, a shorter term for " [:em "non-collection"] "."]]
