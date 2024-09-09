@@ -290,3 +290,80 @@
   {:UUIDv4 #uuid "2450029a-08b3-4eb0-9dfe-827342543d0e"}
   [html-str]
   (clojure.string/replace html-str #"(_|\*)" "\\\\$1"))
+
+
+(defn page-ize
+  "Given hiccup/html form `body`, insert a page number into the panel-footer of
+  each panel."
+  {:UUIDv4 #uuid "c30b6a0b-3092-4e84-a7a5-7fd07ab248b1"}
+  [body]
+  (let [total (dec (count body))]
+    (concat [(first body)] (vec (map-indexed #(vec (conj (vec (butlast %2)) (conj (last %2) [:span.panel-number (str (inc %1) "/" total)]))) (vec (rest body)))))))
+
+
+(defn screencast-template
+  "Generate a screencast with header title t, hiccup/html dialect body b, and
+  UUIDv4 uuid."
+  {:UUIDv4 #uuid "9eac9c34-c44c-4921-97f3-4418b37e15c9"}
+  [title uuid body]
+  (page/html5
+   {:lang "en"}
+   [:head
+    (page/include-css "speculoos_screencast.css")
+    (page/include-js "jquery-3.7.1.min.js")
+    (page/include-js "speculoos_screencast.js")
+    [:title title]
+    [:meta {"charset"  "utf-8"
+            "name" "viewport"
+            "content" "width=device-width, initial-scale=1"
+            "compile-date" (long-date)}]
+    (conj
+     (vec (page-ize body))
+     [:p#page-footer
+      (copyright)
+      [:br]
+      (str "Compiled " (short-date) ".")
+      [:span#uuid [:br] uuid]])]))
+
+
+(defn prettyfy-form-prettyfy-eval
+  "Returns a hiccup [:pre [:code]] block wrapping a Clojure stringified form
+  str-form, then a [:pre [:code]] block wrapping a separator sep
+  (default ' => '), and evaluated value.
+
+  `def`, `defn`, `s/def/`, `defmacro`, `defpred`, and `require` expressions are
+  only evaled; their output is not captured.
+
+  Note: Evaluated output can not contain an anonymous function of either
+  (fn [x] ...) nor #(...) because zprint requires an internal reference
+  to attempt a backtrack. Since the rendering of an anonymous function
+  changes from one invocation to the next, there is no stable reference."
+  {:UUIDv4 #uuid "0d6c7ba9-a9a5-4980-b449-ea1b27230d47"}
+  ([str-form] (prettyfy-form-prettyfy-eval str-form " => " 80 40))
+  ([str-form separator] (prettyfy-form-prettyfy-eval str-form separator 80 40))
+  ([str-form width-fn width-output] (prettyfy-form-prettyfy-eval str-form " => " width-fn width-output))
+  ([str-form separator width-fn width-output]
+   (let [def? (re-find #"^\((s\/)?defn?(macro)?(pred)? " str-form)
+         require? (re-find #"^\(require " str-form)
+         form (read-string str-form)
+         evaled-form (eval form)
+         evaled-str (revert-fn-obj-rendering (pr-str evaled-form))]
+     (if (or def? require?)
+       [:pre [:code (prettyfy str-form)]]
+       [:pre
+        [:code.form (prettyfy str-form width-fn)]
+        [:br]
+        [:code.eval (comment-newlines (prettyfy evaled-str width-output)
+                                      separator
+                                      ";;")]]))))
+
+
+(defn panel
+  "Generate a screencast panel, with zero or more hiccup forms."
+  {:UUIDv4 #uuid "1ba78b65-4568-4517-9d98-5b21fc39e0f8"}
+  [& hiccups]
+  (conj
+   (into [:div.panel
+          [:div.panel-header]]
+         hiccups)
+   [:div.panel-footer]))

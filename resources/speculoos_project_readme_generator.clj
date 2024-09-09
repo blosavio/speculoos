@@ -21,7 +21,7 @@
 
 (def sections
   [{:section-name "Setup"}
-   ;; later ... #_{:section-name "Videos" :section-href "example.com" :skip-section-load? true}
+   ;; later ... #_{:section-name "Screencasts" :section-href "example.com" :skip-section-load? true}
    {:section-name "API" :section-href "https://blosavio.github.io/speculoos/index.html" :skip-section-load? true}
    {:section-name "Introduction" :section-href "intro"}
    {:section-name "Mantras"}
