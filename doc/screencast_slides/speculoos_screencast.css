@@ -1,0 +1,147 @@
+@charset "utf-8";
+
+/* CSS for navigation, footers, code side-by-sides, etc */
+
+dt {
+    font-weight: bold;
+}
+
+
+#page-footer {
+    font-size: 100%;
+    opacity: 70%
+}
+
+#uuid {
+    display: none;
+}
+
+.side-by-side-container {
+    display: flex;
+}
+
+.side-by-side {
+    width: 50%;
+    margin-right: 2rem;
+}
+
+.side-by-side code {
+    overflow-x: visible;
+    margin: 0;
+}
+
+.small-caps {
+    font-variant: small-caps;
+}
+
+
+.centered {
+    text-align: center;
+}
+
+.de-highlight {
+    color: gray;
+    font-weight: lighter;
+}
+
+.highlight {
+    color: red;
+    font-weight: bold;
+    font-size: 120%;
+}
+
+.tight {
+    width: 25%;
+}
+
+.c1 {
+    color: red;
+}
+
+.c2 {
+    color: blue;
+}
+
+.c3 {
+    color: green;
+}
+
+.c4 {
+    color: #ff8c00; /* darkorange; */
+    /* color: #bf5700;*/ /* burnt orange */
+}
+
+.no-display {
+    display: none;
+}
+
+.wide-title {
+    width: 100%;
+}
+
+pre {
+    //background-color: whitesmoke;
+}
+
+code {
+    //background-color: whitesmoke;
+}
+
+body {
+    width: 50em;
+    max-width: max-content;
+    margin: auto;
+    font-size: 12pt;
+}
+
+.title {
+
+}
+
+.info {
+
+}
+
+.eval {
+    position: relative;
+}
+
+code.eval {
+    opacity: 0;
+}
+
+.note {
+    display: none;
+}
+
+.panel {
+    border-width: 0px;
+    border-color: red;
+    border-style: solid;
+    height: 100vh;
+    position: relative;
+}
+
+.panel-header {
+    border-width: 0px;
+    border-color: green;
+    border-style: solid;
+    height: 10vh;
+}
+
+.panel-footer {
+    border-width: 0px;
+    border-color: blue;
+    border-style: solid;
+    height: 10vh;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+}
+
+.panel-number {
+    color: silver;
+    width: 100%;
+    display: block;
+    text-align: center;
+}
