@@ -367,3 +367,11 @@
           [:div.panel-header]]
          hiccups)
    [:div.panel-footer]))
+
+
+(defn screencast-title
+  "Construct a screencast title element from index `idx` and topic
+  `screencast-title`."
+  {:UUIDv4 #uuid "ba991108-a524-496b-88c6-851587363b20"}
+  [idx screencast-title]
+  [:h1 (str "Speculoos Screencast " (inc idx) " — " screencast-title)])

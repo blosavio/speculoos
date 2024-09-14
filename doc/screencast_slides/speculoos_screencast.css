@@ -40,14 +40,14 @@ dt {
 }
 
 .de-highlight {
-    color: gray;
+    color: silver;
     font-weight: lighter;
 }
 
 .highlight {
-    color: red;
+    color: black;
     font-weight: bold;
-    font-size: 120%;
+    font-size: 110%;
 }
 
 .tight {
@@ -80,18 +80,18 @@ dt {
 }
 
 pre {
-    //background-color: whitesmoke;
+
 }
 
 code {
-    //background-color: whitesmoke;
+
 }
 
 body {
     width: 50em;
     max-width: max-content;
     margin: auto;
-    font-size: 12pt;
+    font-size: 26pt;
 }
 
 .title {
@@ -106,12 +106,17 @@ body {
     position: relative;
 }
 
+
+code.form {
+}
+
 code.eval {
-    opacity: 0;
+    /* opacity: 0; */
 }
 
 .note {
     display: none;
+    color: darkorange;
 }
 
 .panel {
@@ -144,4 +149,20 @@ code.eval {
     width: 100%;
     display: block;
     text-align: center;
+}
+
+div.vspace {
+    height: 4vh;
+}
+
+:is(h1, h2, h3, h4, h5 h6) {
+    margin-bottom: 10vh;
+}
+
+li {
+    margin-bottom: 3vh;
+}
+
+p {
+    margin-bottom: 5vh;
 }

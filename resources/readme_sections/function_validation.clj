@@ -101,7 +101,7 @@
 
  [:p "Speculoos can also validate values returned by a function. Reusing our " [:code "sum-three"] " function, and going back to valid inputs, we can associate a " [:strong "ret"] "urn " [:strong "scalar"] " " [:strong "spec"] "ification into " [:code "validate-fn-with"] "'s specification map to key " [:code ":speculoos/ret-scalar-spec"] ". Let's stipulate that the function returns an integer. Here's how we pass that specification to " [:code "validate-fn-with"] "."]
 
- [:pre [:coce "{:speculoos/ret-scalar-spec int?}"]]
+ [:pre [:code "{:speculoos/ret-scalar-spec int?}"]]
 
  [:p  "And now, the function return validation."]
 

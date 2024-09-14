@@ -2,14 +2,47 @@
   "CIDER eval buffer C-c C-k generates an html page and a markdown chunk."
   {:no-doc true}
   (:require
+   [fn-in.core :refer [get-in*]]
    [hiccup2.core :as h2]
    [hiccup.page :as page]
    [hiccup.element :as element]
    [hiccup.form :as form]
    [hiccup.util :as util]
    [speculoos-hiccup :refer :all]
-   [speculoos.core :refer [all-paths validate-scalars validate-collections
-                           validate]]))
+   [speculoos.core :refer [all-paths
+                           expand-and-clamp-1
+                           only-invalid
+                           valid-collections?
+                           valid-scalars?
+                           valid?
+                           validate
+                           validate-collections
+                           validate-scalars]]
+   [speculoos.utility :refer [*such-that-max-tries*
+                              basic-collection-spec-from-data
+                              clamp-in*
+                              collections-without-predicates
+                              data-from-spec
+                              defpred
+                              exercise
+                              inspect-fn
+                              in?
+                              predicates-without-collections
+                              predicates-without-scalars
+                              scalars-without-predicates
+                              sore-thumb
+                              spec-from-data
+                              thoroughly-valid?
+                              unfindable-generators
+                              validate-predicate->generator
+                              thoroughly-valid-scalars?]]
+   [speculoos.function-specs :refer [exercise-fn
+                                     inject-specs!
+                                     instrument unstrument
+                                     unject-specs!
+                                     validate-fn
+                                     validate-fn-with
+                                     validate-higher-order-fn]]))
 
 
 (def readme-UUID #uuid "b7613e59-3656-411e-8be6-f3cb8b5d8107")

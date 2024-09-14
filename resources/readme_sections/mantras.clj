@@ -1,5 +1,5 @@
 [:section#mantras
- [:h2 "Mantras"]
+ [:h2 "★ Mantras"]
 
  [:p "When using Speculoos, remember these three Mantras:"
   [:ol

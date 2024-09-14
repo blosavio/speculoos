@@ -87,7 +87,7 @@
  [:p [:code "contains?"] " actually tells you whether a collection contains a key. For a vector, it tests for an index. If you'd like to check whether a value is contained in a collection, you can use this pattern."]
 
  [:pre
-  (print-form-then-eval "(defn in? [coll item] (some #(= item %) coll))")
+  [:code "(defn in? [coll item] (some #(= item %) coll))"]
   [:br]
   [:br]
   [:code ";; integer 98 is a value found in the vector"]
