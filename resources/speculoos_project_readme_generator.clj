@@ -68,7 +68,7 @@
    {:section-name "Predicates"}
    {:section-name "Non-terminating Sequences" :section-href "non-terminating-sequences"}
    {:section-name "Sets"}
-   ;; later ... #_{:section-name "Comparison to spec.alpha" :section-href "diff.html" :skip-section-load? true}
+   {:section-name "Comparison to spec.alpha" :section-href "https://blosavio.github.io/speculoos/diff.html" :skip-section-load? true}
    ;; later ... #_{:section-name "Maybe so" :section-href "maybe_so.html" :skip-section-load? true}
    #_{:section-name "Recipes" :section-href "recipes.clj" :skip-section-load? true}
    {:section-name "Troubleshooting"}

@@ -141,3 +141,7 @@ body {
     margin: auto;
     font-size: 12pt;
 }
+
+.wide-body {
+    width: 80rem;
+}
