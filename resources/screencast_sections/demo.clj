@@ -19,7 +19,7 @@
 
  (panel
   [:h2 "Speculoos Plain Slide"]
-  [:p "Three Mantras..."]
+  [:p "Three Mottos..."]
   [:div.notes "Remember to mention..."])
 
  (panel

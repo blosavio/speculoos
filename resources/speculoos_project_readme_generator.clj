@@ -57,7 +57,7 @@
    ;; later ... #_{:section-name "Screencasts" :section-href "example.com" :skip-section-load? true}
    {:section-name "API" :section-href "https://blosavio.github.io/speculoos/index.html" :skip-section-load? true}
    {:section-name "Introduction" :section-href "intro"}
-   {:section-name "Mantras"}
+   {:section-name "Mottos"}
    {:section-name "Mechanics"}
    {:section-name "Validating Scalars" :section-href "scalar-validation"}
    {:section-name "Validating Collections" :section-href "collection-validation"}
@@ -69,8 +69,8 @@
    {:section-name "Non-terminating Sequences" :section-href "non-terminating-sequences"}
    {:section-name "Sets"}
    {:section-name "Comparison to spec.alpha" :section-href "https://blosavio.github.io/speculoos/diff.html" :skip-section-load? true}
-   ;; later ... #_{:section-name "Maybe so" :section-href "maybe_so.html" :skip-section-load? true}
-   #_{:section-name "Recipes" :section-href "recipes.clj" :skip-section-load? true}
+   ;; later ... #_{:section-name "Perhaps so" :section-href "perhaps_so.html" :skip-section-load? true}
+   {:section-name "Recipes" :section-href "https://github.com/blosavio/speculoos/tree/main/doc/recipes.clj" :skip-section-load? true}
    {:section-name "Troubleshooting"}
    #_{:section-name "Case Study" :section-href "case-study"}
    {:section-name "Alternatives"}

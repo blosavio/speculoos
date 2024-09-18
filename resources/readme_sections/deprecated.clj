@@ -65,7 +65,7 @@
   [:br]
   (print-form-then-eval "(all-paths [98 99 100])")]
 
- [:p "Recalling Mantra #1, we're validating scalars, so we'll ignore the root vectors in both. Both vectors have three scalars, an integer located at paths " [:code "[0]"] ", " [:code "[1]"] ", and " [:code "[2]"] ". We could apply " [:code "greater?"] " manually to each of those three pairs."]
+ [:p "Recalling Motto #1, we're validating scalars, so we'll ignore the root vectors in both. Both vectors have three scalars, an integer located at paths " [:code "[0]"] ", " [:code "[1]"] ", and " [:code "[2]"] ". We could apply " [:code "greater?"] " manually to each of those three pairs."]
 
  [:pre
   (print-form-then-eval "(greater? [97 98 99] [98 99 100] [0])")

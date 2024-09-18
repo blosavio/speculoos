@@ -41,7 +41,7 @@
   [:div.note "One of Speculoos' main concepts is that scalars are specified and validated explicitly separately from collections. You perhaps noticed that the function name we have been using wasn't " [:code "validate"] " but instead " [:code "validate-scalars"] ". Speculoos provides a parallel group of functions to validate the properties of collections, independent of the scalar values they contain. Let's examine why and how they're separated."])
 
 
- (load-file "resources/screencast_sections/mantras.clj")
+ (load-file "resources/screencast_sections/mottos.clj")
 
 
  (panel
@@ -83,7 +83,7 @@
 
 
  (panel
-  [:h3 "Collection Validation, solving the problem with the Mantras."]
+  [:h3 "Collection Validation, solving the problem with the Mottos."]
 
   [:p "Our collection."]
   [:code "[11 [22 33 44]]"]
@@ -204,7 +204,7 @@
 
   [:pre [:code "[{     }    (       )    #{  }]"]]
 
-  [:div.note "The rule " [:code "validate-collections"] " follows is " [:em "Apply nested collection predicates in the order which they appear, ignoring scalars."] " Let's see that in action. First, we'll make some example data composed of a parent vector, containing a nested map, list, and set, with a couple of interleaved integers." "Now we need to compose a collection specification. Mantra #2 reminds us to make the specification mimic the shape of the data. I'm going to copy-paste the data and mash the delete key to remove the scalar datums." "Just to emphasize how they align, here are the data (top) and the collection specification (bottom) with some spaced formatting."])
+  [:div.note "The rule " [:code "validate-collections"] " follows is " [:em "Apply nested collection predicates in the order which they appear, ignoring scalars."] " Let's see that in action. First, we'll make some example data composed of a parent vector, containing a nested map, list, and set, with a couple of interleaved integers." "Now we need to compose a collection specification. Motto #2 reminds us to make the specification mimic the shape of the data. I'm going to copy-paste the data and mash the delete key to remove the scalar datums." "Just to emphasize how they align, here are the data (top) and the collection specification (bottom) with some spaced formatting."])
 
 
  (panel

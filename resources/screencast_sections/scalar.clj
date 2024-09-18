@@ -32,7 +32,7 @@
 
   (prettyfy-form-prettyfy-eval "(ratio? 22/7)")
 
-  [:div.note [:p "All three scalars satisfy their respective predicates that they're paired with. Speculoos provides a function, " [:code "validate-scalars"] " that substantially does all that work for us. Given data and a specification that share the data's shape (Mantra #2), " [:code "validate-scalars"] ":"]])
+  [:div.note [:p "All three scalars satisfy their respective predicates that they're paired with. Speculoos provides a function, " [:code "validate-scalars"] " that substantially does all that work for us. Given data and a specification that share the data's shape (Motto #2), " [:code "validate-scalars"] ":"]])
 
 
  (panel
@@ -45,7 +45,7 @@
    [:li "For each remaining pair of scalar+predicate, applies the predicate to the scalar."]])
 
 
- (load-file "resources/screencast_sections/mantras.clj")
+ (load-file "resources/screencast_sections/mottos.clj")
 
 
  (panel
@@ -56,7 +56,7 @@
 
   (prettyfy-form-prettyfy-eval "(validate-scalars [42 \"abc\" 22/7] [int? string? ratio?])" 50 40)
 
-  [:div.note [:p "Let's apply the Mantras to what we just did. Mantra #1: At the moment, we're validating scalars, as the "[:em "-scalars"] " suffix of the function name reminds us. The validation yielded only predicates applied to scalars; scalar validation ignored the collections. Mantra #2: The shape of our specification mimics the data. Because both are vectors, " [:code "validate-scalars"] " was able to properly apply each predicate its respective datum. Mantra #3: Every predicate was paired with a datum and "[:em "vice versa"] ", so validation did not ignore anything."]
+  [:div.note [:p "Let's apply the Mottos to what we just did. Motto #1: At the moment, we're validating scalars, as the "[:em "-scalars"] " suffix of the function name reminds us. The validation yielded only predicates applied to scalars; scalar validation ignored the collections. Motto #2: The shape of our specification mimics the data. Because both are vectors, " [:code "validate-scalars"] " was able to properly apply each predicate its respective datum. Motto #3: Every predicate was paired with a datum and "[:em "vice versa"] ", so validation did not ignore anything."]
 
    [:p  [:code "validate-scalars"] " returns a sequence of all the scalars in data that share a path with a predicate in the specification. For each of those pairs, we receive a map containing the " [:code ":datum"] " scalar element of the data, the " [:code ":predicate"] " test function element of the specification, the " [:code ":path"] " addressing each in their respective structures, and the " [:code "valid?"] " result of applying the predicate function to the datum."]])
 
@@ -73,7 +73,7 @@
   (prettyfy-form-prettyfy-eval "(all-paths [int?])" 20 30)
 
 
-  [:div.note "What if there's a length mis-match between the data and the specification? Mantra #3 tells us that validation ignores un-paired datums. Let's look at the " [:code "all-paths"] " for that situation." "After discarding the root collections at path " [:code "[]"] " we find the only scalar+predicate pair at path " [:code "[0]"] ", and that's the only pair that " [:code "validate-scalars"] " looks at."])
+  [:div.note "What if there's a length mis-match between the data and the specification? Motto #3 tells us that validation ignores un-paired datums. Let's look at the " [:code "all-paths"] " for that situation." "After discarding the root collections at path " [:code "[]"] " we find the only scalar+predicate pair at path " [:code "[0]"] ", and that's the only pair that " [:code "validate-scalars"] " looks at."])
 
 
  (panel
@@ -99,7 +99,7 @@
 
   (prettyfy-form-prettyfy-eval "(validate-scalars [42] [int? string? ratio?])" 40 40)
 
-  [:div.note "Mantra #3 reminds us that validation ignores un-paired predicates. Only the predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification vector shares its path with a scalar in the data vector, so that's the only scalar+predicate pair that " [:code "validate-scalars"] " processes." [:code "validate-scalars"] " ignores both " [:code "string?"] " and " [:code "ratio?"] " within the specification vector because the data vector does not contain scalars at their respective paths."])
+  [:div.note "Motto #3 reminds us that validation ignores un-paired predicates. Only the predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification vector shares its path with a scalar in the data vector, so that's the only scalar+predicate pair that " [:code "validate-scalars"] " processes." [:code "validate-scalars"] " ignores both " [:code "string?"] " and " [:code "ratio?"] " within the specification vector because the data vector does not contain scalars at their respective paths."])
 
  (panel
   [:h3 "Paths of scalars in a map: data and specification"]
@@ -108,7 +108,7 @@
 
   (prettyfy-form-prettyfy-eval "(all-paths {:x int? :y string? :z ratio?})" 45 52)
 
-  [:div.note "Validating scalars contained within a map proceeds similarly. Let's send this map, our data, to " [:code "all-paths"] "." "Four elements: the root collection (a map), and three scalars. Then we'll do the same for this map, our specification, which mimics the shape of the data (Mantra #2), by also being a map with the same keys." "Again four elements: the root collection (a map), and three predicates. Note that each predicate shares a path with one of the scalars in the data map. Invoking " [:code "validate-scalars"] " with the data map followed by the specification map…"])
+  [:div.note "Validating scalars contained within a map proceeds similarly. Let's send this map, our data, to " [:code "all-paths"] "." "Four elements: the root collection (a map), and three scalars. Then we'll do the same for this map, our specification, which mimics the shape of the data (Motto #2), by also being a map with the same keys." "Again four elements: the root collection (a map), and three predicates. Note that each predicate shares a path with one of the scalars in the data map. Invoking " [:code "validate-scalars"] " with the data map followed by the specification map…"])
 
 
  (panel

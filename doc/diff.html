@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><link href="speculoos.css" rel="stylesheet" type="text/css"><title>Speculoos Comparison to clojure.spec.alpha</title><meta charset="utf-8" compile-date="2024-09-16 08:52:41" content="width=device-width, initial-scale=1" name="viewport"><body class="wide-body"><article><h1 class="wide-title"><code>(diff spec.alpha speculoos)</code></h1><p>The Speculoos library is an experiment to see if it is possible to perform the same tasks as <code>clojure.spec.alpha</code> using literal specifications. As a rough measure, I tried to replicate the features outlined in the <a href="https://clojure.org/guides/spec"><em> spec Guide</em></a>. I think Speculoos manages to check off most every feature to some degree, so I feel the project's ideas have merit.</p><p>If you're familiar with <code>clojure.spec.alpha</code> and are curious about how Speculoos compares, here's a side-by-side demonstration. Find the full documentation <a href="https://github.com/blosavio/speculoos">here</a>.</p><section><h2>Predicates</h2><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> predicates are tested with <br><code>(s/conform)</code> or <code>(s/valid?)</code></p><pre><code>(require '[clojure.spec.alpha :as s])</code><br><br><code>(s/conform even? 1000) ;; => 1000</code></pre></div><div class="side-by-side"><p>Speculoos specifications are bare, unadorned Clojure predicates.</p><pre><code>(even? 1000) ;; => true</code><br><code>(nil? nil) ;; => true</code><br><code>(#(< % 5) 4) ;; => true</code></pre></div></div><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> provides a special <code>def</code> which stores the spec in a central registry.</p><pre><code>(s/def :order/date inst?)</code><br><code>(s/def :deck/suit #{:club :diamond :heart :spade})</code></pre></div><div class="side-by-side"><p>Speculoos specifications are <code>def</code>-ed, and live in, your namespace, and are therefore automatically namespace-qualified.</p><pre><code>(def date inst?)</code><br><br><code>(def suit #{:club :diamond :heart :spade})</code></pre><p>If you like the idea of a spec registry, toss 'em into your own hashmap; Speculoos specifications are just predicates and can be used anywhere</p><pre><code>(import java.util.Date) ;; => java.util.Date</code><br><br><code>(date (Date.)) ;; => true</code><br><code>(suit :club) ;; => :club</code><br><code>(suit :shovel) ;; => nil</code></pre></div></div><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> has some slick facilities for automatically creating spec docstrings.</p></div><div class="side-by-side"><p>Speculoos specifications do not have any special docstring features beyond what you explicitly add to your function <code>def</code>s.</p></div></div></section><section><h2>Composing Predicates</h2><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> specs are composed with special functions <code>(s/and)</code> and <code>(s/or)</code>.</p><pre><code>(s/def :num/big-even
+<html lang="en"><head><link href="speculoos.css" rel="stylesheet" type="text/css"><title>Speculoos Comparison to clojure.spec.alpha</title><meta charset="utf-8" compile-date="2024-09-18 10:47:41" content="width=device-width, initial-scale=1" name="viewport"><body class="wide-body"><article><h1 class="wide-title"><code>(diff spec.alpha speculoos)</code></h1><p>The <a href="https://github.com/blosavio/speculoos">Speculoos library</a> is an experiment to see if it is possible to perform the same tasks as <code>clojure.spec.alpha</code> using literal specifications. As a rough measure, I tried to replicate the features outlined in the <a href="https://clojure.org/guides/spec"><em> spec Guide</em></a>. I think Speculoos manages to check off most every feature to some degree, so I feel the project's ideas have merit.</p><p>If you're familiar with <code>clojure.spec.alpha</code> and are curious about how Speculoos compares, here's a side-by-side demonstration. Find the full documentation <a href="https://github.com/blosavio/speculoos">here</a>.</p><section><h2>Predicates</h2><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> predicates are tested with <br><code>(s/conform)</code> or <code>(s/valid?)</code></p><pre><code>(require '[clojure.spec.alpha :as s])</code><br><br><code>(s/conform even? 1000) ;; => 1000</code></pre></div><div class="side-by-side"><p>Speculoos specifications are bare, unadorned Clojure predicates.</p><pre><code>(even? 1000) ;; => true</code><br><code>(nil? nil) ;; => true</code><br><code>(#(< % 5) 4) ;; => true</code></pre></div></div><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> provides a special <code>def</code> which stores the spec in a central registry.</p><pre><code>(s/def :order/date inst?)</code><br><code>(s/def :deck/suit #{:club :diamond :heart :spade})</code></pre></div><div class="side-by-side"><p>Speculoos specifications are <code>def</code>-ed, and live in, your namespace, and are therefore automatically namespace-qualified.</p><pre><code>(def date inst?)</code><br><br><code>(def suit #{:club :diamond :heart :spade})</code></pre><p>If you like the idea of a spec registry, toss 'em into your own hashmap; Speculoos specifications are just predicates and can be used anywhere</p><pre><code>(import java.util.Date) ;; => java.util.Date</code><br><br><code>(date (Date.)) ;; => true</code><br><code>(suit :club) ;; => :club</code><br><code>(suit :shovel) ;; => nil</code></pre></div></div><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> has some slick facilities for automatically creating spec docstrings.</p></div><div class="side-by-side"><p>Speculoos specifications do not have any special docstring features beyond what you explicitly add to your function <code>def</code>s.</p></div></div></section><section><h2>Composing Predicates</h2><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> specs are composed with special functions <code>(s/and)</code> and <code>(s/or)</code>.</p><pre><code>(s/def :num/big-even
   (s/and int?
          even?
          #(> % 1000)))</code><br><br><code>(s/valid? :num/big-even :foo) ;; => false</code><br><code>(s/valid? :num/big-even 10) ;; => false</code><br><code>(s/valid? :num/big-even 100000) ;; => true</code><br><br><code>(s/def :domain/name-or-id
@@ -21,7 +21,7 @@
                  :email :not-an-email}
                 (assoc person-spec
                   :email #(string? %)))
-;; => false</code></pre><p>Note the function name: Speculoos <a href="https://github.com/blosavio/speculoos?tab=readme-ov-file#mantras">distinguishes</a> validating <em>scalars</em> (i.e., numbers, strings, characters, etc.) from <em>collections</em> (vectors, lists, maps, sets). Speculoos provides a corresponding group of functions specifying collection counts, presence of keys, set membership, etc.</p><pre><code>(valid-scalars? {:first-name "Bugs",
+;; => false</code></pre><p>Note the function name: Speculoos <a href="https://github.com/blosavio/speculoos?tab=readme-ov-file#mottos">distinguishes</a> validating <em>scalars</em> (i.e., numbers, strings, characters, etc.) from <em>collections</em> (vectors, lists, maps, sets). Speculoos provides a corresponding group of functions specifying collection counts, presence of keys, set membership, etc.</p><pre><code>(valid-scalars? {:first-name "Bugs",
                  :last-name "Bunny",
                  :email "n/a"}
                 person-spec)
@@ -112,7 +112,7 @@
 ;;      :path [:search/url],
 ;;      :predicate string?,
 ;;      :valid? false})</code></pre></div></div><p>Here we see a significant difference between <code>spec.alpha</code> and Speculoos: the former fails the validation because <code>event-4</code> is missing the <code>:timestamp</code> key. Speculoos considers the presence or absence of a map's key to be a property of the collection. Within that philosophy, such a specification would properly belong in a Speculoos <em>collection specification</em>.</p></section><section><h2>Collections</h2><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> provides a trio of helper functions for collections. First, <code>coll-of</code>.</p><pre><code>(s/conform (s/coll-of keyword?) [:a :b :c]) ;; => [:a :b :c]</code><br><code>(s/conform (s/coll-of number?) #{5 10 2}) ;; => #{2 5 10}</code><br><br><code>(s/def :ex/vnum3
-  (s/coll-of number? :kind vector? :count 3 :distinct true :into #{}))</code><br><br><code>(s/conform :ex/vnum3 [1 2 3]) ;; => #{1 2 3}</code></pre></div><div class="side-by-side"><p>Speculoos was designed from the start to specify collections. Speculoos validates collections in two different ways: it can validate groupings of <em>scalars</em>, atomic, inidivisible values (i.e., numbers, booleans, etc.) and it can separately validate the properties of a <em>collection</em> (i.e., vector, map, list, set, etc.) itself, such as its size, the position of particular elements, and the relationships between elements, etc.</p><p>This example could certainly be validated as we've seen before.</p><pre><code>(valid-scalars? [:a :b :c]
+  (s/coll-of number? :kind vector? :count 3 :distinct true :into #{}))</code><br><br><code>(s/conform :ex/vnum3 [1 2 3]) ;; => #{1 2 3}</code></pre></div><div class="side-by-side"><p>Speculoos was designed from the start to specify collections. Speculoos validates collections in two different ways: it can validate groupings of <em>scalars</em>, atomic, indivisible values (i.e., numbers, booleans, etc.) and it can separately validate the properties of a <em>collection</em> (i.e., vector, map, list, set, etc.) itself, such as its size, the position of particular elements, and the relationships between elements, etc.</p><p>This example could certainly be validated as we've seen before.</p><pre><code>(valid-scalars? [:a :b :c]
                 [keyword? keyword? keyword?])
 ;; => true</code></pre><p>Speculoos can also consider the vector as a whole with its collection validation facility.</p><pre><code>(require '[speculoos.core :refer [valid-collections? validate-collections]])</code><br><br><code>(valid-collections? [:a :b :c]
                     [#(every? keyword? %)])
@@ -142,7 +142,7 @@
 ;; => ({:datum "peaches",
 ;;      :path [1],
 ;;      :predicate keyword?,
-;;      :valid? false})</code></pre><p>Note, 'missing' scalars are not validated as they would be with <code>spec.alpha</code>.</p><pre><code>(valid-scalars? [2] ingredient-spec) ;; => true</code></pre><p>Speculoos <a href="https://github.com/blosavio/speculoos?tab=readme-ov-file#mantras">ignores</a> predicates without a corresponding datum. Presence/absence of a datum is a property of the collection, and is thus handled with a collection specification. Like so…</p><pre><code>(def is-second-kw? #(keyword? (get % 1)))</code><br><br><code>(validate-collections [2] [is-second-kw?])
+;;      :valid? false})</code></pre><p>Note, 'missing' scalars are not validated as they would be with <code>spec.alpha</code>.</p><pre><code>(valid-scalars? [2] ingredient-spec) ;; => true</code></pre><p>Speculoos <a href="https://github.com/blosavio/speculoos?tab=readme-ov-file#mottos">ignores</a> predicates without a corresponding datum. Presence/absence of a datum is a property of the collection, and is thus handled with a collection specification. Like so…</p><pre><code>(def is-second-kw? #(keyword? (get % 1)))</code><br><br><code>(validate-collections [2] [is-second-kw?])
 ;; => ({:datum [2],
 ;;      :ordinal-path-datum [],
 ;;      :path-datum [],
@@ -232,7 +232,7 @@
                    :speculoos/ret-scalar-spec int?}
                   2
                   12)
-;; => 2</code></pre><p>Here, we'll intentionally violate the function's argument collection specification by reversing the order of the arguments, and observe the report.</p><pre><code>(validate-fn-with ranged-rand
+;; => 9</code></pre><p>Here, we'll intentionally violate the function's argument collection specification by reversing the order of the arguments, and observe the report.</p><pre><code>(validate-fn-with ranged-rand
                   {:speculoos/arg-scalar-spec [int? int?],
                    :speculoos/arg-collection-spec
                      [second-is-larger-than-first?],
@@ -251,7 +251,7 @@
                {:speculoos/arg-scalar-spec [int? int?],
                 :speculoos/arg-collection-spec [second-is-larger-than-first?],
                 :speculoos/ret-scalar-spec int?})
-;; => nil</code></pre><p>Now, we instrument the function…</p><pre><code>(instrument ranged-rand)</code></pre><p>…and then test it. Valid inputs return as normal.</p><pre><code>(ranged-rand 5 8) ;; => 5</code></pre><p>Invalid arguments return without halting if the function can successfully complete (as in this scenario), but the invalid message is tossed to <code>*out*</code>.</p><pre><code>(with-out-str (ranged-rand 8 5))
+;; => nil</code></pre><p>Now, we instrument the function…</p><pre><code>(instrument ranged-rand)</code></pre><p>…and then test it. Valid inputs return as normal.</p><pre><code>(ranged-rand 5 8) ;; => 7</code></pre><p>Invalid arguments return without halting if the function can successfully complete (as in this scenario), but the invalid message is tossed to <code>*out*</code>.</p><pre><code>(with-out-str (ranged-rand 8 5))
 ;;=> ({:path [0],
        :value second-is-larger-than-first?,
        :datum [8 5],
@@ -362,133 +362,131 @@
 ;;      :path [1 0 :hand 0 1],
 ;;      :predicate #{:club :diamond :heart :spade},
 ;;      :valid? nil})</code></pre><p>Speculoos reports an invalid datum <code>:banana</code> according to predicate <code>suits</code> located at path <code>[1 0 :hand 0 1]</code>, which you can inspect with <code>get-in*</code> and similar functions.</p></div></div></section><section><h2>Generators</h2><div class="side-by-side-container"><div class="side-by-side"><p>The <em>spec Guide</em> emphasizes that one of <code>spec.alpha</code>'s explicit design goals is to facilitate property-based testing. <code>spec.alpha</code> does this by closely cooperating with <code>test.check</code>, which generates sample data that conforms to the spec. Next, we'll see a few examples of these capabilities by generating sample data from the card game specs.</p><pre><code>(gen/sample (s/gen #{:club :diamond :heart :spade}))
-;; => (:spade :club
-;;            :club :club
+;; => (:heart :diamond
 ;;            :heart :heart
 ;;            :heart :spade
-;;            :diamond :spade)</code><br><br><code>(gen/sample (s/gen (s/cat :k keyword?
+;;            :diamond :diamond
+;;            :diamond :diamond)</code><br><br><code>(gen/sample (s/gen (s/cat :k keyword?
                           :ns (s/+ number?))))
-;; => ((:K/? -2.0)
-;;      (:z:a/U -1 0.5)
-;;      (:U*/-q 1.0 -1)
-;;      (:rw/+ 0 0)
-;;      (:Q-x/U9 -4 0)
-;;      (:pS/n_ 2 -4 0.5 -0.828125)
-;;      (:q!d/U. -1.25)
-;;      (:G/Q_c 0)
-;;      (:C2P/-BD -0.4296875)
-;;      (:h0/_A6 -4.0 -1 0.478515625 -62))</code><br><br><code>(gen/generate (s/gen :game/player))
-;; => #:game{:hand ([:ace :spade]
-;;                  [:queen :spade]
-;;                  [4 :club]
-;;                  [2 :club]
-;;                  [9 :heart]
-;;                  [3 :club]
-;;                  [7 :club]
-;;                  [6 :heart]
-;;                  [2 :diamond]
-;;                  [4 :club]
-;;                  [:jack :heart]
-;;                  [2 :heart]
-;;                  [7 :diamond]
-;;                  [8 :club]
+;; => ((:P/q 0)
+;;      (:k/-. -1.0)
+;;      (:./n 0 -2.0)
+;;      (:F./_ -4)
+;;      (:w/d -0.75 1 2.0)
+;;      (:_/! -3 -1.5 -2 0.75)
+;;      (:E./_x -6 1.25)
+;;      (:kr45/g 2 -1.0 -1 -1)
+;;      (:dW/M_7 -2 -29 -0.796875)
+;;      (:lE+/_ 1.375 41))</code><br><br><code>(gen/generate (s/gen :game/player))
+;; => #:game{:hand ([:king :heart]
 ;;                  [:king :heart]
-;;                  [10 :spade]
-;;                  [:king :diamond]
-;;                  [6 :diamond]
-;;                  [6 :diamond]
-;;                  [8 :heart]
-;;                  [7 :heart]
-;;                  [3 :heart]
-;;                  [:queen :spade]
-;;                  [:queen :heart]
+;;                  [3 :spade]
+;;                  [8 :spade]
 ;;                  [8 :diamond]
-;;                  [3 :club]
-;;                  [5 :diamond]),
-;;           :name "2GZY3U1r8k1AgCAv6hae4v",
-;;           :score 25}</code></pre></div><div class="side-by-side"><p>Speculoos provides a very rudimentary version that mimics this functionality. Because <code>game-spec</code> is composed of infinitely-repeating sequences, let's create a simplified version that terminates, using the basic <code>test.check</code> generators. Speculoos cannot in all instances automatically pull apart a compound predicate such as <code>#(and (int? %) (< % 10))</code> in order to compose a generator.</p><pre><code>(require '[speculoos.utility :refer [data-from-spec]])</code><br><br><code>(data-from-spec game-spec :random)
-;; => [[[9 :club] [3 :diamond] [2 :heart]
-;;      [6 :spade] [3 :diamond]]
-;;     [{:hand [[4 :heart] [2 :heart]
-;;              [5 :club] [5 :club]
-;;              [:ace :heart]],
-;;       :name "0",
-;;       :score -358}
-;;      {:hand [[5 :heart] [3 :diamond]
-;;              [3 :club] [6 :heart]
-;;              [4 :diamond]],
-;;       :name "",
-;;       :score -474}
-;;      {:hand [[:queen :heart]
-;;              [:king :diamond] [7 :club]
-;;              [5 :diamond] [7 :spade]],
-;;       :name "WHB8kls2oWV",
-;;       :score 296}
-;;      {:hand [[:king :heart] [:ace :spade]
-;;              [5 :club] [8 :heart]
-;;              [3 :club]],
-;;       :name "57H65NxNBu4I7KZ7p62jFsN",
-;;       :score -732}
-;;      {:hand [[3 :diamond] [:king :spade]
-;;              [7 :spade] [6 :club]
-;;              [7 :heart]],
-;;       :name "yo54vsNzLSbAL",
-;;       :score 825}]]</code></pre><p>Automatically setting up generators and property-based testing is the main area where Speculoos lags <code>spec.alpha</code>. I do not yet have a great idea on how to automatically pull apart compound, composed predicates. See the <a href="https://github.com/blosavio/speculoos?tab=readme-ov-file#exercising">docs</a>, <a href="https://blosavio.github.io/speculoos/speculoos.utility.html#var-inspect-fn"><span class="small-caps">api</span></a> and a <a href="#and">later subsection</a> to see how to manually or semi-automatically add generators into the predicate metadata.</p><p>Let's follow along as best as we can…</p><pre><code>(data-from-spec [int?] :random) ;; => [53]</code><br><code>(data-from-spec [nil?]) ;; => [nil]</code><br><br><code>(repeatedly 5 #(data-from-spec [string?] :random))
-;; => (["qKhS8D05k268i2w6orJ3W"]
-;;     ["10JhEY9JaqhS9ZTa2gvO6AS1qjQ"]
-;;     ["XLNPNCOpw18N6Y1o1Wo8G7vSX"]
-;;     ["6zJMB15Q0BvQk"]
-;;     ["v891AhCQV091s"])</code><br><br><code>(repeatedly 3 #(data-from-spec (into [keyword?] (repeat 3 double?)) :random))
-;; => ([:+z -32.0 -2.0 2.0]
-;;     [:- -0.00390625 0.06030082702636719
-;;      123.06951904296875]
-;;     [:RwkH 319.875 0.0224609375 256.0])</code><br><br><code>(data-from-spec player-spec :random)
-;; => {:hand [[8 :diamond] [:ace :diamond]
-;;            [:queen :spade] [6 :spade]
-;;            [10 :diamond]],
-;;     :name "88gsN8TS2",
-;;     :score 766}</code></pre><p>The card game specifications refer to earlier sections.</p></div></div></section><section><h2>Exercise</h2><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code>'s data-generating capabilities allows you to <em>exercise</em> a function by invoking it with generated arguments.</p><pre><code>(s/exercise (s/cat :k keyword?
+;;                  [:queen :spade]
+;;                  [:queen :club]
+;;                  [10 :heart]
+;;                  [7 :heart]
+;;                  [2 :spade]
+;;                  [3 :diamond]
+;;                  [10 :club]
+;;                  [8 :spade]
+;;                  [5 :spade]
+;;                  [:ace :spade]
+;;                  [3 :diamond]
+;;                  [9 :club]
+;;                  [3 :heart]
+;;                  [5 :heart]
+;;                  [:ace :club]
+;;                  [:ace :club]
+;;                  [4 :heart]
+;;                  [:jack :spade]
+;;                  [4 :spade]),
+;;           :name "K1",
+;;           :score 30594}</code></pre></div><div class="side-by-side"><p>Speculoos provides a very rudimentary version that mimics this functionality. Because <code>game-spec</code> is composed of infinitely-repeating sequences, let's create a simplified version that terminates, using the basic <code>test.check</code> generators. Speculoos cannot in all instances automatically pull apart a compound predicate such as <code>#(and (int? %) (< % 10))</code> in order to compose a generator.</p><pre><code>(require '[speculoos.utility :refer [data-from-spec]])</code><br><br><code>(data-from-spec game-spec :random)
+;; => [[[:ace :club] [3 :spade] [:king :heart]
+;;      [5 :spade] [7 :heart]]
+;;     [{:hand [[2 :heart] [:jack :club]
+;;              [7 :spade] [:jack :diamond]
+;;              [:jack :spade]],
+;;       :name "nPmqLrqNOF0TVPqTO3",
+;;       :score -568}
+;;      {:hand [[6 :heart] [:king :spade]
+;;              [3 :club] [10 :heart]
+;;              [:king :club]],
+;;       :name "e327I99mj36",
+;;       :score -920}
+;;      {:hand [[9 :diamond] [4 :spade]
+;;              [5 :heart] [8 :club]
+;;              [5 :spade]],
+;;       :name "4m7KWT9tT805rH5G42i6Q2r5R52p",
+;;       :score 341}
+;;      {:hand [[:king :diamond] [7 :heart]
+;;              [6 :diamond] [:jack :spade]
+;;              [6 :club]],
+;;       :name "pvP0y055zl",
+;;       :score -531}
+;;      {:hand [[2 :heart] [4 :spade]
+;;              [10 :spade] [8 :heart]
+;;              [5 :heart]],
+;;       :name "z47",
+;;       :score -46}]]</code></pre><p>Automatically setting up generators and property-based testing is the main area where Speculoos lags <code>spec.alpha</code>. I do not yet have a great idea on how to automatically pull apart compound, composed predicates. See the <a href="https://github.com/blosavio/speculoos?tab=readme-ov-file#exercising">docs</a>, <a href="https://blosavio.github.io/speculoos/speculoos.utility.html#var-inspect-fn"><span class="small-caps">api</span></a> and a <a href="#and">later subsection</a> to see how to manually or semi-automatically add generators into the predicate metadata.</p><p>Let's follow along as best as we can…</p><pre><code>(data-from-spec [int?] :random) ;; => [-523]</code><br><code>(data-from-spec [nil?]) ;; => [nil]</code><br><br><code>(repeatedly 5 #(data-from-spec [string?] :random))
+;; => (["Bi7WR3Co6wm7"]
+;;     ["LMET91Si"]
+;;     ["hXqVU4B"]
+;;     ["112Y25"]
+;;     ["tAnur09pTjK7683B7"])</code><br><br><code>(repeatedly 3 #(data-from-spec (into [keyword?] (repeat 3 double?)) :random))
+;; => ([:-l+p*p6 0.012370456010103226 0.0625
+;;      -2.0]
+;;     [:_kW? -312.12842202186584
+;;      0.051957547664642334
+;;      -0.027703168336302042]
+;;     [:!QV 36.5 1.8671875
+;;      2.1818504333496094])</code><br><br><code>(data-from-spec player-spec :random)
+;; => {:hand [[:jack :heart] [:king :spade]
+;;            [4 :heart] [3 :diamond]
+;;            [:jack :club]],
+;;     :name "Pt84hN",
+;;     :score -355}</code></pre><p>The card game specifications refer to earlier sections.</p></div></div></section><section><h2>Exercise</h2><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code>'s data-generating capabilities allows you to <em>exercise</em> a function by invoking it with generated arguments.</p><pre><code>(s/exercise (s/cat :k keyword?
                    :ns (s/+ number?))
             5)
-;; => ([(:-/b 1.0) {:k :-/b, :ns [1.0]}]
-;;     [(:Y/Eu -0.5) {:k :Y/Eu, :ns [-0.5]}]
-;;     [(:?/I- -1.0) {:k :?/I-, :ns [-1.0]}]
-;;     [(:./W* 0 -1) {:k :./W*, :ns [0 -1]}]
-;;     [(:-/x 2.375 -1.0 -1.0 -3.0)
-;;      {:k :-/x,
-;;       :ns [2.375 -1.0 -1.0 -3.0]}])</code><br><br><code>(s/exercise (s/or :k keyword?
+;; => ([(:V/+ 2.0) {:k :V/+, :ns [2.0]}]
+;;     [(:?5/* -1.0) {:k :?5/*, :ns [-1.0]}]
+;;     [(:V/Y -1 -1) {:k :V/Y, :ns [-1 -1]}]
+;;     [(:l/* -1 -2) {:k :l/*, :ns [-1 -2]}]
+;;     [(:nd/h_Q -0.5 -1 -1)
+;;      {:k :nd/h_Q, :ns [-0.5 -1 -1]}])</code><br><br><code>(s/exercise (s/or :k keyword?
                   :s string?
                   :n number?)
             5)
-;; => ([:_/R [:k :_/R]]
+;; => (["" [:s ""]]
 ;;     [-1 [:n -1]]
-;;     [:./e [:k :./e]]
-;;     [:Fp/f [:k :Fp/f]]
-;;     ["w" [:s "w"]])</code><br><br><code>(s/exercise-fn `ranged-rand)
-;; => ([(-8 0) -8]
-;;     [(-4 -1) -2]
-;;     [(0 3) 2]
-;;     [(-4 -1) -3]
-;;     [(-10 -1) -10]
-;;     [(-3 2) -3]
-;;     [(-5 13) -1]
-;;     [(0 12) 2]
-;;     [(-1 1) -1]
-;;     [(-94 -7) -64])</code></pre></div><div class="side-by-side"><p>Speculoos mimics the <code>exercise</code> function, but (for now) only exercises a scalar specification.</p><pre><code>(require '[speculoos.utility :refer [exercise]])</code><br><br><code>(exercise [int? string? boolean? char?] 5)
-;; => ([[-817 "F15jnAy72WopADV9a0S5Agc5UqJKDe" false \Y]
-;;      true]
-;;     [[-517 "w7J8u8c" true \M] true]
-;;     [[943 "kPA3QWN7CVX5nBsEfr9Ds" false \3] true]
-;;     [[-785 "gR2g" false \i] true]
-;;     [[36 "n81x" false \G] true])</code></pre><p>Speculoos also mimics <code>spec.alpha</code>'s <code>exercise-fn</code>, again only for scalar specifications, on the function's arguments.</p><pre><code>(require '[speculoos.function-specs :refer [exercise-fn]])</code><br><br><code>(inject-specs! ranged-rand {:speculoos/arg-scalar-spec [int? int?]}) ;; => nil</code><br><br><code>(exercise-fn ranged-rand 5)
-;; => ([[-50 -900] -600]
-;;     [[-281 -475] -466]
-;;     [[898 -994] 288]
-;;     [[-746 356] 18]
-;;     [[867 676] 845])</code></pre></div></div></section><section id="and"><h2><code>s/and</code> generators</h2><div class="side-by-side-container"><div class="side-by-side"><p>In certain cases, a spec will require the data to fall within a very small range of possible values, such as <em>an even positive integer, divisible by three, less than 31, greater than 12.</em> The generators are not likely to be able to produce multiple conforming samples using only <code>(s/gen int?)</code>, so we construct predicates with <code>spec.alpha</code>'s <code>and</code>.</p><pre><code>(gen/generate (s/gen (s/and int? even?))) ;; => -13839220</code><br><br><code>(defn divisible-by [n] #(zero? (mod % n)))</code><br><br><code>(gen/sample (s/gen (s/and int?
+;;     [-1 [:n -1]]
+;;     [-0.625 [:n -0.625]]
+;;     ["MTF" [:s "MTF"]])</code><br><br><code>(s/exercise-fn `ranged-rand)
+;; => ([(0 1) 0]
+;;     [(14 60) 46]
+;;     [(-6 0) -2]
+;;     [(0 1) 0]
+;;     [(-4 0) -3]
+;;     [(-1 0) -1]
+;;     [(-3 11) -1]
+;;     [(-4 -1) -4]
+;;     [(-106 0) -27]
+;;     [(0 23) 16])</code></pre></div><div class="side-by-side"><p>Speculoos mimics the <code>exercise</code> function, but (for now) only exercises a scalar specification.</p><pre><code>(require '[speculoos.utility :refer [exercise]])</code><br><br><code>(exercise [int? string? boolean? char?] 5)
+;; => ([[-92 "CgC1mQbJJzU8S799kV7" true \B] true]
+;;     [[733 "9v1b0cYR56yN8e23ES90412C" false \E] true]
+;;     [[-156 "0lXX3nA1VW" false \4] true]
+;;     [[-589 "MtIE0" false \C] true]
+;;     [[75 "6" false \v] true])</code></pre><p>Speculoos also mimics <code>spec.alpha</code>'s <code>exercise-fn</code>, again only for scalar specifications, on the function's arguments.</p><pre><code>(require '[speculoos.function-specs :refer [exercise-fn]])</code><br><br><code>(inject-specs! ranged-rand {:speculoos/arg-scalar-spec [int? int?]}) ;; => nil</code><br><br><code>(exercise-fn ranged-rand 5)
+;; => ([[-357 990] -49]
+;;     [[-428 349] 32]
+;;     [[-468 -489] -469]
+;;     [[-340 928] 197]
+;;     [[955 -29] 533])</code></pre></div></div></section><section id="and"><h2><code>s/and</code> generators</h2><div class="side-by-side-container"><div class="side-by-side"><p>In certain cases, a spec will require the data to fall within a very small range of possible values, such as <em>an even positive integer, divisible by three, less than 31, greater than 12.</em> The generators are not likely to be able to produce multiple conforming samples using only <code>(s/gen int?)</code>, so we construct predicates with <code>spec.alpha</code>'s <code>and</code>.</p><pre><code>(gen/generate (s/gen (s/and int? even?))) ;; => 3224512</code><br><br><code>(defn divisible-by [n] #(zero? (mod % n)))</code><br><br><code>(gen/sample (s/gen (s/and int?
                           #(> % 0)
                           (divisible-by 3))))
-;; => (9 60 6 12 750 48 3 834 93 246)</code></pre></div><div class="side-by-side"><p>Right now, Speculoos cannot <em>automatically</em> dive into a compound predicate such as <code>#(and (int? %) (even? %))</code> to create a competent generator, but it does offer a few options. First, you could manually compose a random sample generator and attach it the predicate's metadata. You may use whatever generator you prefer; <code>test.check.generators</code> work well.</p><pre><code>(require '[speculoos.utility :refer [defpred validate-predicate->generator]]
+;; => (30522 6 3 3 21 15 30 15 213441426 3)</code></pre></div><div class="side-by-side"><p>Right now, Speculoos cannot <em>automatically</em> dive into a compound predicate such as <code>#(and (int? %) (even? %))</code> to create a competent generator, but it does offer a few options. First, you could manually compose a random sample generator and attach it the predicate's metadata. You may use whatever generator you prefer; <code>test.check.generators</code> work well.</p><pre><code>(require '[speculoos.utility :refer [defpred validate-predicate->generator]]
          '[clojure.test.check.generators :as tc-gen])</code><br><br><code>(defn gen-int-pos-div-by-3
   []
   (last (tc-gen/sample (tc-gen/fmap #(* % 3) tc-gen/nat) 50)))</code><br><br><code>(def pred-1
@@ -496,35 +494,35 @@
     {:speculoos/predicate->generator gen-int-pos-div-by-3}))</code></pre><p>The <code>defpred</code> utility macro does the equivalent when you explicitly supply a sample generator.</p><pre><code>(defpred pred-2
          #(and (int? %) (> % 0) ((divisible-by 3) %))
          gen-int-pos-div-by-3)</code><br><br><code>;; verify that the samples produced by generator satisfy the predicate</code><br><code>(validate-predicate->generator pred-1 5)
-;; => ([60 true]
-;;     [24 true]
-;;     [87 true]
-;;     [114 true]
-;;     [123 true])</code><br><br><code>(validate-predicate->generator pred-2 5)
-;; => ([102 true]
+;; => ([57 true]
+;;     [78 true]
 ;;     [63 true]
-;;     [123 true]
-;;     [0 false]
-;;     [120 true])</code></pre><p>However, if you write your predicate in a way that conforms to <code>defpred</code>'s assumptions, it <em>will</em> compose a generator automatically.</p><pre><code>(defpred pred-3 #(and (int? %) (pos? %) ((divisible-by 3) %)))</code><br><br><code>(validate-predicate->generator pred-3 5)
-;; => ([27 true]
-;;     [6 true]
-;;     [3 true]
+;;     [141 true]
+;;     [45 true])</code><br><br><code>(validate-predicate->generator pred-2 5)
+;; => ([3 true]
+;;     [111 true]
+;;     [9 true]
+;;     [87 true]
+;;     [21 true])</code></pre><p>However, if you write your predicate in a way that conforms to <code>defpred</code>'s assumptions, it <em>will</em> compose a generator automatically.</p><pre><code>(defpred pred-3 #(and (int? %) (pos? %) ((divisible-by 3) %)))</code><br><br><code>(validate-predicate->generator pred-3 5)
+;; => ([6 true]
 ;;     [27 true]
-;;     [15 true])</code></pre><p>This is another area where <code>spec.alpha</code>'s approach outclasses Speculoos. Because you write a <code>spec.alpha</code> spec in an already 'pulled-apart' state, it can compose a generator starting with the first branch of that compound predicate and then use the following predicates as filters to refine the generated values.</p><p>Speculoos consumes predicates as already-defined functions, and it appears fiendishly involved to inspect the internal structure of a function — whose source may not be available — in order to generically extract individual components to an arbitrary nesting depth.</p><p>Three questions<ol><li>Is this why <code>spec.alpha</code> specs are written that way?</li><li>Would it be possible at all to decompose a predicate function object without access to the source?</li><li>If Speculoos never offers fully-automatic sample generation from a given compound predicate, is that deal-breaker for the entire approach?</li></ol></p></div></div></section><section><h2>Custom generators</h2><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> acknowledges that you may want to generate values by some other means, and thus allows custom generators via <code>with-gen</code>.</p><pre><code>(s/def :ex/kws
+;;     [15 true]
+;;     [9 true]
+;;     [21 true])</code></pre><p>This is another area where <code>spec.alpha</code>'s approach outclasses Speculoos. Because you write a <code>spec.alpha</code> spec in an already 'pulled-apart' state, it can compose a generator starting with the first branch of that compound predicate and then use the following predicates as filters to refine the generated values.</p><p>Speculoos consumes predicates as already-defined functions, and it appears fiendishly involved to inspect the internal structure of a function — whose source may not be available — in order to generically extract individual components to an arbitrary nesting depth.</p><p>Three questions<ol><li>Is this why <code>spec.alpha</code> specs are written that way?</li><li>Would it be possible at all to decompose a predicate function object without access to the source?</li><li>If Speculoos never offers fully-automatic sample generation from a given compound predicate, is that deal-breaker for the entire approach?</li></ol></p></div></div></section><section><h2>Custom generators</h2><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> acknowledges that you may want to generate values by some other means, and thus allows custom generators via <code>with-gen</code>.</p><pre><code>(s/def :ex/kws
   (s/with-gen (s/and keyword? #(= (namespace %) "my.domain"))
               #(s/gen #{:my.domain/name :my.domain/occupation :my.domain/id})))</code><br><br><code>(s/valid? :ex/kws :my.domain/name) ;; => true</code><br><br><code>(gen/sample (s/gen :ex/kws))
-;; => (:my.domain/occupation
-;;      :my.domain/occupation
-;;      :my.domain/name :my.domain/id
-;;      :my.domain/name :my.domain/name
+;; => (:my.domain/name
+;;      :my.domain/name
+;;      :my.domain/occupation :my.domain/id
 ;;      :my.domain/occupation :my.domain/name
-;;      :my.domain/id :my.domain/name)</code></pre></div><div class="side-by-side"><p>Speculoos considers a free-floating set to be a membership predicate. Speculoos generates sample values by randomly selecting from such a set. We can compose an equivalent set to generate qualified keywords.</p><pre><code>(def kw-pred
+;;      :my.domain/occupation :my.domain/id
+;;      :my.domain/id :my.domain/occupation)</code></pre></div><div class="side-by-side"><p>Speculoos considers a free-floating set to be a membership predicate. Speculoos generates sample values by randomly selecting from such a set. We can compose an equivalent set to generate qualified keywords.</p><pre><code>(def kw-pred
   (into #{} (map #(keyword "my.domain" %) ["name" "occupation" "id"])))</code><br><br><code>(valid-scalars? [:my.domain/name] [kw-pred]) ;; => true</code><br><br><code>(exercise [kw-pred] 5)
-;; => ([[:my.domain/name] true]
-;;     [[:my.domain/occupation] true]
-;;     [[:my.domain/id] true]
-;;     [[:my.domain/occupation] true]
-;;     [[:my.domain/occupation] true])</code></pre></div></div><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> provides combinators for creating more complicated generators.</p><pre><code>(def kw-gen-3
+;; => ([[:my.domain/id] true]
+;;     [[:my.domain/name] true]
+;;     [[:my.domain/name] true]
+;;     [[:my.domain/name] true]
+;;     [[:my.domain/name] true])</code></pre></div></div><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> provides combinators for creating more complicated generators.</p><pre><code>(def kw-gen-3
   (gen/fmap #(keyword "my.domain" %)
             (gen/such-that #(not= % "") (gen/string-alphanumeric))))</code><br><br><pre><code>(gen/sample kw-gen-3 5)</code><br><code>;; => (:my.domain/k
 ;;     :my.domain/xfm
@@ -545,88 +543,88 @@
                                     (gen/string-alphanumeric)))))</code><br><br><code>(gen/sample (s/gen :ex/hello))
 ;; => ("hello"
 ;;     "hello"
-;;     "7dhelloQ"
-;;     "eGhello"
-;;     "dhelloyyw"
-;;     "yf6helloe3x"
-;;     "VFo0helloS5Jj"
-;;     "Dd3hello6l1EB"
-;;     "cj17zc6hello73v"
-;;     "j2ywQhello2b")</code></pre></div><div class="side-by-side"><p>You could certainly copy-paste that generator and use it as is. Speculoos could also generate a sample string via a regular expression predicate.</p><pre><code>(exercise [#"\w{0,3}hello\w{1,5}"])
-;; => ([["GhelloWhWy"] true]
-;;     [["shelloyPoJj"] true]
-;;     [["hellormt"] true]
-;;     [["dWhelloqZ"] true]
-;;     [["FbhelloEU6h"] true]
-;;     [["pvhello64yMW"] true]
-;;     [["helloAEeT"] true]
-;;     [["jhelloej"] true]
-;;     [["ihelloTU0"] true]
-;;     [["Xlhello9"] true])</code></pre></div></div></section><section><h2>Range specs</h2><div class="side-by-side-container"><div class="side-by-side"><p>Spec-ing and generating a range of integers in <code>spec.alpha</code>.</p><pre><code>(s/def :bowling/roll (s/int-in 0 11))</code><br><br><code>(gen/sample (s/gen :bowling/roll)) ;; => (1 0 1 0 1 1 6 0 7 5)</code></pre></div><div class="side-by-side"><p>Similar thing in Speculoos.</p><pre><code>(defpred bowling-roll
+;;     "dJhello"
+;;     "ohelloccY"
+;;     "1gUHhello9v"
+;;     "t8shelloD13"
+;;     "i01xQfhello"
+;;     "Ohello"
+;;     "4ZhhelloC"
+;;     "0ez3wkhelloV7R2")</code></pre></div><div class="side-by-side"><p>You could certainly copy-paste that generator and use it as is. Speculoos could also generate a sample string via a regular expression predicate.</p><pre><code>(exercise [#"\w{0,3}hello\w{1,5}"])
+;; => ([["7hellovKmLx"] true]
+;;     [["hellozdgGz"] true]
+;;     [["hellof"] true]
+;;     [["9helloKw"] true]
+;;     [["OwhelloiI5L"] true]
+;;     [["vohelloZ3J"] true]
+;;     [["NhelloN6c"] true]
+;;     [["LMhelloSNd1"] true]
+;;     [["MInhellowOH"] true]
+;;     [["helloN"] true])</code></pre></div></div></section><section><h2>Range specs</h2><div class="side-by-side-container"><div class="side-by-side"><p>Spec-ing and generating a range of integers in <code>spec.alpha</code>.</p><pre><code>(s/def :bowling/roll (s/int-in 0 11))</code><br><br><code>(gen/sample (s/gen :bowling/roll)) ;; => (0 1 0 0 2 4 6 7 6 5)</code></pre></div><div class="side-by-side"><p>Similar thing in Speculoos.</p><pre><code>(defpred bowling-roll
          #(and (int? %) (<= 0 % 10))
          #(last (gen/sample (gen/large-integer* {:min 0, :max 10}))))</code><br><br><code>(validate-predicate->generator bowling-roll)
-;; => ([7 true]
-;;     [1 true]
-;;     [6 true]
-;;     [1 true]
+;; => ([1 true]
 ;;     [0 true]
+;;     [2 true]
+;;     [4 true]
 ;;     [5 true]
-;;     [10 true])</code></pre><p>But for integers, nothing beats the succinctness of <code>rand-int</code>.</p><pre><code>(defpred bowling-roll-2 #(and (int? %) (<= 0 % 10)) #(rand-int 11))</code><br><br><code>(validate-predicate->generator bowling-roll-2)
+;;     [0 true]
+;;     [1 true])</code></pre><p>But for integers, nothing beats the succinctness of <code>rand-int</code>.</p><pre><code>(defpred bowling-roll-2 #(and (int? %) (<= 0 % 10)) #(rand-int 11))</code><br><br><code>(validate-predicate->generator bowling-roll-2)
 ;; => ([4 true]
 ;;     [10 true]
-;;     [1 true]
-;;     [9 true]
-;;     [4 true]
-;;     [9 true]
-;;     [7 true])</code></pre><p>For small group sizes, a set-as-predicate might feel more natural.</p><pre><code>(exercise [(set (range 11))])
-;; => ([[10] true]
-;;     [[0] true]
+;;     [10 true]
+;;     [10 true]
+;;     [7 true]
+;;     [2 true]
+;;     [5 true])</code></pre><p>For small group sizes, a set-as-predicate might feel more natural.</p><pre><code>(exercise [(set (range 11))])
+;; => ([[6] true]
+;;     [[6] true]
+;;     [[7] true]
+;;     [[10] true]
+;;     [[5] true]
 ;;     [[8] true]
-;;     [[0] true]
-;;     [[9] true]
-;;     [[0] true]
-;;     [[0] true]
 ;;     [[2] true]
-;;     [[2] true]
-;;     [[9] true])</code></pre></div></div><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> does a range of <code>instant</code>s.</p><pre><code>(s/def :ex/the-aughts (s/inst-in #inst "2000" #inst "2010"))</code><br><br><code>(drop 50 (gen/sample (s/gen :ex/the-aughts) 55))
-;; => (#inst "2000-01-01T04:19:30.361-00:00"
-;;     #inst "2002-02-06T17:22:22.497-00:00"
-;;     #inst "2007-11-05T14:10:42.210-00:00"
-;;     #inst "2006-12-15T16:51:46.815-00:00"
-;;     #inst "2000-01-01T00:00:14.281-00:00")</code></pre></div><div class="side-by-side"><p>Well, hello. <code>test.check</code> does not provide an instance generator for Speculoos to borrow. Lemme reach over and steal <code>spec.alpha</code>'s.</p><pre><code>(defpred the-aughts
+;;     [[4] true]
+;;     [[10] true]
+;;     [[1] true])</code></pre></div></div><div class="side-by-side-container"><div class="side-by-side"><p><code>spec.alpha</code> does a range of <code>instant</code>s.</p><pre><code>(s/def :ex/the-aughts (s/inst-in #inst "2000" #inst "2010"))</code><br><br><code>(drop 50 (gen/sample (s/gen :ex/the-aughts) 55))
+;; => (#inst "2006-12-26T12:51:40.705-00:00"
+;;     #inst "2000-01-01T00:00:04.094-00:00"
+;;     #inst "2000-01-01T06:49:23.602-00:00"
+;;     #inst "2009-05-28T21:13:25.203-00:00"
+;;     #inst "2000-01-01T00:00:00.001-00:00")</code></pre></div><div class="side-by-side"><p>Well, hello. <code>test.check</code> does not provide an instance generator for Speculoos to borrow. Lemme reach over and steal <code>spec.alpha</code>'s.</p><pre><code>(defpred the-aughts
          #(instance? java.util.Date %)
          #(last (gen/sample (s/gen :ex/the-aughts) 55)))</code><br><br><code>(validate-predicate->generator the-aughts 5)
-;; => ([#inst "2000-01-01T00:00:46.853-00:00"
+;; => ([#inst "2000-01-02T10:29:38.435-00:00"
 ;;      true]
-;;     [#inst "2000-01-06T05:57:26.230-00:00"
+;;     [#inst "2000-01-01T00:00:00.006-00:00"
 ;;      true]
-;;     [#inst "2000-01-01T00:00:09.038-00:00"
+;;     [#inst "2006-11-23T23:31:11.397-00:00"
 ;;      true]
-;;     [#inst "2000-01-01T00:12:07.304-00:00"
+;;     [#inst "2000-01-01T00:49:28.546-00:00"
 ;;      true]
-;;     [#inst "2005-02-23T01:37:24.579-00:00"
+;;     [#inst "2002-06-19T03:47:42.432-00:00"
 ;;      true])</code></pre></div></div><div class="side-by-side-container"><div class="side-by-side"><p>Finally, <em>The spec Guide</em> illustrates generating doubles with specific conditions.</p><pre><code>(s/def :ex/dubs
   (s/double-in :min -100.0 :max 100.0 :NaN? false :infinite? false))</code><br><br><code>(s/valid? :ex/dubs 2.9) ;; => true</code><br><br><code>(s/valid? :ex/dubs Double/POSITIVE_INFINITY) ;; => false</code><br><br><code>(gen/sample (s/gen :ex/dubs))
 ;; => (-2.0
-;;     0.5
-;;     -3.5
+;;     -1.0
+;;     0.0
+;;     -3.0
 ;;     1.0
-;;     1.0
-;;     -3.75
-;;     -0.5
-;;     -0.75
-;;     -0.375
-;;     -7.3125)</code></pre></div><div class="side-by-side"><p>Speculoos leans on <code>test.check.generators</code> for that flexibility.</p><pre><code>(defpred dubs
+;;     3.0
+;;     0.75
+;;     -1.0
+;;     -1.25
+;;     0.4833984375)</code></pre></div><div class="side-by-side"><p>Speculoos leans on <code>test.check.generators</code> for that flexibility.</p><pre><code>(defpred dubs
          #(and (<= -100 % 100) (not (NaN? %)) (not (infinite? %)))
          #(gen/generate
             (gen/double* {:min -100, :max 100, :infinite? false, "NaN?" true})))</code><br><br><code>(validate-predicate->generator dubs 10)
-;; => ([-0.0068359375 true]
-;;     [-0.005512237548828125 true]
-;;     [0.9041327685117722 true]
-;;     [4.671806335449219 true]
-;;     [1.7861328125 true]
-;;     [-2.4176204204559326 true]
-;;     [3.6922035217285156 true]
-;;     [-0.45901080034673214 true]
-;;     [0.09176802635192871 true]
-;;     [-0.044946834444999695 true])</code></pre></div></div></section><section><p>Frankly, when I started writing Speculoos, I would have guessed that it could mimic only some fraction of <code>spec.alpha</code>. I think this page demonstrates that it can fulfill a decent chunk. Perhaps somebody else beyond me feels that composing specifications the Speculoos way is more intuitive.</p><p>Still, Speculoos is very much a proof-of-concept, experimental prototype. Function instrumentation is really rough. Custom generators need more polishing. Many of the bottom-level functions could use attention to performance.</p><p><a href="https://github.com/blosavio">Let me know</a> what you think.</p></section></article><p id="page-footer">Copyright © 2024 Brad Losavio.<br>Compiled 2024 September 16.<span id="uuid"><br>8a4f6c1d-cd36-4753-8fea-7afeb8faa049</span></p></body></head></html>
+;; => ([-0.10523884743452072 true]
+;;     [0.0044451067224144936 true]
+;;     [-13.520994901657104 true]
+;;     [0.41956400871276855 true]
+;;     [0.027070723474025726 true]
+;;     [##NaN false]
+;;     [0.009764298796653748 true]
+;;     [-3.0 true]
+;;     [0.05417633056640625 true]
+;;     [0.1288433074951172 true])</code></pre></div></div></section><section><p>Frankly, when I started writing Speculoos, I would have guessed that it could mimic only some fraction of <code>spec.alpha</code>. I think this page demonstrates that it can fulfill a decent chunk. Perhaps somebody else beyond me feels that composing specifications the Speculoos way is more intuitive.</p><p>Still, Speculoos is very much a proof-of-concept, experimental prototype. Function instrumentation is really rough. Custom generators need more polishing. Many of the bottom-level functions could use attention to performance.</p><p><a href="https://github.com/blosavio">Let me know</a> what you think.</p></section></article><p id="page-footer">Copyright © 2024 Brad Losavio.<br>Compiled 2024 September 18.<span id="uuid"><br>8a4f6c1d-cd36-4753-8fea-7afeb8faa049</span></p></body></head></html>

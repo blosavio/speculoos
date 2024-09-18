@@ -54,7 +54,6 @@
 (def screencast-filename-bases
   [#_"setup"
    {:screencast-filename "intro"      :screencast-title "Introduction"                           :screencast-uuid #uuid "4e8947fe-756c-42a6-b930-76559fb88372"}
-   #_"mantras"
    {:screencast-filename "mechanics"  :screencast-title "Mechanics"                              :screencast-uuid #uuid "a230a730-7d15-43a0-abd1-e3cce92ca598"}
    {:screencast-filename "scalar"     :screencast-title "Validating Scalars"                     :screencast-uuid #uuid "8d2be8eb-1e1b-46a1-9038-c9042bd96b79"}
    {:screencast-filename "collection" :screencast-title "Validating Collections"                 :screencast-uuid #uuid "f7ab1ff8-766b-4e56-b47a-3aa10010a29a"}

@@ -44,7 +44,7 @@
   [:div.note "Report is " [:code "get-in"] "-able. We'll discuss all this info in due time."])
 
 
- (load-file "resources/screencast_sections/mantras.clj")
+ (load-file "resources/screencast_sections/mottos.clj")
 
 
  (panel

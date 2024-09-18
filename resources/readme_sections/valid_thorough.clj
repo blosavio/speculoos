@@ -23,7 +23,7 @@
 
  [:p "Whereas the " [:code "validate-…"] " functions return a detailed validation report of every predicate+datum pair they see, the " [:code "valid-…?"] " variants provide a plain " [:code "true/false"] "."]
 
- [:p "Beware: Validation only considers paired predicates+datums (Mantra #3). If your datum doesn't have a paired predicate, then it won't be validated. Observe."]
+ [:p "Beware: Validation only considers paired predicates+datums (Motto #3). If your datum doesn't have a paired predicate, then it won't be validated. Observe."]
 
  [:pre
   (print-form-then-eval "(valid-scalars? {:a 42} {:b string?})" 30 80)
@@ -37,7 +37,7 @@
 
  [:h3#thorough "Thorough validation"]
 
- [:p "Mantra #3 reminds us that data elements not paired with a predicate are ignored. For some tasks, we may want to ensure that all elements in the data are subjected to at least one predicate. Plain " [:code "valid?"] "  only reports if all datum+predicate pairs are " [:code "true"] "."]
+ [:p "Motto #3 reminds us that data elements not paired with a predicate are ignored. For some tasks, we may want to ensure that all elements in the data are subjected to at least one predicate. Plain " [:code "valid?"] "  only reports if all datum+predicate pairs are " [:code "true"] "."]
 
  [:pre (print-form-then-eval "(valid-scalars? [42 \"abc\" 22/7] [int?])" 35 45)]
 
@@ -94,7 +94,7 @@
   [:br]
   (print-form-then-eval "(valid? [42] [int?] [vector?])" 20 80)]
 
- [:p "Let me emphasize what " [:code "valid?"] " is doing here, because it is " [:em "not"] " violating the first Mantra about separately validating scalars and collections. First, " [:code "valid?"] " performs a scalar validation on the data, and puts that result on the shelf. Then, in a completely distinct operation, it performs a collection validation. " [:code "valid?"] " then pulls the scalar validation results off the shelf and combines it with the collection validation results, and returns a singular " [:code "true/false"] ".  (Look back at the first example of this sub-section to see the separation.)"]
+ [:p "Let me emphasize what " [:code "valid?"] " is doing here, because it is " [:em "not"] " violating the first Motto about separately validating scalars and collections. First, " [:code "valid?"] " performs a scalar validation on the data, and puts that result on the shelf. Then, in a completely distinct operation, it performs a collection validation. " [:code "valid?"] " then pulls the scalar validation results off the shelf and combines it with the collection validation results, and returns a singular " [:code "true/false"] ".  (Look back at the first example of this sub-section to see the separation.)"]
 
  [:p "I reserved the shortest, most mnemonic function name, " [:code "valid?"] ", to signal how important it is to separate scalar and collection validation."]
 
@@ -102,7 +102,7 @@
 
  [:pre (print-form-then-eval "(validate [42 \"abc\" 22/7] [int? symbol? ratio?] [vector?])" 50 40)]
 
- [:p [:code "validate"] " gives us the exact results as if we had run " [:code "validate-scalars"] " and then immediately thereafter " [:code "validate-collections"] ". " [:code "validate"] " merely gives us the convenience of quickly running both in succession without having to re-type the data. With one invocation, we can validate " [:em "all"] " aspects of our data, both scalars and collections, and we never violated Mantra #1."]
+ [:p [:code "validate"] " gives us the exact results as if we had run " [:code "validate-scalars"] " and then immediately thereafter " [:code "validate-collections"] ". " [:code "validate"] " merely gives us the convenience of quickly running both in succession without having to re-type the data. With one invocation, we can validate " [:em "all"] " aspects of our data, both scalars and collections, and we never violated Motto #1."]
 
  [:h3#fn-terminology "Function Naming Conventions"]
 

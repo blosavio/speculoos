@@ -33,13 +33,13 @@
 
 
  (panel
-  [:h3 "Beware: un-paired predicates+datums, Mantra #3"]
+  [:h3 "Beware: un-paired predicates+datums, Motto #3"]
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:a 42} {:b string?})" 30 80)
 
   (prettyfy-form-prettyfy-eval "(validate-scalars {:a 42} {:b string?})" 35 80)
 
-  [:div.note "Beware: Validation only considers paired predicates+datums (Mantra #3). If your datum doesn't have a paired predicate, then it won't be validated. Observe." [:code "42"] " does not share a path with " [:code "string?"] ", the lone predicate in the specification. Since there are zero invalid results, " [:code "valid-scalars?"] " returns " [:code "true"] "."])
+  [:div.note "Beware: Validation only considers paired predicates+datums (Motto #3). If your datum doesn't have a paired predicate, then it won't be validated. Observe." [:code "42"] " does not share a path with " [:code "string?"] ", the lone predicate in the specification. Since there are zero invalid results, " [:code "valid-scalars?"] " returns " [:code "true"] "."])
 
 
  (panel
@@ -51,7 +51,7 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? [42 \"abc\" 22/7] [int?])" 35 45)
 
-  [:div.note "Mantra #3 reminds us that data elements not paired with a predicate are ignored. For some tasks, we may want to ensure that all elements in the data are subjected to at least one predicate. Plain " [:code "valid?"] "  only reports if all datum+predicate pairs are " [:code "true"] "." "In this example, only " [:code "42"] " and " [:code "int?"] " form a pair that is validated. " [:code "\"abc\""] " and " [:code "22/7"] " are not paired with predicates, and therefore ignored."
+  [:div.note "Motto #3 reminds us that data elements not paired with a predicate are ignored. For some tasks, we may want to ensure that all elements in the data are subjected to at least one predicate. Plain " [:code "valid?"] "  only reports if all datum+predicate pairs are " [:code "true"] "." "In this example, only " [:code "42"] " and " [:code "int?"] " form a pair that is validated. " [:code "\"abc\""] " and " [:code "22/7"] " are not paired with predicates, and therefore ignored."
 
    [:p "The " [:em "thorough"] " function " [:a {:href "#fn-terminology"} "variants"] " require that all data elements be specified, otherwise, they return " [:code "false"] ". Thoroughly validating that same data with that same specification shows the difference."]])
 
@@ -119,7 +119,7 @@
 
   [:div.note "Speculoos provides a pre-made utility that does exactly that. We supply some data, then a scalar specification, then a collection specification."
 
-   [:p "Let me emphasize what " [:code "valid?"] " is doing here, because it is " [:em "not"] " violating the first Mantra about separately validating scalars and collections. First, " [:code "valid?"] " performs a scalar validation on the data, and puts that result on the shelf. Then, in a completely distinct operation, it performs a collection validation. " [:code "valid?"] " then pulls the scalar validation results off the shelf and combines it with the collection validation results, and returns a singular " [:code "true/false"] ".  (Look back at the first example of this sub-section to see the separation.)"]
+   [:p "Let me emphasize what " [:code "valid?"] " is doing here, because it is " [:em "not"] " violating the first Motto about separately validating scalars and collections. First, " [:code "valid?"] " performs a scalar validation on the data, and puts that result on the shelf. Then, in a completely distinct operation, it performs a collection validation. " [:code "valid?"] " then pulls the scalar validation results off the shelf and combines it with the collection validation results, and returns a singular " [:code "true/false"] ".  (Look back at the first example of this sub-section to see the separation.)"]
 
    [:p "I reserved the shortest, most mnemonic function name, " [:code "valid?"] ", to signal how important it is to separate scalar and collection validation."]])
 
@@ -131,7 +131,7 @@
 
   [:div.note "Speculoos also provides a variant that returns detailed validation results after performing distinct scalar validation and collection validation."
 
-   [:p [:code "validate"] " gives us the exact results as if we had run " [:code "validate-scalars"] " and then immediately thereafter " [:code "validate-collections"] ". " [:code "validate"] " merely gives us the convenience of quickly running both in succession without having to re-type the data. With one invocation, we can validate " [:em "all"] " aspects of our data, both scalars and collections, and we never violated Mantra #1."]])
+   [:p [:code "validate"] " gives us the exact results as if we had run " [:code "validate-scalars"] " and then immediately thereafter " [:code "validate-collections"] ". " [:code "validate"] " merely gives us the convenience of quickly running both in succession without having to re-type the data. With one invocation, we can validate " [:em "all"] " aspects of our data, both scalars and collections, and we never violated Motto #1."]])
 
 
  (panel

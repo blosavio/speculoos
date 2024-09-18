@@ -19,7 +19,7 @@
   * `ordinal`: A mode of operation wherein a nested collection's path considers
   only its ordering relative to other collections.
 
-  Remember three mantras:
+  Remember three Mottos:
 
   1. Validate scalars separately from validating collections.
   2. Make the specification mimic the shape of the data.
@@ -558,11 +558,11 @@
 
   The ordering of results is an implementation detail and not specified.
 
-  Remember two mantras:
+  Remember three Mottos:
 
-  1. Shape your specification (mostly) like your data.
-  2. Validation looks at *either* scalars *or* collections, not both.
-     `validate-scalars` only looks at scalars.
+  1. Validate scalars separately from validating collections.
+  2. Make the specification mimic the shape of the data.
+  3. Validation ignores un-paired predicates and un-paired datums.
 
   Examples:
   ```clojure
@@ -1154,11 +1154,11 @@
 
   The ordering of results is an implementation detail and not specified.
 
-  Remember two mantras:
+  Remember three Mottos:
 
-  1. Shape your specification (mostly) like your data.
-  2. Validation looks at *either* scalars *or* collections, not both.
-     `validate-collections` only looks at collections.
+  1. Validate scalars separately from validating collections.
+  2. Make the specification mimic the shape of the data.
+  3. Validation ignores un-paired predicates and un-paired datums.
 
   Predicates at `path` within the collection specification are applied to the
   collection located at `(drop-last path)` within `data`. Generally, the
@@ -1367,10 +1367,11 @@
   using collection specification `collection-spec`, then return the merged
   vector of each result. See [[validate-scalars]] and [[validate-collections]].
 
-  Remember two mantras:
+  Remember three Mottos:
 
-  1. Shape your specification (mostly) like your data.
-  2. Validation looks at *either* scalars *or* collections, not both.
+  1. Validate scalars separately from validating collections.
+  2. Make the specification mimic the shape of the data.
+  3. Validation ignores un-paired predicates and un-paired datums.
 
   `validate` performs two separate validations, in two distinct steps, then
    returns a single summary that merges both results. First, `data`'s scalars

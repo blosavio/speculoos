@@ -122,7 +122,7 @@
 
  [:pre [:code "[{:a 11} 22 (list 33) 44 #{55}]"]]
 
- [:p "Now we need to compose a collection specification. Mantra #2 reminds us to make the specification mimic the shape of the data. I'm going to copy-paste the data and mash the delete key to remove the scalar datums."]
+ [:p "Now we need to compose a collection specification. Motto #2 reminds us to make the specification mimic the shape of the data. I'm going to copy-paste the data and mash the delete key to remove the scalar datums."]
 
  [:pre [:code "[{     }    (       )    #{  }]"]]
 

@@ -20,7 +20,8 @@
        [:body.wide-body
         [:article
          [:h1.wide-title [:code "(diff spec.alpha speculoos)"]]
-         [:p "The Speculoos library is an experiment to see if it is possible to perform the same tasks as "
+         [:p "The " [:a {:href "https://github.com/blosavio/speculoos"} "Speculoos library"]
+          " is an experiment to see if it is possible to perform the same tasks as "
           [:code "clojure.spec.alpha"]
           " using literal specifications. As a rough measure, I tried to replicate the features outlined in the "
           [:a {:href "https://clojure.org/guides/spec"} [:em " spec Guide"]]
@@ -198,7 +199,7 @@
 
             [:pre (print-form-then-eval "(valid-scalars? {:first-name \"Bugs\" :last-name \"Bunny\" :email :not-an-email} (assoc person-spec :email #(string? %)))" 45 45)]
 
-            [:p "Note the function name: Speculoos " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#mantras"} "distinguishes"] " validating " [:em "scalars"] " (i.e., numbers, strings, characters, etc.) from " [:em "collections"] " (vectors, lists, maps, sets). Speculoos provides a corresponding group of functions specifying collection counts, presence of keys, set membership, etc."]
+            [:p "Note the function name: Speculoos " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#mottos"} "distinguishes"] " validating " [:em "scalars"] " (i.e., numbers, strings, characters, etc.) from " [:em "collections"] " (vectors, lists, maps, sets). Speculoos provides a corresponding group of functions specifying collection counts, presence of keys, set membership, etc."]
 
             [:pre (print-form-then-eval "(valid-scalars? {:first-name \"Bugs\" :last-name \"Bunny\" :email \"n/a\"}  person-spec)" 45 45)]
 
@@ -394,7 +395,7 @@
              (print-form-then-eval "(s/conform :ex/vnum3 [1 2 3])")]]
 
            [:div.side-by-side
-            [:p "Speculoos was designed from the start to specify collections. Speculoos validates collections in two different ways: it can validate groupings of " [:em "scalars"] ", atomic, inidivisible values (i.e., numbers, booleans, etc.) and it can separately validate the properties of a " [:em "collection"] " (i.e., vector, map, list, set, etc.) itself, such as its size, the position of particular elements, and the relationships between elements, etc."]
+            [:p "Speculoos was designed from the start to specify collections. Speculoos validates collections in two different ways: it can validate groupings of " [:em "scalars"] ", atomic, indivisible values (i.e., numbers, booleans, etc.) and it can separately validate the properties of a " [:em "collection"] " (i.e., vector, map, list, set, etc.) itself, such as its size, the position of particular elements, and the relationships between elements, etc."]
 
             [:p "This example could certainly be validated as we've seen before."]
 
@@ -496,7 +497,7 @@
 
             [:pre (print-form-then-eval "(valid-scalars? [2] ingredient-spec)")]
 
-            [:p "Speculoos " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#mantras"} "ignores"] " predicates without a corresponding datum. Presence/absence of a datum is a property of the collection, and is thus handled with a collection specification. Like so…"]
+            [:p "Speculoos " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#mottos"} "ignores"] " predicates without a corresponding datum. Presence/absence of a datum is a property of the collection, and is thus handled with a collection specification. Like so…"]
 
             [:pre
              (print-form-then-eval "(def is-second-kw? #(keyword? (get % 1)))")

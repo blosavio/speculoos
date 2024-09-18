@@ -3,7 +3,7 @@
  [:p "If you see surprising results, try these ideas."]
  [:ul
   [:li
-   [:p "Remember the Mantras, and follow them."
+   [:p "Remember the Mottos, and follow them."
     [:ol
      [:li [:strong "Validate scalars separately from validating collections."]
 

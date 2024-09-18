@@ -128,7 +128,7 @@
   [:code ";; scalar specification"]
   (print-form-then-eval "(all-paths [int? #{keyword?}])")]
 
- [:p "Let's apply the Mantras. We intend to validate scalars, so we'll use " [:code "validate-scalars"] ", which only applies predicates to scalars. Next, we'll make our our specification mimic the shape of the data. In this example, both the data and the specification are a vector, with something in the first spot, and a set in the second spot. Finally, we'll make sure that all predicates are paired with a scalar."]
+ [:p "Let's apply the Mottos. We intend to validate scalars, so we'll use " [:code "validate-scalars"] ", which only applies predicates to scalars. Next, we'll make our our specification mimic the shape of the data. In this example, both the data and the specification are a vector, with something in the first spot, and a set in the second spot. Finally, we'll make sure that all predicates are paired with a scalar."]
 
  [:pre (print-form-then-eval "(validate-scalars [42 #{:glass :rubber :paper}] [int? #{keyword?}])" 55 45)]
 
@@ -165,7 +165,7 @@
 
  [:pre (print-form-then-eval "(all-paths [42 #{:puppy :kitten :goldfish}])" 55 65)]
 
- [:p "Mantra #1: Collection validation ignores scalars, so out of all those elements, validation will only consider the root at path " [:code "[]"] " and the nested set at path " [:code "[1]"] "."]
+ [:p "Motto #1: Collection validation ignores scalars, so out of all those elements, validation will only consider the root at path " [:code "[]"] " and the nested set at path " [:code "[1]"] "."]
 
  [:p "A good strategy for creating a collection specification is to copy-paste the data and delete all the scalars…"]
 

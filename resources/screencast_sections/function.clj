@@ -256,7 +256,7 @@
 
   [:div.note "A scalar validation followed by an independent collection validation allows us to check every possible aspect that we could want. Now we that we've seen how to individually validate " [:code "enhance-sum-three"] "'s return scalars and return collections, we know how to do both with one invocation."
 
-   [:p "Remember Mantra #1: Validate scalars separately from validating collections. Speculoos will only ever do one or the other, but " [:code "validate"] " is a " [:a {:href "#combo"} "convenience function"] " that performs a scalar validation immediately followed by a collection validation. We'll re-use the scalar specification and collection specification from the previous examples."]
+   [:p "Remember Motto #1: Validate scalars separately from validating collections. Speculoos will only ever do one or the other, but " [:code "validate"] " is a " [:a {:href "#combo"} "convenience function"] " that performs a scalar validation immediately followed by a collection validation. We'll re-use the scalar specification and collection specification from the previous examples."]
 
    [:p [:code "only-invalid"] " discards the validations where the predicates are satisfied, leaving only the invalids. Two scalars failed to satisfy their scalar predicates. Integer " [:code "1"] " at path " [:code "[0]"] " in the data fails to satisfy scalar predicate " [:code "char?"] " at path " [:code "[0]"] " in the scalar specification. Integer " [:code "321"] " fails to satisfy scalar predicate " [:code "boolean?"] " at path " [:code "[3]"] " in the scalar specification. Finally, our root vector " [:code "[1 20 300 321]"] " located at path " [:code "[]"] " fails to satisfy the collection predicate " [:code "list?"] " at path " [:code "[0]"] "."]])
 
@@ -481,7 +481,7 @@
 
   (prettyfy-form-prettyfy-eval "(validate-fn-with broken-reverse {:speculoos/argument-return-relationships [{:path-argument [0] :path-return [] :relationship-fn same-length?} {:path-argument [0] :path-return [] :relationship-fn same-elements?} {:path-argument [0] :path-return [] :relationship-fn reversed?}]} [11 22 33 44 55])" 45 70)
 
-  [:div.note "We wrote two other relationship functions, but " [:code "same-elements?"] " and " [:code "reversed?"] " are merely floating around in the current namespace. We did not send them to "  [:code "validate-fn-with"] ", so it checked only " [:code "same-length?"] ", which we explicitly supplied. Remember Mantra #3: Un-paired predicates (or, relationships in this instance) are ignored."
+  [:div.note "We wrote two other relationship functions, but " [:code "same-elements?"] " and " [:code "reversed?"] " are merely floating around in the current namespace. We did not send them to "  [:code "validate-fn-with"] ", so it checked only " [:code "same-length?"] ", which we explicitly supplied. Remember Motto #3: Un-paired predicates (or, relationships in this instance) are ignored."
 
    [:p "Let's check all three relationships now."]
 

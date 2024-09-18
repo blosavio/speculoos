@@ -159,7 +159,7 @@
 
  [:p "A scalar validation followed by an independent collection validation allows us to check every possible aspect that we could want. Now we that we've seen how to individually validate " [:code "enhance-sum-three"] "'s return scalars and return collections, we know how to do both with one invocation."]
 
- [:p "Remember Mantra #1: Validate scalars separately from validating collections. Speculoos will only ever do one or the other, but " [:code "validate"] " is a " [:a {:href "#combo"} "convenience function"] " that performs a scalar validation immediately followed by a collection validation. We'll re-use the scalar specification and collection specification from the previous examples."]
+ [:p "Remember Motto #1: Validate scalars separately from validating collections. Speculoos will only ever do one or the other, but " [:code "validate"] " is a " [:a {:href "#combo"} "convenience function"] " that performs a scalar validation immediately followed by a collection validation. We'll re-use the scalar specification and collection specification from the previous examples."]
 
  [:pre (print-form-then-eval "(speculoos.core/only-invalid (validate [1 20 300 321] [char? int? int? boolean?] [list?]))" 45 45)]
 
@@ -345,7 +345,7 @@
 
  [:p "We supplied " [:code "broken-reverse"] " with a five-element vector, and it returned a six-element vector, failing to satisfy the specified " [:code "same-length?"] " relationship."]
 
- [:p "We wrote two other relationship functions, but " [:code "same-elements?"] " and " [:code "reversed?"] " are merely floating around in the current namespace. We did not send them to "  [:code "validate-fn-with"] ", so it checked only " [:code "same-length?"] ", which we explicitly supplied. Remember Mantra #3: Un-paired predicates (or, relationships in this instance) are ignored."]
+ [:p "We wrote two other relationship functions, but " [:code "same-elements?"] " and " [:code "reversed?"] " are merely floating around in the current namespace. We did not send them to "  [:code "validate-fn-with"] ", so it checked only " [:code "same-length?"] ", which we explicitly supplied. Remember Motto #3: Un-paired predicates (or, relationships in this instance) are ignored."]
 
  [:p "Let's check all three relationships now."]
 

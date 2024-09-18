@@ -144,7 +144,7 @@
 
   [:div.note "Sometimes the scalars in our data are contained in a set. Speculoos can validate scalars within a set during a scalar validation operation. Validating a set's scalar members follows all the same principles as validating a vector's scalar members, except for one wrinkle: Since elements of a set have no inherent location, i.e., sets are unordered, sets in our data are validated against " [:em "all"] " predicates contained in the corresponding set at the same path in the specification. An example shows this better than words."
 
-   [:p "Let's apply the Mantras. We intend to validate scalars, so we'll use " [:code "validate-scalars"] ", which only applies predicates to scalars. Next, we'll make our our specification mimic the shape of the data. In this example, both the data and the specification are a vector, with something in the first spot, and a set in the second spot. Finally, we'll make sure that all predicates are paired with a scalar."]])
+   [:p "Let's apply the Mottos. We intend to validate scalars, so we'll use " [:code "validate-scalars"] ", which only applies predicates to scalars. Next, we'll make our our specification mimic the shape of the data. In this example, both the data and the specification are a vector, with something in the first spot, and a set in the second spot. Finally, we'll make sure that all predicates are paired with a scalar."]])
 
 
  (panel
@@ -212,7 +212,7 @@
 
   [:pre [:code "[vector? #{set?}               ]"]]
 
-  [:div.note "Mantra #1: Collection validation ignores scalars, so out of all those elements, validation will only consider the root at path " [:code "[]"] " and the nested set at path " [:code "[1]"] "."
+  [:div.note "Motto #1: Collection validation ignores scalars, so out of all those elements, validation will only consider the root at path " [:code "[]"] " and the nested set at path " [:code "[1]"] "."
 
    [:p "A good strategy for creating a collection specification is to copy-paste the data and delete all the scalars…"]
 

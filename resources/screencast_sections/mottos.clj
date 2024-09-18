@@ -1,5 +1,5 @@
 (panel
- [:h3 "★ Speculoos' Three Mantras"]
+ [:h3 "★ Three Mottos"]
  [:ol
   [:li "Validate scalars separately from validating collections."]
   [:li "Shape the specification to mimic the data."]

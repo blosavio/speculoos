@@ -1,7 +1,7 @@
-[:section#mantras
- [:h2 "★ Mantras"]
+[:section#mottos
+ [:h2 "★ Mottos"]
 
- [:p "When using Speculoos, remember these three Mantras:"
+ [:p "When using Speculoos, remember these three Mottos:"
   [:ol
    [:li "Validate scalars separately from validating collections."]
    [:li "Shape the specification to mimic the data."]
