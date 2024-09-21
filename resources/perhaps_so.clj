@@ -581,7 +581,7 @@
          [:section
           [:h3 "Final thoughts"]
 
-          [:p "It's fortunate that Speculoos' implementation details combined with a few policy decisions resulted in being able to address most all of the concerns presented in " [:em "Maybe Not"] "."]
+          [:p "It's fortunate that Speculoos' implementation details combined with a few policy decisions resulted in being able to address most all of " [:em "Maybe Not"] "'s concerns. I don't claim that Speculoos is the only solution to these issues, but that the principles under which Speculoos operates provides one possible solution."]
 
           [:p [:a {:href "https://github.com/blosavio"} "Let me know"] " what you think."]]
          ]]))

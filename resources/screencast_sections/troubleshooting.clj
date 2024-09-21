@@ -11,6 +11,7 @@
   [:p "Remember the Mottos, and follow them!"]
   [:div.note "If you see surprising results, try these ideas."])
 
+
  (load-file "resources/screencast_sections/mottos.clj")
 
 

@@ -30,6 +30,20 @@ dt {
     margin: 0;
 }
 
+.side-by-side-by-side-container {
+    display: flex;
+}
+
+.side-by-side-by-side {
+    width: 33.3%;
+    margin-right: 2rem;
+}
+
+.side-by-side-by-side code {
+    overflow-x: visible;
+    margin: 0;
+}
+
 .small-caps {
     font-variant: small-caps;
 }

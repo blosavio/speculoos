@@ -69,7 +69,7 @@
    {:section-name "Non-terminating Sequences" :section-href "non-terminating-sequences"}
    {:section-name "Sets"}
    {:section-name "Comparison to spec.alpha" :section-href "https://blosavio.github.io/speculoos/diff.html" :skip-section-load? true}
-   ;; later ... #_{:section-name "Perhaps so" :section-href "perhaps_so.html" :skip-section-load? true}
+   {:section-name "Perhaps So" :section-href "https://blosavio.github.io/speculoos/perhaps_so.html" :skip-section-load? true}
    {:section-name "Recipes" :section-href "https://github.com/blosavio/speculoos/tree/main/doc/recipes.clj" :skip-section-load? true}
    {:section-name "Troubleshooting"}
    #_{:section-name "Case Study" :section-href "case-study"}
