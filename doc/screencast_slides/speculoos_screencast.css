@@ -61,7 +61,7 @@ dt {
 .highlight {
     color: black;
     font-weight: bold;
-    font-size: 110%;
+    font-size: 100%;
 }
 
 .tight {
@@ -112,6 +112,10 @@ body {
 
 }
 
+.subtitle {
+    margin-top: -8vh;
+}
+
 .info {
 
 }
@@ -125,12 +129,13 @@ code.form {
 }
 
 code.eval {
-    /* opacity: 0; */
+    opacity: 0;
 }
 
 .note {
-    display: none;
+    /* display: none; */
     color: darkorange;
+    font-size: 18pt;
 }
 
 .panel {
@@ -158,11 +163,19 @@ code.eval {
     bottom: 0px;
 }
 
-.panel-number {
+.panel-number, .footer-link {
     color: silver;
     width: 100%;
     display: block;
     text-align: center;
+}
+
+.panel-number {
+    margin-bottom: 2vh;
+}
+
+.footer-link {
+    font-size: 20pt;
 }
 
 div.vspace {
@@ -179,4 +192,27 @@ li {
 
 p {
     margin-bottom: 5vh;
+}
+
+.whats-next {
+    font-size: 22pt;
+}
+
+.whats-next li {
+    margin-bottom: 1.5vh;
+}
+
+td {
+    padding-bottom: 1.5vh;
+    padding-right: 2.0vw;
+}
+
+.note > p {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.note li  {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
 }

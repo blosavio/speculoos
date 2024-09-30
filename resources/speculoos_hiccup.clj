@@ -298,7 +298,7 @@
   {:UUIDv4 #uuid "c30b6a0b-3092-4e84-a7a5-7fd07ab248b1"}
   [body]
   (let [total (dec (count body))]
-    (concat [(first body)] (vec (map-indexed #(vec (conj (vec (butlast %2)) (conj (last %2) [:span.panel-number (str (inc %1) "/" total)]))) (vec (rest body)))))))
+    (concat [(first body)] (vec (map-indexed #(vec (conj (vec (butlast %2)) (conj (last %2) [:span.panel-number (str (inc %1) "/" total)] [:span.footer-link "https://github.com/blosavio/speculoos"]))) (vec (rest body)))))))
 
 
 (defn screencast-template

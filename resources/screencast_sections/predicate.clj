@@ -113,7 +113,7 @@
 
 
  (panel
-  [:h3 "Helpfull names and function object rendering"]
+  [:h3 "Helpful names and function object rendering"]
 
   [:pre [:code "[{:path [0],\n  :datum 42,\n  :predicate #function[documentation/eval94717/fn--94718],\n  :valid? false}]"]]
 

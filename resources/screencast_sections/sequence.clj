@@ -9,7 +9,7 @@
  (panel
   (screencast-title sequence-index "Non-terminating sequences")
 
-  [:h4 "Creating arbitrarily-long sequnces of pairs"]
+  [:h4 "Creating arbitrarily-long sequences of pairs"]
 
   (prettyfy-form-prettyfy-eval "(validate-scalars [42] [int? keyword? char?])" 40 40)
 
@@ -82,8 +82,8 @@
 
   [:div.note "Or perhaps we'd like to validate a function's argument list composed of a ratio followed by " [:code "&-args"] " consisting of any number of alternating keyword-string pairs."
 
-   "zero &-args"
-   "two pairs of keyword+string optional args"
+   "zero &-args."
+   "two pairs of keyword+string optional args."
    "one pair of optional args; 'foo does not satisfy `string?` scalar predicate"
 
    [:p "Using non-terminating sequences this way sorta replicates " [:code "spec.alpha"] "'s sequence regexes. I think of it as Speculoos' super-power."]])
@@ -107,7 +107,7 @@
 
   [:div.note "One detail that affects usage: A non-terminating sequence must not appear at the same path within both the data and specification. I am not aware of any method to inspect a sequence to determine if it is infinite, so Speculoos will refuse to validate a non-terminating data sequence at the same path as a non-terminating predicate sequence, and " [:em "vice versa"] ". However, feel free to use them in either data or in the specification, as long as they live at different paths."
 
-   "data's infinite sequence at :a, specification's infinite sequence at :b"
+   "data's infinite sequence at :a, specification's infinite sequence at :b."
    "demo of some invalid scalars"
 
    [:p "In both cases above, the data contains a non-terminating sequence at key " [:code ":a"] ", while the specification contains a non-terminating sequence at key " [:code ":b"] ". Since in both cases, the two infinite sequences do not share a path, validation can proceed to completion."]])

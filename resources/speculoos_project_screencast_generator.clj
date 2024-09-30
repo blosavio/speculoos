@@ -52,8 +52,7 @@
 
 
 (def screencast-filename-bases
-  [#_"setup"
-   {:screencast-filename "intro"      :screencast-title "Introduction"                           :screencast-uuid #uuid "4e8947fe-756c-42a6-b930-76559fb88372"}
+  [{:screencast-filename "intro"      :screencast-title "Introduction"                           :screencast-uuid #uuid "09ec291a-23f7-400b-9c3b-694facdb64ae"}
    {:screencast-filename "mechanics"  :screencast-title "Mechanics"                              :screencast-uuid #uuid "a230a730-7d15-43a0-abd1-e3cce92ca598"}
    {:screencast-filename "scalar"     :screencast-title "Validating Scalars"                     :screencast-uuid #uuid "8d2be8eb-1e1b-46a1-9038-c9042bd96b79"}
    {:screencast-filename "collection" :screencast-title "Validating Collections"                 :screencast-uuid #uuid "f7ab1ff8-766b-4e56-b47a-3aa10010a29a"}
@@ -79,7 +78,7 @@
   (let [screencast-topics (mapv #(:screencast-title %) screencast-filename-bases)]
     (panel
      [:h3 "What's next."]
-     (reduce-kv (fn [v i val] (conj v [(if (= i (inc idx)) :li.highlight :li) val])) [:ol.de-highlight] screencast-topics)
+     (reduce-kv (fn [v i val] (conj v [(if (= i (inc idx)) :li.highlight :li) val])) [:ol.de-highlight.whats-next] screencast-topics)
      notes)))
 
 

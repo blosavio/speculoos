@@ -25,4 +25,7 @@ $(document).ready(function() {
 	$(".note").toggle(duration);
     });
 
+    $(".highlightable").mouseenter(function(event) {$(this).addClass("highlight")})
+    $(".highlightable").mouseleave(function(event) {$(this).removeClass("highlight")})
+
 });

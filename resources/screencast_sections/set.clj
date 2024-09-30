@@ -126,7 +126,7 @@
 
 
  (panel
-  [:h3 "Validatind with sets as a scalar predicate (in a map)"]
+  [:h3 "Validating with sets as a scalar predicate (in a map)"]
 
   (prettyfy-form-prettyfy-eval " (validate-scalars {:x 42 :y :red} {:x int? :y #{:red :green :blue}})" 55 45)
 
@@ -166,7 +166,7 @@
 
 
  (panel
-  [:h3 "Validating scalars within a set, multiple scapar predicates, multiple scalar datums"]
+  [:h3 "Validating scalars within a set, multiple scalar predicates, multiple scalar datums"]
 
   (prettyfy-form-prettyfy-eval "(validate-scalars #{:chocolate :vanilla :strawberry} #{keyword? qualified-keyword?})" 55 55)
 

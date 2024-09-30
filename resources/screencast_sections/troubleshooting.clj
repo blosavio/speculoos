@@ -45,7 +45,7 @@
 
   (prettyfy-form-prettyfy-eval "(validate-scalars [42 \"abc\" 22/7] {0 int? 1 string? 2 ratio?})" 50 40)
 
-  [:div.note ";; No error nor exception with map data and vector specification" "The speculoos functions don't enforce any requirements on the data and specification. If we feed it data that's a map and a specification that's a vector, it will dutifully try to validate what it has." "One word of warning: Because sequential things are indexed by integers, and map elements may also be indexed by integers, we could certainly abuse that flexibility like this." ";; data is a vector, specification is a map keyed with integers" "Speculoos merely knows that it could successfully locate " [:code "42"] " and " [:code "int?"] " at " [:code "0"] ", etc. It 'worked' in this instance, but surprise lurks if we try to get to overly clever."])
+  [:div.note ";; No error nor exception with map data and vector specification." "The speculoos functions don't enforce any requirements on the data and specification. If we feed it data that's a map and a specification that's a vector, it will dutifully try to validate what it has." "One word of warning: Because sequential things are indexed by integers, and map elements may also be indexed by integers, we could certainly abuse that flexibility like this." ";; data is a vector, specification is a map keyed with integers" "Speculoos merely knows that it could successfully locate " [:code "42"] " and " [:code "int?"] " at " [:code "0"] ", etc. It 'worked' in this instance, but surprise lurks if we try to get to overly clever."])
 
 
  (panel
@@ -97,7 +97,7 @@
 
   [:p "Functions to assist creating, viewing, analyzing, and modifying both scalar and collection specifications."]
 
-  [:p "Rember: Speculoos specifications are plain, old Clojure data structures."]
+  [:p "Remember: Speculoos specifications are plain, old Clojure data structures."]
 
   [:div.note [:p "The " [:a {:href "https://blosavio.github.io/speculoos/speculoos.utility.html"} [:code "speculoos.utility"]] " namespace provides many functions for creating, viewing, analyzing, and modifying both scalar and collection specifications."]])
 

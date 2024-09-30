@@ -523,7 +523,7 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]} {:a int? :b string? :c three-chars? :d three-syms?})")
 
-  [:div.note "We could also compose an equivalent scalar specification from pre-defined subcomponents. Consider this."
+  [:div.note "We could also compose an equivalent scalar specification from pre-defined sub-components. Consider this."
 
    [:p "Regular old Clojure composition in action. The scalar specification refers to " [:code "three-chars?"] " at its key " [:code ":c"] " and refers to " [:code "three-syms?"] " at its key " [:code ":d"] ". We can thus mix and match with impunity to compose our specifications."]])
 
