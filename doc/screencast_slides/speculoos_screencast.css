@@ -216,3 +216,8 @@ td {
     margin-top: 0.75rem;
     margin-bottom: 0.75rem;
 }
+
+.smaller {
+    font-size: 14pt;
+    width: 70rem;
+}

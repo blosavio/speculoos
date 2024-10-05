@@ -63,9 +63,9 @@
    {:screencast-filename "predicate"  :screencast-title "Predicates"                             :screencast-uuid #uuid "553e7bfd-5e43-4774-b9ff-b5334a4ac821"}
    {:screencast-filename "sequence"   :screencast-title "Non-Terminating Sequences"              :screencast-uuid #uuid "3b8a296e-9837-4ea8-9d53-40e9f82024c1"}
    {:screencast-filename "set"        :screencast-title "Sets"                                   :screencast-uuid #uuid "5cebfc31-4519-4bbc-9de9-8fac2841a8ef"}
-   ;; later ... #_"alpha"
+   {:screencast-filename "troubleshooting" :screencast-title "Troubleshooting"                   :screencast-uuid #uuid "07d8a61d-9f9c-4167-9c03-adbf915eb2aa"}
+   {:screencast-filename "compare"    :screencast-title "Comparing spec.alpha to Speculoos"      :screencast-uuid #uuid "0c99bbbe-b977-4e5b-8e37-32c2a8f07b0d"}
    {:screencast-filename "perhaps"    :screencast-title "Perhaps So"                             :screencast-uuid #uuid "7060304f-2f6e-4453-ab1c-7797821e7edf"}
-   {:screencast-filename "troubleshooting"      :screencast-title "Troubleshooting"        :screencast-uuid #uuid "07d8a61d-9f9c-4167-9c03-adbf915eb2aa"}
    #_"case-study"
    #_"glossary"])
 

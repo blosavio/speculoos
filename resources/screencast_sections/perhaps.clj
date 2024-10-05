@@ -2,7 +2,7 @@
          '[speculoos-project-screencast-generator :refer [whats-next-panel]])
 
 
-(def perhaps-index 11)
+(def perhaps-index 13)
 
 
 [:body
@@ -10,7 +10,8 @@
   (screencast-title perhaps-index "Perhaps So")
   [:h3 [:em "How Speculoos addresses issues raised in '" [:a {:href "https://www.youtube.com/watch?v=YR5WdGrpoug"} "Maybe Not"] "'"]]
 
-  [:div.note "Rich Hickey presented " [:a {:href "https://2018.clojure-conj.org/rich-hickey/"} "Maybe Not"]  " at the 2018 " [:em "Clojure conj"] ". If I correctly understand his presentation, he identified some flaws in " [:code "clojure.spec.alpha"] ", the Clojure distribution's built-in library for specifying and validating data. Mr Hickey highlighted three issues."])
+  [:div.note
+   [:p "Rich Hickey presented " [:a {:href "https://2018.clojure-conj.org/rich-hickey/"} "Maybe Not"]  " at the 2018 " [:em "Clojure conj"] ". If I correctly understand his presentation, he identified some flaws in " [:code "clojure.spec.alpha"] ", the Clojure distribution's built-in library for specifying and validating data. Mr Hickey highlighted three issues."]])
 
 
  (panel
@@ -21,7 +22,8 @@
    [:li [:strong "Specifying"] " partial information in an aggregate data structure."]
    [:li [:strong "Validating"] " partial information in an aggregate data structure."]]
 
-  [:div.note "He was apparently not satisfied with the way " [:code "spec.alpha"] " handles these three issues."
+  [:div.note
+   [:p "He was apparently not satisfied with the way " [:code "spec.alpha"] " handles these three issues."]
 
    [:p "The " [:a {:href "https://github.com/blosavio/speculoos"} "Speculoos library"]
     " is an experiment to see if it is possible to perform the same tasks as "
@@ -54,7 +56,8 @@
    [:div.side-by-side-by-side [:pre [:code "{:first-name \"Isaac\"\n :last-name \"Newton\"\n :age nil}"]]]
    [:div.side-by-side-by-side [:pre [:code "{:first-name \"Maria\"\n :last-name \"Göppert-Mayer\"}"]]]]
 
-  [:div.note "Representing partial data is not specifically the purview of the Speculoos library, but of Clojure itself. We'll discuss partial information only in order to supply us with examples for later."
+  [:div.note
+   [:p "Representing partial data is not specifically the purview of the Speculoos library, but of Clojure itself. We'll discuss partial information only in order to supply us with examples for later."]
 
    [:p "Mr Hickey highlights the fact that idiomatic Clojure merely excludes missing information instead of 'holding a slot' with a " [:code "nil"] ". Imagine data about a person that could include their first name, last name, and and their age. Here's an example of 'complete' data."]
 
@@ -74,10 +77,13 @@
     [:p "specification"]
     [:pre [:code "{:first-name string?\n :last-name string?\n :age int?}"]]]]
 
+  [:div.vspace]
+
   [:p "signature for validating"]
   [:pre [:code "(valid-scalars? data\n                specification)"]]
 
-  [:div.note "A Speculoos specification is a plain Clojure data structure containing predicates. The specification's shape mimics the shape of the data (Motto #2). Professor Einstein's data is a map with keys " [:code ":first-name"] ", " [:code ":last-name"] ", and " [:code ":age"] ". The Speculoos specification for that data might look like this."
+  [:div.note
+   [:p "A Speculoos specification is a plain Clojure data structure containing predicates. The specification's shape mimics the shape of the data (Motto #2). Professor Einstein's data is a map with keys " [:code ":first-name"] ", " [:code ":last-name"] ", and " [:code ":age"] ". The Speculoos specification for that data might look like this."]
 
    [:p "The specification is likewise a map with those same keys, i.e., the same 'shape', with predicates " [:code "string?"] " and " [:code "int?"] " replacing datums. Speculoos assembles pairs of datums and predicates and reports if the datums satisfy their corresponding predicates and returns " [:code "true/false"] "."]
 
@@ -93,9 +99,12 @@
 
   (prettyfy-form-prettyfy-eval "(require '[speculoos.core :refer [valid-scalars?]])")
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:first-name \"Albert\" :last-name \"Einstein\" :age 76} {:first-name string? :last-name string? :age int?})")
 
-  [:div.note [:code "valid-scalars?"] " systematically walks through both the data and specification, and where it finds a datum paired with a predicate, it validates. "
+  [:div.note
+   [:p [:code "valid-scalars?"] " systematically walks through both the data and specification, and where it finds a datum paired with a predicate, it validates. "]
 
    [:ul
     [:li [:code "\"Albert\""] " at " [:code ":first-name"] " in the data satisfies " [:code "string?"] " at " [:code ":first-name"] " in the specification, "]
@@ -110,7 +119,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:first-name \"Albert\" :last-name \"Einstein\"} {:first-name string? :last-name string? :age int?})")
 
-  [:div.note "Let's see what happens if we remove Professor Einstein's age from the data but leave the corresponding predicate in the specification."
+  [:div.note
+   [:p "Let's see what happens if we remove Professor Einstein's age from the data but leave the corresponding predicate in the specification."]
 
    [:p "That result may be surprising. Why doesn't the missing age datum cause a " [:code "false"] " result? We need to consider Motto #3: Un-paired predicates are ignored. " [:code "valid-scalars?"] " was able to find two datum+predicate pairs."]
 
@@ -127,7 +137,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:first-name \"Albert\" :last-name \"Einstein\" :email \"al@princeton.edu\"} {:first-name string? :last-name string?})")
 
-  [:div.note "What about the other way around? What if our data contains a key-value that does not appear in the specification? Let's add an email entry."
+  [:div.note
+   [:p "What about the other way around? What if our data contains a key-value that does not appear in the specification? Let's add an email entry."]
 
    [:p "Again, " [:code "valid-scalars?"] " found two datum+predicate pairs. Both first-name and last-name datums satisfied their corresponding predicates, so the validation returned " [:code "true"] ". The email datum did not have a corresponding predicate, so, according to Motto #3, it was ignored."]
 
@@ -139,7 +150,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:first-name \"Albert\" :last-name \"Einstein\" :age 76} {})" 66 33)
 
-  [:div.note "We might imagine a scenario where we absolutely do not care about any facet of our data. In that case, our specification would contain exactly zero predicates."
+  [:div.note
+   [:p "We might imagine a scenario where we absolutely do not care about any facet of our data. In that case, our specification would contain exactly zero predicates."]
 
    [:p [:code "valid-scalars?"] " found zero pairs of datums and predicates. Since there were zero invalids, " [:code "valid-scalars?"] " returns " [:code "true"] "."]])
 
@@ -149,7 +161,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {} {:first-name string? :last-name string? :age int? :address {:street-name string? :street-number int? :zip-code int? :city string? :state keyword?} :email #\"\\w@\\w\"})")
 
-  [:div.note "Perhaps we've been building up a comprehensive specification for a person's data that includes predicates for a whole slew of possible datums. We need to be able to handle partial data. I.e., not every instance of data we encounter will be complete. The edge case would be zero datums."
+  [:div.note
+   [:p "Perhaps over the last few months, our team has been assembling a comprehensive specification for a person's data that includes predicates for a whole slew of possible datums. We need to be able to handle partial data. I.e., not every instance of data we encounter will be complete. The edge case would be zero datums."]
 
    [:p "Not a single one of those predicates was paired with a datum, so there were zero invalid results. Thus, " [:code "valid-scalars?"] " returns " [:code "true"] "."]])
 
@@ -159,23 +172,22 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:first-name \"Albert\" :last-name \"Einstein\" :age \"not an integer!\"} {:first-name string? :last-name string? :age int?})")
 
-  [:div.note "In every example we've seen so far, all the datums satisfy the predicate they were paired with. Here's what happens if at least one datum does not satisfy its predicate."
+  [:div.note
+   [:p "In every example we've seen so far, all the datums satisfy the predicate they were paired with. Here's what happens if at least one datum does not satisfy its predicate."]
 
    [:p "String datum " [:code "not an integer!"] " failed to satisfy the " [:code "int?"] " predicate located at " [:code ":age"] " in the specification. Therefore, " [:code "valid-scalars?"] " returned " [:code "false"] ". Speculoos provides other functions that give more detail about invalid elements, but for simplicity, we'll stick with the " [:code "true/false"] " results."]])
 
 
  (panel
-  [:h3 "Validating presence of a datum"]
+  [:h3 "Validating presence of a datum: datum not there"]
 
   (prettyfy-form-prettyfy-eval "(defn has-age? [m] (contains? m :age))")
 
   (prettyfy-form-prettyfy-eval "(require '[speculoos.core :refer [valid-collections?]])")
 
-  [:div.side-by-side-container
-   [:div.side-by-side
-    (prettyfy-form-prettyfy-eval "(valid-collections? {:first-name \"Albert\" :last-name \"Einstein\"} {:foo has-age?})" 45 45)]
-   [:div.side-by-side
-    (prettyfy-form-prettyfy-eval "(valid-collections? {:first-name \"Albert\" :last-name \"Einstein\" :age 76} {:foo has-age?})" 45 45)]]
+  [:div.vspace]
+
+  (prettyfy-form-prettyfy-eval "(valid-collections? {:first-name \"Albert\" :last-name \"Einstein\"} {:foo has-age?})" 45 45)
 
   [:div.note "If we wanted to ensure that the data contains a particular key-value, we need to validate the collection itself (Motto #1). Presence of absence of a datum is a property of the collection. First, we'll write a " [:code "has-age?"] " collection predicate that tests whether the map contains an " [:code ":age"] " key."
 
@@ -189,13 +201,25 @@
 
 
  (panel
+  [:h3 "Validating presence of a datum: datum is there"]
+
+  (prettyfy-form-prettyfy-eval "(valid-collections? {:first-name \"Albert\" :last-name \"Einstein\" :age 76} {:foo has-age?})" 45 45)
+
+  [:div.note
+   [:p "Now our map *does* contain :age. " [:code "valid-collections?"] " informs us that this map to satisfies the " [:code "has-age?"] " collection predicate."]])
+
+
+ (panel
   [:h3 "Combo validation: scalars, then collections"]
 
   (prettyfy-form-prettyfy-eval "(require '[speculoos.core :refer [valid?]])")
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(valid? {:first-name \"Albert\" :last-name \"Einstein\"} {:first-name string? :last-name string? :age int?} {:foo has-age?})")
 
-  [:div.note "We'll often want to validate some aspects of both the scalars and the collections, so Speculoos provides a combo function that does a scalar validation, immediately followed by a collection validation, and returns the overall result."
+  [:div.note
+   [:p "We'll often want to validate some aspects of both the scalars and the collections, so Speculoos provides a combo function that does a scalar validation, immediately followed by a collection validation, and returns the overall result."]
 
    [:p "The " [:code "string?"] " scalar predicates at " [:code ":first-name"] " and " [:code ":last-name"] " were both satisfied. Scalar predicate " [:code "int?"] " at " [:code ":age"] " was ignored. However, collection predicate " [:code "has-age?"] " at " [:code ":foo"] " was not satisfied, so " [:code "valid?"] " returns " [:code "false"] "."]
 
@@ -207,7 +231,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:first-name \"Albert\" :last-name \"Einstein\" :age 76.0} {:first-name string? :last-name string? :age int?})")
 
-  [:div.note "A portion of " [:em "Maybe Not"] " discusses " [:code "spec.alpha"] "'s issues with optionality. Mr Hickey contends it is a mistake to put optionality into aggregate specifications because doing so destroys a specification's re-usability. An entity that is optional in one context might not be optional in another context."
+  [:div.note
+   [:p "A portion of " [:em "Maybe Not"] " discusses " [:code "spec.alpha"] "'s issues with optionality. Mr Hickey contends it is a mistake to put optionality into aggregate specifications because doing so destroys a specification's re-usability. An entity that is optional in one context might not be optional in another context."]
 
    [:p "Speculoos does not suffer from this problem. Because of Motto #3, any predicate that is not paired with a datum is ignored. Any datum that is not paired with predicate is also ignored. Only when a datum is paired with a predicate is the pair considered in the validation result. Separately, if a particular context requires the presence of a datum, we can validate that with a collection validation."]
 
@@ -225,9 +250,12 @@
 
   (prettyfy-form-prettyfy-eval "(assoc {:first-name string? :last-name string? :age int?} :age number?)" 75 75)
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:first-name \"Albert\" :last-name \"Einstein\" :age 76.0} (assoc {:first-name string? :last-name string? :age int?} :age number?))" 95 95)
 
-  [:div.note "We can easily relax our specification to accept that the age be any kind of number."
+  [:div.note
+   [:p "We can easily relax our specification to accept that the age be any kind of number."]
 
    [:p "With that relaxed specification in hand, that data is now valid."]
 
@@ -241,13 +269,14 @@
 
   [:div.side-by-side-container
    [:div.side-by-side
-    (prettyfy-form-prettyfy-eval "(valid-collections? {:first-name \"Albert\" :last-name \"Einstein\"} {:foo has-age?})" 45 45)]
+    (prettyfy-form-prettyfy-eval "(valid-collections? {:first-name \"Albert\" :last-name \"Einstein\"} {:foo has-age?})" 35 45)]
    [:div.side-by-side
     (prettyfy-form-prettyfy-eval "(dissoc {:foo has-age?} :foo)")
 
     (prettyfy-form-prettyfy-eval "(valid-collections? {:first-name \"Albert\" :last-name \"Einstein\"} (dissoc {:foo has-age?} :foo))" 45 45)]]
 
-  [:div.note "Now, let's pretend someone handed us a collection specification that requires the presence of the age key-value, but in our little part of the world, our data doesn't have it, and our little machine doesn't need it. Without intervention, collection validation will fail."
+  [:div.note
+   [:p "Now, let's pretend someone handed us a collection specification that requires the presence of the age key-value, but in our little part of the world, our data doesn't have it, and our little machine doesn't need it. Without intervention, collection validation will fail."]
 
    [:p "The data does not contain a key " [:code ":age"] " so the data is invalid, according to the specification we were handed."]
 
@@ -263,31 +292,34 @@
  (panel
   [:h3 "Replicating specific scenarios from " [:em "Maybe Not"]]
 
-   [:div.note "In this section, we'll explore how Speculoos handles the specific, problematic scenarios presented by Mr Hickey."])
+   [:div.note
+    [:p "In this section, we'll explore how Speculoos handles the specific, problematic scenarios presented by Mr Hickey."]])
 
 
  (panel
   [:h3 "Predicates use proper " [:code "or"]]
 
-  [:p "Commutative:"]
+  [:table
+   [:tr
+    [:td "Commutative:"]
+    [:td
+     (prettyfy-form-prettyfy-eval "(#(or (int? %) (string? %)) 42)")
+     (prettyfy-form-prettyfy-eval "(#(or (string? %) (int? %)) 42)")]]
 
-  (prettyfy-form-prettyfy-eval "(#(or (int? %) (string? %)) 42)")
+   [:tr
+    [:td "Associative:"]
+    [:td
+     (prettyfy-form-prettyfy-eval "(#(or (int? %) (or (string? %) (char? %))) 42)")
+     (prettyfy-form-prettyfy-eval "(#(or (or (int? %) (string? %)) (char? %)) 42)")]]
 
-  (prettyfy-form-prettyfy-eval "(#(or (string? %) (int? %)) 42)")
+   [:tr
+    [:td "Distributive:"]
+    [:td (prettyfy-form-prettyfy-eval "(#(or (and (int? %) (even? %)) (string? %)) 42)")]]
 
-  [:p "Associative:"]
+   [:tr [:td "Etc."]]]
 
-  (prettyfy-form-prettyfy-eval "(#(or (int? %) (or (string? %) (char? %))) 42)")
-
-  (prettyfy-form-prettyfy-eval "(#(or (or (int? %) (string? %)) (char? %)) 42)")
-
-  [:p "Distributive:"]
-
-  (prettyfy-form-prettyfy-eval "(#(or (and (int? %) (even? %)) (string? %)) 42)")
-
-  [:p "Etc."]
-
-  [:div.note "Speculoos predicates are plain old Clojure functions. When we need to validate an element that may be one of multiple types, the predicates use " [:code "clojure.core/or"] ", which will inherit all the proper semantics."])
+  [:div.note
+   [:p "Speculoos predicates are plain old Clojure functions. When we need to validate an element that may be one of multiple types, the predicates use " [:code "clojure.core/or"] ", which will inherit all the proper semantics."]])
 
 
  (panel
@@ -295,7 +327,8 @@
 
   [:p "Don't."]
 
-  [:div.note "This one's easy: just write Speculoos predicates without " [:code "nilable"] "."])
+  [:div.note
+   [:p "This one's easy: just write Speculoos predicates without " [:code "nilable"] "."]])
 
 
  (panel
@@ -306,10 +339,11 @@
     (prettyfy-form-prettyfy-eval "(valid-scalars? [42 \"abc\" 22/7] [int? string? ratio?])" 45 45)]
    [:div.side-by-side
     (prettyfy-form-prettyfy-eval "(def specification-1 [int? string? ratio?])")
-
+    [:div.vspace]
     (prettyfy-form-prettyfy-eval "(valid-scalars? [42 \"abc\" 22/7] specification-1)" 45 45)]]
 
-  [:div.note "One of " [:code "spec.alpha"] "'s propositions is that specs are " [:a {:href "https://clojure.org/about/spec#_global_namespaced_names_are_more_important"} "required to be namespace-qualified"] ". Speculoos takes a hands-off approach. Speculoos specifications are plain Clojure data structures that are referenced however we want. Specifications may be a literal, like " [:code "[int? string? ratio?]"] "."
+  [:div.note
+   [:p "One of " [:code "spec.alpha"] "'s propositions is that specs are " [:a {:href "https://clojure.org/about/spec#_global_namespaced_names_are_more_important"} "required to be namespace-qualified"] ". Speculoos takes a hands-off approach. Speculoos specifications are plain Clojure data structures that are referenced however we want. Specifications may be a literal, like " [:code "[int? string? ratio?]"] "."]
 
    [:p "Or, we may bind them to a symbol in our current namespace."]
 
@@ -321,9 +355,12 @@
 
   (prettyfy-form-prettyfy-eval "(def speculoos-registry {::specification-2 [int? string? ratio?] ::specification-3 {:first-name string? :last-name string? :age int}})")
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(valid-scalars? [42 \"abc\" 22/7] (speculoos-registry ::specification-2))" 55 45)
 
-  [:div.note "Or, we may gather them into our own bespoke registry."])
+  [:div.note
+   [:p "Or, we may gather them into our own bespoke registry."]])
 
 
  (panel
@@ -331,9 +368,12 @@
 
   (prettyfy-form-prettyfy-eval "(def car-scalar-specification {:make string? :model string? :year #(and (int? %) (>= % 1885))})" 45 45)
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(def car-collection-specification {:foo #(contains? % :make)})")
 
-  [:div.note "To follow along precisely, we could split out the " [:em "make"] ", " [:em "model"] ", and " [:em "year"] " concepts into their own named predicate functions, but for brevity, I'll stuff them directly into our " [:code "car"] " scalar specification."
+  [:div.note
+   [:p "To follow along precisely, we could split out the " [:em "make"] ", " [:em "model"] ", and " [:em "year"] " concepts into their own named predicate functions, but for brevity, I'll stuff them directly into our " [:code "car"] " scalar specification."]
 
    [:p "At this point, we're not stating anything definitive about presence or absence of an element. A scalar specification says, for each scalar predicate, " [:em "This element may or may not exist, but if it does, the element must satisfy this predicate"] ". Declaring that " [:code ":make"] " is a string is completely separate from declaring that our car data must contain a " [:code ":make"] " value."]
 
@@ -347,7 +387,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid? {:make \"Acme Motor Cars\" :model \"Type 1\" :year 1905} car-scalar-specification car-collection-specification)")
 
-  [:div.note "Let's validate with all the specified values."
+  [:div.note
+   [:p "Let's validate with all the specified values."]
 
    [:p "The values we supplied for " [:code ":make"] ", " [:code ":model"] ", and " [:code "year"] " all satisfied their respective scalar predicates. Furthermore, the " [:cde "car"] " map itself satisfied the collection specification's requirement that the map contain a key " [:code ":make"] "."]])
 
@@ -357,7 +398,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid? {:make \"Acme Motor Cars\"} car-scalar-specification car-collection-specification)")
 
-  [:div.note "Now, let's validate some car data with partial information: " [:code ":model"] " and " [:code ":year"] " values are missing."
+  [:div.note
+   [:p "Now, let's validate some car data with partial information: " [:code ":model"] " and " [:code ":year"] " values are missing."]
 
    [:p [:code "{:make \"Acme Motor Cars\"}"] " is valid car data because " [:code ":make"] " satisfies its scalar predicate and the map itself contains the only key we required in the collection specification. " [:code ":model"] " and " [:code ":year"] " are implicitly optional because we did not require their existence in the collection specification."]])
 
@@ -367,7 +409,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid? {:make \"Acme Motor Cars\" :year 1905 :cpu \"Intel Pentium\"} car-scalar-specification car-collection-specification)")
 
-  [:div.note "What if we have extra information? Let's validate data about an early 1900s car with a completely anachronistic computer chip."
+  [:div.note
+   [:p "What if we have extra information? Let's validate data about an early 1900s car with a completely anachronistic computer chip."]
 
    [:p "Again, this car data is valid, because we did not specify any property relating to " [:code ":cpu"] ", so the validation ignored that datum. All the other existing datums satisfied their corresponding predicates."]])
 
@@ -377,7 +420,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid? {:model \"Type 1\" :year 1905} car-scalar-specification car-collection-specification)")
 
-  [:div.note "What if we neglect to include the " [:code ":make"] " element?"
+  [:div.note
+   [:p "What if we neglect to include the " [:code ":make"] " element?"]
 
    [:p "Finally, we run afoul of our collection specification: Our car data lacks a " [:code ":make"] " element, which our collection specification explicitly requires."]])
 
@@ -385,11 +429,16 @@
  (panel
   [:h3 "Car validation: different context, increasing requirements"]
 
-  [:pre [:code "(assoc car-collection-specification :b #(contains? % :year))\n;; => {:foo #(contains? % :make), :b #(contains? % :year)}"]]
+  [:pre
+   [:code.form "(assoc car-collection-specification :b #(contains? % :year))"]
+   [:code.eval "\n;; => {:foo #(contains? % :make), :b #(contains? % :year)}"]]
+
+  [:div.vspace]
 
   (prettyfy-form-prettyfy-eval "(valid? {:make \"Acme Motor Cars\" :model \"Type 1\"} car-scalar-specification (assoc car-collection-specification :b #(contains? % :year)))")
 
-  [:div.note "What if we're in a different context, and suddenly we absolutely must have a " [:code ":year"] " element, too? Right then and there, we can augment the collection specification, because it's a plain Clojure data structure. And we know how to associate items on-the-fly into a map."
+  [:div.note
+   [:p "What if we're in a different context, and suddenly we absolutely must have a " [:code ":year"] " element, too? Right then and there, we can augment the collection specification, because it's a plain Clojure data structure. And we know how to associate items on-the-fly into a map."]
 
    [:p "So in this new context, we use that new collection specification with tighter requirements."]
 
@@ -407,11 +456,14 @@
 
   (prettyfy-form-prettyfy-eval "(def one-spec {:ID int? :name string? :phone int?})")
 
+  [:div.vspace]
+
   [:div.side-by-side-container
    [:div.side-by-side (prettyfy-form-prettyfy-eval "(valid-scalars? {:ID 99} one-spec)" 25 45)]
    [:div.side-by-side (prettyfy-form-prettyfy-eval "(valid-scalars? {:ID 99 :name \"Sherlock Holmes\" :phone 12345678} one-spec)" 75 45)]]
 
-  [:div.note "No problem for Speculoos to validate that scenario with a single scalar specification. Because un-paired predicates are ignored, we can simply use the same scalar specification to validate both the " [:em "before"] " data and the " [:em "after"] " data."
+  [:div.note
+   [:p "No problem for Speculoos to validate that scenario with a single scalar specification. Because un-paired predicates are ignored, we can simply use the same scalar specification to validate both the " [:em "before"] " data and the " [:em "after"] " data."]
 
    [:p "Let's pretend we query a service with an ID, and the service returns that ID and the associated name and phone number. That would be a straightforward scalar specification."]
 
@@ -429,9 +481,12 @@
 
   (prettyfy-form-prettyfy-eval "(def one-spec {:ID int? :name string? :phone int?})")
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:ID 99 :name \\z :phone \\q} one-spec)" 45 25)
 
-  [:div.note "What if we submit a query that causes the service to emit garbage data like " [:code "{:ID 0 :name \\z :phone \\q}"] "? Let's validate that."
+  [:div.note
+   [:p "What if we submit a query that causes the service to emit garbage data like " [:code "{:ID 0 :name \\z :phone \\q}"] "? Let's validate that."]
 
    [:p "Same scalar specification, but since the datums do not satisfy their scalar predicates, the service's response does not satisfy the specification."]
 
@@ -460,7 +515,8 @@
      "{:flour 150.0 :eggs 2 :sugar 130.0 :butter 60.0}" [:br]
      "{:flour 150.0 :eggs 2 :sugar 130.0 :butter 60.0 :milk 1/8}"]]]
 
-  [:div.note "An information-building pipeline is merely repeated application of the principles embodied in the  " [:em "request/response"] " pattern we discussed earlier. A singular scalar specification can describe all the steps of a serially aggregating data structure."
+  [:div.note
+   [:p "An information-building pipeline is merely repeated application of the principles embodied in the  " [:em "request/response"] " pattern we discussed earlier. A singular scalar specification can describe all the steps of a serially aggregating data structure."]
 
    [:p "Let's pretend our cupcake processing pipeline accepts an accumulating map, and adds a new quantity based on an ingredient we pass alongside. It might look something like this."]
 
@@ -472,6 +528,8 @@
 
   [:pre [:code "(def cupcake-spec {:flour double? :eggs int? :sugar double? :butter double? :milk ratio?})"]]
 
+  [:div.vspace]
+
   [:pre
    [:code "(valid-scalars? {}                                                         cupcake-spec) ;; => true"] [:br]
    [:code "(valid-scalars? {:flour 150.0}                                             cupcake-spec) ;; => true"] [:br]
@@ -480,7 +538,8 @@
    [:code "(valid-scalars? {:flour 150.0 :eggs 2 :sugar 130.0 :butter 60.0}           cupcake-spec) ;; => true"] [:br]
    [:code "(valid-scalars? {:flour 150.0 :eggs 2 :sugar 130.0 :butter 60.0 :milk 1/8} cupcake-spec) ;; => true"]]
 
-  [:div.note "We can write one single scalar specification that validates each of those six steps."
+  [:div.note
+   [:p "We can write one single scalar specification that validates each of those six steps."]
 
    [:p "Now, we can validate the data at each step."]
 
@@ -490,19 +549,25 @@
  (panel
   [:h3 "Nested schemas"]
 
-  [:p "data"]
-  [:pre [:code "{:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]}"]]
+  [:table
+   [:tr
+    [:td "data"]
+    [:td [:pre [:code "{:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]}"]]]]
 
-  [:p "remove scalars"]
-  [:pre [:code "{:a    :b     :c [       ] :d [        ]}"]]
+   [:tr
+    [:td "remove scalars"]
+    [:td [:pre [:code "{:a    :b     :c [       ] :d [        ]}"]]]]
 
-  [:p "specification"]
-  [:pre [:code "{:a int? :b string? :c [char? char? char?] :d [symbol? symbol? symbol?]}"]]
+   [:tr
+    [:td "specification"]
+    [:td [:pre [:code "{:a int? :b string? :c [char? char? char?] :d [symbol? symbol? symbol?]}"]]]]
 
-  [:p "validate"]
-  (prettyfy-form-prettyfy-eval "(valid-scalars? {:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]} {:a int? :b string? :c [char? char? char?] :d [symbol? symbol? symbol?]})")
+   [:tr
+    [:td "validate"]
+    [:td (prettyfy-form-prettyfy-eval "(valid-scalars? {:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]} {:a int? :b string? :c [char? char? char?] :d [symbol? symbol? symbol?]})")]]]
 
-  [:div.note "Speculoos was designed from the outset to validate any heterogeneous, arbitrarily-nested data structure. Mr Hickey imagines a data structure something like this."
+  [:div.note
+   [:p "Speculoos was designed from the outset to validate any heterogeneous, arbitrarily-nested data structure. Mr Hickey imagines a data structure something like this."]
 
    [:p "We can immediately compose a specification for that data. One trick is to take advantage of the fact that Speculoos specifications mimic the shape of the data. So first, we copy-paste the data, and delete the scalars."]
 
@@ -519,11 +584,16 @@
 
   (prettyfy-form-prettyfy-eval "(def three-chars? [char? char? char?])")
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(def three-syms? [symbol? symbol? symbol?])")
+
+  [:div.vspace]
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]} {:a int? :b string? :c three-chars? :d three-syms?})")
 
-  [:div.note "We could also compose an equivalent scalar specification from pre-defined sub-components. Consider this."
+  [:div.note
+   [:p "We could also compose an equivalent scalar specification from pre-defined sub-components. Consider this."]
 
    [:p "Regular old Clojure composition in action. The scalar specification refers to " [:code "three-chars?"] " at its key " [:code ":c"] " and refers to " [:code "three-syms?"] " at its key " [:code ":d"] ". We can thus mix and match with impunity to compose our specifications."]])
 
@@ -533,9 +603,12 @@
 
   (prettyfy-form-prettyfy-eval "(get {:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]} :c)")
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(valid-scalars? (get {:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]} :c) three-chars?)")
 
-  [:div.note "A riff on that tune is to extract some selection of our data and validate it against a smaller specification. Pretend we only care about validating the three-element vector at " [:code ":c"] ". We've got tools that can pull that vector out."
+  [:div.note
+   [:p "A riff on that tune is to extract some selection of our data and validate it against a smaller specification. Pretend we only care about validating the three-element vector at " [:code ":c"] ". We've got tools that can pull that vector out."]
 
    [:p "And we've already written a specification for that extracted vector, " [:code "three-chars?"] ", so we can immediately validate."]
 
@@ -547,7 +620,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]} {:c three-chars?})")
 
-  [:div.note "Alternatively, we could leverage the fact that un-paired datums are ignored, and specify only that nested vector."
+  [:div.note
+   [:p "Alternatively, we could leverage the fact that un-paired datums are ignored, and specify only that nested vector."]
 
    [:p "We performed a validation on only a selection because " [:code "valid-scalars?"] " applied only the three " [:code "char?"] " scalar predicates to the contents of the nested vector at " [:code ":c"] "."]])
 
@@ -568,9 +642,12 @@
     (prettyfy-form-prettyfy-eval "(def first-name string?)")
     (prettyfy-form-prettyfy-eval "(def last-name string?)")]]
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(def user {:id id :first-name first-name :last-name last-name :address address})")
 
-  [:div.note "Mr Hickey's next example extends the discussion of validating Professor Einstein's data from earlier. First, we'll write some bottom-level specifications."
+  [:div.note
+   [:p "Mr Hickey's next example extends the discussion of validating Professor Einstein's data from earlier. First, we'll write some bottom-level specifications."]
 
    [:p "Then, we aggregate them into a specification for an address."]
 
@@ -584,7 +661,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:id 101 :address {:zip 90210}} {:id id :first-name first-name :last-name last-name :address address})" 75 45)
 
-  [:div.note "Speculoos provides several utilities for " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#function-validation"} "validating function arguments and return values"] ", but to avoid introducing a new utility, we'll stick with " [:code "valid-scalars?"] " and I'll ask that you trust me that the function validation operates substantially the same way."
+  [:div.note
+   [:p "Speculoos provides several utilities for " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#function-validation"} "validating function arguments and return values"] ", but to avoid introducing a new utility, we'll stick with " [:code "valid-scalars?"] " and I'll ask that you trust me that the function validation operates substantially the same way."]
 
    [:p "If we imagine that a function " [:code "get-movie-times"] " expects an ID and a zip, we could validate that slice of data."]])
 
@@ -594,7 +672,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:first-name \"Helen\" :last-name \"tis Troías\" :address {:street \"Equine Avenue\" :city \"Sparta\" :state :LCNIA :zip 54321}} {:id id :first-name first-name :last-name last-name :address address})" 55 45)
 
-  [:div.note "In the context of a different function, " [:code "place-order"] ", we might want to validate a first name, last name, and the full address. Validating that slice of data would look like this."
+  [:div.note
+   [:p "In the context of a different function, " [:code "place-order"] ", we might want to validate a first name, last name, and the full address. Validating that slice of data would look like this."]
 
    [:p "Exact same specification in both cases, " [:code "user"] ", but this time, a different slice of data was compared to specification. Because Speculoos only validates using predicates that are paired with scalars, the extra, un-paired predicates (in this example, " [:code ":id"] ") in scalar specification " [:code "user"] " have no effect."]
 
@@ -606,7 +685,8 @@
 
   (prettyfy-form-prettyfy-eval "(valid-scalars? {:sheep #{\"Fred\" \"Ethel\"} :helicopters 1} {})" 60 45)
 
-  [:div.note "Speculoos will happily validate data with an empty specification."
+  [:div.note
+   [:p "Speculoos will happily validate data with an empty specification."]
 
    [:p "Validating with an empty specification will always return " [:code "true"] ". That behavior is governed by ignoring un-paired scalars (i.e., there are no predicates to pair with), and zero un-satisfied predicates is considered " [:em "valid"] ". Speculoos is 'open' in the sense that Mr Hickey discusses: Extra information is okay. Speculoos merely ignores it if it isn't paired with a predicate."]])
 
@@ -616,9 +696,12 @@
 
   (prettyfy-form-prettyfy-eval "(require '[speculoos.utility :refer [exercise]])")
 
+  [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(exercise {:sheep #{\"Fred\" \"Ethel\" \"Lucy\" \"Ricky\" \"Little Ricky\"} :helicopters pos-int?} 5)" 75 55)
 
-  [:div.note "Speculoos can generate valid test data if we supply it with a scalar specification."])
+  [:div.note
+   [:p "Speculoos can generate valid test data if we supply it with a scalar specification."]])
 
 
  (panel
@@ -626,9 +709,12 @@
 
   (prettyfy-form-prettyfy-eval "(get {:id int? :first-name string? :last-name string? :address {:street string? :city string? :zip int? :state keyword?}} :address)" 45 45)
 
-  [:div.note "We " [:a {:href "#flexible"} "discussed"] " this earlier. Speculoos specifications are plain Clojure data structures containing plain predicate functions. Slice and dice them however we want."
+  [:div.note
+   [:p "We " [:a {:href "#flexible"} "discussed"] " this earlier. Speculoos specifications are plain Clojure data structures containing plain predicate functions. Slice and dice them however we want."]
 
-   [:p "Extract a slice of a specification, perhaps just the address."]])
+   [:p "Extract a slice of a specification, perhaps just the address."]
+
+   [:p "You can quickly make your own *ad hoc* specification registry."]])
 
 
  (panel
@@ -636,7 +722,8 @@
 
   (prettyfy-form-prettyfy-eval "(assoc {:id int? :first-name string? :last-name string? :address {:street string? :city string? :zip int? :state keyword?}} :id even?)" 45 45)
 
-  [:div.note "Alter a portion of a specification, perhaps by tightening the requirements of the ID."
+  [:div.note
+   [:p "Alter a portion of a specification, perhaps by tightening the requirements of the ID."]
 
    [:p "We could, on-the-fly, require " [:code ":id"] " to be a positive integer by invoking " [:code "valid-scalars?"] " with that " [:code "assoc"] "-ed specification. The original specification is immutable as always, and remains unchanged. But at that moment of validation, the requirements were tightened."]
 
@@ -646,7 +733,8 @@
  (panel
   [:h3 "Function validation, nailing down everything, & final thoughts"]
 
-  [:div.note "Speculoos has an " [:a {:href "https://blosavio.github.io/speculoos/speculoos.function-specs.html"} "entire namespace"] " dedicated to validating function arguments and return values. Function validation follows all the same principles we've been discussing about validating data. It's a lengthy topic, so I'll refer to the " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#function-validation"} "documentation on the subject"] "."
+  [:div.note
+   [:p "Speculoos has an " [:a {:href "https://blosavio.github.io/speculoos/speculoos.function-specs.html"} "entire namespace"] " dedicated to validating function arguments and return values. Function validation follows all the same principles we've been discussing about validating data. It's a lengthy topic, so I'll refer to the " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#function-validation"} "documentation on the subject"] "."]
 
    [:p "Nail down everything!"]
 

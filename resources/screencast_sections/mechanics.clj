@@ -271,7 +271,7 @@
   (prettyfy-form-prettyfy-eval "(all-paths (list 'foo 'bar 'baz))")
 
   [:div.note
-   [:p  "If we ever find ourselve with a nested list on our hands, " [:code "all-paths"] " has got you covered."]
+   [:p  "If we ever find ourselves with a nested list on our hands, " [:code "all-paths"] " has got you covered."]
 
    [:p "List elements are located by indexes, similar to vectors and sequences."]])
 
@@ -301,5 +301,5 @@
  (whats-next-panel
   mechanics-index
   [:div.note
-   [:p "Now that we've got a system for refering to every element within a data structure, we can discuss how to validate scalars, the topic of the next screencast."]])
+   [:p "Now that we've got a system for referring to every element within a data structure, we can discuss how to validate scalars, the topic of the next screencast."]])
  ]

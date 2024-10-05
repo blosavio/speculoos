@@ -299,7 +299,7 @@
   [:div.note
    [:p "The first thing to note is that our collection specification looks a lot like our data with all the scalars removed. The second thing to notice is that even though it contains zero predicates, that's a legitimate collection specification which " [:code "validate-collections"] " can consume. Check this out. Validation ignores collections in the data that are not paired with a predicate in the specification."]
 
-   [:p "Remember: A specification says 'Thing may, or may not exist, but if it does, it must satisfy this predicate.' `valid` means 'zero un-satisfied predicates'. Thise validation reconizes zero collection+predicate pairs, so there aren't any un-satisfied predicates."]])
+   [:p "Remember: A specification says 'Thing may, or may not exist, but if it does, it must satisfy this predicate.' `valid` means 'zero un-satisfied predicates'. This validation recognizes zero collection+predicate pairs, so there aren't any un-satisfied predicates."]])
 
 
  (panel
@@ -330,7 +330,7 @@
   (prettyfy-form-prettyfy-eval "(validate-collections [{:a 11} 22 (list 33) 44 #{55}] [{:is-map? map?}()#{}])" 55 80)
 
   [:div.note
-   [:p "We might as well specify that nested map in the first postiion. Recall that collection predicates targeting a map require a sham key. Removing the " [:code "set?"] " predicate from the previous example, we'll insert a " [:code "map?"] " predicate at a key in the specification that doesn't appear in the data's nested map. Unlike the previous two validations, " [:code "validate-collections"] " didn't have to skip over any scalars. It merely applied the predicate in the specification's first nested collection to the data's first nested collection, which is indeed a map."]])
+   [:p "We might as well specify that nested map in the first position. Recall that collection predicates targeting a map require a sham key. Removing the " [:code "set?"] " predicate from the previous example, we'll insert a " [:code "map?"] " predicate at a key in the specification that doesn't appear in the data's nested map. Unlike the previous two validations, " [:code "validate-collections"] " didn't have to skip over any scalars. It merely applied the predicate in the specification's first nested collection to the data's first nested collection, which is indeed a map."]])
 
 
  (panel

@@ -246,5 +246,5 @@
 
  (whats-next-panel
   valid-thorough-index
-  [:div.note "Our five screencasts so far have discussed how to specify and validate Clojure data: free-floating heterogeneous, arbitrariliy-nested data structures. Our next screencast will also discuss how to specify and validate data, but in the context of invoking a function. We can validate arguments passed to a function, the function's return value, and the *relationships* between the arguments and the return value."])
+  [:div.note "Our five screencasts so far have discussed how to specify and validate Clojure data: free-floating heterogeneous, arbitrarily-nested data structures. Our next screencast will also discuss how to specify and validate data, but in the context of invoking a function. We can validate arguments passed to a function, the function's return value, and the *relationships* between the arguments and the return value."])
  ]

@@ -186,7 +186,7 @@
   [:div.note
    [:p "Scalars contained in nested collections are treated accordingly: predicates from the specification are only applied to scalars in the data which share their path. Non-scalars are ignored."]
 
-   [:p "One trick for enumeratting collections: count the opening delimiters."]
+   [:p "One trick for enumerating collections: count the opening delimiters."]
 
    [:p "Here are the paths for a simple nested data vector with some scalars. Six total elements: three vectors, which " [:code "validate-scalars"] " will ignore, and three scalars. And here are the paths for a similarly-shaped nested specification. char? predicate will be notable during validation in a moment. Again, six total elements: three vectors that will be ignored, plus three predicates. When we validate…"]])
 
