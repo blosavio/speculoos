@@ -301,5 +301,7 @@
  (whats-next-panel
   mechanics-index
   [:div.note
+   [:p "So what does all this paths business have to do with validation? Speculoos inspects the path of a predicate within a specification in an attempt to pair it with an element in the data. If it " [:em "can"] " pair a predicate with a datum, it applies the predicate to that datum."]
+
    [:p "Now that we've got a system for referring to every element within a data structure, we can discuss how to validate scalars, the topic of the next screencast."]])
  ]

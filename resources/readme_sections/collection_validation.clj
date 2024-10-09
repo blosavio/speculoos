@@ -88,7 +88,7 @@
 
  [:pre [:code "{map? {map?}}"]]
 
- [:p "because maps must contain an even number of forms. So we're going to need to add some keys in there. Technically, you could key your collection predicates however you want, but I strongly recommend choosing a key that doesn't appear in the data. This example shows why. We could put a predicate at key " [:code ":y"] " of the specification, and " [:code "validate-collections"] " will merrily chug along."]
+ [:p "because maps must contain an even number of forms. So we're going to need to add some keys in there. Technically, we could key our collection predicates however we want, but I strongly recommend choosing a key that doesn't appear in the data. This example shows why. We could put a predicate at key " [:code ":y"] " of the specification, and " [:code "validate-collections"] " will merrily chug along."]
 
  [:pre (print-form-then-eval "(validate-collections {:x 11 :y {:z 22}} {:y map?})" 45 80)]
 
@@ -205,7 +205,7 @@
   [:li "Validating collections, ignoring scalars? " [:em "Check."]]
   [:li "Two paired predicates, two validations? " [:em "Check."]]]]
 
- [:p "There's a subtlety to pay attention to: the " [:code "vector?"] " and " [:code "list?"] " predicates are contained within a vector and list, respectively. Those two predicates apply to their " [:em "immediate"] " parent container. " [:code "validate-collections"] " needs those " [:code ":a"] " and " [:code ":b"] " keys to find that vector and that list. You only use a sham key when validating the map immediately above your head."]
+ [:p "There's a subtlety to pay attention to: the " [:code "vector?"] " and " [:code "list?"] " predicates are contained within a vector and list, respectively. Those two predicates apply to their " [:em "immediate"] " parent container. " [:code "validate-collections"] " needs those " [:code ":a"] " and " [:code ":b"] " keys to find that vector and that list. We only use a sham key when validating the map immediately above our heads."]
 
  [:p "Let's re-use that validation and tack on a sham key with a predicate aimed at the root map."]
 

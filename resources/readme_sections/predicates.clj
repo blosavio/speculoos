@@ -51,7 +51,7 @@
 
  [:pre [:code "#(or (string? %) (char? %))"]]
 
- [:p "…which have the benefit of being universally understood. But Clojure also provides a pair of nice functions that streamline the expression and convey your intention. " [:code "every-pred"] " composes an arbitrary number of predicates with " [:code "and"] " semantics."]
+ [:p "…which have the benefit of being universally understood. But Clojure also provides a pair of nice functions that streamline the expression and convey our intention. " [:code "every-pred"] " composes an arbitrary number of predicates with " [:code "and"] " semantics."]
 
  [:pre (print-form-then-eval "((every-pred number? pos? even?) 100)")]
 
@@ -84,7 +84,7 @@
 
  [:pre (print-form-then-eval "(contains? [97 98 99] 1)")]
 
- [:p [:code "contains?"] " actually tells you whether a collection contains a key. For a vector, it tests for an index. If you'd like to check whether a value is contained in a collection, you can use this pattern."]
+ [:p [:code "contains?"] " actually tells es whether a collection contains a key. For a vector, it tests for an index. If we'd like to check whether a value is contained in a collection, we can use this pattern."]
 
  [:pre
   [:code "(defn in? [coll item] (some #(= item %) coll))"]
@@ -107,7 +107,7 @@
 
  [:p "The function rendering is not terribly informative when the validation displays the predicate. Same problem with " [:code "(fn [v] (…))"] "."]
 
- [:p "One solution to this issue is to define your predicates with an informative name."]
+ [:p "One solution to this issue is to define our predicates with an informative name."]
 
  [:pre
   (print-form-then-eval "(def greater-than-50? #(< 50 %))")
@@ -128,7 +128,7 @@
   [:br]
   (print-form-then-eval "(validate-scalars [\"F1Q5\" \"F2QQ\"] [re-pred re-pred])" 40 80)]
 
- [:p "Speculoos considers free-floating regexes in a scalar specification as predicates, so you can simply jam them in there."]
+ [:p "Speculoos considers free-floating regexes in a scalar specification as predicates, so we can simply jam them in there."]
 
  [:pre
   (print-form-then-eval "(valid-scalars? [\"A1B2\" \"CDEF\"] [#\"(\\w\\d){2}\" #\"\\w{4}\"])" 40 80)
@@ -136,10 +136,10 @@
   [:br]
   (print-form-then-eval "(validate-scalars {:a \"foo\" :b \"bar\"} {:a #\"f.\\w\" :b #\"^[abr]{0,3}$\"})" 55 50)]
 
- [:p "Using bare regexes in your scalar specification has a nice side benefit in that the " [:code "data-from-spec"] ", " [:code "exercise"] ", and " [:code "exercise-fn"] " utilities can generate valid strings."]
+ [:p "Using bare regexes in our scalar specification has a nice side benefit in that the " [:code "data-from-spec"] ", " [:code "exercise"] ", and " [:code "exercise-fn"] " utilities can generate valid strings."]
 
  [:p "Beyond their critical role they play in validating data, predicate functions can also carry metadata that describes how to " [:a {:href "#exercising"} "generate valid, random samples"] ". To help with that task, the " [:a {:href "#utilities"} "utility namespace"] " provides " [:code "defpred"] ", a helper macro that streamlines " [:strong "def"] "ing " [:strong "pred"] "icates and associating random sample generators."]
 
- [:p "Instead of storing specifications in a dedicated " [:a {:href "https://clojure.org/guides/spec#_registry"} "registry"] ",  Speculoos takes a " [:em "laissez-faire"] " approach: specifications may live directly in whatever namespace you please. If you feel that some sort of registry would be useful, you could make your own " [:a {:href "https://github.com/clojure/spec.alpha/blob/c630a0b8f1f47275e1a476dcdf77507316bad5bc/src/main/clojure/clojure/spec/alpha.clj#L52"} "modeled after"] " " [:code "spec.alpha"] "'s."]
+ [:p "Instead of storing specifications in a dedicated " [:a {:href "https://clojure.org/guides/spec#_registry"} "registry"] ",  Speculoos takes a " [:em "laissez-faire"] " approach: specifications may live directly in whatever namespace we please. If we feel that some sort of registry would be useful, we could make our own " [:a {:href "https://github.com/clojure/spec.alpha/blob/c630a0b8f1f47275e1a476dcdf77507316bad5bc/src/main/clojure/clojure/spec/alpha.clj#L52"} "modeled after"] " " [:code "spec.alpha"] "'s."]
 
  [:p "Finally, when checking function correctness, " [:a {:href "#fn-correctness"} "validating the relationship"] " between the function's arguments and the function's return value uses a function that kinda looks like a predicate. In contrast to a typical predicate that accepts one argument, that relationship-checking function accepts exactly two elements: the function's argument sequence and the function's return value."]]

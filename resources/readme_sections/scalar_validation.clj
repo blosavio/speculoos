@@ -33,9 +33,19 @@
   [:br]
   (print-form-then-eval "(validate-scalars [42 \"abc\" 22/7] [int? string? ratio?])" 50 40)]
 
- [:p "Let's apply the Mottos to what we just did. Motto #1: At the moment, we're validating scalars, as the "[:em "-scalars"] " suffix of the function name reminds us. The validation yielded only predicates applied to scalars; scalar validation ignored the collections. Motto #2: The shape of our specification mimics the data. Because both are vectors, " [:code "validate-scalars"] " was able to properly apply each predicate its respective datum. Motto #3: Every predicate was paired with a datum and "[:em "vice versa"] ", so validation did not ignore anything."]
+ [:p "Let's apply the Mottos to what we just did."
+  [:ul
+   [:li "Motto #1: The "[:em "-scalars"] " suffix reminds us that " [:code "validate-scalars"] " ignores collections. If we examine the report (we'll look in detail in the next paragraph), the validation yielded only predicates applied to scalars."]
 
- [:p  [:code "validate-scalars"] " returns a sequence of all the scalars in data that share a path with a predicate in the specification. For each of those pairs, we receive a map containing the " [:code ":datum"] " scalar element of the data, the " [:code ":predicate"] " test function element of the specification, the " [:code ":path"] " addressing each in their respective structures, and the " [:code "valid?"] " result of applying the predicate function to the datum."]
+   [:li "Motto #2: The shape of our specification mimics the data. Because both are vectors whose contents are addressed by integer indexes, " [:code "validate-scalars"] " was able to make three pairs. Each of the three scalars in the data vector shares a path with a corresponding predicate in the specification vector."]
+
+   [:li"Motto #3: Every predicate was paired with a datum and "[:em "vice versa"] ", so validation did not ignore anything."]]]
+
+ [:p  [:code "validate-scalars"] " returns a sequence of all the scalars in data that share a path with a predicate in the specification. For each of those pairs, we receive a map containing the " [:code ":datum"] " scalar element of the data, the " [:code ":predicate"] " test function element of the specification, the " [:code ":path"] " addressing each in their respective structures, and the " [:code "valid?"] " result of applying the predicate function to the datum. From top to bottom:"
+[:ul
+ [:li "Scalar " [:code "42"] " at path " [:code "[0]"] " in the data vector satisifed predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification vector,"]
+ [:li "scalar " [:code "\"abc\""] " at path " [:code "[1]"] " in the data vector satsified predicate " [:code "string?"]  " at path " [:code "[1]"] " in the specification vector, and"]
+ [:li "scalar " [:code "22/7"] " at path " [:code "[2]"] " in the data vector satisfied predicate " [:code "ratio?"] " at path " [:code "[2]"] " in the specification vector."]]]
 
  [:p "What if there's a length mis-match between the data and the specification? Motto #3 tells us that validation ignores un-paired datums. Let's look at the " [:code "all-paths"] " for that situation."]
  [:pre
@@ -70,6 +80,8 @@
  [:pre (print-form-then-eval "(validate-scalars [42] [int? string? ratio?])" 40 40)]
  [:p [:code "validate-scalars"] " ignores both " [:code "string?"] " and " [:code "ratio?"] " within the specification vector because the data vector does not contain scalars at their respective paths."]
 
+ [:p "This principle of ignoring un-paired scalars and un-paired predicates provides some useful features. If we only care about validating the first datum, we could insert only one predicate into the specification and rely on the fact that the remaining un-paired datums are ignores. That pattern offers permissiveness. On the other hand, we could compose a lengthy specification and validate a steadily accreting vector with that single specification. That pattern promotes re-use. See " [:a {:href "https://blosavio.github.io/speculoos/perhaps_so.html"} "Perhaps So"] " for more discussion."]
+
  [:p "Validating scalars contained within a map proceeds similarly. Let's send this map, our data, to " [:code "all-paths"] "."]
  [:pre (print-form-then-eval "(all-paths {:x 42 :y \"abc\" :z 22/7})" 40 50)]
 
@@ -80,15 +92,21 @@
 
  [:pre (print-form-then-eval "(validate-scalars {:x 42 :y \"abc\" :z 22/7} {:x int? :y string? :z ratio?})" 55 40)]
 
- [:p "…we can see that "
-  [:ul
-   [:li [:code "42"] " at path " [:code "[:x]"] " in the data satisfies " [:code "int?"] " at path " [:code "[:x]"] " in the specification, "]
-   [:li [:code "\"abc\""] " at path " [:code "[:y]"] " in the data satisfies " [:code "string?"] " at path " [:code "[:y]"] " in the specification, and"]
-   [:li [:code "22/7"] " at path " [:code "[:z]"] " in the data satisfies " [:code "ratio?"] " at path " [:code "[:z]"] " in the specification. "]]
+ [:p "…we can see that"]
 
-  "Because the specification mimics the shape of the data (i.e., the specification is a map with the same keys), " [:code "validate-scalars"] " is able to infer how to apply each predicate to the intended datum."]
+ [:ul
+   [:li "Scalar " [:code "42"] " at path " [:code "[:x]"] " in the data map satisfies predicate " [:code "int?"] " at path " [:code "[:x]"] " in the specification map, "]
+   [:li "scalar " [:code "\"abc\""] " at path " [:code "[:y]"] " in the data map satisfies predicate " [:code "string?"] " at path " [:code "[:y]"] " in the specification map, and"]
+   [:li "scalar " [:code "22/7"] " at path " [:code "[:z]"] " in the data map satisfies predicate " [:code "ratio?"] " at path " [:code "[:z]"] " in the specification map."]]
 
- [:p [:code "validate-scalars"] " can only operate with complete scalar+predicate pairs. It ignores un-paired scalars and un-paired predicates. Since maps are not sequential, we can illustrate both scenarios with one example."]
+ [:p "Let's apply the Three Mottos."]
+
+ [:ul
+  [:li "Motto #1: " [:code "validate-scalars"] " ignores every element that is not a scalar, and we wrote our predicates to test only scalars."]
+  [:li "Motto #2: We shaped our specification to mimic the data: we composed our specification to be a map with keys " [:code ":x"] ", " [:code ":y"] ", and " [:code ":z"] ", same as the data map. Because of this mimicry, "  [:code "validate-scalars"] " is able to infer how to apply each predicate to the intended datum."]
+  [:li "Motto #3: Because each predicate in the specification shared a path with each scalar in the data, and because each scalar in the data shared a path with a predicate in the specification, nothing scalars or predicates were ignored."]]
+
+ [:p [:code "validate-scalars"] " can only operate with complete scalar+predicate pairs. It ignores un-paired scalars and it ignores un-paired predicates. Since maps are not sequential, we can illustrate both scenarios with one example."]
  [:pre
   [:code ";; data with keys :x and :q"]
   [:br]
@@ -99,20 +117,21 @@
   [:br]
   (print-form-then-eval "(all-paths {:x int? :s decimal?})" 40 50)]
 
- [:p "Notice that the two maps contain only a single scalar/predicate that share a path, " [:code "[:x]"] ". The other two elements, scalar " [:code "\"foo\""] " at path " [:code "[:q]"] " in the data map and predicate " [:code "decimal?"] " at path " [:code "[:s]"] " in the specification map, do not share a path with an element of the other. Those later two will be ignored."]
+ [:p "Notice that the two maps contain only a single scalar/predicate that share a path, " [:code "[:x]"] ". The other two elements, scalar " [:code "\"foo\""] " at path " [:code "[:q]"] " in the data map and predicate " [:code "decimal?"] " at path " [:code "[:s]"] " in the specification map, do not share a path with an element of the other. " [:code "\"foo\""] " and " [:code "decimal?"] " will be ignored."]
 
  [:pre (print-form-then-eval "(validate-scalars {:x 42 :q \"foo\"} {:x int? :s decimal?})" 45 40)]
+
  [:p [:code "validate-scalars"] " found only a single complete scalar+predicate pair located at path " [:code "[:x]"] ", so it applied " [:code "int?"] " to " [:code "42"] ", which returns satisfied."]
 
- [:hr]
- [:p "I am curious to know whether the features to this point are sufficient for Clojure programmers to get 40% of their specification and validation work done. 50%? "]
- [:p "Onward…"]
- [:hr]
+ [:p "Again, the principle of ignoring un-paired scalars and ignoring un-paired predicates provides quite a bit of utility. If we are handed a large data map, but we are only interested in the scalar at " [:code ":x"] ", we are free to validate only that value putting only one predicate at " [:code ":x"] " in the specification map. Validation ignores all the other stuff we don't care about. Similarly, perhaps we've built a comprehensive specification map that contains keys " [:code ":a"] " through " [:code ":z"] ", but for one particular scenario, our data only contains a value at key " [:code ":y"] ". We can directly use that comprehensive specification un-modified, and " [:code "validate-scalars"] " will consider only the one paried datum+predicate and ignore the rest."]
 
- [:p "Scalars contained in nested collections are treated accordingly: predicates from the specification are only applied to scalars in the data which share their path. Non-scalars are ignored. Here are the paths for a simple nested data vector with some scalars."]
+ [:p "Scalars contained in nested collections are treated accordingly: predicates from the specification are only applied to scalars in the data which share their path. The paths are merely longer than one element. Non-scalars are ignored. Here are the paths for a simple nested data vector containing scalars."]
  [:pre (print-form-then-eval "(all-paths [42 [\"abc\" [22/7]]])")]
 
- [:p "Six total elements: three vectors, which " [:code "validate-scalars"] " will ignore, and three scalars. And here are the paths for a similarly-shaped nested specification."]
+ [:p "Six total elements: three vectors, which " [:code "validate-scalars"] " will ignore, and three scalars."]
+
+ [:p" And here are the paths for a similarly-shaped nested specification."]
+
  [:pre
   [:code ";;                         v --- char? predicate will be notable during validation in a moment"]
   [:br]
@@ -124,9 +143,9 @@
 
  [:p "Three complete pairs of scalars and predicates."
   [:ul
-   [:li [:code "42"] " at path " [:code "[0]"] " in the data satisfies predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification,"]
-   [:li [:code "\"abc\""] " at path " [:code "[1 0]"] " in the data satisfies predicate " [:code "string?"] " at path " [:code "[1 0]"] " in the specification,"]
-   [:li [:code "22/7"] " at path " [:code "[1 1 0]"] " in the data " [:strong "does not satisfy"] " predicate " [:code "char?"] " at path " [:code "[1 1 0]"] " in the specification."]]
+   [:li "Scalar " [:code "42"] " at path " [:code "[0]"] " in the data satisfies predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification,"]
+   [:li "scalar " [:code "\"abc\""] " at path " [:code "[1 0]"] " in the data satisfies predicate " [:code "string?"] " at path " [:code "[1 0]"] " in the specification,"]
+   [:li "scalar " [:code "22/7"] " at path " [:code "[1 1 0]"] " in the data " [:strong "does not satisfy"] " predicate " [:code "char?"] " at path " [:code "[1 1 0]"] " in the specification."]]
   [:a {:href "#valid-thorough"} "Later"]  ", we'll see that the lone, unsatisfied " [:code "char?"] " predicate would cause an entire " [:code "valid?"] " operation to return " [:code "false"] "."]
 
  [:p "When the data contains scalars that are not paired with predicates in the specification, they are not validated."]
@@ -149,13 +168,13 @@
   [:br]
   (print-form-then-eval "(all-paths {:x int? :y {:q string?}})" 50 50)]
 
- [:p "Notice that only the scalar " [:code "42"] " in the data and the predicate " [:code "int?"] "  in the specification share a path " [:code "[:x]"] ". " [:code "22/7"] " in the data and " [:code "string?"] " in the specification are un-paired."]
+ [:p "Notice that only the scalar " [:code "42"] " in the data and the predicate " [:code "int?"] "  in the specification share a path " [:code "[:x]"] ". Scalar " [:code "22/7"] " at path " [:code "[:y :z]"] " in the data and predicate " [:code "string?"] " at path " [:code "[:y :q]"]" in the specification are un-paired because they do not share paths."]
 
  [:pre (print-form-then-eval "(validate-scalars {:x 42 :y {:z 22/7}} {:x int? :y {:q string?}})" 55 40)]
- [:p [:code "validate-scalars"] " dutifully applies the only scalar+predicate pair, and tells us that " [:code "42"] " is indeed an integer."]
+ [:p [:code "validate-scalars"] " dutifully evaluates the single scalar+predicate pair, and tells us that " [:code "42"] " is indeed an integer."]
 
  [:p "One final illustration: what happens if there are zero scalar+predicate pairs."]
- [:pred (print-form-then-eval "(validate-scalars {:x 42} {:y int?})")]
+ [:pre (print-form-then-eval "(validate-scalars {:x 42} {:y int?})")]
 
  [:p "The only scalar, at the path " [:code "[:x]"] " in the data, does not share a path with the only predicate, at path " [:code "[:y]"] " in the specification. No validations were performed."]
 

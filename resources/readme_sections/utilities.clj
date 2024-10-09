@@ -1,7 +1,7 @@
 [:section#utilities
  [:h2 "Utility Functions"]
 
- [:p "You won't miss any crucial piece of Speculoos' functionality if you don't use this namespace, but perhaps something here might make your day a little nicer. Nearly every function takes advantage of " [:code "speculoos.core/all-paths"] ", which decomposes a heterogeneous, arbitrarily-nested data structure into a sequence of paths and datums. With that in hand, these not-clever functions churn through the entries and give you back something useful."]
+ [:p "You won't miss any crucial piece of Speculoos' functionality if you don't use this namespace, but perhaps something here might make your day a little nicer. Nearly every function takes advantage of " [:code "speculoos.core/all-paths"] ", which decomposes a heterogeneous, arbitrarily-nested data structure into a sequence of paths and datums. With that in hand, these not-clever functions churn through the entries and give us back something useful."]
 
  [:pre (print-form-then-eval "(require '[speculoos.utility :refer [scalars-without-predicates predicates-without-scalars collections-without-predicates predicates-without-collections sore-thumb spec-from-data data-from-spec basic-collection-spec-from-data]])")]
 

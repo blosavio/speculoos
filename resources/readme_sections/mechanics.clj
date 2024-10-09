@@ -1,6 +1,6 @@
 [:section#mechanics
  [:h2 "Mechanics"]
- [:p "Knowing a little bit about how Speculoos does its job will greatly help you understand how to use it. First, we need to know on how to address elements contained within a heterogeneous, arbitrarily-nested data structure. Speculoos follows the conventions set by " [:code "clojure.core/get-in"] ", and extends those conventions where necessary."]
+ [:p "Knowing a little bit about how Speculoos does its job will greatly help us understand how to use it. First, we need to know on how to address elements contained within a heterogeneous, arbitrarily-nested data structure. Speculoos follows the conventions set by " [:code "clojure.core/get-in"] ", and extends those conventions where necessary."]
 
  [:p "Vectors are addressed by zero-indexed integers."]
  [:pre
@@ -52,7 +52,8 @@
 
  [:p "A " [:em "path"] " is a sequence of indexes, keys, or identities that allow us refer to a single element buried within a nested data structure. For each level of nesting, we add an element to the path sequence. " [:code "clojure.core/get-in"] " illustrates how this works."]
  [:pre (print-form-then-eval "(get-in [100 101 102 103] [2])")]
- [:p "For a vector containing only integers, each element is addressed by a path of length one. To locate integer " [:code "102"] ", the path is " [:code "[2]"] ". If we consider a vector nested within a vector…"]
+ [:p "For a vector containing only integers, each element is addressed by a path of length one. To locate integer " [:code "102"] " in the vector above, the path is " [:code "[2]"] "."]
+ [:p "If we consider a vector nested within a vector…"]
  [:pre (print-form-then-eval "(get-in [100 101 [102 103]] [2])")]
  [:p "…that same path " [:code "[2]"] " now locates the nested vector. To navigate to an integer contained within the nested vector…"]
  [:pre (print-form-then-eval "(get-in [100 101 [102 103]] [2 0])")]
@@ -63,13 +64,13 @@
   (print-form-then-eval "(get-in [100 [101 [102]]] [1 1])")
   [:br]
   (print-form-then-eval "(get-in [100 [101 [102]]] [1 1 0])")]
- [:p "The " [:code "102"] " is buried three levels deep, so we use a path with that many entries."]
+ [:p "The " [:code "102"] " is buried three levels deep, so we use a path with three entries."]
 
  [:p "This system works similarly for maps. Elements contained in un-nested collections are located with a path of length one."]
  [:pre (print-form-then-eval "(get-in {:x 100 :y 101 :z 102} [:z])")]
  [:p "In this example, " [:code "102"] " is located with a path composed of a single key, keyword " [:code ":z"] ". If we now consider a map nested within another map…"]
  [:pre (print-form-then-eval "(get-in {:x 100 :y 101 :z {:w 102}} [:z :w])")]
- [:p "…we need a path with two elements: key " [:code ":z"] " navigates us to the nested " [:code "{:w 102}"] " map, and then key " [:code ":w"] " navigates us to the " [:code "102"] " within that nested map."]
+ [:p "…we need a path with two elements. Key " [:code ":z"] " navigates us to the nested " [:code "{:w 102}"] " map, and then key " [:code ":w"] " navigates us to the " [:code "102"] " within that nested map."]
 
  [:p "There's no restriction on what may be nested in what, so we can nest a map within a vector…"]
  [:pre (print-form-then-eval "(get-in [100 101 {:x 102}] [2 :x])")]
@@ -83,7 +84,7 @@
   (print-form-then-eval "(get-in* '(100 101 {:x [102]}) [2 :x 0])")]
  [:p [:code "102"] " is contained in three levels of nesting, so its path is comprised of three pieces."]
 
- [:p "Speculoos provides a little machine to wrangle paths for us. When supplied with a heterogeneous, arbitrarily-nested data structure, " [:code "speculoos.core/all-paths"] " returns a sequence of " [:code "{:path … :value …}"] " for every element, both scalars and collections."]
+ [:p "Speculoos provides a little machine to enumerate paths for us. When supplied with a heterogeneous, arbitrarily-nested data structure, " [:code "speculoos.core/all-paths"] " returns a sequence of " [:code "{:path … :value …}"] " for every element, both scalars and collections."]
 
  [:pre
   (print-form-then-eval "(require '[speculoos.core :refer [all-paths]])")
@@ -110,7 +111,7 @@
 
  [:p "The important principle to remember is this: Every element, scalar and collection, of a heterogeneous, arbitrarily-nested data structure, can be assigned an unambiguous path, regardless of its container type."]
 
- [:p "If you ever find yourself with a nested list on your hands, " [:code "all-paths"] " has got you covered."]
+ [:p "If we ever find ourselves with a nested list on our hands, " [:code "all-paths"] " has got us covered."]
 
  [:pre (print-form-then-eval "(all-paths [42 (list 'foo 'bar 'baz)])")]
 
@@ -119,4 +120,6 @@
  [:pre (print-form-then-eval "(all-paths {:a 42 :b #{:chocolate :vanilla :strawberry}})" 60 70)]
 
  [:p "Admittedly, addressing elements in a set can be a little like herding cats, but it's still useful to have the capability. Wrangling sets merits its own " [:a {:href "#sets"} "dedicated section"] "."]
+
+ [:p "So what does all this paths business have to do with validation? Speculoos inspects the path of a predicate within a specification in an attempt to pair it with an element in the data. If it " [:em "can"] " pair a predicate with a datum, it applies the predicate to that datum."]
  ]

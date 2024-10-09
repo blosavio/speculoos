@@ -353,11 +353,13 @@
  (panel
   [:h3 "Specification registry"]
 
-  (prettyfy-form-prettyfy-eval "(def speculoos-registry {::specification-2 [int? string? ratio?] ::specification-3 {:first-name string? :last-name string? :age int}})")
+  [:div.no-display (defonce speculoos-registry (atom {:speculoos/specification-2 [int? string? ratio?] :speculoos/specification-3 {:first-name string? :last-name string? :age int}}))]
+
+  [:pre [:code "(defonce speculoos-registry (atom {:speculoos/specification-2 [int? string? ratio?]\n                                   :speculoos/specification-3 {:first-name string?\n                                                               :last-name  string?\n                                                               :age        int?}})"]]
 
   [:div.vspace]
 
-  (prettyfy-form-prettyfy-eval "(valid-scalars? [42 \"abc\" 22/7] (speculoos-registry ::specification-2))" 55 45)
+  (prettyfy-form-prettyfy-eval "(valid-scalars? [42 \"abc\" 22/7] (@speculoos-registry :speculoos/specification-2))" 65 45)
 
   [:div.note
    [:p "Or, we may gather them into our own bespoke registry."]])

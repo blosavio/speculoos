@@ -23,7 +23,7 @@
 
  [:p "Whereas the " [:code "validate-…"] " functions return a detailed validation report of every predicate+datum pair they see, the " [:code "valid-…?"] " variants provide a plain " [:code "true/false"] "."]
 
- [:p "Beware: Validation only considers paired predicates+datums (Motto #3). If your datum doesn't have a paired predicate, then it won't be validated. Observe."]
+ [:p "Beware: Validation only considers paired predicates+datums (Motto #3). If our datum doesn't have a paired predicate, then it won't be validated. Observe."]
 
  [:pre
   (print-form-then-eval "(valid-scalars? {:a 42} {:b string?})" 30 80)
@@ -80,9 +80,9 @@
  [:p "Validation is only as good as the predicate. It's our responsibility to write a proper predicate."]
 
  [:h3#combo "Combo validation"]
- [:p "Validating scalars separately from validating collections is a core principle embodied by the Speculoos library. I believe that separating the two into distinct processes carries solid advantages because the specifications are more straightforward, the mental model is clearer, the implementation code is simpler, and it makes validation " [:em "à la carte"] ". Much of the time, you can probably get away with just a scalar specification."]
+ [:p "Validating scalars separately from validating collections is a core principle embodied by the Speculoos library. I believe that separating the two into distinct processes carries solid advantages because the specifications are more straightforward, the mental model is clearer, the implementation code is simpler, and it makes validation " [:em "à la carte"] ". Much of the time, we can probably get away with just a scalar specification."]
 
- [:p "All that said, it is not possible to specify and validate every aspect of your data with only scalar validation or only collection validation. When we really need to be strict and validate both scalars and collections, we could manually combine like this."]
+ [:p "All that said, it is not possible to specify and validate every aspect of our data with only scalar validation or only collection validation. When we really need to be strict and validate both scalars and collections, we could manually combine like this."]
 
  [:pre (print-form-then-eval "(and (valid-scalars? [42] [int?]) (valid-collections? [42] [vector?]))" 45 80)]
 

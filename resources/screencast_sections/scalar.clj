@@ -93,7 +93,9 @@
   (prettyfy-form-prettyfy-eval "(validate-scalars [42 \"abc\" 22/7] [int?])" 40 40)
 
   [:div.note
-   [:p "Only scalar " [:code "42"] " in the data vector has a corresponding predicate " [:code "int?"] " in the specification vector, so the validation report contains only one entry. The second and third scalars, " [:code "\"abc\""] " and " [:code "22/7"] ", are ignored."]])
+   [:p "Only scalar " [:code "42"] " in the data vector has a corresponding predicate " [:code "int?"] " in the specification vector, so the validation report contains only one entry. The second and third scalars, " [:code "\"abc\""] " and " [:code "22/7"] ", are ignored."]
+
+   [:p "This behavior can be useful if we only care about validating the 42. If we only insert only one `int?` predicate, the other two scalars are ignored and validation proceeds."]])
 
 
  (panel
@@ -115,7 +117,11 @@
   (prettyfy-form-prettyfy-eval "(validate-scalars [42] [int? string? ratio?])" 40 40)
 
   [:div.note
-   [:p "Motto #3 reminds us that validation ignores un-paired predicates. Only the predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification vector shares its path with a scalar in the data vector, so that's the only scalar+predicate pair that " [:code "validate-scalars"] " processes." [:code "validate-scalars"] " ignores both " [:code "string?"] " and " [:code "ratio?"] " within the specification vector because the data vector does not contain scalars at their respective paths."]])
+   [:p "Motto #3 reminds us that validation ignores un-paired predicates. Only the predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification vector shares its path with a scalar in the data vector, so that's the only scalar+predicate pair that " [:code "validate-scalars"] " processes." [:code "validate-scalars"] " ignores both " [:code "string?"] " and " [:code "ratio?"] " within the specification vector because the data vector does not contain scalars at their respective paths."]
+
+   [:p "This kind of behavior might be useful if we want to validate steps of a pipeline where the data is a vector `conj`-in on values at each step. Let's say, we start with an empty vector, then `conj` on the 42, then the next step we `conj` on the 'abc', and then finally the pipeline `conj`-es on the 22/7. We'd only have to write one specification for the final vector with all the entries, then we could use that single specification vector to validate each step. That way, we get good code re-use."]
+
+   [:p "Check out the 'Perhaps So' screencast for more details."]])
 
  (panel
   [:h3 "Paths of scalars in a map: data and specification"]
@@ -141,9 +147,9 @@
    [:p  "…we can see that "]
 
    [:ul
-    [:li [:code "42"] " at path " [:code "[:x]"] " in the data satisfies " [:code "int?"] " at path " [:code "[:x]"] " in the specification, "]
-    [:li [:code "\"abc\""] " at path " [:code "[:y]"] " in the data satisfies " [:code "string?"] " at path " [:code "[:y]"] " in the specification, and"]
-    [:li [:code "22/7"] " at path " [:code "[:z]"] " in the data satisfies " [:code "ratio?"] " at path " [:code "[:z]"] " in the specification. "]]
+    [:li "Scalar " [:code "42"] " at path " [:code "[:x]"] " in the data satisfies predicate " [:code "int?"] " at path " [:code "[:x]"] " in the specification, "]
+    [:li "scalar " [:code "\"abc\""] " at path " [:code "[:y]"] " in the data satisfies predicate " [:code "string?"] " at path " [:code "[:y]"] " in the specification, and"]
+    [:li "scalar " [:code "22/7"] " at path " [:code "[:z]"] " in the data satisfies predicate " [:code "ratio?"] " at path " [:code "[:z]"] " in the specification."]]
 
    [:p "Because the specification mimics the shape of the data (i.e., the specification is a map with the same keys), "] [:code "validate-scalars"] " is able to infer how to apply each predicate to the intended datum."])
 

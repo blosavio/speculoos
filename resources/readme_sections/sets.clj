@@ -3,15 +3,15 @@
 
  [:p "Sets are…a handful. They enable some nice features, but they present some unique challenges compared to the other Clojure collections. " [:em "The elements in a set are addressed by their identities."] " What does that even mean? Let's compare to Clojure's other collections to get some context."]
 
- [:p"The elements of a sequence are addressed by monotonically increasing integer indexes. Give a vector index " [:code "2"] " and it'll give you back the third element, if it exists."]
+ [:p"The elements of a sequence are addressed by monotonically increasing integer indexes. Give a vector index " [:code "2"] " and it'll give us back the third element, if it exists."]
 
  [:pre (print-form-then-eval "([11 22 33] 2)")]
 
- [:p "The elements of a map are addressed by its keys. Give a map a key " [:code ":howdy"] " and it'll give you back the value at that key, if it exists."]
+ [:p "The elements of a map are addressed by its keys. Give a map a key " [:code ":howdy"] " and it'll give us back the value at that key, if it exists."]
 
  [:pre (print-form-then-eval "({:howdy \"bonjour\" :hey \"salut\"} :howdy)")]
 
- [:p "Give a set some value, and it will give you back that value…"]
+ [:p "Give a set some value, and it will give us back that value…"]
 
  [:pre (print-form-then-eval "(#{:thumb :index :middle :ring :pinky} :thumb)")]
 

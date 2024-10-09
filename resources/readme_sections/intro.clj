@@ -1,7 +1,7 @@
 [:section#intro
  [:h2 "Introduction"]
 
- [:p "Imagine you'd like to know if " [:em "My Clojure vector contains an integer, then a string, and finally a ratio"] ". One example of that data vector might look like this."]
+ [:p "Imagine we'd like to know if our " [:em "Clojure vector contains an integer, then a string, and finally a ratio"] ". One example of that data vector might look like this."]
 
  [:pre [:code  "[42 \"abc\" 22/7]"]]
 
@@ -13,7 +13,9 @@
 
  [:pre (print-form-then-eval "(valid-scalars? [42 \"abc\" 22/7] [int? string? ratio?])" 40 80)]
 
- [:p "Now imagine we'd like ensure we have " [:em "A Clojure hash-map with an integer at key " [:code ":x"] " and a ratio at key " [:code ":y"]] ". Something like this."]
+ [:p "Notice now the specification's predicate functions in the the lower row line up with the data's values in the upper row. Integer " [:code "42"] " pairs with predicate " [:code "int?"] ", string " [:code "\"abc\""] " pairs with predicate " [:code "string?"] ", and ratio " [:code "22/7"] " pairs with predicate " [:code "ratio?"] ". All three scalar values satisfy their respective predicates, so the validation returns " [:code "true"] "."]
+
+ [:p "Now imagine we'd like ensure our " [:em "Clojure hash-map contains an integer at key " [:code ":x"] " and a ratio at key " [:code ":y"]] ". Something like this."]
 
  [:pre [:code "{:x 42 :y 22/7}"]]
 
@@ -24,6 +26,8 @@
  [:p "Speculoos can validate our data map with that specification map."]
 
  [:pre (print-form-then-eval "(valid-scalars? {:x 42 :y 22/7} {:x int? :y ratio?})" 40 80)]
+
+ [:p "Again, the specification's predicate functions in the lower row correspond to the data's values in the upper row. Integer " [:code "42"] " at key " [:code ":x"] " pairs with predicate " [:code "int?"] " also at key " [:code ":x"] ", while ratio " [:code "22/7"] " at key " [:code ":y"] " pairs with predicate " [:code "ratio?"] " also at key " [:code ":y"] ". Both scalar values satisfy their respective predicates, so the validation returns " [:code "true"] "."]
 
  [:p "Notice how in both cases, the specifications mimic the shape of the data. The vector's specification is itself a vector. The map's specification is itself a map."]
 

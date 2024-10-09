@@ -127,7 +127,7 @@
  (panel
   [:h3 "Permissive: validate only datums that are present"]
 
-  [:pre [:code.form "(valid-scalars? [42 \"abc\" 22/7]\n                [int? string? ratio?])"] [:code.eval ";; => true"]]
+  [:pre [:code.form "(valid-scalars? [42 \"abc\" 22/7]\n                [int? string? ratio?])"] [:code.eval " ;; => true"]]
   [:div.vspace]
   [:pre [:code.form "(valid-scalars? [42 \"abc\"]\n                [int? string? ratio?])"] [:code.eval " ;; => true"]]
   [:div.vspace]
@@ -170,7 +170,7 @@
 
   [:div.vspace]
 
-  (prettyfy-form-prettyfy-eval "(valid-collections? {:id 7 :food \"ice cream\" :dept :dairy} {:baz #(contains? % :violin)})" 50 45)
+  (prettyfy-form-prettyfy-eval "(valid-collections? {:id 7 :food \"ice cream\" :dept :dairy} {:baz #(contains? % :id)})" 50 45)
 
   [:div.note
    [:p "The first core principle was 'specifications are shaped like the data'."]
@@ -230,5 +230,6 @@
 
  (whats-next-panel
   intro-index
-  [:div.note "I've created over a dozen screencasts as a follow-along companion the text documentation, which is the ReadMe. Next-Up is a discussion of Speculoos' mechanics: Knowing how Speculoos validates a HANDS greatly helps understanding how to use it."])
+  [:div.note
+   [:p "I've created over a dozen screencasts as a follow-along companion the text documentation, which is the ReadMe. Next-Up is a discussion of Speculoos' mechanics: Knowing how Speculoos validates a HANDS greatly helps understanding how to use it."]])
  ]

@@ -304,11 +304,13 @@
 
           [:p "Or, we may gather them into our own bespoke registry."]
 
+          [:div.no-display
+           (def speculoos-registry (atom {:speculoos/specification-2 [int? string? ratio?] :speculoos/specification-3 {:first-name string? :last-name string? :age int}}))]
           [:pre
-           (print-form-then-eval "(def speculoos-registry {::specification-2 [int? string? ratio?] ::specification-3 {:first-name string? :last-name string? :age int}})")
+           [:code "(defonce speculoos-registry (atom {:speculoos/specification-2 [int? string? ratio?]\n                                   :speculoos/specification-3 {:first-name string?\n                                                               :last-name string?\n                                                               :age int?}}))"]
            [:br]
            [:br]
-           (print-form-then-eval "(valid-scalars? [42 \"abc\" 22/7] (speculoos-registry ::specification-2))" 55 45)]
+           (print-form-then-eval "(valid-scalars? [42 \"abc\" 22/7] (@speculoos-registry :speculoos/specification-2))" 65 45)]
 
 
 
