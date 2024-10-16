@@ -1,4 +1,4 @@
-(defproject com.sagevisuals/speculoos "2-SNAPSHOT3"
+(defproject com.sagevisuals/speculoos "2-SNAPSHOT4"
   :description "A library for validating Clojure data."
   :url "https://blosavio.github.io/speculoos/home.html"
   :license {:name "MIT License"
@@ -22,5 +22,5 @@
           :doc-files []
           :source-uri "https://github.com/blosavio/speculoos/blob/main/{filepath}#L{line}"
           :themes [:speculoos]
-          :project {:name "Speculoos" :version "version 2-SNAPSHOT3"}}
+          :project {:name "Speculoos" :version "version 2-SNAPSHOT4"}}
   :scm {:name "git" :url "https://github.com/blosavio/speculoos"})

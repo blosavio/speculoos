@@ -83,6 +83,9 @@
     (element/image "https://img.shields.io/clojars/v/com.sagevisuals/speculoos.svg")]])
 
 
+(def project-version (nth (read-string (slurp "project.clj")) 2))
+
+
 (def title-section
   [[:h1 "Speculoos"]
    [:em "An experiment with Clojure specification literals"]])

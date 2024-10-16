@@ -172,6 +172,34 @@
 
 
  (panel
+  [:h3 "Manually validating nested collections."]
+
+  [:div.side-by-side-container
+   [:div.side-by-side
+    "from data: only collections"
+    [:pre [:code "[{:path [], :value [11 [22 33 44]]}\n {:path [1], :value [22 33 44]}]"]]]
+   [:div.side-by-side
+    "from specification: only predicates"
+    [:pre [:code "[{:path [0], :value len-3?}\n {:path [1 0], :value len-3?}]"]]
+    [:div.vspace]
+    (prettyfy-form-prettyfy-eval "(drop-last [0])")
+    (prettyfy-form-prettyfy-eval "(drop-last [1 0])")]]
+
+  [:div.vspace]
+
+  (prettyfy-form-prettyfy-eval "(len-3? [11 [22 33 44]])")
+
+  [:div.vspace]
+
+  (prettyfy-form-prettyfy-eval "(len-3? [22 33 44])")
+
+  [:div.note
+   [:p "We've already run `all-paths` on the data (left) and the collection specification (right), now we filter each to keep only the collections and predicats, respectively. We form pairs by doing a `drop-last` on each of the predicates' paths."]
+
+   [:p "The root vector `[11 [22 33 44]]` does not satisfy `len-3?`, but the nested vector `[22 33 44]` does."]])
+
+
+ (panel
   [:h3 "Validate collections: simple vector"]
 
   (prettyfy-form-prettyfy-eval "(require '[speculoos.core :refer [validate-collections]])")

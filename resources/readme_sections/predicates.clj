@@ -84,7 +84,7 @@
 
  [:pre (print-form-then-eval "(contains? [97 98 99] 1)")]
 
- [:p [:code "contains?"] " actually tells es whether a collection contains a key. For a vector, it tests for an index. If we'd like to check whether a value is contained in a collection, we can use this pattern."]
+ [:p [:code "contains?"] " actually tells us whether a collection contains a key. For a vector, it tests for an index. If we'd like to check whether a value is contained in a collection, we can use this pattern."]
 
  [:pre
   [:code "(defn in? [coll item] (some #(= item %) coll))"]

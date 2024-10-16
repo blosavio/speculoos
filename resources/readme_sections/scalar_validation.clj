@@ -20,7 +20,7 @@
   (print-form-then-eval "(ratio? 22/7)")]
 
  [:p "All three scalars satisfy their respective predicates that they're paired with. Speculoos provides a function, " [:code "validate-scalars"] " that substantially does all that work for us. Given data and a specification that share the data's shape (Motto #2), " [:code "validate-scalars"] ":"]
- [:ol
+ [:ol#scalar-algorithm
   [:li "Runs " [:code "all-paths"] " on the data, then the specification."]
   [:li "Removes the collection elements from each, keeping only the scalars in each."]
   [:li "Removes the scalars in data that lack a predicate at the same path in the specification, and removes the predicates in the specification that lack datums at the same path in the data."]
@@ -43,8 +43,8 @@
 
  [:p  [:code "validate-scalars"] " returns a sequence of all the scalars in data that share a path with a predicate in the specification. For each of those pairs, we receive a map containing the " [:code ":datum"] " scalar element of the data, the " [:code ":predicate"] " test function element of the specification, the " [:code ":path"] " addressing each in their respective structures, and the " [:code "valid?"] " result of applying the predicate function to the datum. From top to bottom:"
 [:ul
- [:li "Scalar " [:code "42"] " at path " [:code "[0]"] " in the data vector satisifed predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification vector,"]
- [:li "scalar " [:code "\"abc\""] " at path " [:code "[1]"] " in the data vector satsified predicate " [:code "string?"]  " at path " [:code "[1]"] " in the specification vector, and"]
+ [:li "Scalar " [:code "42"] " at path " [:code "[0]"] " in the data vector satisfed predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification vector,"]
+ [:li "scalar " [:code "\"abc\""] " at path " [:code "[1]"] " in the data vector satisfied predicate " [:code "string?"]  " at path " [:code "[1]"] " in the specification vector, and"]
  [:li "scalar " [:code "22/7"] " at path " [:code "[2]"] " in the data vector satisfied predicate " [:code "ratio?"] " at path " [:code "[2]"] " in the specification vector."]]]
 
  [:p "What if there's a length mis-match between the data and the specification? Motto #3 tells us that validation ignores un-paired datums. Let's look at the " [:code "all-paths"] " for that situation."]
@@ -123,7 +123,7 @@
 
  [:p [:code "validate-scalars"] " found only a single complete scalar+predicate pair located at path " [:code "[:x]"] ", so it applied " [:code "int?"] " to " [:code "42"] ", which returns satisfied."]
 
- [:p "Again, the principle of ignoring un-paired scalars and ignoring un-paired predicates provides quite a bit of utility. If we are handed a large data map, but we are only interested in the scalar at " [:code ":x"] ", we are free to validate only that value putting only one predicate at " [:code ":x"] " in the specification map. Validation ignores all the other stuff we don't care about. Similarly, perhaps we've built a comprehensive specification map that contains keys " [:code ":a"] " through " [:code ":z"] ", but for one particular scenario, our data only contains a value at key " [:code ":y"] ". We can directly use that comprehensive specification un-modified, and " [:code "validate-scalars"] " will consider only the one paried datum+predicate and ignore the rest."]
+ [:p "Again, the principle of ignoring un-paired scalars and ignoring un-paired predicates provides quite a bit of utility. If we are handed a large data map, but we are only interested in the scalar at " [:code ":x"] ", we are free to validate only that value putting only one predicate at " [:code ":x"] " in the specification map. Validation ignores all the other stuff we don't care about. Similarly, perhaps we've built a comprehensive specification map that contains keys " [:code ":a"] " through " [:code ":z"] ", but for one particular scenario, our data only contains a value at key " [:code ":y"] ". We can directly use that comprehensive specification un-modified, and " [:code "validate-scalars"] " will consider only the one paired datum+predicate and ignore the rest."]
 
  [:p "Scalars contained in nested collections are treated accordingly: predicates from the specification are only applied to scalars in the data which share their path. The paths are merely longer than one element. Non-scalars are ignored. Here are the paths for a simple nested data vector containing scalars."]
  [:pre (print-form-then-eval "(all-paths [42 [\"abc\" [22/7]]])")]
