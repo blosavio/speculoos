@@ -32,7 +32,7 @@
   [:br]
   (print-form-then-eval "(sum-three 1 20 300)")]
 
- [:p "The argument list is a " [:em "sequence"] " of values, in this example, a sequential thing of three integers. We can imagine a " [:a {:href "#scalar-validation"} "scalar specification"] " for just such as sequence."]
+ [:p "The argument list is a " [:em "sequence"] " of values, in this example, a sequential thing of three integers. We can imagine a " [:a {:href "#scalar-validation"} "scalar specification"] " for just such a sequence."]
 
  [:pre [:code "[int? int? int?]"]]
 

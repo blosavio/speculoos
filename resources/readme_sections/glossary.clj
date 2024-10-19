@@ -26,7 +26,7 @@
     [:a {:href "https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/get-in"} [:code "clojure.core/get-in"]]
     ", but with more generality."]
 
-   [:p "Elements of vectors, lists, and other sequences are addressed by zero-indexed integers. Map values are addressed by their keys, which are often keywords, but can be any data type, including integers, or composite types. Set members are addressed by their identities. Nested collections contained in a set can indeed be addressed: the path vector itself contains the collections. An empty vector "
+   [:p "Elements of vectors, lists, and sequences are addressed by zero-indexed integers. Map values are addressed by their keys, which are often keywords, but can be any data type, including integers, or composite types. Set members are addressed by their identities. Nested collections contained in a set can indeed be addressed: the path vector itself contains the collections. An empty vector "
     [:code "[]"]
     " addresses the outermost, containing collection."]]
 

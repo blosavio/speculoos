@@ -75,11 +75,11 @@
 
           [:p "The specification is likewise a map with those same keys, i.e., the same 'shape', with predicates " [:code "string?"] " and " [:code "int?"] " replacing datums. Speculoos assembles pairs of datums and predicates and reports if the datums satisfy their corresponding predicates and returns " [:code "true/false"] "."]
 
-          [:p "The signature for validating is like this." ]
+          [:p "All of Speculoos' validating functions have a similar signature. The data is the first argument, the specification is the second argument." ]
 
           [:pre [:code "(valid-scalars? data\n                specification)"]]
 
-          [:p "I'll be printing the specification on the line directly below the data to visually emphasize how the shape of the specification mimics the shape of the data (Motto #2)."]
+          [:p "I'll be printing the specification directly below the data to visually emphasize how the shape of the specification mimics the shape of the data (Motto #2)."]
 
           [:p  "(Speculoos offers a " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#valid-thorough"} "verbose variant"] " if we need to see details of the validation.)"]
 
@@ -91,12 +91,13 @@
            (print-form-then-eval "(require '[speculoos.core :refer [valid-scalars?]])")
            [:br]
            [:br]
+           [:br]
            (print-form-then-eval "(valid-scalars? {:first-name \"Albert\" :last-name \"Einstein\" :age 76} {:first-name string? :last-name string? :age int?})")]
 
           [:p [:code "valid-scalars?"] " systematically walks through both the data and specification, and where it finds a datum paired with a predicate, it validates. "]
 
           [:ul
-           [:li [:code "\"Albert\""] " at " [:code ":first-name"] " in the data satisfies " [:code "string?"] " at " [:code ":first-name"] " in the specification, "]
+           [:li [:code "\"Albert\""] " at " [:code ":first-name"] " in the data (upper row) satisfies " [:code "string?"] " at " [:code ":first-name"] " in the specification (lower row), "]
            [:li [:code "\"Einstein\""] " at " [:code ":last-name"] " in the data satisfies " [:code "string?"] " at " [:code ":last-name"] " in the specification, and"]
            [:li [:code "76"] " at " [:code ":age"] " in the data satisfies " [:code "int?"] " at " [:code ":age"] " in the specification."]]
 
@@ -113,8 +114,8 @@
           [:p "That result may be surprising. Why doesn't the missing age datum cause a " [:code "false"] " result? We need to consider Motto #3: Un-paired predicates are ignored. " [:code "valid-scalars?"] " was able to find two datum+predicate pairs."]
 
           [:ul
-           [:li [:code "Albert"] " at " [:code ":first-name"] " in the data satisfies predicate " [:code "string?"] " at " [:code "first-name"] " in the specification."]
-           [:li [:code "Einstein"] " at " [:code ":last-name"] " in the data satisfies predicate " [:code "string?"] " at " [:code ":last-name"] " in the specification."]
+           [:li [:code "\"Albert\""] " at " [:code ":first-name"] " in the data satisfies predicate " [:code "string?"] " at " [:code "first-name"] " in the specification."]
+           [:li [:code "\"Einstein\""] " at " [:code ":last-name"] " in the data satisfies predicate " [:code "string?"] " at " [:code ":last-name"] " in the specification."]
            [:li "Predicate " [:code "int?"] " at " [:code ":age"] " in the specification was not paired with an element in the data and was therefore ignored, as Motto #3 informs us."]]
 
           [:p "That may seem kinda broken, but it opens up some powerful capabilities we're about to explore. Later, we'll see how to verify that the age datum actually exists in the data."]
@@ -145,7 +146,7 @@
 
           [:h4 "Validating empty data"]
 
-          [:p "Perhaps we've been building up a comprehensive specification for a person's data that includes predicates for a whole slew of possible datums. We need to be able to handle partial data. I.e., not every instance of data we encounter will be complete. The edge case would be zero datums."]
+          [:p "Perhaps we've been building up a comprehensive specification for a person's data that includes predicates for a whole slew of possible datums. We need to be able to handle partial data. In other words, not every instance of data we encounter will be complete. The edge case would be zero datums."]
 
           [:pre (print-form-then-eval "(valid-scalars? {} {:first-name string? :last-name string? :age int? :address {:street-name string? :street-number int? :zip-code int? :city string? :state keyword?} :email #\"\\w@\\w\"})")]
 
@@ -159,7 +160,7 @@
 
           [:pre (print-form-then-eval "(valid-scalars? {:first-name \"Albert\" :last-name \"Einstein\" :age \"not an integer!\"} {:first-name string? :last-name string? :age int?})")]
 
-          [:p "String datum " [:code "not an integer!"] " failed to satisfy the " [:code "int?"] " predicate located at " [:code ":age"] " in the specification. Therefore, " [:code "valid-scalars?"] " returned " [:code "false"] ". Speculoos provides other functions that give more detail about invalid elements, but for simplicity, we'll stick with the " [:code "true/false"] " results."]
+          [:p "String datum " [:code "\"not an integer!\""] " failed to satisfy the " [:code "int?"] " predicate located at " [:code ":age"] " in the specification. Therefore, " [:code "valid-scalars?"] " returned " [:code "false"] ". Speculoos provides " [:a {:href "https://github.com/blosavio/speculoos?tab=readme-ov-file#function-naming-conventions"} "other functions"] " that give more detail about invalid elements, but for simplicity, we'll stick with the " [:code "true/false"] " results."]
 
 
           [:h3 "Validating presence of a datum"]
@@ -174,25 +175,27 @@
 
           [:p  "Given this collection specification, " [:code "has-age?"] " will be paired with the root collection of the data."]
 
-          [:p "Finally, we invoke a completely different function to validate (Motto #1)."]
+          [:p "Finally, we invoke a completely different function, " [:code "validate-collections"] ", to validate (Motto #1)."]
 
           [:pre
            (print-form-then-eval "(require '[speculoos.core :refer [valid-collections?]])")
+           [:br]
            [:br]
            [:br]
            (print-form-then-eval "(valid-collections? {:first-name \"Albert\" :last-name \"Einstein\"} {:foo has-age?})")]
 
           [:p [:code "valid-collections?"] " informs us that the map fails to satisfy the " [:code "has-age?"] " collection predicate. It fails because the map does not contain " [:code ":age"] " as the collection specification requires."]
 
-          [:p "We'll often want to validate some aspects of both the scalars and the collections, so Speculoos provides a combo function that does a scalar validation, immediately followed by a collection validation, and returns the overall result."]
+          [:p "We'll often want to validate some aspects of both the scalars and the collections, so Speculoos provides a combo function that does a scalar validation, immediately followed by a collection validation, and returns the overall result. The data is the first argument (upper row), the scalar specification is the second argument (middle row), and the collection specification is the third argument (lower row). "]
 
           [:pre
            (print-form-then-eval "(require '[speculoos.core :refer [valid?]])")
            [:br]
            [:br]
+           [:br]
            (print-form-then-eval "(valid? {:first-name \"Albert\" :last-name \"Einstein\"} {:first-name string? :last-name string? :age int?} {:foo has-age?})")]
 
-          [:p "The " [:code "string?"] " scalar predicates at " [:code ":first-name"] " and " [:code ":last-name"] " were both satisfied. Scalar predicate " [:code "int?"] " at " [:code ":age"] " was ignored. However, collection predicate " [:code "has-age?"] " at " [:code ":foo"] " was not satisfied, so " [:code "valid?"] " returns " [:code "false"] "."]
+          [:p "The " [:code "string?"] " scalar predicates at " [:code ":first-name"] " and " [:code ":last-name"] " were both satisfied. Scalar predicate " [:code "int?"] " at " [:code ":age"] " was ignored because it was un-paired. However, collection predicate " [:code "has-age?"] " at " [:code ":foo"] " was not satisfied, so " [:code "valid?"] " returns " [:code "false"] "."]
 
           [:p "Specifying and validating scalar datums separately from specifying and validating collections completely isolates two concerns. The scalar predicates are entirely devoted to testing the properties of the scalars themselves. The collection predicates are devoted to properties of the collections, including the size of the collections, the presence/absence of elements, and relationships " [:em "between"] " elements. Using both, Speculoos can validate any facet of a heterogeneous, arbitrarily-nested data structure."]
           ]
@@ -204,7 +207,7 @@
 
           [:p "Speculoos does not suffer from this problem. Because of Motto #3, any predicate that is not paired with a datum is ignored. Any datum that is not paired with predicate is also ignored. Only when a datum is paired with a predicate is the pair considered in the validation result. Separately, if a particular context requires the presence of a datum, we can validate that with a collection validation."]
 
-          [:p "Mr Hickey points out that validating arguments and return values of a function provide a built-in context: the context of the function itself. Speculoos validations themselves carry an inherent context: The context is the validation function with the specification at the moment of invocation, such as we've seen with " [:code "valid-scalars?"] "."]
+          [:p "Mr Hickey points out that validating arguments and return values of a function provide a built-in context: the context of the function itself. Speculoos validations themselves carry an inherent context: The context is the validation function combined with the specification, at the moment of invocation, such as we've seen with " [:code "valid-scalars?"] "."]
 
           [:p#flexible "In addition to being straightforward to compose, Speculoos specifications are extremely flexible because they are plain Clojure data structures. Speculoos specifications can be manipulated using any Clojure tools, including the entire core library or any third-party library. Quite a lot of this flexibility can be demonstrated with merely " [:code "get"] ", " [:code "assoc"] ", " [:code "update"] ", and " [:code "dissoc"] "."]
 
@@ -224,13 +227,13 @@
 
           [:p [:code "76.0"] " satisfies scalar predicate " [:code "number?"] " which we " [:code "assoc"] "-ed into the specification on-the-fly."]
 
-          [:p "The original specification is immutable, as it always was. During the validation, we associated a more permissive scalar predicate so that, in this context (while invoking " [:code "valid-scalars?"] "), the data is valid."]
+          [:p "The original specification is immutable, as it always was. During the validation, we associated a more permissive scalar predicate so that, in this context (while invoking " [:code "valid-scalars?"] ", with that particular specification), the data is valid."]
 
           [:p "Now, let's pretend someone handed us a collection specification that requires the presence of the age key-value, but in our little part of the world, our data doesn't have it, and our little machine doesn't need it. Without intervention, collection validation will fail."]
 
           [:pre (print-form-then-eval "(valid-collections? {:first-name \"Albert\" :last-name \"Einstein\"} {:foo has-age?})" 65 35)]
 
-          [:p "The data does not contain a key " [:code ":age"] " so the data is invalid, according to the specification we were handed."]
+          [:p "The data (upper row) does not contain a key " [:code ":age"] " so the data is invalid, according to the specification (lower row) we were handed."]
 
           [:p "But, our little data processing machine doesn't need Professor Einstein's age, so we can straightforwardly remove that requirement in our context. Here's the altered collection specification."]
 
@@ -298,6 +301,7 @@
            (print-form-then-eval "(def specification-1 [int? string? ratio?])")
            [:br]
            [:br]
+           [:br]
            (print-form-then-eval "(valid-scalars? [42 \"abc\" 22/7] specification-1)" 45 45)]
 
           [:p "(We could also bind them to a symbol in a different namespace; not shown.)"]
@@ -308,6 +312,7 @@
            (def speculoos-registry (atom {:speculoos/specification-2 [int? string? ratio?] :speculoos/specification-3 {:first-name string? :last-name string? :age int}}))]
           [:pre
            [:code "(defonce speculoos-registry (atom {:speculoos/specification-2 [int? string? ratio?]\n                                   :speculoos/specification-3 {:first-name string?\n                                                               :last-name string?\n                                                               :age int?}}))"]
+           [:br]
            [:br]
            [:br]
            (print-form-then-eval "(valid-scalars? [42 \"abc\" 22/7] (@speculoos-registry :speculoos/specification-2))" 65 45)]
@@ -354,11 +359,11 @@
 
           [:p "What if we're in a different context, and suddenly we absolutely must have a " [:code ":year"] " element, too? Right then and there, we can augment the collection specification, because it's a plain Clojure data structure. And we know how to associate items on-the-fly into a map."]
 
-          [:pre [:code "(assoc car-collection-specification :b #(contains? % :year))\n;; => {:foo #(contains? % :make), :b #(contains? % :year)}"]]
+          [:pre [:code "(assoc car-collection-specification :bar #(contains? % :year))\n;; => {:foo #(contains? % :make), :bar #(contains? % :year)}"]]
 
           [:p "So in this new context, we use that new collection specification with tighter requirements."]
 
-          [:pre (print-form-then-eval "(valid? {:make \"Acme Motor Cars\" :model \"Type 1\"} car-scalar-specification (assoc car-collection-specification :b #(contains? % :year)))")]
+          [:pre (print-form-then-eval "(valid? {:make \"Acme Motor Cars\" :model \"Type 1\"} car-scalar-specification (assoc car-collection-specification :bar #(contains? % :year)))")]
 
           [:p "Now, the absence of " [:code ":year"] " element of our car data is no longer ignored. This car data fails to satisfy one of its collection predicates that require the presence of a " [:code ":year"] " entry."]
 
@@ -394,7 +399,7 @@
 
           [:p "Same scalar specification, but since the datums do not satisfy their scalar predicates, the service's response does not satisfy the specification."]
 
-          [:p "One specification is sufficient to validate the data at each step. The specification is re-used, and there's one central location of what an " [:em "ID/name/phone"] " aggregate looks like."]
+          [:p "One specification is sufficient to validate the data at each step. The specification is re-used, and there's one authoritative description of what an " [:em "ID/name/phone"] " aggregate looks like."]
 
 
 
@@ -405,6 +410,7 @@
           [:p "Let's pretend our cupcake processing pipeline accepts an accumulating map, and adds a new quantity based on an ingredient we pass alongside. It might look something like this."]
 
           [:ol
+           [:li "empty bowl"]
            [:li [:strong "flour"] " → 150 grams"]
            [:li [:strong "eggs"] " → 2"]
            [:li [:strong "sugar"] " → 130 grams"]
@@ -414,14 +420,14 @@
           [:p "Our pipeline constructs the accumulating map in six steps like this."]
 
           [:ol
-           [:li "{}"]
-           [:li "{:flour 150.0}"]
-           [:li "{:flour 150.0 :eggs 2}"]
-           [:li "{:flour 150.0 :eggs 2 :sugar 130.0}"]
-           [:li "{:flour 150.0 :eggs 2 :sugar 130.0 :butter 60.0}"]
-           [:li "{:flour 150.0 :eggs 2 :sugar 130.0 :butter 60.0 :milk 1/8}"]]
+           [:li [:code "{}"]]
+           [:li [:code "{:flour 150.0}"]]
+           [:li [:code "{:flour 150.0 :eggs 2}"]]
+           [:li [:code "{:flour 150.0 :eggs 2 :sugar 130.0}"]]
+           [:li [:code "{:flour 150.0 :eggs 2 :sugar 130.0 :butter 60.0}"]]
+           [:li [:code "{:flour 150.0 :eggs 2 :sugar 130.0 :butter 60.0 :milk 1/8}"]]]
 
-          [:p "We can write one single scalar specification that validates each of those six steps."]
+          [:p "We can write one single scalar specification that will validate the result of each of those six steps."]
 
           [:pre (print-form-then-eval "(def cupcake-spec {:flour double? :eggs int? :sugar double? :butter double? :milk ratio?})")]
 
@@ -445,7 +451,7 @@
 
           [:pre [:code "{:a 42\n :b \"abc\"\n :c [\\x \\y \\z]\n :d ['foo 'bar 'baz]}"]]
 
-          [:p "We can immediately compose a specification for that data. One trick is to take advantage of the fact that Speculoos specifications mimic the shape of the data. So first, we copy-paste the data, and delete the scalars."]
+          [:p "We can immediately compose a specification for that data. One trick is to take advantage of the fact that Speculoos specifications mimic the shape of the data (Motto #2). So first, we copy-paste the data, and delete the scalars."]
 
           [:pre [:code "{:a    :b     :c [       ] :d [        ]}"]]
 
@@ -467,6 +473,7 @@
            (print-form-then-eval "(def three-syms? [symbol? symbol? symbol?])")
            [:br]
            [:br]
+           [:br]
            (print-form-then-eval "(valid-scalars? {:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]} {:a int? :b string? :c three-chars? :d three-syms?})")]
 
           [:p "Regular old Clojure composition in action. The scalar specification refers to " [:code "three-chars?"] " at its key " [:code ":c"] " and refers to " [:code "three-syms?"] " at its key " [:code ":d"] ". We can thus mix and match with impunity to compose our specifications."]
@@ -485,7 +492,7 @@
 
           [:pre (print-form-then-eval "(valid-scalars? {:a 42 :b \"abc\" :c [\\x \\y \\z] :d ['foo 'bar 'baz]} {:c three-chars?})")]
 
-          [:p "We performed a validation on only a selection because " [:code "valid-scalars?"] " applied only the three " [:code "char?"] " scalar predicates to the contents of the nested vector at " [:code ":c"] "."]
+          [:p "We performed a validation on only a selected slice of data because " [:code "valid-scalars?"] " applied only the three " [:code "char?"] " scalar predicates to the contents of the nested vector at " [:code ":c"] "."]
 
 
 
@@ -524,7 +531,7 @@
 
           [:pre (print-form-then-eval "(valid-scalars? {:first-name \"Helen\" :last-name \"tis Troías\" :address {:street \"Equine Avenue\" :city \"Sparta\" :state :LCNIA :zip 54321}} {:id id :first-name first-name :last-name last-name :address address})" 55 45)]
 
-          [:p "Exact same specification in both cases, " [:code "user"] ", but this time, a different slice of data was compared to specification. Because Speculoos only validates using predicates that are paired with scalars, the extra, un-paired predicates (in this example, " [:code ":id"] ") in scalar specification " [:code "user"] " have no effect."]
+          [:p "Exact same specification, " [:code "user"] ", in both cases, but this time, a different slice of data was compared to specification. Because Speculoos only validates using predicates that are paired with scalars, the extra, un-paired predicates (in this example, " [:code ":id"] ") in scalar specification " [:code "user"] " have no effect."]
 
           [:p "Also note that the data is a heterogeneous, nested data structure (Mr Hickey calls it a 'tree'), and because Speculoos specifications mimic the shape of the data, the " [:code "user"] " scalar specification is also a tree. Speculoos can handle any depth of nesting, with any of Clojure's data structures (vectors, lists, sequences, maps, and sets)."]
 
@@ -542,6 +549,7 @@
 
           [:pre
            (print-form-then-eval "(require '[speculoos.utility :refer [exercise]])")
+           [:br]
            [:br]
            [:br]
            (print-form-then-eval "(exercise {:sheep #{\"Fred\" \"Ethel\" \"Lucy\" \"Ricky\" \"Little Ricky\"} :helicopters pos-int?} 5)" 75 55)]
