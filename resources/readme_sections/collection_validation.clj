@@ -700,7 +700,7 @@
  {:path [4], :value coll?}
  {:path [6], :value any?}]"]]
 
- [:p "In this first phase, we're focusing on predicates located at single-element paths, because " [:code "(drop-last [" [:em "i"] "])"] " will, for every " [:code "i"]", resolve to " [:code "[]"] ", which targets the root collection. We see from that last step, predicates " [:code "vector?"] ", " [:code "sequential?"] ", " [:code "coll?"] ", and " [:code "any?"] " all have single-element paths, so they will target the root collection. The concepetual linkage between a predicate's right-trimmed path and its target has the practical result that " [:em "predicates apply to their parent containers"] ". So we right-trim those paths."]
+ [:p "In this first phase, we're focusing on predicates located at single-element paths, because " [:code "(drop-last [" [:em "i"] "])"] " will, for every " [:code "i"]", resolve to " [:code "[]"] ", which targets the root collection. We see from that last step, predicates " [:code "vector?"] ", " [:code "sequential?"] ", " [:code "coll?"] ", and " [:code "any?"] " all have single-element paths, so they will target the root collection. The conceptual linkage between a predicate's right-trimmed path and its target has the practical result that " [:em "predicates apply to their parent containers"] ". So we right-trim those paths."]
 
  [:pre
   (print-form-then-eval "(drop-last [0])") [:br]

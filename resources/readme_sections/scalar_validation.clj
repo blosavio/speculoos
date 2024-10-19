@@ -43,7 +43,7 @@
 
  [:p  [:code "validate-scalars"] " returns a sequence of all the scalars in data that share a path with a predicate in the specification. For each of those pairs, we receive a map containing the " [:code ":datum"] " scalar element of the data, the " [:code ":predicate"] " test function element of the specification, the " [:code ":path"] " addressing each in their respective structures, and the " [:code "valid?"] " result of applying the predicate function to the datum. From top to bottom:"
 [:ul
- [:li "Scalar " [:code "42"] " at path " [:code "[0]"] " in the data vector satisfed predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification vector,"]
+ [:li "Scalar " [:code "42"] " at path " [:code "[0]"] " in the data vector satisfied predicate " [:code "int?"] " at path " [:code "[0]"] " in the specification vector,"]
  [:li "scalar " [:code "\"abc\""] " at path " [:code "[1]"] " in the data vector satisfied predicate " [:code "string?"]  " at path " [:code "[1]"] " in the specification vector, and"]
  [:li "scalar " [:code "22/7"] " at path " [:code "[2]"] " in the data vector satisfied predicate " [:code "ratio?"] " at path " [:code "[2]"] " in the specification vector."]]]
 

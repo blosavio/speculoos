@@ -7,6 +7,7 @@
   (print-form-then-eval "(#(<= 5 % ) 3)")
   [:br]
   [:br]
+  [:br]
   (print-form-then-eval "(#(= 3 (count %)) [1 2 3])")]
 
  [:p "Non-boolean returns work, too. For example, " [:a {:href "#sets"} "sets"] " make wonderful membership tests."]
@@ -37,6 +38,7 @@
 
  [:pre
   (print-form-then-eval "(int? 42)")
+  [:br]
   [:br]
   [:br]
   (print-form-then-eval "(validate-scalars [42] [int?])" 25 40)]
@@ -90,12 +92,16 @@
   [:code "(defn in? [coll item] (some #(= item %) coll))"]
   [:br]
   [:br]
+  [:br]
   [:code ";; integer 98 is a value found in the vector"]
+  [:br]
   [:br]
   (print-form-then-eval "(in? [97 98 99] 98)")
   [:br]
   [:br]
+  [:br]
   [:code ";; integer 1 is not a value found in the vector"]
+  [:br]
   [:br]
   (print-form-then-eval "(in? [97 98 99] 1)")]
 
@@ -113,6 +119,7 @@
   (print-form-then-eval "(def greater-than-50? #(< 50 %))")
   [:br]
   [:br]
+  [:br]
   (print-form-then-eval "(validate-scalars [42] [greater-than-50?])" 40 40)]
 
  [:p "Now, the predicate entry carries a bit more meaning."]
@@ -123,20 +130,23 @@
   (print-form-then-eval "(def re #\"F\\dQ\\d\")")
   [:br]
   [:br]
+  [:br]
   (print-form-then-eval "(defn re-pred [s] (re-matches re s))")
+  [:br]
   [:br]
   [:br]
   (print-form-then-eval "(validate-scalars [\"F1Q5\" \"F2QQ\"] [re-pred re-pred])" 40 80)]
 
- [:p "Speculoos considers free-floating regexes in a scalar specification as predicates, so we can simply jam them in there."]
+ [:p "Speculoos considers regexes in a scalar specification as predicates, so we can simply jam them in there."]
 
  [:pre
   (print-form-then-eval "(valid-scalars? [\"A1B2\" \"CDEF\"] [#\"(\\w\\d){2}\" #\"\\w{4}\"])" 40 80)
   [:br]
   [:br]
+  [:br]
   (print-form-then-eval "(validate-scalars {:a \"foo\" :b \"bar\"} {:a #\"f.\\w\" :b #\"^[abr]{0,3}$\"})" 55 50)]
 
- [:p "Using bare regexes in our scalar specification has a nice side benefit in that the " [:code "data-from-spec"] ", " [:code "exercise"] ", and " [:code "exercise-fn"] " utilities can generate valid strings."]
+ [:p "Using bare regexes in our scalar specification has a nice side benefit in that the " [:code "data-from-spec"] ", " [:code "exercise"] ", and " [:code "exercise-fn"] " utilities can inspect the regex and automatically generate valid strings."]
 
  [:p "Beyond their critical role they play in validating data, predicate functions can also carry metadata that describes how to " [:a {:href "#exercising"} "generate valid, random samples"] ". To help with that task, the " [:a {:href "#utilities"} "utility namespace"] " provides " [:code "defpred"] ", a helper macro that streamlines " [:strong "def"] "ing " [:strong "pred"] "icates and associating random sample generators."]
 

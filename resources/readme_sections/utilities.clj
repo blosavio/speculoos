@@ -5,7 +5,7 @@
 
  [:pre (print-form-then-eval "(require '[speculoos.utility :refer [scalars-without-predicates predicates-without-scalars collections-without-predicates predicates-without-collections sore-thumb spec-from-data data-from-spec basic-collection-spec-from-data]])")]
 
- [:p "Recall that Speculoos only validates using elements in the data and predicates in the specification located at identical paths. This duo of utilities tells us where we have unmatched scalars or unmatched predicates. The first of the duo tells us about un-paired scalars."]
+ [:p "Recall that Speculoos only validates using elements in the data and predicates in the specification located at identical paths. This next duo of utilities tells us where we have unmatched scalars or unmatched predicates. The first of the duo tells us about un-paired scalars."]
 
  [:pre (print-form-then-eval "(scalars-without-predicates [42 [\"abc\" 22/7]] [int?])" 50 40)]
 
@@ -14,7 +14,7 @@
 
  [:p "The second utility of that duo performs the complementary operation by telling us about un-paired predicates."]
 
- [:pre (print-form-then-eval "(predicates-without-scalars [42] [int? string? ratio?])")]
+ [:pre (print-form-then-eval "(predicates-without-scalars [42] [int? string? ratio?])" 50 40)]
 
  [:p "It is especially helpful for " [:a {:href "#troubleshooting"} "diagnosing surprising results"] ". Just because we put a predicate into the scalar specification doesn't force validation of a scalar that doesn't exist."]
 
@@ -26,7 +26,7 @@
 
  [:pre (print-form-then-eval "(collections-without-predicates [11 [22 {:a 33}]] [vector? [{:is-a-map? map?}]])" 65 40)]
 
- [:p "Yup, we didn't specify that inner vector whose first element is " [:code "22"] ". That's okay, though. Maybe we don't care to specify it. But now we're aware."]
+ [:p "Yup, we didn't specify that inner vector whose first element is " [:code "22"] ". That's okay, though. Maybe we don't care to specify it. But at least, we're aware, now."]
 
  [:p "Maybe we put a predicate into a collection specification that clearly ought to be unsatisfied, but for some reason, " [:code "validate-collections"] " isn't picking it up."]
 
@@ -35,7 +35,7 @@
  [:p "Aha. " [:code "set?"] " in the collection specification isn't paired with an element in the data, so it is unused during validation."]
 
  [:p "Taking those ideas further, the " [:a {:href "#thorough"} [:em "thorough validation variants"]] " return " [:code "true"] " only if every scalar and every collection in data have a corresponding predicate in the scalar specification and the collection specification, respectively, and all those predicates are satisfied."]
- 
+
  [:p "This next utility is probably only useful during development. Given data and a scalar specification, " [:code "sore-thumb"] " prints back both, but with only the invalid scalars and predicates showing."]
 
  [:div.no-display
@@ -48,7 +48,9 @@
   [:code (prettyfy sore-thumb-example)]
   [:br]
   [:br]
+  [:br]
   [:code ";; to *out*"]
+  [:br]
   [:br]
   [:code (clojure.string/replace sore-thumb-example-eval "\"" "")]]
 
@@ -58,6 +60,7 @@
 
  [:pre
   (print-form-then-eval "(spec-from-data [33 {:a :baz :b [1/3 false]} '(3.14 \\z)])" 65 25)
+  [:br]
   [:br]
   [:br]
   (print-form-then-eval "(data-from-spec {:x int? :y [ratio? boolean?] :z (list char? neg-int?)} :random)" 65 25)]

@@ -39,7 +39,7 @@
     (clojure.string/replace arrow-prefixed-str "\n" indent)))
 
 
-(def fn-obj-regex #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?\=]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]")
+(def fn-obj-regex #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?\=\<\>]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]")
 
 
 (defn revert-fn-obj-rendering
@@ -54,25 +54,29 @@
 
   ;; explore matching and negative lookahead at https://regexr.com/85b0a
 
-  #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?\=]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]"
+  #"#function[;\n\ ]*\[[\w\.\-\?]*\/([\w\?\=\<\>]*(\-?(?!\-)[\w\?]*)*)(?:--\d+)?\]"
 
-  ;; #function   match literal #function
-  ;; [;\n\ ]*    match zero-or-more semicolons, newlines, or spaces
-  ;; \[          match literal open bracket
-  ;; [\w\.\-\?]* match zero-or-more word, periods, hyphens, or question marks
-  ;; \/          match literal forward slash
-  ;; (           begin capture group #1
-  ;; [\w\?\=]*   match zero-or-more word, question mark, or equal signs
-  ;; (           begin capture group #2
-  ;; \-          match literal hyphen, but...
-  ;; (?!\-)      negative lookahead, ...only if not followed by another hyphen
-  ;; [\w\?]*     match zero-or-more word or question marks
-  ;; )*          end capture group #2, zero-or-more
-  ;; )*          end capture group #1, zero-or-more
-  ;; (?:--\d+)?  zero-or-one non-capturing groups, two hyphens followed by one-or-more digits
-  ;; \]          match literal close bracket
+  ;; #function      match literal #function
+  ;; [;\n\ ]*       match zero-or-more semicolons, newlines, or spaces
+  ;; \[             match literal open bracket
+  ;; [\w\.\-\?]*    match zero-or-more word, periods, hyphens, or question marks
+  ;; \/             match literal forward slash
+  ;; (              begin capture group #1
+  ;; [\w\?\=\<\>]*  match zero-or-more word, question mark, equal signs, less-thans, or greater-thans
+  ;; (              begin capture group #2
+  ;; \-             match literal hyphen, but...
+  ;; (?!\-)         negative lookahead, ...only if not followed by another hyphen
+  ;; [\w\?]*        match zero-or-more word or question marks
+  ;; )*             end capture group #2, zero-or-more
+  ;; )*             end capture group #1, zero-or-more
+  ;; (?:--\d+)?     zero-or-one non-capturing groups, two hyphens followed by one-or-more digits
+  ;; \]             match literal close bracket
 
   ;; sample function object rendering strings
+
+  "#function [clojure.core/<]"
+  "#function [clojure.core/>]"
+  "#function [clojure.core/=]"
 
   "#function[clojure.core/int?]"
   "#function [clojure.core/int?]"

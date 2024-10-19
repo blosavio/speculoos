@@ -3,17 +3,22 @@
 
  [:p "Speculoos absorbs lots of power from Clojure's infinite, lazy sequences. That power stems from the fact that Speculoos only validates complete pairs of datums and predicates. Datums without predicates are not validated, and predicates without datums are ignored. That policy provides optionality in our data. If a datum is present, it is validated against its corresponding predicate, but if that datum is non-existent, it is not required."]
 
+ [:p "In the following examples, the first argument in the upper row is the data, the second argument in the lower row is the specification."]
+
  [:pre
   [:code ";; un-paired scalar predicates"]
+  [:br]
   [:br]
   (print-form-then-eval "(validate-scalars [42] [int? keyword? char?])" 40 40)
   [:br]
   [:br]
+  [:br]
   [:code ";; un-paired scalar datums"]
+  [:br]
   [:br]
   (print-form-then-eval "(validate-scalars [42 :foo \\z] [int?])" 30 40)]
 
- [:p "In the first example, only the single integer " [:code "42"] " is validated, the rest of the predicates are ignored. In the second example, only the " [:code "42"] "  was validated because the specification implies that any trailing elements are un-specified. We can take advantage of this fact by intentionally making either the data or the specification " [:em "run off the end"] "."]
+ [:p "We remember " [:a {:href "#mottos"} "Motto #3"] ": " [:em "Ignore un-paired predicates and un-paired datums. "] " In the first example, only the single integer " [:code "42"] " is validated because it was paired with predicate " [:code "int?"] "; the remaining two predicates, " [:code "keyword?"] " and " [:code "char?"] ", are un-paired, and therefore ignored. In the second example, only  " [:code "int?"] " participated in validation because it was the only predicate that pairs with a scalar. Scalars " [:code ":foo"] " and " [:code "\\z"] " were not paired with a predicate, and were therefore ignored. The fact that the specification vector is shorter than the data implies that any trailing, un-paired data elements are un-specified. We can take advantage of this fact by intentionally making either the data or the specification " [:em "run off the end"] "."]
 
  [:p "First, if we'd like to validate a non-terminating sequence, specify as many datums as necessary to capture the pattern. " [:code "repeat"] " produces multiple instances of a single value, so we only need to specify one datum."]
 
@@ -45,13 +50,17 @@
  [:pre
   [:code ";; use `concat` to append an infinite sequence of `char?`"]
   [:br]
+  [:br]
   (print-form-then-eval "(validate-scalars [99 \"abc\" \\x \\y \\z] (concat [int? string?] (repeat char?)))" 65 40)
+  [:br]
   [:br]
   [:br]
   (print-form-then-eval "(require '[speculoos.core :refer [only-invalid]])")
   [:br]
   [:br]
+  [:br]
   [:code ";; string \"y\" will not satisfy scalar predicate `char?`; use `only-valid` to highlight invalid element"]
+  [:br]
   [:br]
   (print-form-then-eval "(only-invalid (validate-scalars [99 \"abc\" \\x \"y\" \\z] (concat [int? string?] (repeat char?))))" 75 40)]
 
@@ -60,15 +69,20 @@
  [:pre
   [:code ";; zero &-args"]
   [:br]
+  [:br]
   (print-form-then-eval "(valid-scalars? [2/3] (concat [ratio?] (cycle [keyword string?])))" 65 40)
+  [:br]
   [:br]
   [:br]
   [:code ";; two pairs of keyword+string optional args"]
   [:br]
+  [:br]
   (print-form-then-eval "(valid-scalars? [2/3 :opt1 \"abc\" :opt2 \"xyz\"] (concat [ratio?] (cycle [keyword string?])))")
   [:br]
   [:br]
+  [:br]
   [:code ";; one pair of optional args; 'foo does not satisfy `string?` scalar predicate"]
+  [:br]
   [:br]
   (print-form-then-eval "(only-invalid (validate-scalars [2/3 :opt1 'foo] (concat [ratio?] (cycle [keyword string?]))))")]
 
@@ -85,10 +99,13 @@
  [:pre
   [:code ";; data's infinite sequence at :a, specification's infinite sequence at :b"]
   [:br]
+  [:br]
   (print-form-then-eval "(valid-scalars? {:a (repeat 42) :b [22/7 true]} {:a [int?] :b (cycle [ratio? boolean?])})")
   [:br]
   [:br]
+  [:br]
   [:code ";; demo of some invalid scalars"]
+  [:br]
   [:br]
   (print-form-then-eval "(only-invalid (validate-scalars {:a (repeat 42) :b [22/7 true]} {:a [int? int? string?] :b (repeat ratio?)}))")]
 
@@ -98,6 +115,7 @@
 
  [:pre
   (print-form-then-eval "(require '[speculoos.core :refer [expand-and-clamp-1]])")
+  [:br]
   [:br]
   [:br]
   (print-form-then-eval "(expand-and-clamp-1 (range) [int? int? int?])")]
@@ -110,9 +128,10 @@
   (print-form-then-eval "(require '[speculoos.utility :refer [clamp-in*]])")
   [:br]
   [:br]
+  [:br]
   (print-form-then-eval "(clamp-in* {:a 42 :b ['foo 22/7 {:c (cycle [3 2 1])}]} [:b 2 :c] 5)" 55 55)]
 
- [:p [:code "clamp-in*"] " used the path " [:code "[:b 2 :c]"] " to locate the non-terminating " [:code "cycle"] " sequence, clamped it to " [:code "5"] " elements, and returned the new data structure with that terminating sequence. This way, if Speculoos squawks at us for having two non-terminating sequences at the same path, we have a way to clamp the data, specification, or both at any path, and validation can proceed."]
+ [:p [:code "clamp-in*"] " used the path " [:code "[:b 2 :c]"] " to locate the non-terminating " [:code "cycle"] " sequence, clamped it to " [:code "5"] " elements, and returned the new data structure with that terminating sequence, converted to a vector. This way, if Speculoos squawks at us for having two non-terminating sequences at the same path, we have a way to clamp the data, specification, or both at any path, and validation can proceed."]
 
  [:p "Be sure to set your development environment's printing length"]
 
