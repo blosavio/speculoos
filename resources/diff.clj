@@ -974,7 +974,7 @@
              [:br]
              (print-form-then-eval "(def players-spec (repeat player-spec))")
              [:br]
-             (print-form-then-eval "(def players [kenny {:name \"Humprey Bogart\" :score 188 :hand (draw-hand)} {:name \"Julius Caesar\" :score 77 :hand (draw-hand)}])")
+             (print-form-then-eval "(def players [kenny {:name \"Humphrey Bogart\" :score 188 :hand (draw-hand)} {:name \"Julius Caesar\" :score 77 :hand (draw-hand)}])")
              [:br]
              [:br]
              [:br]

@@ -827,7 +827,7 @@
   (valid-scalars? [42 :foo 22/7]
                   [int?        ]) ;; => true
 
-  ;; un-paried predicates
+  ;; un-paired predicates
   (valid-scalars? {:a 42     }
                   {:b symbol?}) ;; => true
   ```"
@@ -1134,7 +1134,7 @@
   predicate in collection specification `spec`. `data` is an arbitrarily-nested,
   heterogeneous data structure. `spec` is a corresponding 'shape', i.e., all
   nested structures are of the same type and position. Only elements of `spec`
-  that satisfy `fn?` are used. `validate-collections` descends into all neseted
+  that satisfy `fn?` are used. `validate-collections` descends into all nested
   collections. `validate-collections` only validates complete datum-predicate
   pairs., i.e., only collections in `data` that have a corresponding predicate
   in `spec`. See [[valid-collections?]] and [[thoroughly-valid-collections?]]
@@ -1410,7 +1410,7 @@
 
   ;; scalar validation, then collection validation, with a single invocation
   (validate {:a 11}             ;; data
-            {:a string?}        ;; scalar specfication
+            {:a string?}        ;; scalar specification
             {:coll-type? map?}) ;; collection specification
   ;; => ({:path [:a], :datum 11, :predicate string?, :valid? false}
   ;;     {:path [:coll-type?], :value map?, :datum {:a 11}, :ordinal-parent-path [], :valid? true})
@@ -1425,7 +1425,7 @@
   "Following validations with [[validate-scalars]] and then with
   [[validate-collections]], returns `true` if `data` satisfies every
   corresponding predicate in scalar specification `scalar-spec` and every
-  corresponding predicate in collection specification `colleciton-spec`,
+  corresponding predicate in collection specification `collection-spec`,
   `false` otherwise.
 
   `valid?` provides a combined interface to [[valid-scalars?]] and

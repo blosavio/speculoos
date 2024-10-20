@@ -1,5 +1,5 @@
 [:section#valid-thorough
- [:h2 "Validation Summaries and Thorough Validations"]
+ [:h2 "Validation Summaries, Combo Validations, and Thorough Validations"]
 
  [:p "Up until now, we've been using " [:code "validate-scalars"] " and " [:code "validate-collections"] ", because they're verbose. For teaching and learning purposes (and for " [:a {:href "#troubleshooting"} "diagnosing problems"] "), it's useful to see all the information considered by the validators. However, in many situations, once we've got our specification shape nailed down, we'll want a cleaner " [:em "yes"] " or " [:em "no"] " answer on whether the data satisfied the specification. We could certainly pull out the non-truthy, invalid results ourselves…"]
 
@@ -35,6 +35,8 @@
 
  [:p [:strong "» Within the Speculoos library, " [:code "valid?"] " means " [:em " zero invalids. «"]]]
 
+ [:p "If you feel uneasy about this definition of 'valid' — that, somehow, you wouldn't be able to accomplish some particular validation task — rest easy. Speculoos provides us with facilities for ensuring that every datum is validated."]
+
  [:h3#thorough "Thorough validation"]
 
  [:p "Motto #3 reminds us that data elements not paired with a predicate are ignored. For some tasks, we may want to ensure that all elements in the data are subjected to at least one predicate. Plain " [:code "valid?"] "  only reports if all datum+predicate pairs are " [:code "true"] "."]
@@ -43,7 +45,7 @@
 
  [:p "In this example, only " [:code "42"] " and " [:code "int?"] " form a pair that is validated. " [:code "\"abc\""] " and " [:code "22/7"] " are not paired with predicates, and therefore ignored. " [:code "valid-scalars"] " returns " [:code "true"] " regardless of the ignored scalars."]
 
- [:p "The " [:em "thorough"] " function " [:a {:href "#fn-terminology"} "variants"] " require that all data elements be specified, otherwise, they return " [:code "false"] ". Thoroughly validating that same data with that same specification shows the difference."]
+ [:p "Speculoos' " [:em "thorough"] " function " [:a {:href "#fn-terminology"} "variants"] " require that all data elements be specified, otherwise, they return " [:code "false"] ". Thoroughly validating that same data with that same specification shows the difference."]
 
  [:pre
   (print-form-then-eval "(require '[speculoos.utility :refer [thoroughly-valid-scalars?]])"  90 90)
@@ -55,7 +57,7 @@
 
  [:p "The " [:code "utility"] " " [:a {:href "#utilities"} "namespace"] " provides a thorough variant for collections, as well as a variant for " [:a {:href "#combo"} "combo"] " validations. "[:code "thoroughly-valid-collections?"] " works analogously to what we've just seen."]
 
- [:p "Let's look at a combo example. First, the 'plain', non-thorough version. The data occupies the top row (i.e., first argument), the scalar specification occupies the middle row, and the collection specification occupies the lower row."]
+ [:p "Let's do a quick preview of a " [:a {:href "#combo"} "combo"] " validation. A combo validation is a convenient way to validate the scalars, and then separately validate the collections, of some data with a single function invocation. First, the 'plain', non-thorough version. The data occupies the top row (i.e., first argument), the scalar specification occupies the middle row, and the collection specification occupies the lower row."]
 
  [:pre (print-form-then-eval "(valid? [42 \"abc\" 22/7] [int?] [vector?])" 35 45)]
 
@@ -80,7 +82,7 @@
  [:p "Validation is only as good as the predicate. It's our responsibility to write a proper predicate."]
 
  [:h3#combo "Combo validation"]
- [:p "Validating scalars separately from validating collections is a core principle embodied by the Speculoos library. I believe that separating the two into distinct processes carries solid advantages because the specifications are more straightforward, the mental model is clearer, the implementation code is simpler, and it makes validation " [:em "à la carte"] ". Much of the time, we can probably get away with just a scalar specification."]
+ [:p "Validating scalars separately from validating collections is a core principle (Motto #1) embodied by the Speculoos library. Separating the two into distinct processes carries solid advantages because the specifications are more straightforward, the mental model is clearer, the implementation code is simpler, and it makes validation " [:em "à la carte"] ". Much of the time, we can probably get away with just a scalar specification."]
 
  [:p "All that said, it is not possible to specify and validate every aspect of our data with only scalar validation or only collection validation. When we really need to be strict and validate both scalars and collections, we could manually combine the two validations like this."]
 

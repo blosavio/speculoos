@@ -949,7 +949,7 @@ retrieved on 2024Mar12."}
 
 
 (defn predicates-without-collections
-  "Given `data` at heterogeneuous, arbitrarily-nested data structure and a
+  "Given `data` at heterogeneous, arbitrarily-nested data structure and a
   collection specification `spec`, returns a set of all-paths elements for
   predicates in `spec` which cannnot be paired with a collection element in
   `data`. See also [[collections-without-predicates]],
