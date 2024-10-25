@@ -61,6 +61,23 @@
       [:p "See below for strategies and tools for diagnosing mis-pairing."]]]]]
 
   [:li
+   [:p "Checking the presence or absence of an element is the job of a collection validation. Scalar validation is only concerned with testing the properties of a scalar " [:em "if that scalar exists"] "."]
+
+   [:p "Testing whether an integer, located in the first slot of a vector, is greater than forty…"]
+
+   [:pre (print-form-then-eval "(valid-scalars? [42] [#(< 40 %)])" 30 20)]
+
+   [:p "…is a completely orthongonal concern from whether there is anything present in the first slot of a vector."]
+
+   [:pre (print-form-then-eval "(valid-collections? [42] [#(<= 0 (count %))])" 40 25)]
+
+   [:p "Asking about an element's presence is, actually, asking about whether a collection contains an item. If we want to test both a property of the scalar " [:em "and"] " its existence at a particular location, we could use the " [:a {:href "#combo"} "combo utility"] " functions."]
+
+   [:pre (print-form-then-eval "(valid? [42] [#(< 40 %)] [#(<= 0 (count %))])" 35 25)]
+
+   [:p "This combo pattern validates the concept " [:em "The first element must exist, and it must be larger than forty"] "."]]
+
+  [:li
    [:p "Speculoos specifications are regular old data structures containing regular old functions. (I assume your data is, too.) If we're wrangling with something deep down in some nested mess, use our Clojure powers to dive in and pull out the relevant pieces."]
 
    [:pre (print-form-then-eval "(let [data (get-in {:a {:b {:c [22/7]}}} [:a :b :c])

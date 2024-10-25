@@ -24,7 +24,149 @@
 
  [:p "…vectors, maps, sequences, lists, and sets."]
 
- [:p "One of Speculoos' main concepts is that scalars are specified and validated explicitly separately from collections. You perhaps noticed that the function name we have been using wasn't " [:code "validate"] " but instead " [:code "validate-scalars"] ". Speculoos provides a distinct group of functions to validate the properties of collections, independent of the scalar values contained within the collection. The collection validation functions are distinguished by a " [:code "-collections"] " suffix. Let's examine why and how they're distinct."]
+ [:p "One of Speculoos' " [:a {:href "#mottos"} "main concepts"] " is that scalars are specified and validated explicitly separately from collections. You perhaps noticed that the function name we have been using wasn't " [:code "validate"] ", but instead " [:code "validate-scalars"] ". Speculoos provides a distinct group of functions to validate the properties of collections, independent of the scalar values contained within the collection. The collection validation functions are distinguished by a " [:code "-collections"] " suffix."]
+
+ [:p "Let's examine why and how they're distinct."]
+
+ [:section#when-collection-validate
+  [:h3 "When to validate collections versus validating scalars"]
+
+  [:p "So " [:em "when"] " do we use collection validation instead of scalar validation? Basically, any time we want to verify a property that's beyond a single scalar."]
+
+  [:p [:strong "Validate a property of the collection itself."] " In this section, we'll often validate the type of the collection."]
+
+  [:pre
+   (print-form-then-eval "(vector? [])")
+   [:br]
+   (print-form-then-eval "(vector? {})")]
+
+  [:p "Those collection type predicates are short, mnemonic, and built-in, but knowing the mere type of a collection perhaps isn't broadly useful. But maybe we'd like to know how many items a vector contains…"]
+
+  [:pre (print-form-then-eval "(>= 3 (count [1 2 3]))")]
+
+  [:p "…or if it contains an even number of elements…"]
+
+  [:pre (print-form-then-eval "(even? (count [1 2 3]))")]
+
+  [:p "…or if a map contains a particular key…"]
+
+  [:pre (print-form-then-eval "(contains? {:x 42} :y)")]
+
+  [:p "…or maybe if a set contains anything at all."]
+
+  [:pre (print-form-then-eval "(empty? #{})")]
+
+  [:p "None of those tests are available without access to the whole collection. A scalar validation wouldn't suffice. We'd need a collection validation."]
+
+  [:p "Take particular notice: testing the presence or absence of a datum falls under collection validation."]
+
+  [:p [:strong "Validate a relationship between multiple scalars."] " Here's where the lines get blurry. If we'd like to know whether the second element of a vector is greater than the first…"]
+
+  [:pre (print-form-then-eval "(< (get [42 43] 0) (get [42 43] 1))" 20 20)]
+
+  [:p "…or whether each successive value is double the previous value…"]
+
+  [:pre
+   (print-form-then-eval "(def doubles [2 4 8 16 32 64 128 256 512])")
+
+   [:br]
+   [:br]
+
+   (print-form-then-eval "(every? #(= 2 %) (map #(/ %2 %1) doubles (next doubles)))")]
+
+  [:p "…it certainly looks at first glance that we're only interested in the values of the scalars. Where does the concept of a collection come into play? When validating the relationships " [:em "between"] " scalars, I imagine a double-ended arrow connecting the two scalars with a question floating above the arrow."]
+
+  [:pre
+   [:code ";;    greater-than?"]
+   [:br]
+   [:code "[42 <---------------> 43]"]]
+
+  [:p "Validating a relationship is validating the concept that arrow represents. The relationship arrow is not a fundamental property of a single, underlying scalar, so a scalar validation won't work. The relationship arrow 'lives' in the collection, so validating the relationship arrow requires a collection validation."]
+
+  [:p "Don't feel forced to choose between scalar " [:em "or"] " collection validation. We could do both, reserving each kind of validation for when it's best suited."]]
+
+
+ [:section#quick-collection-validation-examples
+  [:h3 "Quick examples"]
+
+  [:p "The upcoming discussion is long and detailed, so before we dive in, let's look at a few examples of collection validation to give a little motivation to working through the concepts."]
+
+  [:p "We can validate that " [:em "a vector contains three elements"] ". We compose that predicate like this."]
+
+  [:pre (print-form-then-eval "(defn length-3? [v] (= 3 (count v)))")]
+
+  [:p "Then, we pull in one of Speculoos' collection validation functions, and validate. The data is the first argument, in the upper row, the specification is the second argument, appearing in the lower row."]
+
+  [:pre
+   (print-form-then-eval "(require '[speculoos.core :refer [valid-collections?]])")
+   [:br]
+   [:br]
+   [:br]
+   (print-form-then-eval "(valid-collections? [42 \"abc\" 22/7] [length-3?])" 40 40)]
+
+  [:p "That example reminds us to consider the Three Mottos. We're validating strictly only collections, as the " [:code "valid-collections?"] " function name indicates. The shape of the specification (lower row) mimics the shape of the data (upper row). One predicate paired with one collection, zero ignored."]
+
+  [:p "We'll go into much more detail soon, but be aware that during collection validation, predicates apply to their immediate parent collection. So the " [:code "length-3?"] " predicate applies to the vector, not the scalar " [:code "42"] ". The vector contains three elements, so the validation returns " [:code "true"] "."]
+
+  [:p "We can validate whether " [:em "a map contains a key " [:code ":y"]] ". Here's a predicate for that."]
+
+  [:pre (print-form-then-eval "(defn map-contains-keyword-y? [m] (contains? m :y))")]
+
+  [:p "Then we validate, data in the upper row, specification in the lower row. For the moment, don't worry about that " [:code ":foo"]  " key in the specification."]
+
+  [:pre (print-form-then-eval "(valid-collections? {:x 42} {:foo map-contains-keyword-y?})" 55 45)]
+
+  [:p "Data " [:code "{:x 42}"] " does not contain a key " [:code ":y"] ", so the validation returns " [:code "false"] "."]
+
+  [:p "We can validate whether " [:em "a list contains an even number of elements"] ". Here's that predicate."]
+
+  [:pre (print-form-then-eval "(defn even-elements? [f] (even? (count f)))")]
+
+  [:p "Then the validation."]
+
+  [:pre (print-form-then-eval "(valid-collections? (list < 1 2 3) (list even-elements?))" 55 45)]
+
+  [:p "Yes, the list contains an even number of elements."]
+
+  [:p "We could determine whether " [:em "every number in a set is an odd"] ". Here's a predicate to test that."]
+
+  (print-form-then-eval "(defn all-odd? [s] (every? odd? s))")
+
+  [:p "Collection validation looks like this."]
+
+  [:pre (print-form-then-eval "(valid-collections? #{1 2 3} #{all-odd?})" 35 45)]
+
+  [:p "Our set, " [:code "#{1 2 3}"] ", contains one element that is not odd, so the set fails to satisfy the collection predicate."]
+
+  [:p "None of those four examples could be accomplished with a scalar validation. They all require access to the collection itself."]]
+
+ [:section#collection-predicate-application
+  [:h3 "Where collection predicates apply"]
+
+  [:p "The principle to keep in mind is " [:em "Any collection predicate applies to its immediate parent collection."] " Let's break that down into parts."]
+
+  [:ul
+   [:li
+    [:p "Predicates apply to their " [:strong "parent"] " collection."]
+    [:pre (print-form-then-eval "(valid-collections? [42 \"abc\" 22/7] [length-3?])" 40 40)]
+    [:p "In contrast with scalar validation, which would have paired the predicate with integer " [:code "42"] ", collection validation pairs predicate " [:code "length-3?"] " with the parent vector " [:code "[42 \"abc\" 22/7]"] ". In the next section, we'll discuss the mechanics of how and why it's that way."]]
+
+   [:li
+    [:p "Predicates apply to their " [:strong "immediate"] " parent collection."]
+    [:pre (print-form-then-eval "(valid-collections? [[42 \"abc\" 22/7]] [[length-3?]])" 40 40)]
+    [:p "The " [:code "length-3?"] " predicate applies to the nested vector that contains three elements. The outer, root collection that contains only one element was not paired with a predicate, so it was ignored. Each predicate is paired with at most one collection, the collection closest to it."]]
+
+   [:li
+    [:p [:strong "Any"] " collection predicates apply to their immediate parent collection."]
+    [:pre (print-form-then-eval "(valid-collections? [42 \"abc\" 22/7] [vector? coll? sequential?])" 50 40)]
+    [:p "Unlike scalar validation, which maintains an absolute one-to-one correspondence between predicates and datums, collection validation may include more than one predicate per collection. Collections may pair with more than one predicate, but each predicate pairs with at most one collection."]]]
+
+  [:p "The fact that predicates apply to their immediate parent collections is what allows us to write specifications whose shape mimic the shapes of the data."]]
+
+
+ [:h3 "How collection validation works"]
+
+ [:p "The Three Mottos and the principle of applying predicates to their containing collections are emergent properties of Speculoos' collection validation algorithm. If we understand the algorithm, we will know when a collection validation is the best tool for the task, and be able to write clear, correct, and expressive collection specifications."]
 
  [:p "Imagine we wanted to specify that our data vector was exactly three elements long. We might reasonably write this predicate, whose argument is a collection."]
 
@@ -883,61 +1025,6 @@
 
   [:p "From the outset, I intended Speculoos to be capable of validating any " [:a {:href "#HANDS"} "heterogeneous, arbitrarily nested data structure"] "."]]
 
- [:section#when-collection-validate
-  [:h3 "When to validate collections versus validating scalars"]
-
-  [:p "So " [:em "when"] " do we use collection validation instead of scalar validation? Basically, any time we want to verify a property that's beyond a single scalar."]
-
-  [:ul
-   [:li
-    [:p [:strong "Validate a property of the collection itself."] " In this section, we've often been validating the type of the collection."]
-
-    [:pre
-     (print-form-then-eval "(vector? [])")
-     [:br]
-     (print-form-then-eval "(vector? {})")]
-
-    [:p "The type predicates are short, mnemonic, and built-in, but knowing the mere type of a collection perhaps isn't broadly useful. But maybe we'd like to know how many items a vector contains…"]
-
-    [:pre (print-form-then-eval "(>= 3 (count [1 2 3]))")]
-
-    [:p "…or if it contains an even number of elements…"]
-
-    [:pre (print-form-then-eval "(even? (count [1 2 3]))")]
-
-    [:p "…or if a map contains a particular key…"]
-
-    [:pre (print-form-then-eval "(contains? {:x 42} :y)")]
-
-    [:p "…or maybe if a set contains anything at all."]
-
-    [:pre (print-form-then-eval "(empty? #{})")]
-
-    [:p "None of those tests are available without access to the whole collection."]]
-
-   [:li
-    [:p [:strong "Validate a relationship between multiple scalars."] " Here's where the lines get blurry. If we'd like to know the whether the second element of a vector is greater than the first…"]
-
-    [:pre (print-form-then-eval "(< (get [42 43] 0) (get [42 43] 1))" 20 20)]
-
-    [:p "…or whether each successive value is double the previous value…"]
-
-    [:pre
-     (print-form-then-eval "(def doubles [2 4 8 16 32 64 128 256 512])")
-
-     [:br]
-     [:br]
-
-     (print-form-then-eval "(every? #(= 2 %) (map #(/ %2 %1) doubles (next doubles)))")]
-
-    [:p "It certainly looks at first glance that we're only interested in the values of the scalars. Where does the concept of a collection come into play? When validating the relationships " [:em "between"] " scalars, I imagine a double-ended arrow connecting the two scalars with a question floating above the arrow."]
-
-    [:pre
-     [:code ";;    greater-than?"]
-     [:br]
-     [:code "[42 <---------------> 43]"]]
-
-    [:p "Validating a relationship is validating the concept that arrow represents. The relationship arrow is not a fundamental property of a single, underlying scalar, so a scalar validation won't work. The relationship arrow 'lives' in the collection, so validating the relationship arrow requires a collection validation."]]]]
 
  [:section#collection-predicate-paths
   [:h3 "Why the collection validation algorithm is different from the scalar validation algorithm"]

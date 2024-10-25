@@ -47,7 +47,7 @@
  (panel
   [:h3 "Map specification are shaped like the data."]
 
-  [:pre [:code "{:id 7    :food \"ice cream\" :dept :dairy }"]]
+  [:pre [:code "{:id 7    :food \"ice cream\" :dept :dairy  }"]]
   [:pre [:code "{:id int? :food string?     :dept keyword?}"]]
 
   [:div.note
@@ -189,16 +189,16 @@
 
   [:div.vspace]
 
-  (prettyfy-form-prettyfy-eval "(#{1/3 22/7 1/9} 22/7)")
+  (prettyfy-form-prettyfy-eval "(#{1 5 7} 7)")
 
   [:div.vspace]
 
-  (prettyfy-form-prettyfy-eval "(valid-scalars? [42 \"abc\" 22/7] [int? #\"a.[cde]\" #{1/3 22/7 1/9}])" 55 55)
+  (prettyfy-form-prettyfy-eval "(valid-scalars? [42 \"abc\" 22/7] [int? #\"a.[cde]\" #{1 5 7}])" 55 55)
 
   [:div.note
    [:p "I've tried to make Speculoos pleasant to use. I hope you appreciate composing and manipulating specifications with plain Clojure data structures."]
 
-   [:p "I've also tried to make specifications expressive. Speculoos can seamlessly consume predicate-like things, such as regular expressions (to validate string properties) and sets (to validate membership in a set). If we stuff those into a scalar specification, validation works just as we'd expect. 42 is an integer, 'abc' satisfies a-something-C-or-D-or-E, and 22/7 is a member of this set."]
+   [:p "I've also tried to make specifications expressive. Speculoos can seamlessly consume predicate-like things, such as regular expressions (to validate string properties) and sets (to validate membership in a set). If we stuff those into a scalar specification, validation works just as we'd expect. 42 is an integer, 'abc' satisfies a-something-C-or-D-or-E, and 7 is a member of this set."]
 
    [:p "Speculoos also has utilities to write and inspect specifications, generate samples, and exercise functions..."]])
 

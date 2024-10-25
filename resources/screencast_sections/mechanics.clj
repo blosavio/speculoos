@@ -12,7 +12,7 @@
   [:pre [:code "{:first-name string?\n :last-name string?\n :phone int?\n :email string?\n :address {:street-name string?\n           :street-number [int? char?]\n           :zip-code int?\n           :city string?\n           :state keyword?}}"]]
 
   [:div.note
-   [:p "Knowing a *little* bit about how Speculoos does its job will greatly help us understand how to use it. First, we need to know on how to address elements contained within a heterogeneous, arbitrarily-nested data structure. Speculoos follows the conventions set by " [:code "clojure.core/get-in"] ", and extends those conventions where necessary."]])
+   [:p "Knowing a *little* bit about how Speculoos does its job will greatly help us understand how to use it. First, we need to know on how to address elements contained within a heterogeneous, arbitrarily-nested data structure, like this person specification. Speculoos follows the conventions set by " [:code "clojure.core/get-in"] ", and extends those conventions where necessary."]])
 
 
  (panel
@@ -32,7 +32,7 @@
 
 
  (panel
-  [:h3 "…and same for other sequences, like " [:code "range"] "."]
+  [:h3 "…and same for sequences, like " [:code "range"] "."]
   [:pre
    (print-form-then-eval "(range 29 33)")
    [:br]
@@ -92,7 +92,11 @@
   [:h3 "Paths"]
   [:p "Let's play " [:em "Get the " [:code "102"] "!"]]
   [:div.vspace]
-  (prettyfy-form-prettyfy-eval "(get-in [100 101 102 103] [2])" 25 45)
+  [:div.side-by-side-container
+   [:div.side-by-side
+    (prettyfy-form-prettyfy-eval "(get-in [100 101 102 103] [2])" 25 45)]
+   [:div.side-by-side
+    [:pre [:code "(get-in* " [:em "coll\n         path"] ")"]]]]
 
   [:div.note
    [:p "First, we'll define 'path'. A " [:em "path"] " is a sequence of indexes, keys, or identities that allow us refer to a single element buried within a nested data structure. For each level of nesting, we add an element to the path sequence. " [:code "clojure.core/get-in"] " illustrates how this works."]
@@ -210,7 +214,7 @@
 
 
  (panel
-  [:h3 "Utility function that reports all the paths."]
+  [:h3 "Utility function that enumerates all the paths."]
   (prettyfy-form-prettyfy-eval "(require '[speculoos.core :refer [all-paths]])")
   [:div.vspace]
   (prettyfy-form-prettyfy-eval "(all-paths [100 101 102])")
@@ -285,7 +289,9 @@
 
    [:p "Admittedly, addressing elements in a set can be a little like herding cats, but it's still useful to have the capability. Wrangling sets merits its own " [:a {:href "#sets"} "dedicated screencast"] "."]
 
-   [:p "Briefly, each element of the set is located at itself --- :chocolate, :vanilla, :strawberry --- while the root collection --- the set --- is located at path []."]])
+   [:p "Briefly, each element of the set is located at itself --- :chocolate, :vanilla, :strawberry --- while the root collection --- the set --- is located at path []."]
+
+   [:p "Note: This ordering is an implementation detail. It's not guaranteed for a set, or any other collection type, for that matter."]])
 
 
  (panel

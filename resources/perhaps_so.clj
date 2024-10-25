@@ -46,6 +46,8 @@
 
           [:p "If we follow those three mottos, handling partial information is straightforward. Briefly, Speculoos specifies and validates scalars separately from specifying and validating collections. A scalar specification describes the properties of the datums themselves. The presence or absence of a scalar is a completely separate concern and falls under the jurisdiction of specifying and validating the collection. By separating the two concerns, Speculoos seamlessly handles partial information while avoiding the issues that befall " [:code "spec.alpha"] "."]
 
+          [:p [:em "Related:"] " " [:code "clojure.spec.alpha"] " " [:a {:href "https://blosavio.github.io/speculoos/diff.html"} "side-by-side comparison"] " to Speculoos."]
+
           [:p "Let's examine each issue in more detail."]]
 
          [:section

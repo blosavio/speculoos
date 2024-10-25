@@ -13,6 +13,8 @@
 
   (prettyfy-form-prettyfy-eval "(all-paths [42 \"abc\" 22/7])")
 
+  #_ [:div.vspace]
+
   (prettyfy-form-prettyfy-eval "(all-paths [int? string? ratio?])" 80 45)
 
   [:div.note

@@ -14,7 +14,7 @@
   [:br]
   [:code "indexes --> 0  1  2  3"]]
 
- [:p "…and same for other sequences, like " [:code "range"] "."]
+ [:p "…and same for sequences, like " [:code "range"] "."]
  [:pre
   (print-form-then-eval "(range 29 33)")
   [:br]

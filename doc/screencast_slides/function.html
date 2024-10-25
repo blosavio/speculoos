@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en"><head><link href="speculoos_screencast.css" rel="stylesheet" type="text/css"><script src="jquery-3.7.1.min.js" type="text/javascript"></script><script src="speculoos_screencast.js" type="text/javascript"></script><title>Speculoos — An experimental Clojure lib for data specification</title><meta charset="utf-8" compile-date="2024-10-25 07:09:14" content="width=device-width, initial-scale=1" name="viewport"><body><div class="panel"><div class="panel-header"></div><h1>Speculoos Screencast 6 — Validating Functions</h1><ol><li>Validating arguments</li><li>Validating return values</li><li>Validating function correctness<ul><li>Argument/return value relationships</li><li>Exercise the function</li></ul></li></ol><div class="note"><p>Being able to validate Clojure data enables us to check the usage and behavior of functions.</p><ol><li><strong>Validating arguments</strong> Speculoos can validate any property of the arguments passed to a function when it is invoked. We can ask questions like <em>Is the argument passed to the function a number?</em>, a scalar validation, and <em>Are there an even number of arguments?</em>, a collection validation.</li><li><strong>Validating return values</strong> Speculoos can validate any property of the value returned by a function. We can ask questions like <em>Does the function return a four-character string?</em>, a scalar validation, and <em>Does the function return a map containing keys <code>:x</code> and <code>:y</code></em>, a collection validation.</li><li><strong>Validating function correctness</strong> Speculoos can validate the correctness of a function in two ways.<ul><li>Speculoos can validate the <em>relationships</em> between the arguments and the function's return value. We can ask questions like <em>Is each of the three integers in the return value larger than the three integers in the arguments?</em>, a scalar validation, and <em>Is the return sequence the same length as the argument sequence, and are all the elements in reverse order?</em>, a collection validation.</li><li>Speculoos can <em>exercise</em> a function. This allows us to check <em>If we give this function one thousand randomly-generated valid inputs, does the function always produce a valid return value?</em> Exercising functions with randomly-generated samples is described in the </li><a href="#exercising">next section</a>.</ul></li></ol><p>None of those six checks are strictly required. Speculoos will happily validate using only the specifications we provide.</p></div><div class="panel-footer"><span class="panel-number">1/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Function Arguments</h3><pre><code>(defn sum-three [x y z] (+ x y z))</code></pre><div class="vspace"></div><pre><code class="form">(sum-three 1 20 300)</code><br><code class="eval">;; => 321</code></pre><div class="note"><p>When we invoke a function with a series of arguments, that series of values forms a sequence, which Speculoos can validate like any other heterogeneous, arbitrarily-nested data structure. Speculoos offers <a href="#explicit">a trio</a> of function-validating functions with differing levels of explicitness. We'll be primarily using <code>validate-fn-with</code> because it is the most explicit of the trio, and we can most easily observe what's going on.</p></div><div class="panel-footer"><span class="panel-number">2/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying Argument Scalars</h3><pre><code>(defn sum-three [x y z] (+ x y z))</code></pre><pre><code>[int? int? int?]</code></pre><div class="note"><p>Let's pretend we want to validate the arguments to a function <code>sum-three</code> that expects three integers and returns their sum.</p><p>The argument list is a <em>sequence</em> of values, in this example, a sequential thing of three integers. We can imagine a scalar specification for just such as sequence.</p></div><div class="panel-footer"><span class="panel-number">3/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Argument Scalars: Gotta Get Organized</h3><pre><code>(require '[speculoos.function-specs :refer [validate-fn-with]])</code></pre><div class="vspace"></div><pre><code>{:speculoos/arg-scalar-spec [int? int? int?]}</code></pre><div class="vspace"></div><pre><code class="form">(validate-fn-with sum-three
+                  {:speculoos/arg-scalar-spec [int? int? int?]}
+                  1
+                  20
+                  300)</code><br><code class="eval">;; => 321</code></pre><div class="note"><p>When using <code>validate-fn-with</code>, we supply the function name, a map containing zero or more specifications, and some trailing <code>&-args</code> as if they had been supplied directly to the function. Speculoos can validate five aspects of a function using up to five specifications, each specification associated in that map to a particular key. We'll cover each of those five aspects in turn. To start, we want to specify the <em>argument scalars</em>.</p><p>Instead of individually passing each of those five specifications to <code>validate-fn-with</code> and putting <code>nil</code> placeholders where don't wish to supply a specification, we organize the specifications. To do so, we associate the arguments' scalar specification to the qualified key <code>:speculoos/arg-scalar-spec</code>.</p><p>Then, we validate the arguments to <code>sum-three</code> like this. The arguments conformed to the scalar specification, so <code>validate-fn-with</code> returns the value produced by <code>sum-three</code></p></div><div class="panel-footer"><span class="panel-number">4/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Argument Scalars: Invoking with an invalid value.</h3><pre><code class="form">(validate-fn-with sum-three
+                  {:speculoos/arg-scalar-spec [int? int? int?]}
+                  1.0
+                  20
+                  300)</code><br><code class="eval">;; => ({:datum 1.0,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [0],
+;;      :predicate int?,
+;;      :valid? false})</code></pre><div class="note">Let's intentionally invoke <code>sum-three</code> with one invalid argument by swapping integer <code>1</code> with a floating-point <code>1.0</code>.<p>That ought to look familiar after our 'scalar validation' screencast. It looks a lot like something <code>validate-scalars</code> would emit if we filtered to keep only the invalids. We see that <code>1.0</code> at path <code>[0]</code> failed to satisfy its <code>int?</code> scalar predicate. We can also see that the function specification type is <code>:speculoos/argument</code>. Since Speculoos can validate scalars and collections of both arguments and collections, that key-val is a little signpost to help us pinpoint exactly what and where.</p></div><div class="panel-footer"><span class="panel-number">5/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Argument Scalars: Invoking with two invalid values.</h3><pre><code class="form">(validate-fn-with sum-three
+                  {:speculoos/arg-scalar-spec [int? int? int?]}
+                  1.0
+                  20
+                  22/7)</code><br><code class="eval">;; => ({:datum 1.0,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [0],
+;;      :predicate int?,
+;;      :valid? false}
+;;     {:datum 22/7,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [2],
+;;      :predicate int?,
+;;      :valid? false})</code></pre><div class="note"><p>Let's invoke <code>sum-three</code> with a second invalid argument, a ratio <code>22/7</code> instead of integer <code>300</code>.</p><p>In addition to the invalid <code>1.0</code> at path <code>[0]</code>, we see that <code>22/7</code> at path <code>[2]</code> also fails to satisfy its <code>int?</code> scalar predicate. The scalar predicate's path in the scalar specification is the same as the path of the <code>22/7</code> in the <code>[1.0 20 22/7]</code> sequence of arguments. Roughly, <code>validate-fn-with</code> is doing something like this…</p></div><div class="panel-footer"><span class="panel-number">6/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating argument scalars is like validating scalars of a sequence.</h3><pre><code class="form">(speculoos.core/only-invalid
+  (validate-scalars [1.0 20 22/7]
+                    [int? int? int?]))</code><br><code class="eval">;; => ({:datum 1.0,
+;;      :path [0],
+;;      :predicate int?,
+;;      :valid? false}
+;;     {:datum 22/7,
+;;      :path [2],
+;;      :predicate int?,
+;;      :valid? false})</code></pre><div class="note"><p>…validating scalars with <code>validate-scalars</code> and keeping only the invalids. `validate-scalars` validated three scalar+predicate pairs, and `only-invalid` keeps the invalids. Essentially the same results as `validate-fn-with` from the previous panel.</p></div><div class="panel-footer"><span class="panel-number">7/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying argument collections: Reviewing collection validation</h3><pre><code>(defn count-3? [v] (= 3 (count v)))</code></pre><div class="vspace"></div><pre><code class="form">(validate-collections [1 20 30]
+                      [count-3?])</code><br><code class="eval">;; => ({:datum [1 20 30],
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate count-3?,
+;;      :valid? true})</code></pre><div class="vspace"></div><p class="de-highlight">(See <em>Speculoos Screencast 4 — Validating Collections</em>.)</p><div class="note"><p>Okay, we see that term <em>scalar</em> buzzing around, so there must be something else about validating collections. Yup. We can also validate collection properties of the argument sequence. Let's specify that the argument sequence must contain three elements, using a custom collection predicate.</p><p>Let's simulate the collection validation first. Remember, collection predicates are applied to their parent containers, so <code>count-3?</code> must appear within a collection so that it'll be paired with the data's containing collection.</p><p>That result fits with <a href="#collection-validation">our discussion</a> about validating collections.</p></div><div class="panel-footer"><span class="panel-number">8/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Argument Collections: Gotta Get Organized</h3><pre><code class="form">(validate-fn-with sum-three
+                  {:speculoos/arg-collection-spec [count-3?]}
+                  1
+                  20
+                  300)</code><br><code class="eval">;; => 321</code></pre><div class="note"><p>Next, we'll associate that collection specification into our function specification map at <code>:speculoos/arg-collection-spec</code> and invoke <code>validate-fn-with</code> with three valid arguments.The argument sequence satisfies our collection specification, so <code>sum-three</code> returns the expected value.</p></div><div class="panel-footer"><span class="panel-number">9/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Argument Collections: Intentionally Wrong Length Arg Sequence</h3><pre><code class="form">(validate-fn-with sum-three
+                  {:speculoos/arg-collection-spec [count-3?]}
+                  1 20
+                  300 4000)</code><br><code class="eval">;; => ({:datum [1 20 300 4000],
+;;      :fn-spec-type :speculoos/argument,
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate count-3?,
+;;      :valid? false})</code></pre><div class="note"><p>Now let's repeat, but with an additional argument that causes the argument list to violate its collection predicate.This four-element argument list, <code>[1 20 300 4000]</code>, failed to satisfy our <code>count-3?</code> collection predicate, so <code>validate-fn-with</code> emitted a validation report.</p><p>Note #1: Invoking <code>sum-three</code> with four arguments would normally trigger an arity exception. <code>validate-fn-with</code> catches the exception and validates as much as it can.</p><p>Note #2: During collection validation demos, we've often used `clojure.core/vector?` because it's built-in and short and easy to understand. Don't specify and validate the <em>type</em> of the arguments container, i.e., <code>vector?</code>. That's an implementation detail and not guaranteed.</p></div><div class="panel-footer"><span class="panel-number">10/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Arguments: Combo Validation</h3><pre><code class="form">(speculoos.core/only-invalid
+  (validate [1.0 20 22/7 4000]
+            [int? int? int?]
+            [count-3?]))</code><br><code class="eval">;; => ({:datum 1.0,
+;;      :path [0],
+;;      :predicate int?,
+;;      :valid? false}
+;;     {:datum 22/7,
+;;      :path [2],
+;;      :predicate int?,
+;;      :valid? false}
+;;     {:datum [1.0 20 22/7 4000],
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate count-3?,
+;;      :valid? false})</code></pre><div class="note"><p>Let's get fancy and combine an argument scalar specification and an argument collection specification. Outside of the context of checking a function, that <a href="#combo">combo validation</a> would look like this.</p><p>Let's remember: scalars and collections are <em>always</em> validated separately. <code>validate</code> is merely a convenience function that does both a scalar validation, then a collection validation, in discrete processes, with a single function invocation. Each of the first three scalars that paired with a scalar predicate were validated as scalars. The first and third scalars failed to satisfy their respective predicates. The fourth argument, <code>4000</code>, was not paired with a scalar predicate and was therefore ignored. Then, the argument sequence as a whole was validated against the collection predicate <code>count-3?</code>.</p></div><div class="panel-footer"><span class="panel-number">11/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Arguments: Getting Fancy</h3><pre><code class="form">(validate-fn-with sum-three
+                  {:speculoos/arg-scalar-spec [int? int? int?],
+                   :speculoos/arg-collection-spec [count-3?]}
+                  1.0 20
+                  22/7 4000)</code><br><code class="eval">;; => ({:datum 1.0,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [0],
+;;      :predicate int?,
+;;      :valid? false}
+;;     {:datum 22/7,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [2],
+;;      :predicate int?,
+;;      :valid? false}
+;;     {:datum [1.0 20 22/7 4000],
+;;      :fn-spec-type :speculoos/argument,
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate count-3?,
+;;      :valid? false})</code></pre><div class="note"><p><code>validate-fn-with</code> performs substantially that combo validation. We'll associate the <strong>arg</strong>ument <strong>scalar</strong> <strong>spec</strong>ification with <code>:speculoos/arg-scalar-spec</code> and the <strong>arg</strong>ument <strong>collection</strong> <strong>spec</strong>fication with <code>:speculoos/arg-collection-spec</code> and pass the invalid argument sequence.</p><p>Just as in the <code>validate</code> simulation on the previous screen, we see three items fail to satisfy their predicates. Scalars <code>1.0</code> and <code>22/7</code> are not integers, and the argument sequence as a whole, <code>[1.0 20 22/7 4000]</code>, does not contain exactly three elements, as required by its collection predicate.</p></div><div class="panel-footer"><span class="panel-number">12/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Function Return Values</h3><pre><code>(defn sum-three [x y z] (+ x y z))</code></pre><div class="vspace"></div><pre><code class="form">(sum-three 1 20 300)</code><br><code class="eval">;; => 321</code></pre><div class="note"><p>Speculoos can also validate values returned by a function. Reusing our <code>sum-three</code> function, and going back to valid inputs, we can associate a <strong>ret</strong>urn <strong>scalar</strong> <strong>spec</strong>ification into <code>validate-fn-with</code>'s specification map to key <code>:speculoos/ret-scalar-spec</code>. Let's stipulate that the function returns an integer. Here's how we pass that specification to <code>validate-fn-with</code>.</p></div><div class="panel-footer"><span class="panel-number">13/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying Scalar Returns: Gotta Get Organized</h3><pre><code>{:speculoos/ret-scalar-spec int?}</code></pre><div class="vspace"></div><pre><code class="form">(validate-fn-with sum-three
+                  {:speculoos/ret-scalar-spec int?}
+                  1
+                  20
+                  300)</code><br><code class="eval">;; => 321</code></pre><div class="note"><p>And now, the function return validation.</p><p>The return value <code>321</code> satisfies <code>int?</code>, so <code>validate-fn-with</code> returns the computed sum.</p><p>If you've got sharp eyes, something there may look unusual. Hold onto that thought for a few panels.</p></div><div class="panel-footer"><span class="panel-number">14/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Scalar Returns: Invalid return value</h3><pre><code class="form">(validate-fn-with sum-three
+                  {:speculoos/ret-scalar-spec string?}
+                  1
+                  20
+                  300)</code><br><code class="eval">;; => ({:datum 321,
+;;      :fn-spec-type :speculoos/return,
+;;      :path nil,
+;;      :predicate string?,
+;;      :valid? false})</code></pre><div class="note"><p>What happens when the return value is invalid? Instead of messing up <code>sum-three</code>'s definition, we'll merely alter the scalar predicate. Instead of an integer, we'll stipulate that <code>sum-three</code> returns a string with scalar predicate <code>string?</code>.</p><p>Very nice. <code>sum-three</code> computed, quite correctly, the sum of the three arguments. But we gave it a bogus return scalar specification that claimed it ought to be a string, which integer <code>321</code> fails to satisfy.</p><p>Did you happen to notice the <code>path</code>? We haven't yet encountered a case where a path is <code>nil</code>. In this situation, the function returns a 'bare' scalar, not contained in a collection. Speculoos can validate a bare scalar when that bare scalar is a function's return value.</p></div><div class="panel-footer"><span class="panel-number">15/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Returned Collections</h3><pre><code>(defn enhanced-sum-three [x y z] [x y z (+ x y z)])</code></pre><div class="vspace"></div><pre><code class="form">(enhanced-sum-three 1 20 300)</code><br><code class="eval">;; => [1 20 300 321]</code></pre><div class="note"><p>Let's see how to validate a function when the return value is a collection of scalars. We'll write a new function that returns four scalars: the three arguments and their sum.</p><p>Our enhanced function now returns a vector of four elements: the three integer arguments, conjoined with their sum.</p></div><div class="panel-footer"><span class="panel-number">16/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Review: Validating scalars within a sequential</h3><pre><code>[int? int? int? int?]</code></pre><div class="vspace"></div><pre><code class="form">(validate-scalars [1 20 300 321]
+                  [int? int? int? int?])</code><br><code class="eval">;; => [{:datum 1,
+;;      :path [0],
+;;      :predicate int?,
+;;      :valid? true}
+;;     {:datum 20,
+;;      :path [1],
+;;      :predicate int?,
+;;      :valid? true}
+;;     {:datum 300,
+;;      :path [2],
+;;      :predicate int?,
+;;      :valid? true}
+;;     {:datum 321,
+;;      :path [3],
+;;      :predicate int?,
+;;      :valid? true}]</code></pre><div class="note"><p>Let's remind ourselves how we'd manually validate that return value. If we decide we want <code>enhanced-sum-three</code> to return four integers, the scalar specification would look like this top row. And the manual validation would look like this lower row.</p><p>Four paired scalars and scalar predicates yield four validation results. Let's see what happens when we validate the function return scalars.</p></div><div class="panel-footer"><span class="panel-number">17/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validate scalars in a returned vector</h3><pre><code class="form">(validate-fn-with enhanced-sum-three
+                  {:speculoos/ret-scalar-spec [int? int? int? int?]}
+                  1
+                  20
+                  300)</code><br><code class="eval">;; => [1 20 300 321]</code></pre><div class="note"><p>Since we fed <code>validate-fn-with</code> a specification that happens to agree with those arguments, <code>enhanced-sum-three</code> returns its computed value, <code>[1 20 300 321]</code>.</p></div><div class="panel-footer"><span class="panel-number">18/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating scalars in a returned vector: intentionally-wrong scalar specification</h3><pre><code class="form">(validate-fn-with enhanced-sum-three
+                  {:speculoos/ret-scalar-spec [char? int? int? boolean?]}
+                  1
+                  20
+                  300)</code><br><code class="eval">;; => ({:datum 1,
+;;      :fn-spec-type :speculoos/return,
+;;      :path [0],
+;;      :predicate char?,
+;;      :valid? false}
+;;     {:datum 321,
+;;      :fn-spec-type :speculoos/return,
+;;      :path [3],
+;;      :predicate boolean?,
+;;      :valid? false})</code></pre><div class="note"><p>Let's stir things up. We'll change the return scalar specification to something we know will fail: The first scalar a character, the final scalar a boolean.<p><code>enhanced-sum-three</code>'s function body remained the same, and we fed it the same integers as before, but we fiddled with the return scalar specification so that we returned two invalid scalars.</p></p><p><code>1</code> at path <code>[0]</code> does not satisfy its wonky scalar predicate <code>char?</code> at the same path. And <code>321</code> at path <code>[3]</code> does not satisfy fraudulent scalar predicate <code>boolean?</code> that shares its path.</p></div><div class="panel-footer"><span class="panel-number">19/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Review: collection validation</h3><pre><code class="form">(validate-collections [1 20 300 321]
+                      [list?])</code><br><code class="eval">;; => ({:datum [1 20 300 321],
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate list?,
+;;      :valid? false})</code></pre><div class="note"><p>Let's set aside validating scalars for a moment and validate a facet of <code>enhanced-sum-three</code>'s return collection. First, we'll do a manual demonstration with <code>validate-collections</code>. Remember: Collection predicates apply to their immediate parent container. We wrote <code>enhanced-sum-three</code> to return a vector, but to make the validation produce something interesting to look at, we'll pretend we're expecting a list.</p><p>That collection validation aligns with our understanding. <code>[1 20 300 321]</code> is not a list. The <code>list?</code> collection predicate at path <code>[0]</code> in the specification was paired with the thing found at path <code>(drop-last [0])</code> in the data, which in this example is the root collection. We designed <code>enhanced-sum-three</code> to yield a vector.</p></div><div class="panel-footer"><span class="panel-number">20/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating a returned collection</h3><pre><code class="form">(validate-fn-with enhanced-sum-three
+                  {:speculoos/ret-collection-spec [list?]}
+                  1
+                  20
+                  300)</code><br><code class="eval">;; => ({:datum [1 20 300 321],
+;;      :fn-spec-type :speculoos/return,
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate list?,
+;;      :valid? false})</code></pre><div class="note"><p>Let's toss that collection specification at <code>validate-with-fn</code> and have it apply to <code>enhanced-sum-three</code>'s return value, which won't satisfy. We pass the <strong>ret</strong>urn <strong>collection spec</strong>ification by associating it to the key <code>:speculoos/ret-collection-spec</code>.</p><p>Similarly to the manual collection validation we previously performed with <code>validate-collections</code>, we see that <code>enhanced-sum-three</code>'s return vector <code>[1 20 300 321]</code> fails to satisfy its <code>list?</code> collection predicate.</p></div><div class="panel-footer"><span class="panel-number">21/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Review: combo validation</h3><pre><code class="form">(speculoos.core/only-invalid
+  (validate [1 20 300 321]
+            [char? int? int? boolean?]
+            [list?]))</code><br><code class="eval">;; => ({:datum 1,
+;;      :path [0],
+;;      :predicate char?,
+;;      :valid? false}
+;;     {:datum 321,
+;;      :path [3],
+;;      :predicate boolean?,
+;;      :valid? false}
+;;     {:datum [1 20 300 321],
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate list?,
+;;      :valid? false})</code></pre><div class="note"><p>A scalar validation followed by an independent collection validation allows us to check every possible aspect that we could want. Now we that we've seen how to individually validate <code>enhance-sum-three</code>'s return scalars and return collections, we know how to do both with one invocation.</p><p>Remember Motto #1: Validate scalars separately from validating collections. Speculoos will only ever do one or the other, but <code>validate</code> is a <a href="#combo">convenience function</a> that performs a scalar validation immediately followed by a collection validation. We'll re-use the scalar specification and collection specification from the previous examples.</p><p><code>only-invalid</code> discards the validations where the predicates are satisfied, leaving only the invalids. Two scalars failed to satisfy their scalar predicates. Integer <code>1</code> at path <code>[0]</code> in the data fails to satisfy scalar predicate <code>char?</code> at path <code>[0]</code> in the scalar specification. Integer <code>321</code> fails to satisfy scalar predicate <code>boolean?</code> at path <code>[3]</code> in the scalar specification. Finally, our root vector <code>[1 20 300 321]</code> located at path <code>[]</code> fails to satisfy the collection predicate <code>list?</code> at path <code>[0]</code>.</p></div><div class="panel-footer"><span class="panel-number">22/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating returned collection, combo scalar/collection</h3><pre><code class="form">(validate-fn-with enhanced-sum-three
+                  {:speculoos/ret-scalar-spec [char? int? int? boolean?],
+                   :speculoos/ret-collection-spec [list?]}
+                  1
+                  20
+                  300)</code><br><code class="eval">;; => ({:datum 1,
+;;      :fn-spec-type :speculoos/return,
+;;      :path [0],
+;;      :predicate char?,
+;;      :valid? false}
+;;     {:datum 321,
+;;      :fn-spec-type :speculoos/return,
+;;      :path [3],
+;;      :predicate boolean?,
+;;      :valid? false}
+;;     {:datum [1 20 300 321],
+;;      :fn-spec-type :speculoos/return,
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate list?,
+;;      :valid? false})</code></pre><div class="note"><p>Now that we've seen the combo validation done manually, let's validate <code>enhanced-sum-three</code>'s return in the same way. Here's where we see why to organize the specifications in a container instead of passing them as individual arguments: it keeps our invocation neater.</p><p><code>validate-fn-with</code>'s validation is substantially the same as the one <code>validate</code> produced in the previous example, except, now, the data comes from invoking <code>enhanced-sum-three</code>. Two scalar invalids and one collection invalid. Integer <code>1</code> fails to satisfy scalar predicate <code>char?</code>, integer <code>321</code> fails to satisfy scalar predicate <code>boolean?</code>, and the entire return vector <code>[1 20 300 321]</code> fails to satisfy collection predicate <code>list?</code>.</p></div><div class="panel-footer"><span class="panel-number">23/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Altogether now…</h3><ul><li>a function argument scalar validation,</li><li>a function argument collection validation,</li><li>a function return scalar validation, and</li><li>a function return collection validation.</li></ul><div class="note"><p>Okay. I think we're ready to put together all four different function validations we've so far seen. We've seen…</p></div><div class="panel-footer"><span class="panel-number">24/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Four function validations: args & returns, scalars & collections</h3><table><tr><td>function definition</td><td><pre><code>(defn enhanced-sum-three [x y z] [x y z (+ x y z)])</code></pre></td></tr><tr><td>argument scalar specification</td><td><code>[string? int? symbol?]</code></td></tr><tr><td>collection predicate</td><td><pre><code>(defn length-2? [v] (= 2 (count v)))</code></pre></td></tr><tr><td>argument collection specification</td><td><code>[length-2?]</code></td></tr><tr><td>return scalar specification</td><td><code>[char? int? int? boolean?]</code></td></tr><tr><td>return collection specification</td><td><code>[list?]</code></td></tr></table><div class="note"><p>And we've seen how to combine both function argument validations, and how to combine both function return validations. Now we'll combine all four validations into one <code>validate-fn-with</code> invocation.</p><p>Let's review our ingredients. Here's our <code>enhanced-sum-three</code> function.</p><p><code>enhanced-sum-three</code> accepts three number arguments and returns a vector of those three numbers with their sum appended to the end of the vector. Technically, Clojure would accept any numeric thingy for <code>x</code>, <code>y</code>, and <code>z</code>, but for illustration purposes, we'll make our scalar predicates something non-numeric so we can see something interesting in the validation reports.</p><p>With that in mind, we pretend that we want to validate the function's argument sequence as a string, followed by an integer, followed by a symbol. The function scalar specification will be…</p><p>To allow <code>enhanced-sum-three</code> to calculate a result, we'll supply three numeric values, two of which will not satisfy that argument scalar specification. So that it produces something interesting, we'll make our function argument collection specification also complain.</p>collection predicates apply to the path of the parent container<p>We know for sure that the argument sequence will contain three values, so that particular argument collection predicate will produce something interesting.</p><p>Jumping to <code>enhanced-sum-three</code>'s output side, we expect a vector of four numbers. Again, we'll craft our function return scalar specification to contain two predicates that we know won't be satisfied because those scalar predicates are looking for something non-numeric.</p><p>Finally, since we defined <code>enhanced-sum-three</code> to return a vector, we'll make the function return collection specification look for a list.</p></div><div class="panel-footer"><span class="panel-number">25/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>All four function specifications: Gotta get organized.</h3><pre><code>{:speculoos/arg-scalar-spec     [string? int? symbol?]
+ :speculoos/arg-collection-spec [#(= 2 (count %))]
+ :speculoos/ret-scalar-spec     [char? int? int? boolean?]
+ :speculoos/ret-collection-spec [list?]}</code></pre><div class="note"><p>Altogether, those four specification are organized like this.</p></div><div class="panel-footer"><span class="panel-number">26/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validate function's args & return values, both scalars and collections</h3><pre><code class="form">(validate-fn-with enhanced-sum-three
+                  {:speculoos/arg-scalar-spec [string? int? symbol?],
+                   :speculoos/arg-collection-spec [length-2?],
+                   :speculoos/ret-scalar-spec [char? int? int? boolean?],
+                   :speculoos/ret-collection-spec [list?]}
+                  1
+                  20
+                  300)</code><br><code class="eval">;; => ({:datum 1,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [0],
+;;      :predicate string?,
+;;      :valid? false}
+;;     {:datum 300,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [2],
+;;      :predicate symbol?,
+;;      :valid? false}
+;;     {:datum [1 20 300],
+;;      :fn-spec-type :speculoos/argument,
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate length-2?,
+;;      :valid? false}
+;;     {:datum 1,
+;;      :fn-spec-type :speculoos/return,
+;;      :path [0],
+;;      :predicate char?,
+;;      :valid? false}
+;;     {:datum 321,
+;;      :fn-spec-type :speculoos/return,
+;;      :path [3],
+;;      :predicate boolean?,
+;;      :valid? false}
+;;     {:datum [1 20 300 321],
+;;      :fn-spec-type :speculoos/return,
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate list?,
+;;      :valid? false})</code></pre><div class="note"><p>It's time to see what we've assembled.</p><p>We've certainly made a mess of things. But it'll be understandable if we examine the invalidation report piece by piece. The first thing to know is that we have already seen each of those validations before in the previous examples, so we could always scroll back to those examples above and see the validations in isolation.</p><p>We see six non-satisfied predicates:<ul><li>Scalar <code>1</code> in the arguments sequence fails to satisfy scalar predicate <code>string?</code> in the argument scalar specification.</li><li>Scalar <code>300</code> in the arguments sequence fails to satisfy scalar predicate <code>symbol?</code> in the argument scalar specification.</li><li>The argument sequence <code>[1 20 300]</code> fails to satisfy collection predicate <code>length-2?</code> in the argument collection specification.</li><li>Scalar <code>1</code> in the return vector fails to satisfy scalar predicate <code>char?</code> in the return scalar specification.</li><li>Scalar <code>321</code> in the return vector fails to satisfy scalar predicate <code>boolean?</code> in the return scalar specification.</li><li>The return vector <code>[1 20 300 321]</code> fails to satisfy collection predicate <code>list?</code> in the return collection specification.</li></ul></p><p>Also note that the validation entries have a <code>:fn-spec-type</code> entry associated to either <code>:speculoos/return</code> or <code>:speculoos/argument</code>, which tells us where a particular invalid was located. There may be a situation where indistinguishable invalid datums appear in both the arguments and returns. In this case, integer <code>1</code> was an invalid datum at path <code>[0]</code> for both the argument sequence and the return vector. Keyword <code>:fn-spec-type</code> helps resolve the ambiguity.</p></div><div class="panel-footer"><span class="panel-number">27/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating Function Correctness</h3><table><tr><td>A <em>reverse</em> function should turn this…</td><td><pre><code>[11 22 33 44 55]</code></pre></td></tr><tr><td>…into this…</td><td><pre><code>[55 44 33 22 11]</code></pre></td></tr></table><div class="vspace"></div><p>Properties:</p><ul><li>The return collection is the same length as the input collection.</li><li>The return collection contains all the same elements as the input collection.</li><li>The elements of the return collection appear in reverse order from their positions in the input collection.</li></ul><div class="note"><p>So far, we've seen how to validate function argument sequences and function return values, both their scalars, and their collections. Validating function argument sequences allows us to check if the function was invoked properly. Validating function return values gives a limited ability to check the internal operation of the function.</p><p>If we want another level of thoroughness for checking correctness, we can specify and validate the relationships between the functions arguments and return values. Perhaps we'd like to be able to express <em>The return value is a collection, with all the same elements as the input sequence.</em> Or <em>The return value is a concatenation of the even indexed elements of the input sequence.</em> Speculoos' term for this action is <em>validating function argument and return value relationship</em>.</p><p>Let's pretend I wrote a reversing function, which accepts a sequential collection of elements and returns those elements in reversed order. If we give it this…it should return this.</p><p>Here are some critical features of that process that relate the reversing function's arguments to its return value.</p></div><div class="panel-footer"><span class="panel-number">28/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Oops.</h3><pre><code>(defn broken-reverse [v] (conj v 9999))</code></pre><div class="vspace"></div><pre><code class="form">(broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => [11 22 33 44 55 9999]</code></pre><div class="note"><p>I must've written it before I had my morning coffee.</p><p>Pitiful. We can see by eye that <code>broken-reverse</code> fulfilled none of the three relationships. The return collection is not the same length, contains additional elements, and is not reversed. Let's codify that pitifulness.</p></div><div class="panel-footer"><span class="panel-number">29/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying relationships: Same lengths</h3><pre><code>(defn same-length? [v1 v2] (= (count v1) (count v2)))</code></pre><div class="vspace"></div><pre><code class="form">(same-length? [11 22 33 44 55]
+              [11 22 33 44 55])</code><br><code class="eval">;; => true</code></pre><div class="vspace"></div><pre><code class="form">(same-length? [11 22]
+              [11 22 33 44 55])</code><br><code class="eval">;; => false</code></pre><div class="note"><p>First, we'll write three <a href="#relationship">relationship functions</a>. Relationship functions are a lot like predicates. They return a truthy or falsey value, but instead consume two things instead of one. The function's argument sequence is passed as the first thing and the function's return value is passed as the second thing.</p><p><code>same-length?</code>, <code>same-element?</code>, <code>reversed?</code> all consume two sequential things and test a relationship between the two. If their relationship is satisfied, they signal <code>true</code>, if not, then they signal <code>false</code>. They are all three gonna have something unkind to say about <code>broken-reverse</code>.</p></div><div class="panel-footer"><span class="panel-number">30/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying relationships: Same elements</h3><pre><code>(defn same-elements? [v1 v2] (= (sort v1) (sort v2)))</code></pre><div class="vspace"></div><pre><code class="form">(same-elements? [11 22 33 44 55]
+                [55 44 33 22 11])</code><br><code class="eval">;; => true</code></pre><div class="vspace"></div><pre><code class="form">(same-elements? [11 22 33 44 55]
+                [55 44 33 22 9999])</code><br><code class="eval">;; => false</code></pre><div class="note"><p></p></div><div class="panel-footer"><span class="panel-number">31/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying relationships: Reversed order</h3><pre><code>(defn reversed? [v1 v2] (= v1 (reverse v2)))</code></pre><div class="vspace"></div><pre><code class="form">(reversed? [11 22 33 44 55]
+           [55 44 33 22 11])</code><br><code class="eval">;; => true</code></pre><div class="vspace"></div><pre><code class="form">(reversed? [11 22 33 44 55]
+           [11 22 33 44 55])</code><br><code class="eval">;; => false</code></pre><div class="note"><p>All three relationship functions are gonna have something unkind to say about <code>broken-reverse</code>.</p></div><div class="panel-footer"><span class="panel-number">32/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Predicates applied to…where?</h3><pre><code>(defn arg-passthrough [& args] args)</code></pre><div class="vspace"></div><pre><code class="form">(arg-passthrough [11 22 33 44 55])</code><br><code class="eval">;; => ([11 22 33 44 55])</code></pre><div class="vspace"></div><pre><code class="form">(nth (arg-passthrough [11 22 33 44 55]) 0)</code><br><code class="eval">;; => [11 22 33 44 55]</code></pre><div class="note"><p>Now that we've established a few relationships, we need to establish <em>where</em> to apply those relationship tests. Checking <code>broken-reverse</code>'s argument/return relationships with <code>same-length?</code>, <code>same-elements?</code>, and <code>reversed?</code> will be fairly straightforward: For each, there's a single argument collection of elements, and a single return collection of elements. But we might someday want to check a more sophisticated relationship that needs to extract some slice of the argument or return value. Therefore, we must declare a path to the slices we want to check. Of the return value, we'd like to check the root collection, so the return value's path is merely <code>[]</code>.</p><p>When we consider how to extract the arguments, there's one tricky detail we must accommodate. The <code>[11 22 33 44 55]</code> vector we're going to pass to <code>broken-reverse</code> is itself contained in the argument sequence. Take a look.</p><p>To extract <code>[11 22 33 44 55]</code>, the path will need to be <code>[0]</code>.</p></div><div class="panel-footer"><span class="panel-number">33/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3><em>Where?</em> Paths!</h3><pre><code class="form">(same-length? (get-in [[11 22 33 44 55]] [0])
+              (get-in [11 22 33 44 55 9999] []))</code><br><code class="eval">;; => false</code></pre><div class="note"><p>When invoked, <code>validate-argument-return-relationship</code> does something like this.</p></div><div class="panel-footer"><span class="panel-number">34/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Path components to a single argument/return relationship validation</h3><pre><code class="form">(broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => [11 22 33 44 55 9999]</code></pre><div class="vspace"></div><ul><li>A path to the interesting slice of the arguments. Example: <code>[0]</code></li><li>A path to the interesting slice of the return value. Example: <code>[ ]</code></li><li>A relationship function. Example: <code>same-length?</code></li></ul><div class="note"><p></p></div><div class="panel-footer"><span class="panel-number">35/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying one argument/return relationships: Gotta get organized.</h3><pre><code>{:path-argument   [0]
+ :path-return     [ ]
+ :relationship-fn same-length?}</code></pre><div class="vspace"></div><pre><code>{:speculoos/argument-return-relationships [{:path-argument   [0]
+                                            :path-return     [ ]
+                                            :relationship-fn same-length?}]}</code></pre><div class="note"><p>We stuff all three of those items into a map, which will be used for a single relationship validation.</p><p>Within that map, both <code>:path-…</code> entries govern what slices of the argument and return are given to the relationship function. In this example, we want to extract the first item, at path <code>[0]</code>, of the argument sequence and the entire return value, at path <code>[]</code>.</p><p>We've written three argument/function relationships to test <code>broken-reverse</code>, so we'll need to somehow feed them to <code>validate-fn-with</code>. We do that by associating them into the organizing map with keyword <code>:speculoos/argument-return-relationships</code>. Notice the plural <em>s</em>. Since there may be more than one relationship, we collect them into a vector. For the moment, let's insert only the <code>same-length?</code> relationship.</p><p>Eventually, we'll test all three relationships, but for now, we'll focus on <code>same-length?</code>.</p></div><div class="panel-footer"><span class="panel-number">36/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating one argument/return relationship</h3><pre><code class="form">(validate-fn-with
+  broken-reverse
+  {:speculoos/argument-return-relationships
+     [{:path-argument [0],
+       :path-return [],
+       :relationship-fn same-length?}]}
+  [11 22 33 44 55])</code><br><code class="eval">;; => ({:datum-argument [11 22 33 44 55],
+;;      :datum-return [11 22 33 44 55 9999],
+;;      :fn-spec-type :speculoos/argument-return-relationship,
+;;      :path-argument [0],
+;;      :path-return [],
+;;      :relationship-fn same-length?,
+;;      :valid? false})</code></pre><div class="note"><p>We're ready to validate.</p><p>We supplied <code>broken-reverse</code> with a five-element vector, and it returned a six-element vector, failing to satisfy the specified <code>same-length?</code> relationship.</p></div><div class="panel-footer"><span class="panel-number">37/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating multiple argument/return relationships</h3><pre><code class="form">(validate-fn-with
+  broken-reverse
+  {:speculoos/argument-return-relationships
+     [{:path-argument [0],
+       :path-return [],
+       :relationship-fn same-length?}
+      {:path-argument [0],
+       :path-return [],
+       :relationship-fn same-elements?}
+      {:path-argument [0],
+       :path-return [],
+       :relationship-fn reversed?}]}
+  [11 22 33 44 55])</code><br><code class="eval">;; => ({:datum-argument [11 22 33 44 55],
+;;      :datum-return [11 22 33 44 55 9999],
+;;      :fn-spec-type :speculoos/argument-return-relationship,
+;;      :path-argument [0],
+;;      :path-return [],
+;;      :relationship-fn same-length?,
+;;      :valid? false}
+;;     {:datum-argument [11 22 33 44 55],
+;;      :datum-return [11 22 33 44 55 9999],
+;;      :fn-spec-type :speculoos/argument-return-relationship,
+;;      :path-argument [0],
+;;      :path-return [],
+;;      :relationship-fn same-elements?,
+;;      :valid? false}
+;;     {:datum-argument [11 22 33 44 55],
+;;      :datum-return [11 22 33 44 55 9999],
+;;      :fn-spec-type :speculoos/argument-return-relationship,
+;;      :path-argument [0],
+;;      :path-return [],
+;;      :relationship-fn reversed?,
+;;      :valid? false})</code></pre><div class="note"><p>We wrote two other relationship functions, but <code>same-elements?</code> and <code>reversed?</code> are merely floating around in the current namespace. We did not send them to <code>validate-fn-with</code>, so it checked only <code>same-length?</code>, which we explicitly supplied. Remember Motto #3: Un-paired predicates (or, relationships in this instance) are ignored.</p><p>Let's check all three relationships now.</p><p><code>broken-reverse</code> is truly broken. The <code>same-length?</code> result appears again, and then we see the two additional unsatisfied relationships because we added <code>same-elements?</code> and <code>reversed?</code>. <code>broken-reverse</code> returns a vector with more and different elements, and the order is not reversed.</p></div><div class="panel-footer"><span class="panel-number">38/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating multiple argument/return relationships: non-broken <code>reverse</code></h3><pre><code class="form">(reverse [11 22 33 44 55])</code><br><code class="eval">;; => (55 44 33 22 11)</code></pre><pre><code class="form">(validate-fn-with
+  reverse
+  {:speculoos/argument-return-relationships
+     [{:path-argument [0],
+       :path-return [],
+       :relationship-fn same-length?}
+      {:path-argument [0],
+       :path-return [],
+       :relationship-fn same-elements?}
+      {:path-argument [0],
+       :path-return [],
+       :relationship-fn reversed?}]}
+  [11 22 33 44 55])</code><br><code class="eval">;; => (55 44 33 22 11)</code></pre><div class="note"><p>Just for fun, let's see what happens when we validate <code>clojure.core/reverse</code> with the exact same relationship specifications.</p><p><code>clojure.core/reverse </code> satisfies all three argument/return relationships, so <code>validate-fn-with</code> passes through the correctly-reversed output.</p></div><div class="panel-footer"><span class="panel-number">39/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying relationships between 'bare' argument scalars and 'bare' return scalars of an increment function.</h3><div class="side-by-side-container"><div class="side-by-side"><pre><code>(defn larger-than? [n1 n2] (< n1 n2))</code></pre><div class="vspace"></div><pre><code class="form">(larger-than? 99 100)</code><br><code class="eval">;; => true</code></pre><pre><code class="form">(larger-than? 99 -99)</code><br><code class="eval">;; => false</code></pre></div><div class="side-by-side"><pre><code>(defn plus-one? [n1 n2] (= (+ n1 1) n2))</code></pre><div class="vspace"></div><pre><code class="form">(plus-one? 99 100)</code><br><code class="eval">;; => true</code></pre><pre><code class="form">(plus-one? 99 -99)</code><br><code class="eval">;; => false</code></pre></div></div><div class="note"><p>Not every function consumes a collection. Some functions consume a scalar value. Some functions return a scalar. And some functions have the audacity to do both. <code>validate-fn-with</code> can validate that kind of argument/return relationship. </p><p>I'll warn you now, I'm planning on writing a buggy increment function. We could express two ideas about the argument/return relationship. First, a correctly-working increment function, when supplied with a number, <code>n</code>, ought to return a number that is larger than <code>n</code>. Second, a correctly-working return value ought to be <code>n</code> plus one. Let's specify those relationships.</p></div><div class="panel-footer"><span class="panel-number">40/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying scalar argument, scalar return relationships</h3><pre><code>{:path-argument   [0]
+ :path-return     nil
+ :relationship-fn larger-than?}</code></pre><div class="vspace"></div><pre><code>{:path-argument   [0]
+ :path-return     nil
+ :relationship-fn plus-one?}</code></pre><div class="note"><p>Validating argument/return relationships requires us to declare which parts of the argument sequence and which parts of the return value to send to the relationship function. When we invoke the increment function with a single number, the number lives in the first spot of the argument sequence, so it will have a path of <code>[0]</code>. The increment function will return a 'bare' number, so a path is not really an applicable concept. We previously saw how a <code>nil</code> path indicates a bare scalar, so now we can assemble the two relationship maps, one each for <code>larger-than?</code> and <code>plus-one?</code>.</p></div><div class="panel-footer"><span class="panel-number">41/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Buggy incrementing function</h3><pre><code>(defn buggy-inc [n] (- n))</code></pre><div class="vspace"></div><pre><code class="form">(buggy-inc 99)</code><br><code class="eval">;; => -99</code></pre><div class="note"><p>Now is a good time to write the buggy incrementing function.</p><p>Looks plenty wrong. Let's see exactly how wrong.</p></div><div class="panel-footer"><span class="panel-number">42/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating 'bare' argument/return relationship: buggy increment function</h3><pre><code class="form">(validate-fn-with
+  buggy-inc
+  {:speculoos/argument-return-relationships
+     [{:path-argument [0],
+       :path-return nil,
+       :relationship-fn larger-than?}
+      {:path-argument [0],
+       :path-return nil,
+       :relationship-fn plus-one?}]}
+  99)</code><br><code class="eval">;; => ({:datum-argument 99,
+;;      :datum-return -99,
+;;      :fn-spec-type
+;;        :speculoos/argument-return-relationship,
+;;      :path-argument [0],
+;;      :path-return nil,
+;;      :relationship-fn larger-than?,
+;;      :valid? false}
+;;     {:datum-argument 99,
+;;      :datum-return -99,
+;;      :fn-spec-type
+;;        :speculoos/argument-return-relationship,
+;;      :path-argument [0],
+;;      :path-return nil,
+;;      :relationship-fn plus-one?,
+;;      :valid? false})</code></pre><div class="note"><p><code>buggy-inc</code>'s return value failed to satisfy both relationships with its argument. <code>-99</code> is not larger than <code>99</code>, nor is it what we'd get by adding one to <code>99</code>.</p><p>Just to verify that our relationships are doing what we think they're doing, let's run the same thing on <code>clojure.core/inc</code>.</p></div><div class="panel-footer"><span class="panel-number">43/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating 'bare' argument/return relationship: <code>clojure.core/inc</code></h3><pre><code class="form">(validate-fn-with
+  inc
+  {:speculoos/argument-return-relationships
+     [{:path-argument [0],
+       :path-return nil,
+       :relationship-fn larger-than?}
+      {:path-argument [0],
+       :path-return nil,
+       :relationship-fn plus-one?}]}
+  99)</code><br><code class="eval">;; => 100</code></pre><div class="note"><p><code>inc</code> correctly returns <code>100</code> when invoked with <code>99</code>, so both <code>larger-than?</code> and <code>plus-one?</code> relationships are satisfied. Since all relationships were satisfied, the return value <code>100</code> passes through.</p></div><div class="panel-footer"><span class="panel-number">44/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>More specific paths for validating argument/return relationships: correct function</h3><pre><code>(def person-1 {:email "aragorn@sonofarath.org", :phone "867-5309"})</code></pre><pre><code>(def person-2 {:email "vita@meatavegam.info", :phone "123-4567"})</code></pre><pre><code>(def person-3 {:email "jolene@justbecauseyou.com", :phone "555-FILK"})</code></pre><pre><code>(defn pull-n-put
+  [p1 p2 p3]
+  {:email-addresses [(p1 :email) (p2 :email) (p3 :email)],
+   :phone-numbers [(p1 :phone) (p2 :phone) (p3 :phone)]})</code></pre><div class="vspace"></div><pre><code class="form">(pull-n-put person-1 person-2 person-3)</code><br><code class="eval">;; => {:email-addresses ["aragorn@sonofarath.org"
+;;                       "vita@meatavegam.info"
+;;                       "jolene@justbecauseyou.com"],
+;;     :phone-numbers ["867-5309" "123-4567" "555-FILK"]}</code></pre><div class="note"><p>So far, the <code>:path-argument</code>s and the <code>path-return</code>s have been similar between relationship specifications, but they don't need to be. I'm going to invent a really contrived example. <code>pull-n-put</code> and <code>pull-n-whoops</code> are both intended to pull out emails and phone numbers and stuff them into some output vectors. <code>pull-n-put</code> is correct, <code>pull-n-whoops</code> is incorrect.</p><p>First, this is the intended result, produced by <code>pull-n-put</code>.</p><p><code>pull-n-put</code> pulls out the email addresses and phone numbers and properly puts them in place. However…</p></div><div class="panel-footer"><span class="panel-number">45/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>More specific paths for validating argument/return relationships: buggy function</h3><pre><code>(def person-1 {:email "aragorn@sonofarath.org", :phone "867-5309"})</code></pre><pre><code>(def person-2 {:email "vita@meatavegam.info", :phone "123-4567"})</code></pre><pre><code>(def person-3 {:email "jolene@justbecauseyou.com", :phone "555-FILK"})</code></pre><pre><code>(defn pull-n-whoops
+  [p1 p2 p3]
+  {:email-addresses [(p1 :phone) (p2 :phone) (p3 :phone)],
+   :phone-numbers [:apple :banana :mango]})</code></pre><div class="vspace"></div><pre><code class="form">(pull-n-whoops person-1 person-2 person-3)</code><br><code class="eval">;; => {:email-addresses ["867-5309" "123-4567" "555-FILK"],
+;;     :phone-numbers [:apple :banana :mango]}</code></pre><div class="note"><p>…<code>pull-n-whoops</code> does neither. It puts the phone numbers where the email addresses ought to be and inserts completely bogus phone numbers.</p></div><div class="panel-footer"><span class="panel-number">46/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying more specific paths for argument/return relationships</h3><pre><code class="form">(pull-n-put person-1 person-2 person-3)</code><br><code class="eval">;; => {:email-addresses ["aragorn@sonofarath.org"
+;;                       "vita@meatavegam.info"
+;;                       "jolene@justbecauseyou.com"],
+;;     :phone-numbers ["867-5309" "123-4567" "555-FILK"]}</code></pre><div class="vspace"></div><pre><code>{:path-argument   [2 :phone]
+ :path-return     [:phone-numbers 2]
+ :relationship-fn =}</code></pre><pre><code>{:path-argument   [0 :email]
+ :path-return     [:phone-numbers 0]
+ :relationship-fn =}</code></pre><div class="note"><p>We can specify a couple of relationships to show that <code>pull-n-whoops</code> produces a return value that does not validate. In a correctly-working implementation, the scalars aren't transformed, <em>per se</em>, merely moved to another location. So our relationship function will merely be equality, and the paths will do all the work.</p><p>Phone number <code>555-FILK</code> at argument path <code>[2 :phone]</code> ought to appear at return path <code>[:phone-numbers 2]</code>. That relationship specification looks like this.</p><p>Similarly, email address <code>aragorn@sonofarath.org</code> at argument path <code>[0 :email]</code> ought to appear at return path <code>[:email-addresses 0]</code>. That relationship specification looks like this.</p></div><div class="panel-footer"><span class="panel-number">47/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying specific paths for argument/return relationships: Gotta get organized.</h3><pre><code>{:speculoos/argument-return-relationships [{:path-argument   [2 :phone]
+                                            :path-return     [:phone-numbers 2]
+                                            :relationship-fn =}]}
+                                           {:path-argument   [0 :email]
+                                            :path-return     [:email-addresses 0]
+                                            :relationship-fn =}</code></pre><div class="note"><p>Now, we insert those two specifications into a vector and associate that vector into the organizing map.</p></div><div class="panel-footer"><span class="panel-number">48/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating argument/return relationships with more specific paths: correct implementation</h3><pre><code class="form">(validate-fn-with pull-n-put
+                  {:speculoos/argument-return-relationships
+                     [{:path-argument [2 :phone],
+                       :path-return [:phone-numbers 2],
+                       :relationship-fn =}
+                      {:path-argument [0 :email],
+                       :path-return [:email-addresses 0],
+                       :relationship-fn =}]}
+                  person-1
+                  person-2
+                  person-3)</code><br><code class="eval">;; => {:email-addresses
+;;       ["aragorn@sonofarath.org"
+;;        "vita@meatavegam.info"
+;;        "jolene@justbecauseyou.com"],
+;;     :phone-numbers ["867-5309" "123-4567"
+;;                     "555-FILK"]}</code></pre><div class="note"><p>All that remains is to consult <code>validate-fn-with</code> to see if the relationships are satisfied. First, we'll do <code>pull-n-put</code>, which should yield the intended results.</p><p>Yup. <code>pull-n-put</code>'s return value satisfied both equality relationships with the arguments we supplied, so <code>validate-fn-with</code> passed on that return value.</p></div><div class="panel-footer"><span class="panel-number">49/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating argument/return relationships with more specific paths: broken implementation</h3><pre><code class="form">(validate-fn-with pull-n-whoops
+                  {:speculoos/argument-return-relationships
+                     [{:path-argument [2 :phone],
+                       :path-return [:phone-numbers 2],
+                       :relationship-fn =}
+                      {:path-argument [0 :email],
+                       :path-return [:email-addresses 0],
+                       :relationship-fn =}]}
+                  person-1
+                  person-2
+                  person-3)</code><br><code class="eval">;; => ({:datum-argument "555-FILK",
+;;      :datum-return :mango,
+;;      :fn-spec-type
+;;        :speculoos/argument-return-relationship,
+;;      :path-argument [2 :phone],
+;;      :path-return [:phone-numbers 2],
+;;      :relationship-fn =,
+;;      :valid? false}
+;;     {:datum-argument
+;;        "aragorn@sonofarath.org",
+;;      :datum-return "867-5309",
+;;      :fn-spec-type
+;;        :speculoos/argument-return-relationship,
+;;      :path-argument [0 :email],
+;;      :path-return [:email-addresses 0],
+;;      :relationship-fn =,
+;;      :valid? false})</code></pre><div class="note"><p>Now we'll validate <code>pull-n-whoops</code>, which does not produce correct results.</p><p><code>validate-fn-with</code> tells us that <code>pull-n-whoops</code>'s output satisfies neither argument/return relationship. Where we expected phone number <code>555-FILK</code>, we see <code>:mango</code>, and where we expected email <code>aragorn@sonofarath.org</code>, we see phone number <code>867-5309</code>.</p><p>The idea to grasp from validating <code>pull-n-put</code> and <code>pull-n-whoops</code> is that even though the relationship function was a basic equality <code>=</code>, the relationship validation is precise, flexible, and powerful because we used paths to focus on exactly the relationship we're interested in. On the other hand, whatever function we put at <code>:relationship-fn</code> is completely open-ended, and can be similarly sophisticated.</p></div><div class="panel-footer"><span class="panel-number">50/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Assembling five kinds of function validation: Back to <code>broken-reverse</code></h3><pre><code class="form">(broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => [11 22 33 44 55 9999]</code></pre><div class="vspace"></div><div class="note"><p>Before we finish this subsection, I'd like to demonstrate how to combine all five types of validation: argument scalars, argument collections, return scalars, return collections, and argument/return relationship. We'll rely on our old friend <code>broken-reverse</code>. Let's remember what <code>broken-reverse</code> actually does.</p><p>Instead of properly reversing the argument collection, it merely appends a spurious <code>9999</code>.</p></div><div class="panel-footer"><span class="panel-number">51/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Five function validations #1: Argument scalar specification</h3><pre><code class="form">(broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => [11 22 33 44 55 9999]</code></pre><div class="vspace"></div><pre><code>{:speculoos/arg-scalar-spec [[any? any? decimal?]]}</code></pre><div class="note"><p>We'll pass a vector as the first and only argument. Within that vector, we pretend to not care about the first two elements, so we'll use <code>any?</code> predicates as placeholders.  We'll specify the third element of that vector to be a decimal with a <code>decimal?</code> scalar predicate. The entire <em>argument sequence</em> is validated, so we must make sure the shape of the scalar specification mimics the shape of the data.</p></div><div class="panel-footer"><span class="panel-number">52/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Five function validations #2: Argument collection specification</h3><pre><code class="form">(broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => [11 22 33 44 55 9999]</code></pre><div class="vspace"></div><pre><code>{:speculoos/arg-collection-spec [[list?]]}</code></pre><div class="note"><p>Just so we see an invalid result, we'll make the argument collection specification expect a list, even though we know we'll be passing a vector. And again, we must make the collection specification's shape mimic the data, so to mimic the argument sequence, it looks like this.</p></div><div class="panel-footer"><span class="panel-number">53/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Five function validations #3: Return scalar specification</h3><pre><code class="form">(broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => [11 22 33 44 55 9999]</code></pre><div class="vspace"></div><pre><code>{:speculoos/ret-scalar-spec [any? any? any? string?]}</code></pre><div class="note"><p>We know that <code>broken-reverse</code> returns the input collection with <code>9999</code> conjoined. We'll write the return scalar specification to expect a string in the fourth slot, just so we'll see <code>44</code> fail to satisfy.</p></div><div class="panel-footer"><span class="panel-number">54/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Five function validations #4: Return collection specification</h3><pre><code class="form">(broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => [11 22 33 44 55 9999]</code></pre><div class="vspace"></div><pre><code>{:speculoos/ret-collection-spec [set?]}</code></pre><div class="note"><p>And since we're expecting <code>broken-reverse</code> to return a vector, we'll write the return collection specification to expect a set.</p></div><div class="panel-footer"><span class="panel-number">55/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Five function validations #5: Argument/return relationship</h3><pre><code class="form">(broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => [11 22 33 44 55 9999]</code></pre><div class="vspace"></div><pre><code>:speculoos/argument-return-relationships [{:path-argument   [0]
+                                           :path-return     []
+                                           :relationship-fn reversed?}]</code></pre><div class="note"><p>Finally, we've previously demonstrated that <code>broken-reverse</code> fails to satisfy the <code>reversed?</code> argument/return relationship specification. We'll pass <code>reversed?</code> the first argument and the entire return.</p></div><div class="panel-footer"><span class="panel-number">56/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Assembling five function validations: Gotta get organized</h3><pre><code>{:speculoos/arg-scalar-spec     [[any? any? decimal?]]
+ :speculoos/arg-collection-spec [[list?]]
+ :speculoos/ret-scalar-spec     [any? any? any? string?]
+ :speculoos/ret-collection-spec [set?]
+ :speculoos/argument-return-relationships [{:path-argument   [0]
+                                            :path-return     []
+                                            :relationship-fn reversed?}]}</code></pre><div class="note"><p>We assemble all five of those specifications into the organizing map, and invoke <code>validate-fn-with</code>.</p></div><div class="panel-footer"><span class="panel-number">57/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating function five ways.</h3><pre><code class="form">(validate-fn-with
+  broken-reverse
+  {:speculoos/arg-scalar-spec [[any? any? decimal?]],
+   :speculoos/arg-collection-spec [[list?]],
+   :speculoos/ret-scalar-spec [any? any? any? string?],
+   :speculoos/ret-collection-spec [set?],
+   :speculoos/argument-return-relationships
+     [{:path-argument [0], :path-return [], :relationship-fn reversed?}]}
+  [11 22 33 44 55])</code><br><code class="eval">;; => ({:datum 33,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [0 2],
+;;      :predicate decimal?,
+;;      :valid? false}
+;;     {:datum [11 22 33 44 55],
+;;      :fn-spec-type :speculoos/argument,
+;;      :ordinal-path-datum [0],
+;;      :path-datum [0],
+;;      :path-predicate [0 0],
+;;      :predicate list?,
+;;      :valid? false}
+;;     {:datum 44,
+;;      :fn-spec-type :speculoos/return,
+;;      :path [3],
+;;      :predicate string?,
+;;      :valid? false}
+;;     {:datum [11 22 33 44 55 9999],
+;;      :fn-spec-type :speculoos/return,
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate set?,
+;;      :valid? false}
+;;     {:datum-argument [11 22 33 44 55],
+;;      :datum-return [11 22 33 44 55 9999],
+;;      :fn-spec-type
+;;        :speculoos/argument-return-relationship,
+;;      :path-argument [0],
+;;      :path-return [],
+;;      :relationship-fn reversed?,
+;;      :valid? false})</code></pre><div class="note"><p>We supplied five specifications, five datums failed to satisfy those specifications, and we receive five invalidation entries.</p><ul><li>Argument scalar <code>33</code> did not satisfy <code>decimal?</code>.</li><li>Argument collection <code>[11 22 33 44 55]</code> did not satisfy <code>list?</code>.</li><li>Return scalar <code>44</code> did not satisfy <code>string?</code>.</li><li>Return collection <code>[11 22 33 4  55 9999]</code> did not satisfy <code>set?</code>.</li><li>Argument <code>[11 22 33 44 55]</code> and return <code>[11 22 33 44 55 9999]</code> did not satisfy relationship <code>reversed?</code>.</li></ul></div><div class="panel-footer"><span class="panel-number">58/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Recognized metadata specification keys</h3><pre><code class="form">speculoos.function-specs/recognized-spec-keys</code><br><code class="eval">;; => [:speculoos/arg-scalar-spec
+;;     :speculoos/arg-collection-spec
+;;     :speculoos/ret-scalar-spec
+;;     :speculoos/ret-collection-spec
+;;     :speculoos/argument-return-relationships
+;;     :speculoos/canonical-sample
+;;     :speculoos/predicate->generator
+;;     :speculoos/hof-specs]</code></pre><div class="note"><p>Speculoos consults the following defined group of keys in a specification map when it validates.</p></div><div class="panel-footer"><span class="panel-number">59/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Another way to supply function specifications: Metadata</h3><p>Three patterns of function validation.<ol><li><code>validate-fn-with</code> explicit validation, external specification map</li><li><code>validate-fn</code> explicit validation, metadata specification</li><li><code>instrument</code> implicit validation, metadata specification</li></ol></p><div class="note"><p>Up until this point, we've been using the most explicit variant, <code>validate-fn-with</code> because its behavior is the most readily apparent. <code>validate-fn-with</code> is nice when we want to quickly validate a function <em>on-the-fly</em> without messing with the function's metadata. We merely supply the function's name, a map of specifications, and a sequence of arguments as if we were directly invoking the function.</p><p>Speculoos function specifications <a href="https://clojure.org/about/spec#_dont_further_add_tooverload_the_reified_namespaces_of_clojure">differ</a> from <code>spec.alpha</code> in that they are stored and retrieved directly from the function's metadata. Speculoos is an experiment, so I thought it would be nice if I could hand you one single thing and say </p><blockquote><p><em>Here's a Clojure function you can use. Its name suggests what it does, its docstring tells you how to use it, and human- and machine-readable specifications check the validity of the inputs, and tests that it's working properly. All in one neat, tidy </em>S-expression.</p></blockquote></div><div class="panel-footer"><span class="panel-number">60/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Creating metadata specifications</h3><pre><code>(require '[speculoos.function-specs :refer
+           [validate-fn inject-specs! unject-specs!]])</code></pre><div class="vspace"></div><pre><code class="form">(inject-specs! sum-three
+               {:speculoos/arg-scalar-spec [int? int? int?],
+                :speculoos/ret-scalar-spec int?})</code><br><code class="eval">;; => nil</code></pre><div class="vspace"></div><pre><code class="form">(select-keys (meta #'sum-three) speculoos.function-specs/recognized-spec-keys)</code><br><code class="eval">;; => #:speculoos{:arg-scalar-spec [int? int? int?],
+;;                :ret-scalar-spec int?}</code></pre><div class="note"><p>To validate a function with metadata specifications, we use <code>validate-fn</code> (or as we'll <a href="#instrument">discuss later</a>, <code>instrument</code>). Speculoos offers a pair convenience functions to add and remove specifications from a function's metadata. To add, use <code>inject-specs!</code>. Let's inject a couple of function specifications to <code>sum-three</code> which we <a href="#fn-args">saw earlier</a>.</p><p>We can observe that the specifications indeed live in the function's metadata. There's a lot of metadata, so we'll use <code>select-keys</code> to extract only the key-values associated by <code>inject-specs!</code>.</p><p>We see that <code>inject-specs!</code> injected both an argument scalar specification and a return scalar specification.</p><p>If we later decided to undo that, <code>unject-specs!</code> removes all recognized Speculoos specification entries, regardless of how they got there. For the upcoming demonstrations, though, we'll keep those specifications in <code>sum-three</code>'s metadata.</p></div><div class="panel-footer"><span class="panel-number">61/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Explicit function validation with metadata specifications</h3><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(validate-fn sum-three 1 20 300)</code><br><code class="eval">;; => 321</code></pre></div><div class="side-by-side"><pre><code class="form">(validate-fn sum-three 1 20 300.0)</code><br><code class="eval">;; => ({:datum 300.0,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [2],
+;;      :predicate int?,
+;;      :valid? false}
+;;     {:datum 321.0,
+;;      :fn-spec-type :speculoos/return,
+;;      :path nil,
+;;      :predicate int?,
+;;      :valid? false})</code></pre></div></div><div class="note"><p>Now that <code>sum-three</code> holds the specifications in its metadata, we can try the second pattern of explicit validation pattern, using <code>validate-fn</code>. It's similar to <code>validate-fn-with</code>, except we don't have to supply the specification map; it's already waiting in the metadata. Invoked with valid arguments, <code>sum-three</code> returns a valid value.</p><p>Invoking <code>sum-three</code> with an invalid floating-point number, Speculoos interrupts with a validation report.</p><p>Scalar argument <code>300.0</code> failed to satisfy its paired scalar predicate <code>int?</code>. Also, scalar return <code>321.0</code> failed to satisfy its paired scalar predicate <code>int?</code>.</p></div><div class="panel-footer"><span class="panel-number">62/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Metadata specifications are passive until we choose</h3><pre><code class="form">(sum-three 1 20 300.0)</code><br><code class="eval">;; => 321.0</code></pre><div class="note"><p>The metadata specifications are passive and have no effect during normal invocation.</p><p>Even though <code>sum-three</code> currently holds a pair of scalar specifications within its metadata, directly invoking <code>sum-three</code> does not initiate any validation.</p></div><div class="panel-footer"><span class="panel-number">63/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Removing metadata specifications from a function</h3><pre><code class="form">(unject-specs! sum-three)</code><br><code class="eval">;; => nil</code></pre><div class="vspace"></div><pre><code class="form">(select-keys (meta #'sum-three) speculoos.function-specs/recognized-spec-keys)</code><br><code class="eval">;; => {}</code></pre><div class="vspace"></div><pre><code class="form">(validate-fn sum-three 1 20 300.0)</code><br><code class="eval">;; => 321.0</code></pre><div class="note"><p>`unject-specs!` removes all recognized keys.</p><p><code>validate-fn</code> only interrupts when a predicate paired with a datum is not satisfied. If we remove all the specifications, there won't be any predicates. Let's remove <code>sum-three</code>'s metadata specifications with <code>unject-specs!</code>.</p><p>Now that <code>sum-three</code>'s metadata no longer contains specifications, <code>validate-fn</code> will not perform any validations.</p><p>The return value <code>321.0</code> merely passes through because there were zero predicates.</p></div><div class="panel-footer"><span class="panel-number">64/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Injecting more metadata specifications</h3><pre><code class="form">(inject-specs!
+  broken-reverse
+  {:speculoos/arg-scalar-spec [[any? any? decimal?]],
+   :speculoos/arg-collection-spec [[list?]],
+   :speculoos/ret-scalar-spec [any? any? any? string?],
+   :speculoos/ret-collection-spec [set?],
+   :speculoos/argument-return-relationships
+     [{:path-argument [0], :path-return [], :relationship-fn reversed?}]})</code><br><code class="eval">;; => nil</code></pre><div class="vspace"></div><pre><code class="form">(select-keys (meta #'broken-reverse)
+             speculoos.function-specs/recognized-spec-keys)</code><br><code class="eval">;; => #:speculoos{:arg-collection-spec [[list?]],
+;;                :arg-scalar-spec [[any? any? decimal?]],
+;;                :argument-return-relationships [{:path-argument [0],
+;;                                                 :path-return [],
+;;                                                 :relationship-fn reversed?}],
+;;                :ret-collection-spec [set?],
+;;                :ret-scalar-spec [any? any? any? string?]}</code></pre><div class="note"><p>We can try a more involved example. Let's inject that <a href="#messy">messy ball</a> of metadata specifications into <code>broken-reverse</code>.</p><p>Now we double-check with `select-keys`.</p><p>We see all five function specifications in <code>broken-reverse</code>'s metadata. <code>validate-fn</code> can now find those specifications.</p></div><div class="panel-footer"><span class="panel-number">65/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating with metadata specifications</h3><pre><code class="form">(broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => [11 22 33 44 55 9999]</code></pre><div class="vspace"></div><pre><code class="form">(validate-fn broken-reverse [11 22 33 44 55])</code><br><code class="eval">;; => ({:datum 33,
+;;      :fn-spec-type :speculoos/argument,
+;;      :path [0 2],
+;;      :predicate decimal?,
+;;      :valid? false}
+;;     {:datum [11 22 33 44 55],
+;;      :fn-spec-type :speculoos/argument,
+;;      :ordinal-path-datum [0],
+;;      :path-datum [0],
+;;      :path-predicate [0 0],
+;;      :predicate list?,
+;;      :valid? false}
+;;     {:datum 44,
+;;      :fn-spec-type :speculoos/return,
+;;      :path [3],
+;;      :predicate string?,
+;;      :valid? false}
+;;     {:datum [11 22 33 44 55 9999],
+;;      :fn-spec-type :speculoos/return,
+;;      :ordinal-path-datum [],
+;;      :path-datum [],
+;;      :path-predicate [0],
+;;      :predicate set?,
+;;      :valid? false}
+;;     {:datum-argument [11 22 33 44 55],
+;;      :datum-return [11 22 33 44 55 9999],
+;;      :fn-spec-type
+;;        :speculoos/argument-return-relationship,
+;;      :path-argument [0],
+;;      :path-return [],
+;;      :relationship-fn reversed?,
+;;      :valid? false})</code></pre><div class="note"><p>Finally, we validate <code>broken-reverse</code>.</p><p>Notice, this is the exact same validation <a href="#messy">as before</a>, but because all the messy specifications were already tucked away in the metadata, the validation invocation was a much cleaner one-liner, <br><code>(validate-fn broken-reverse [11 22 33 44 55])</code>.</p><p>Again, metadata specification have no effect when the function is directly invoked.</p><p>We never <em>unjected</em> the specifications from <code>broken-reverse</code>'s metadata, but they have no influence outside of Speculoos' function validation.</p></div><div class="panel-footer"><span class="panel-number">66/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Instrumenting functions: Implicit validation</h3><em>Beware…work-in-progress.</em><pre><code class="form">(inject-specs! sum-three
+               {:speculoos/arg-scalar-spec [int? int? int?],
+                :speculoos/ret-scalar-spec int?})</code><br><code class="eval">;; => nil</code></pre><div class="vspace"></div><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(sum-three 1 20 300)</code><br><code class="eval">;; => 321</code></pre></div><div class="side-by-side"><pre><code class="form">(sum-three 1 20 300.0)</code><br><code class="eval">;; => 321.0</code></pre></div></div><div class="note"><p>We can pass `sum-three` valid args and return value, and it will return as expected. We can also pass an arg 300.0 which produces return value 321.0, both of which fail to satisfy the arg and return scalar specifications, respectively.</p><strong>Beware: </strong><code>instrument</code>-style function validation is very much a work in progress. The current implementation is sensitive to invocation order and can choke on multiple calls.<p>Until this point in our discussion, Speculoos has only performed function validation when we explicitly called either <code>validate-fn-with</code> or <code> validate-fn</code>. With those two utilities, the specifications in the metadata are passive and produce no effect, even when invoking with arguments that would otherwise fail to satisfy the specification's predicates.</p><p>Speculoos' third pattern of function validation <em>instruments</em> the function using the metadata specifications. Every direct invocation of the function itself automatically validates arguments and returns using any specification in the metadata. Let's explore function instrumentation using <code>sum-three</code> <a href="#fn-args">from earlier</a>. <code>instrument</code> will only validate with metadata specifications. First, we need to inject our specifications.</p><p><code>sum-three</code> now holds two scalar specifications within its metadata, but those specifications are merely sitting there, completely passive.</p><p>That second invocation above supplied an invalid argument and produced an invalid return value, according to the metadata specifications. But we didn't explicitly validate with <code>validate-fn</code>, and <code>sum-three</code> is not yet instrumented, so <code>sum-three</code> returns the computed value <code>321.0</code> without interruption.</p></div><div class="panel-footer"><span class="panel-number">67/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Instrumenting and implicit validation</h3><pre><code>(require '[speculoos.function-specs :refer [instrument unstrument]])</code></pre><pre><code class="form">(instrument sum-three)</code><code class="eval"> ;; => nil</code></pre><div class="vspace"></div><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(sum-three 1 20 300)</code><code class="eval">;; => 321</code></pre></div><div class="side-by-side"><pre><code class="form">(sum-three 1 20 300.0)</code><code class="eval">;; => 321.0</code></pre><pre><code class="form">(with-out-str (sum-three 1 20 300.0))</code><code class="eval">
+;; => ({:path [2], :datum 300.0, :predicate int?, :valid? false, :fn-spec-type :speculoos/argument}
+;;     {:path nil, :datum 321.0, :predicate int?, :valid? false, :fn-spec-type :speculoos/return})</code></pre></div></div><div class="note"><p>Let's instrument <code>sum-three</code> and see what happens.</p><p>Not much. We've only added the specifications to the metadata and instrumented <code>sum-three</code>. An instrumented function is only validated when it is invoked.
+</p><p>We just invoked <code>sum-three</code>, but all three integer arguments and the bare scalar return value satisfied all their predicates, so <code>321</code> passes through. Let's invoke with two integer arguments and one non-integer argument.</p><p>arg 300.0 does not satisfy its paired predicate in the argument scalar specification, but `sum-three` is capable of computing a return with those given inputs</p><br><p>That's interesting. In contrast to <code>validate-fn-with</code> and <code>validate-fn</code>, an instrumented function is not interrupted with an invalidation report when predicates are not satisfied. The invalidation report is instead written to <code>*out*</code>.</p><p>validation report is written to *out*</p><p>Speculoos will implicitly validate any instrumented function with any permutation of <a href="#recognized-metadata-keys">specifications within its metadata</a>.</p></div><div class="panel-footer"><span class="panel-number">68/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Unstrumenting</h3><pre><code>(unstrument sum-three)</code></pre><div class="vspace"></div><pre><code class="form">(sum-three 1 20 300)</code><code class="eval"> ;; => 321</code></pre><pre><code class="form">(sum-three 1 20 300.0)</code><code class="eval"> ;; => 321.0</code></pre><pre><code class="form">(with-out-str (sum-three 1 20 300.0))</code><code class="eval"> ;; => ""</code></pre><div class="note"><p>When we want to revert <code>sum-three</code> back to normal, we <code>unstrument</code> it.</p><p>Now that it's no longer instrumented, <code>sum-three</code> will yield values as normal, even if the arguments and return value do not satisfy the metadata specifications.</p><p>;; valid arguments and return value</p><p>;; one invalid argument, invalid return value</p><p>;; nothing written to *out*</p></div><div class="panel-footer"><span class="panel-number">69/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Higher-Order Functions: Souped-up adder</h3><div class="side-by-side-container"><div class="side-by-side"><pre><code>(defn adder [x] #(+ x %))</code></pre></div><div class="side-by-side"><pre><code>(defn addder [x] (fn [y] (fn [z] (+ x (+ y z)))))</code></pre><div class="vspace"></div><pre><code class="form">(((addder 7) 80) 900)</code><br><code class="eval">;; => 987</code></pre></div></div><div class="note"><p>Speculoos has a story about validating higher-order functions, too. It uses very similar patterns to first-order function validation: Put some specifications in the function's metadata with the <a href="#recognized-metadata-keys">proper, qualified keys</a>, then invoke the function with some sample arguments, then Speculoos will validate the results.</p><p>The classic <span class="small-caps">hof</span> is something like <code>(defn adder [x] #(+ x %))</code>. To make things a tad more interesting, we'll add a little flourish.</p><p><code>addder</code> returns a function upon each of its first two invocations, and only on its third invocation does <code>addder</code> return a scalar. Specifying and validating a function object does not convey much meaning: it would merely satisfy <code>fn?</code> which isn't very interesting. So to validate a <span class="small-caps">hof</span>, Speculoos requires it to be invoked until it produces a value. So we'll supply the validator with a series of argument sequences that, when fed in order to the <span class="small-caps">hof</span>, will produce a result. For the example above, it will look like <code>[7] [80] [900]</code>.</p></div><div class="panel-footer"><span class="panel-number">70/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifying higher-order functions: Dolls within dolls</h3><pre><code>(def addder-spec
+  {:speculoos/arg-scalar-spec [string?],
+   :speculoos/hof-specs {:speculoos/arg-scalar-spec [boolean?],
+                         :speculoos/hof-specs
+                           {:speculoos/arg-scalar-spec [char?],
+                            :speculoos/ret-scalar-spec keyword?}}})</code></pre><div class="vspace"></div><pre><code class="form">(inject-specs! addder addder-spec)</code><br><code class="eval">;; => nil</code></pre><div class="note"><p>The last task we must do is create the specification. <span class="small-caps">hof</span> specifications live in the function's metadata at key <code>:speculoos/hof-specs</code>, which is a series of nested specification maps, one nesting for each returned function. For this example, we might create this <span class="small-caps">hof</span> specification.</p><p>Once again, for illustration purposes, we've crafted a specification composed of predicates that we know will invalidate, but will permit the function stack to evaluate to completion. (Otherwise, validation halts on exceptions.</p><p><span class="small-caps">hof</span> validation requires that the function's metadata hold the specifications. So we inject them.</p></div><div class="panel-footer"><span class="panel-number">71/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating a higher-order function</h3><pre><code>(require '[speculoos.function-specs :refer [validate-higher-order-fn]])</code></pre><div class="vspace"></div><pre><code class="form">(validate-higher-order-fn addder [7] [80] [900])</code><br><code class="eval">;; => ({:datum 7,
+;;      :fn-tier :speculoos/argument,
+;;      :path [0 0],
+;;      :predicate string?,
+;;      :valid? false}
+;;     {:datum 80,
+;;      :fn-tier :speculoos/argument,
+;;      :path [1 0],
+;;      :predicate boolean?,
+;;      :valid? false}
+;;     {:datum 900,
+;;      :fn-tier :speculoos/argument,
+;;      :path [2 0],
+;;      :predicate char?,
+;;      :valid? false}
+;;     {:datum 987,
+;;      :evaled-result 987,
+;;      :fn-spec-type :speculoos/return,
+;;      :fn-tier :speculoos/return,
+;;      :path nil,
+;;      :predicate keyword?,
+;;      :valid? false})</code></pre><div class="note"><p>And finally, we execute the validation with <code>validate-higher-order-fn</code></p><p>Let's step through the validation results. Speculoos validates <code>7</code> against scalar predicate <code>string?</code> and then invokes <code>addder</code> with argument <code>7</code>. It then validates <code>80</code> against scalar predicate <code>boolean?</code> and then invokes the returned function with argument <code>80</code>. It then validates <code>900</code> against scalar predicate <code>char?</code> and invokes the previously returned function with argument <code>900</code>. Finally, Speculoos validates the ultimate return value <code>987</code> against scalar predicate <code>keyword?</code>. If all the predicates were satisfied, <code>validate-higher-order-fn</code> would yield the return value of the function call. In this case, all three arguments and the return value are invalid, and Speculoos yields a validation report.</p></div><div class="panel-footer"><span class="panel-number">72/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>What's next.</h3><ol class="de-highlight whats-next"><li>Introduction</li><li>Mechanics</li><li>Validating Scalars</li><li>Validating Collections</li><li>Validation Summaries & Thoroughness</li><li>Function Validation</li><li class="highlight">Generating Random Samples & Exercising</li><li>Utilities</li><li>Predicates</li><li>Non-Terminating Sequences</li><li>Sets</li><li>Troubleshooting</li><li>Comparing spec.alpha to Speculoos</li><li>Perhaps So</li></ol><div class="note">Now that we've discussed how to specify and validate function behavior, our next discussion will cover generating valid, random samples based on those specifications, and exercising the functions with those samples.</div><div class="panel-footer"><span class="panel-number">73/73</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><p id="page-footer">Copyright © 2024 Brad Losavio.<br>Compiled 2024 October 25.<span id="uuid"><br>688bb1c8-1158-4ab8-a478-46986c0ff340</span></p></body></head></html>

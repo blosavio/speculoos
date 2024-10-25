@@ -29,6 +29,8 @@
 
          [:p "If you're familiar with " [:code "clojure.spec.alpha"] " and are curious about how Speculoos compares, here's a side-by-side demonstration. Find the full documentation " [:a {:href "https://github.com/blosavio/speculoos"} "here"] "."]
 
+         [:p [:em "Related:"] " How Speculoos " [:a {:href "https://blosavio.github.io/speculoos/perhaps_so.html"} "addresses issues"] " presented in " [:em "Maybe Not"] " (Rich Hickey, 2018)."]
+
          [:section
           [:h2 "Predicates"]
 
