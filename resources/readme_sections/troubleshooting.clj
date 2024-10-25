@@ -61,7 +61,7 @@
       [:p "See below for strategies and tools for diagnosing mis-pairing."]]]]]
 
   [:li
-   [:p "Checking the presence or absence of an element is the job of a collection validation. Scalar validation is only concerned with testing the properties of a scalar " [:em "if that scalar exists"] "."]
+   [:p "Checking the presence or absence of an element is the job of a collection validation. Scalar validation is only concerned with testing the properties of a scalar, " [:em "assuming that scalar exists"] "."]
 
    [:p "Testing whether an integer, located in the first slot of a vector, is greater than forty…"]
 
@@ -69,13 +69,45 @@
 
    [:p "…is a completely orthongonal concern from whether there is anything present in the first slot of a vector."]
 
-   [:pre (print-form-then-eval "(valid-collections? [42] [#(<= 0 (count %))])" 40 25)]
+   [:pre (print-form-then-eval "(valid-collections? [42] [#(get % 0)])" 35 25)]
 
-   [:p "Asking about an element's presence is, actually, asking about whether a collection contains an item. If we want to test both a property of the scalar " [:em "and"] " its existence at a particular location, we could use the " [:a {:href "#combo"} "combo utility"] " functions."]
+   [:p "Asking about an element's presence is, fundamentally, asking about whether a collection contains an item. If we want to test both a property of the scalar " [:em "and"] " its existence at a particular location in a collection, we could use the " [:a {:href "#combo"} "combo utility"] " functions."]
 
-   [:pre (print-form-then-eval "(valid? [42] [#(< 40 %)] [#(<= 0 (count %))])" 35 25)]
+   [:pre (print-form-then-eval "(valid? [42] [#(< 40 %)] [#(get % 0)])" 35 25)]
 
    [:p "This combo pattern validates the concept " [:em "The first element must exist, and it must be larger than forty"] "."]]
+
+  [:li
+   [:p "How would we validate the concept " [:em "The third element of a sequential collection is a scalar " [:strong "or"] " a nested collection"] "? Both the following are valid."]
+
+   [:pre
+    [:code "[42 \"abc\" 22/7]"]
+    [:br]
+    [:br]
+    [:code "[42 \"abc\" ['foo]]"]]
+
+   [:p "The example in the upper row contains a scalar in the third position, while the example in the lower row contains a nested vector in the third position. According to our English language specification, both would be valid."]
+
+   [:p "Scalar validation discards all non-scalar elements (i.e., collections), so must rely on the power and flexibility of collection validation. Collection validation passes the collection itself to the predicate, so the predicate has access to the collection's elements."]
+
+   [:p "We would write our predicate to pull out that third element and test whether it was a ratio or a vector."]
+
+   [:pre (print-form-then-eval "(defn third-element-ratio-or-vec? [c] (or (ratio? (get c 2)) (vector? (get c 2))))" 95 95)]
+
+   [:p "The validation passes the entire collection, " [:code "c"] ", to our predicate, and the predicate does the grunt work of pulling out the third element by using " [:code "(get c 2)"] "."]
+
+   [:p "The validation would then look like this."]
+
+   [:pre
+    (print-form-then-eval "(valid-collections? [42 \"abc\" 22/7] [third-element-ratio-or-vec?])" 55 45)
+    [:br]
+    [:br]
+    [:br]
+    (print-form-then-eval "(valid-collections? [42 \"abc\" ['foo]] [third-element-ratio-or-vec?])" 55 45)]
+
+   [:p "The first validation returns " [:code "true"] " because " [:code "22/9"] " satisfies our " [:code "third-element-ratio-or-vec?"] " predicate. The second validation returns " [:code "true"] " because " [:code "['foo]"] " also satisfies " [:code "third-element-ratio-or-vec?"] "."]
+
+   [:p "The principle holds for all collection types: " [:em "Collection validation is required when either a scalar or a collection is a valid element."]]]
 
   [:li
    [:p "Speculoos specifications are regular old data structures containing regular old functions. (I assume your data is, too.) If we're wrangling with something deep down in some nested mess, use our Clojure powers to dive in and pull out the relevant pieces."]
