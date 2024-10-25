@@ -1356,7 +1356,7 @@
   ```"
   {:UUIDv4 #uuid "bd03894b-c45a-4875-972a-d5be8a092920"}
   [data spec]
-  (every? #(true? (:valid?  %)) (validate-collections data spec)))
+  (empty? (only-invalid (validate-collections data spec))))
 
 
 ;;;; Combined specs

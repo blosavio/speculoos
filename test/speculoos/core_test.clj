@@ -917,11 +917,9 @@
       [{:path [:a], :datum 99, :predicate int?, :valid? true}]
 
       (validate-scalars (list 99) (list int?))
-      [{:path [0], :datum 99, :predicate int?, :valid? true}]
-
-      (validate-scalars #{99} #{int? odd?})
-      [{:path [], :datums-set #{99}, :predicate int?, :valid? true}
-       {:path [], :datums-set #{99}, :predicate odd?, :valid? true}])))
+      [{:path [0], :datum 99, :predicate int?, :valid? true}]))
+  (testing "applying _every_ scalar predicate to all scalars contained in a set (ordering is not guaranteed from run to run, so test separately)"
+    (is (every? #(true? (:valid? %)) (validate-scalars #{99} #{int? odd?})))))
 
 
 (deftest validate-and-validate-set-tests
@@ -1612,7 +1610,14 @@
       (valid-collections? (interpose :foo ["a" "b" "c"]) (speculoos.utility/clamp-in* (interpose nil [coll?]) [] 1))
       (valid-collections? (lazy-cat [1 2 3] [4 5 6]) (speculoos.utility/clamp-in* (lazy-cat [coll?] [coll?]) [] 2))
       (valid-collections? (mapcat reverse [[3 2 1] [6 5 4] [9 8 7]]) (speculoos.utility/clamp-in* (mapcat identity [[coll?] []]) [] 1))
-      (valid-collections? (zipmap [:a :b :c] [1 2 3]) (zipmap [:is-map?] [map?])))))
+      (valid-collections? (zipmap [:a :b :c] [1 2 3]) (zipmap [:is-map?] [map?]))))
+  (testing "truthy/falsey predicate output (see GitHub issue #9)"
+    (are [x] (true? x)
+      (valid-collections? [42] [#(get % 0)])
+      (valid-collections? {:x 42} {:foo #(get % :x)}))
+    (are [x] (false? x)
+      (valid-collections? [] [#(get % 0)])
+      (valid-collections? {} {:foo #(get % :x)}))))
 
 
 (deftest valid?-combo-tests
