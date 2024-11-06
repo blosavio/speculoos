@@ -2,7 +2,7 @@
          '[speculoos-project-screencast-generator :refer [whats-next-panel]])
 
 
-(def sequence-index 9)
+(def sequence-index 11)
 
 
 [:body

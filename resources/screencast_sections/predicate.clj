@@ -2,7 +2,7 @@
          '[speculoos-project-screencast-generator :refer [whats-next-panel]])
 
 
-(def predicate-index 8)
+(def predicate-index 10)
 
 
 [:body

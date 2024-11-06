@@ -593,7 +593,7 @@
 
  [:pre (print-form-then-eval "(validate-collections [42 {:y \"abc\"}] [coll? vector? {:foo map?}])" 50 50)]
 
- [:p [:code "validate-collections"] " found three predicates in the specification on the lower row that it could pair with a collection in the data in the upper row. Both " [:code "coll?"] " and " [:code "vector?"] " predicates pair with the root collection because their paths, when right-trimmed with " [:code "drop-last"] " correspond to " [:code "[]"] ", which targets the root collection. Predicate " [:code "map?"] " was paired with the nested map " [:code "{:y \"abc\"}"] " in the data because " [:code "map?"] " was located in the first nested collection of the specification, and " [:code "{:y \"abc\"}"] " is the first (and only) nested collection in the data. We can see how " [:code "validate-collections"] " calculated the nested map's path because " [:code ":ordinal-path-datum"] " is " [:code "[0]"] ". The ordinal path reports the path into the 'pruned' collections, as if the the sequentials in the data and the sequentials in the specification contained zero scalars."]
+ [:p [:code "validate-collections"] " found three predicates in the specification on the lower row that it could pair with a collection in the data in the upper row. Both " [:code "coll?"] " and " [:code "vector?"] " predicates pair with the root collection because their paths, when right-trimmed with " [:code "drop-last"] " correspond to " [:code "[]"] ", which targets the root collection. Predicate " [:code "map?"] " was paired with the nested map " [:code "{:y \"abc\"}"] " in the data because " [:code "map?"] " was located in the first nested collection of the specification, and " [:code "{:y \"abc\"}"] " is the first (and only) nested collection in the data. We can see how " [:code "validate-collections"] " calculated the nested map's path because " [:code ":ordinal-path-datum"] " is " [:code "[0]"] ". The ordinal path reports the path into the 'pruned' collections, as if the sequentials in the data and the sequentials in the specification contained zero scalars."]
 
  [:p "Let's do another example that really exercises this principle. First, we'll make some example data composed of a parent vector, containing a nested map, a nested list, and a nested set, with a couple of interleaved integers."]
 
@@ -801,19 +801,19 @@
 
  [:p "Now we insert the predicates. The rule is " [:em "Predicates apply to the collection that contains the predicate."] " So we insert a " [:code "set?"] " predicate into the set…"]
 
- [:pre [:code "[{     }    (list   )    #{set}]"]]
+ [:pre [:code "[{     }    (list   )    #{set?}]"]]
 
  [:p "…insert a " [:code "list?"] " predicate into the list…"]
 
- [:pre [:code "[{     }    (list list?)    #{set}]"]]
+ [:pre [:code "[{     }    (list list?)    #{set?}]"]]
 
  [:p "…insert a " [:code "map?"] " predicate into the map, associated to sham key " [:code ":foo"] "…"]
 
- [:pre [:code "[{:foo map?}    (list list?)    #{set}]"]]
+ [:pre [:code "[{:foo map?}    (list list?)    #{set?}]"]]
 
  [:p "…and insert a " [:code "vector?"] " predicate, a " [:code "sequential?"] " predicate, a " [:code "sequential?"] " predicate, and an " [:code "any?"] " predicate into the vector's top level."]
 
- [:pre [:code "[vector? {:foo map?} sequential? (list list?) coll? #{set} any?]"]]
+ [:pre [:code "[vector? {:foo map?} sequential? (list list?) coll? #{set?} any?]"]]
 
  [:p "There will be two 'phases', each phase pruning a different level. The first phase validates the root collection with the top-level predicates. To start, we enumerate the paths of the data…"]
 
@@ -821,7 +821,7 @@
 
  [:p "…and enumerate the paths of our specification."]
 
- [:pre [:code "(all-paths [vector? {:foo map?} sequential? (list list?) coll? #{set} any?])"]
+ [:pre [:code "(all-paths [vector? {:foo map?} sequential? (list list?) coll? #{set?} any?])"]
   [:br]
   [:code";; => [{:path [], :value [vector? {:foo map?} sequential? (list?)  coll? #{set} any?]}
 ;;     {:path [0], :value vector?}
@@ -872,7 +872,7 @@
 
  [:p "…and from the specification, we keep only the second-level predicates, i.e., the predicates contained in the nested collections."]
 
- [:pre [:code "[{:foo map?} (list list?) #{set}]"]]
+ [:pre [:code "[{:foo map?} (list list?) #{set?}]"]]
 
  [:p "Next, we enumerate the paths of the pruned data…"]
 
@@ -955,7 +955,7 @@
 
  [:pre (print-form-then-eval "(validate-collections {:a [99] :b (list 77)} {:a [vector?] :b (list list?) :howdy map?})" 75 90)]
 
- [:p "We've got the vector and list validations as before, and then, at the end, we see that " [:code "map?"] " at the sham " [:code ":howdy"] " key was applied to the root. Because the parent collection is " [:code "not"] " sequential (i.e., a map), " [:code "validate-collections"] " did not have to skip over any intervening non-collections. There is no concept of order; elements are addressed by non-sequential keys. For example, predicate " [:code "vector?"] " is located at path " [:code "[:a 0]"] " within the specification. Right-trimming that path…"]
+ [:p "We've got the vector and list validations as before, and then, at the end, we see that " [:code "map?"] " at the sham " [:code ":howdy"] " key was applied to the root. Because the parent collection is " [:em "not"] " sequential (i.e., a map), " [:code "validate-collections"] " did not have to skip over any intervening non-collections. There is no concept of order; elements are addressed by non-sequential keys. For example, predicate " [:code "vector?"] " is located at path " [:code "[:a 0]"] " within the specification. Right-trimming that path…"]
 
  [:pre (print-form-then-eval "(drop-last [:a 0])")]
 
@@ -995,7 +995,7 @@
 
  [:p "Answer: " [:em "one"] "."]
 
- [:p "In this example, there is only one predicate+collection pair. " [:code "vector?"] " applies to the vector at " [:code ":a"] ". We might have expected " [:code "coll?"] " to be applied to the root collection because " [:code ":flamingo"] " doesn't appear in the map, but notice that " [:code "coll?"] " is " [:em "contained"] " in a vector. It would only ever apply to the thing that contained it. Since the data's root doesn't contain a collection at key " [:code "flamingo"] ", the predicate is unpaired, and thus ignored."]
+ [:p "In this example, there is only one predicate+collection pair. " [:code "vector?"] " applies to the vector at " [:code ":a"] ". We might have expected " [:code "coll?"] " to be applied to the root collection because " [:code ":flamingo"] " doesn't appear in the map, but notice that " [:code "coll?"] " is " [:em "contained"] " in a vector. It would only ever apply to the thing that contained it. Since the data's root doesn't contain a collection at key " [:code ":flamingo"] ", the predicate is unpaired, and thus ignored."]
 
  [:p "If we did want to apply " [:code "coll?"] " to the root, it needs to be contained directly in the root. We'll associate " [:code "coll?"] " to key " [:code ":emu"] "."]
 

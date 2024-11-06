@@ -2,7 +2,7 @@
          '[speculoos-project-screencast-generator :refer [whats-next-panel]])
 
 
-(def exercising-index 6)
+(def exercising-index 8)
 
 
 [:body

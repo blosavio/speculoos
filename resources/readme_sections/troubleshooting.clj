@@ -67,7 +67,7 @@
 
    [:pre (print-form-then-eval "(valid-scalars? [42] [#(< 40 %)])" 30 20)]
 
-   [:p "…is a completely orthongonal concern from whether there is anything present in the first slot of a vector."]
+   [:p "…is a completely orthogonal concern from whether there is anything present in the first slot of a vector."]
 
    [:pre (print-form-then-eval "(valid-collections? [42] [#(get % 0)])" 35 25)]
 
@@ -88,7 +88,7 @@
 
    [:p "The example in the upper row contains a scalar in the third position, while the example in the lower row contains a nested vector in the third position. According to our English language specification, both would be valid."]
 
-   [:p "Scalar validation discards all non-scalar elements (i.e., collections), so must rely on the power and flexibility of collection validation. Collection validation passes the collection itself to the predicate, so the predicate has access to the collection's elements."]
+   [:p "Scalar validation discards all non-scalar elements (i.e., collections), so we must rely on the power and flexibility of collection validation. Collection validation passes the collection itself to the predicate, so the predicate has access to the collection's elements."]
 
    [:p "We would write our predicate to pull out that third element and test whether it was a ratio or a vector."]
 

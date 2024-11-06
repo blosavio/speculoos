@@ -2,7 +2,7 @@
          '[speculoos-project-screencast-generator :refer [whats-next-panel]])
 
 
-(def troubleshooting-index 11)
+(def troubleshooting-index 13)
 
 
 [:body
@@ -83,6 +83,68 @@
 
   [:div.note
    [:p  "Corollary: " [:strong [:code "valid?"] " being " [:code "true"] " means there were zero non-true results."] " If the validation did not find any predicate+datum pairs, there would be zero invalid results, and thus return valid. Use the " [:code "thorough-…"] " function variants to require all datums to be validated."]])
+
+
+ (panel
+  [:h3 "Presence/absence of a datum: Use collection validation!"]
+
+  [:div.side-by-side-container
+   [:div.side-by-side "This…"
+    (prettyfy-form-prettyfy-eval "(valid-scalars? [42] [#(< 40 %)])" 30 20)]
+
+   [:div.side-by-side "…is completely different than this."
+    (prettyfy-form-prettyfy-eval "(valid-collections? [42] [#(get % 0)])" 35 25)]]
+
+  [:div.vspace]
+
+  [:div "Use combo pattern."]
+  (prettyfy-form-prettyfy-eval "(valid? [42] [#(< 40 %)] [#(get % 0)])" 35 25)
+
+  [:div.note
+   [:p "Presence/absence of an element is the job of a collection validation. Scalar validation is only concerned with testing the properties of a scalar, " [:em "assuming that scalar exists"] "."]
+
+   [:p "Testing whether an integer, located in the first slot of a vector, is greater than forty… is a completely orthogonal concern from whether there is anything present in the first slot of a vector."]
+
+   [:p "Element's presence is, fundamentally, about whether a collection contains an item. If we want to test both a property of the scalar " [:em "and"] " its existence at a particular location in a collection, we could use the " [:a {:href "#combo"} "combo utility"] " functions."]
+
+   [:p "This combo pattern validates the concept " [:em "The first element must exist, and it must be larger than forty"] "."]])
+
+
+ (panel
+  [:h3 "When " [:em "thing"] " can be a scalar or a collection"]
+
+  [:div.side-by-side-container
+   [:div.side-by-side [:code "[42 \"abc\" 22/7]"]]
+   [:div.side-by-side [:code "[42 \"abc\" ['foo]]"]]]
+
+  [:div.vspace]
+
+  [:pre (print-form-then-eval "(defn third-element-ratio-or-vec? [c] (or (ratio? (get c 2)) (vector? (get c 2))))" 95 95)]
+
+  [:div.vspace]
+
+  [:div.side-by-side-container
+   [:div.side-by-side (prettyfy-form-prettyfy-eval "(valid-collections? [42 \"abc\" 22/7] [third-element-ratio-or-vec?])" 55 45)]
+   [:div.side-by-side
+    [:div.vspace]
+    [:div.vspace]
+    [:div.vspace]
+    (prettyfy-form-prettyfy-eval "(valid-collections? [42 \"abc\" ['foo]] [third-element-ratio-or-vec?])" 55 45)]]
+
+  [:div.note
+   [:p "Concept " [:em "The third element of a sequential collection is a scalar " [:strong "or"] " a nested collection"] "? Both these data vectors are valid."]
+
+   [:p "Left-hand vector contains a scalar in the third position, the right-hand vector contains a nested vector in the third position. According to our English language specification, both would be valid."]
+
+   [:p "Scalar validation discards all non-scalar elements, so require collection validation. Collection validation passes the collection itself to the predicate, so the predicate has access to the collection's elements."]
+
+   [:p "Predicate to pull out that third element and test whether it was a ratio or a vector."]
+
+   [:p "The validation passes the entire collection, " [:code "c"] ", to our predicate, and the predicate does the grunt work of pulling out the third element by using " [:code "(get c 2)"] "."]
+
+   [:p "First validation " [:code "true"] " because " [:code "22/9"] " satisfies " [:code "third-element-ratio-or-vec?"] ". Second validation " [:code "true"] " because " [:code "['foo]"] " also satisfies " [:code "third-element-ratio-or-vec?"] "."]
+
+   [:p "The principle holds for all collection types: " [:em "Collection validation is required when either a scalar or a collection is a valid element."]]])
 
 
  (panel
