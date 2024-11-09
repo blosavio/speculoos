@@ -518,7 +518,7 @@
    [:tr
     [:td "form pairs"]
     [:td]
-    [:td (prettyfy-form-prettyfy-eval "(drop-last [0 map?])")]]
+    [:td (prettyfy-form-prettyfy-eval "(drop-last [0 :foo])")]]
 
    [:tr
     [:td "apply predicate"]
@@ -528,7 +528,7 @@
  (panel
   [:h3 "Skipping markers: validation"]
 
-  (prettyfy-form-prettyfy-eval "(validate-collections [{:a 11} 22 (list 33) 44 #{55}] [:skip-5 :skip-6 {:foo? map?} () #{}])" 65 80))
+  (prettyfy-form-prettyfy-eval "(validate-collections [{:a 11} 22 (list 33) 44 #{55}] [:skip-5 :skip-6 {:foo map?} () #{}])" 65 80))
 
 
  (panel
@@ -655,8 +655,8 @@
 
    [:tr
     [:td "originals"]
-    [:td [:code "[{:a 11} 22 (list 33) 44 #{55}]"]]
-    [:td [:code "[vector? {:foo map?} sequential? (list list?) coll? #{set?} any?]"]]]
+    [:td [:pre [:code "[{:a 11} 22 (list 33) 44 #{55}]"]]]
+    [:td [:pre [:code "[vector? {:foo map?} sequential? (list list?) coll? #{set?} any?]"]]]]
 
    [:tr
     [:td "prune"]
@@ -705,8 +705,8 @@
 
    [:tr
     [:td "originals"]
-    [:td [:code "[{:a 11} 22 (list 33) 44 #{55}]"]]
-    [:td [:code "[vector? {:foo map?} sequential? (list list?) coll? #{set?} any?]"]]]
+    [:td [:pre [:code "[{:a 11} 22 (list 33) 44 #{55}]"]]]
+    [:td [:pre [:code "[vector? {:foo map?} sequential? (list list?) coll? #{set?} any?]"]]]]
 
    [:tr
     [:td "prune"]
@@ -782,7 +782,7 @@
 
   [:div.note
    [:p "Checklist...Mottos #1-3: _collection validation_; specification shape mimics the data (b/c we copy-pasted); un-paired datums ignored (we didn't specify the root collection)"]
-   [:p "Predicate `vector?` at path [:a 0] targets the collection at (drop-last [:a 0]). That evals to [:a], the nested vector. `[99]` is not a vector, so the predicate is un-satisfied."]
+   [:p "Predicate `vector?` at path [:a 0] targets the collection at (drop-last [:a 0]). That evals to [:a], the nested vector. `[99]` is a vector, so the predicate is satisfied."]
    [:p "Predicate `list?` at path [:b 0] targets the collection at (drop-last [:b 0]), which evals to [:b], the nested list. `(77) is in fact a list, so the predicate is satisfied."]
    [:p "Since maps are *not* sequential, it doesn't matter what order the nested predicate appear, unlike the vector we studied earlier. Just like how it doesn't matter whether I eval these two `drop-last` expression 'out-of-order'."]])
 

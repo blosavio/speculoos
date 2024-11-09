@@ -1,0 +1,226 @@
+{:date {:year 2024
+        :month nil
+        :day nil}
+ :responsible {:name "Brad Losavio"
+               :email "blosavio@sagevisuals.com"}
+ :version 2
+ :comment "Work on addressing comments."
+ :project-status :experimental
+ :stable false
+ :urgency :low
+ :breaking? true
+ :changes
+ [{:description "Added `thoroughly-valid-scalars?` and `thoroughly-valid-collections?` utilities."
+   :date {:year 2024
+          :month "August"
+          :day 1}
+   :change-type :added-functions
+   :added-functions ['thoroughly-valid-scalars? 'thoroughly-valid-collections?]
+   :breaking? false}
+
+  {:description "Adjusted `thoroughly-valid?` to internally use new functions."
+   :date {:year 2024
+          :month "August"
+          :day 1}
+   :change-type :implementation
+   :altered-functions ['thoroughly-valid?]
+   :breaking? false}
+
+  {:description "Adjusted `scalars-without-predicates` to return a set of all-paths elements, instead of a sequence, to be consistent with `collections-without-predicates`."
+   :date {:year 2024
+          :month "August"
+          :day 1}
+   :change-type :altered-return
+   :altered-functions ['scalars-without-predicates]
+   :breaking? true}
+
+  {:description "Removed hard-coded collection hierarchy derivation and replaced with a `load` from a single file."
+   :date {:year 2024
+          :month "August"
+          :day 1}
+   :change-type :implementation
+   :breaking? false}
+
+  {:description "Re-named functions in collection-functions namespace from `blah-2` to `blah` to emphasize they're not merely a new version, but that they operate on *any* Clojure collection type, and to be consistent with `fn-in` namespace members."
+   :date {:year 2024
+          :month "August"
+          :day 3}
+   :change-type :renamed-function
+   :renamed-functions [{:old-function-name 'map-2
+                        :new-function-name 'map*}
+                       {:old-function-name 'reduce-2
+                        :new-function-name 'reduce*}
+                       {:old-function-name 'map-indexed-2
+                        :new-function-name 'map-indexed*}
+                       {:old-function-name 'reduce-indexed-2
+                        :new-function-name 'reduce-indexed*}]
+   :breaking? true}
+
+  {:description "Expanded docstrings and examples to provide clarity, completeness, and better convey how functions behave and what they're intended for, especially for a user who looks at the API doc before html documentation."
+   :date {:year 2024
+          :month "August"
+          :day 3}
+   :change-type :documentation
+   :breaking? false}
+
+  {:description "Internalized `reduce-indexed` into 'core' namespace, plus unit tests into core-tests. Removed 'collection-functions' namespace because Speculoos does not use `map*`, `map-indexed*`, nor `reduce*`."
+   :date {:year 2024
+          :month "August"
+          :day 5}
+   :change-type :implementation
+   :moved-functions ['reduce-indexed]
+   :removed-functions ['map* 'map-indexed* 'reduce* 'reduce-indexed*]
+   :breaking? false}
+
+  {:description "Removed Speculoos project's internal 'fn-in' namespace to an external lib. 'fn-in' is a new dependency."
+   :date {:year 2024
+          :month "August"
+          :day 8}
+   :change-type :added-dependency
+   :breaking? true}
+
+  {:description "Removed Speculoos project's own version of the derived collection hierarchy; now refers to the one provided by the 'fn-in' dep."
+   :date {:year 2024
+          :month "August"
+          :day 8}
+   :change-type :implementation
+   :breaking? false}
+
+  {:description "Moved `recover-literal-path` and helper functions from utility namespace to core namespace; moved attendant tests from utility-tests to core-tests. In preparation for adding feature to `validate-collections`."
+   :date {:year 2024
+          :month "August"
+          :day 11}
+   :change-type :moved-function
+   :moved-functions ['recover-literal-path]
+   :breaking? true}
+
+  {:description "Upgraded `validate-collections` report so that entries now indicate the literal path to the collection datum, at keyword `:path-datum`."
+   :date {:year 2024
+          :month "August"
+          :day 11}
+   :change-type :increased-return
+   :altered-functions ['validate-collections]
+   :breaking? false}
+
+  {:description "Upgraded `validate-scalars` to accept 'bare' scalar and 'bare' predicate. This is intentionally undocumented behavior, but provided for convenience and least surprise."
+   :date {:year 2024
+          :month "August"
+          :day 13}
+   :reference {:source "GitHub Issue #2"
+               :url "https://github.com/blosavio/speculoos/issues/2"}
+   :change-type :relaxed-input-requirements
+   :altered-functions ['validate-scalars]
+   :breaking? false}
+
+  {:description "Fixed incorrect `:path` reporting in `validate-set-elements`."
+   :date {:year 2024
+          :month "August"
+          :day 13}
+   :reference {:source "GitHub Issue #1"
+               :url "https://github.com/blosavio/speculoos/issues/1"}
+   :change-type :bug-fix
+   :altered-functions ['validate-set-elements]
+   :breaking? false}
+
+  {:description "Changed validation report key returned `validate-set-elements` from `:datum` to `:datums-set` to emphasize that *every* datum in the set is validated."
+   :date {:year 2024
+          :month "August"
+          :day 13}
+   :reference {:source "GitHub Issue #1"
+               :url "https://github.com/blosavio/speculoos/issues/1"}
+   :change-type :changed-return
+   :altered-functions ['validate-set-elements]
+   :breaking? true}
+
+  {:description "Fixed bug in `validate-collections` that validated un-paired collection predicates against `nil`."
+   :date {:year 2024
+          :month "August"
+          :day 14}
+   :reference {:source "GitHub Issue #3"
+               :url "https://github.com/blosavio/speculoos/issues/3"}
+   :change-type :bug-fix
+   :altered-functions ['validate-collections]
+   :breaking? false}
+
+  {:description "Added `predicates-without-collections` to complete feature matrix."
+   :date {:year 2024
+          :month "August"
+          :day 20}
+   :change-type :added-function
+   :added-functions ['predicates-without-collections]
+   :breaking? false}
+  
+  {:description "Removed un-serious utility functions of dubious usefulness."
+   :date {:year 2024
+          :month "August"
+          :day 22}
+   :change-type :removed-function
+   :breaking? true
+   :removed-functions ['bazooka-swatting-files
+                       'bed-of-procrustes
+                       'nil-out
+                       'smash-data]}
+
+  {:description "Fixed ignored return collection validations in `valdiate-fn-with`."
+   :date {:year 2024
+          :month "August"
+          :day 26}
+   :reference {:source "GitHub Issue #4"
+               :url "https://github.com/blosavio/speculoos/issues/4"}
+   :altered-functions ['validate-fn-with
+                       'validate-fn-meta-spec
+                       'instrument]
+   :change-type :bug-fix
+   :breaking? false}
+
+  {:description "Adjusted `validate-fn-with` to take advantage of `validate-scalars` upgraded ability to validate bare scalars with bare predicates."
+   :date {:year 2024
+          :month "August"
+          :day 26}
+   :altered-fns ['validate-fn-with]
+   :change-type :implementation
+   :breaking? false}
+
+  {:description "Added a completely new argument/return relationship validation to `validate-fn-with` that is much cleaner. Old, complex way remains."
+   :date {:year 2024
+          :month "August"
+          :day 28}
+   :altered-fns ['validate-fn-with]
+   :change-type :increased-return
+   :breaking? false}
+
+  {:description "Removed function arg-vs-ret scalar/collection validation feature from `validate-fn-with`. It was too complex, and difficult to use."
+   :date {:year 2024
+          :month "August"
+          :day 28}
+   :altered-fns ['validate-fn-with 'validate-fn-meta-spec 'instrument]
+   :removed-fns ['dual-validate-scalars 'valid-dual-scalar-spec? 'dual-validate-collections 'valid-dual-collection-spec?]
+   :change-type :changed-return
+   :breaking? true}
+
+  {:description "Re-named `validate-fn-meta-spec` to `validate-fn`."
+   :date {:year 2024
+          :month "August"
+          :day 29}
+   :renamed-functions [{:old-function-name 'validate-fn-meta-spec
+                        :new-function-name 'validate-fn}]
+   :change-type :renamed-function
+   :breaking? true}
+
+  {:description "Added `:canonical` option to `exercise` and `exercise-fn` to use canonical values instead of randomly-generated values."
+   :date {:year 2024
+          :month "September"
+          :day 2}
+   :altered-fns ['exercise 'exercise-fn]
+   :change-type :function-argument
+   :breaking? false}
+
+  {:description "Fixed `valid-collections?` to properly handle collection predicates that yield truthy/falsey values."
+   :date {:year 2024
+          :month "October"
+          :day 25}
+   :reference {:source "GitHub Issue #9"
+               :url "https://github.com/blosavio/speculoos/issues/9"}
+   :altered-fns ['valid-collections?]
+   :change-type :bug-fix
+   :breaking? false}]}

@@ -915,7 +915,7 @@
 
  [:p "Now that we've manually done that collection validation, let's see how " [:code "validate-collections"] " compares."]
 
- [:pre (print-form-then-eval "(validate-collections [{:a 11} 22 (list 33) 44 #{55}] [vector? {:foo? map?} sequential? (list list?) coll? #{set?} any?])" 95 100)]
+ [:pre (print-form-then-eval "(validate-collections [{:a 11} 22 (list 33) 44 #{55}] [vector? {:foo map?} sequential? (list list?) coll? #{set?} any?])" 95 100)]
 
  [:p "We inserted four predicates — " [:code "vector?"] ", "  [:code "sequential?"] ", "  [:code "coll?"] ", and "  [:code "any?"] " — directly into the specification's top level, interleaved among the nested map, list, and set. Because they're in the top level, those predicates apply to the collection that contains them, the root collection. The outer, parent vector satisfies all four predicates because it is indeed a vector, is sequential, is a collection, and it trivially satisfies " [:code "any?"] "."]
 

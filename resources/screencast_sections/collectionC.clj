@@ -25,7 +25,7 @@
      [:li [:code "all-paths"] " the data & specification."]
      [:li "Keep only scalars from  data."]
      [:li "Keep only predicates from specification."]
-     [:li [:strong "Pair predicates to scalars that share exact paths."]]
+     [:li [:strong "Pair predicates to scalars that share " [:em "exact"] " paths."]]
      [:li "Evaluate paired predicates+scalars."]]
      ]
    [:div.side-by-side

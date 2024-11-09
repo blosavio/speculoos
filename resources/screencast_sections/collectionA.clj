@@ -513,7 +513,7 @@
     [:div.vspace]
     (prettyfy-form-prettyfy-eval "(= [] (drop-last [0]))")
     (prettyfy-form-prettyfy-eval "(= [1] (drop-last [1 0]))")
-    (prettyfy-form-prettyfy-eval "(= [1] (drop-last [1 1 0]))")]]
+    (prettyfy-form-prettyfy-eval "(= [1 1] (drop-last [1 1 0]))")]]
 
   [:div.note
    [:p "The `drop-last` procedure has the practical result that the predicates will apply to their immediate parent. Each of the three forms a pair."]])
