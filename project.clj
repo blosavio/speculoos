@@ -1,13 +1,13 @@
-(defproject com.sagevisuals/speculoos "2"
+(defproject com.sagevisuals/speculoos "3"
   :description "A library for validating Clojure data."
   :url "https://blosavio.github.io/speculoos/home.html"
   :license {:name "MIT License"
             :url "https://opensource.org/license/mit"
             :distribution :repo}
-  :dependencies [[org.clojure/clojure "1.11.3"]
+  :dependencies [[org.clojure/clojure "1.12.0"]
                  [org.clojure/test.check "1.1.1"]
                  [re-rand "0.1.0"]
-                 [com.sagevisuals/fn-in "1"]]
+                 [com.sagevisuals/fn-in "2"]]
   :repl-options {:init-ns speculoos.core}
   :plugins []
   :profiles {:dev {:dependencies [[hiccup "2.0.0-RC3"]
@@ -22,5 +22,5 @@
           :doc-files []
           :source-uri "https://github.com/blosavio/speculoos/blob/main/{filepath}#L{line}"
           :themes [:speculoos]
-          :project {:name "Speculoos" :version "version 2"}}
+          :project {:name "Speculoos" :version "version 3"}}
   :scm {:name "git" :url "https://github.com/blosavio/speculoos"})

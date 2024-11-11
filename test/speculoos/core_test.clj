@@ -110,6 +110,11 @@
 
       (reduce-indexed #(conj %2 [%1 %3]) [] (take 5 (cycle [:a :b :c])))
       [[0 :a] [1 :b] [2 :c] [3 :a] [4 :b]]
+
+      (reduce-indexed #(conj %2 (vector %1 %3))
+                      [[99 :a]]
+                      (subvec [:b :c :d] 0 3))
+      [[99 :a] [0 :b] [1 :c] [2 :d]]
       ))
 
   (testing "init val not supplied, f not applied"
@@ -235,7 +240,11 @@
       (all-paths (take 0 (range 0 10)))
 
       [{:path [], :value '(), :non-terminating? true}]
-      (all-paths (take 0 (repeat 99)))))
+      (all-paths (take 0 (repeat 99)))
+
+      [{:path [], :value []}]
+      (all-paths (subvec [] 0 0))
+      ))
 
   (testing "single element collections"
     (are [x y] (= x y)
@@ -267,7 +276,10 @@
       (all-paths (take 1 (range 0 10)))
 
       [{:path [], :value '(99), :non-terminating? true}]
-      (all-paths (take 1 (repeat 99)))))
+      (all-paths (take 1 (repeat 99)))
+
+      [{:path [], :value [99]} {:path [0], :value 99}]
+      (all-paths (subvec [99] 0 1))))
 
   (testing "two elements, one nested, homogeneous collection"
     (are [x y] (= x y)
@@ -317,7 +329,10 @@
       (all-paths (take 3 (range 0 10)))
 
       [{:path [], :value '(99 99 99), :non-terminating? true}]
-      (all-paths (take 3 (repeat 99)))))
+      (all-paths (take 3 (repeat 99)))
+
+      [{:path [], :value [11 22 33]} {:path [0], :value 11} {:path [1], :value 22} {:path [2], :value 33}]
+      (all-paths (subvec [11 22 33] 0 3))))
 
   (testing "simple, heterogeneous nested collection"
     (testing "maps"
@@ -928,7 +943,8 @@
       (valid-scalars? [] [])
       (valid-scalars? '() '())
       (valid-scalars? {} {})
-      (valid-scalars? #{} #{})))
+      (valid-scalars? #{} #{})
+      (valid-scalars? (subvec [] 0 0) (subvec [] 0 0))))
   (testing "simple colls"
     (are [x] (true? x)
       (valid-scalars? simple-coll simple-spec)))
@@ -981,7 +997,8 @@
       (valid-scalars? (interpose :foo ["a" "b" "c"]) (speculoos.utility/clamp-in* (interpose keyword? [string? string? string?]) [] 5))
       (valid-scalars? (lazy-cat [1 2 3] [4 5 6]) (speculoos.utility/clamp-in* (lazy-cat [int? int? int?] [int? int? int?]) [] 6))
       (valid-scalars? (mapcat reverse [[3 2 1] [6 5 4] [9 8 7]]) (speculoos.utility/clamp-in* (mapcat identity [[int? int?] [int? int?]]) [] 4))
-      (valid-scalars? (zipmap [:a :b :c] [1 2 3]) (zipmap [:a :b :c] [int? int? int?])))))
+      (valid-scalars? (zipmap [:a :b :c] [1 2 3]) (zipmap [:a :b :c] [int? int? int?]))
+      (valid-scalars? (subvec [1 2 3] 0 3) (subvec [int? int? int?] 0 3)))))
 
 
 (deftest filter-validatation-tests
@@ -1533,7 +1550,10 @@
         [{:datum '(99), :valid? true, :path-predicate [0], :predicate list?, :ordinal-path-datum [], :path-datum []}]
 
         (validate-collections #{99} #{set?})
-        [{:datum #{99}, :valid? true, :path-predicate [set?], :predicate set?, :ordinal-path-datum [], :path-datum []}]))
+        [{:datum #{99}, :valid? true, :path-predicate [set?], :predicate set?, :ordinal-path-datum [], :path-datum []}]
+
+        (validate-collections (subvec [99] 0 1) (subvec [coll?] 0 1))
+        [{:datum [99], :valid? true, :path-predicate [0], :predicate coll?, :ordinal-path-datum [], :path-datum []}]))
     (testing "validating nested collections"
       (are [x y] (= x y)
         (validate-collections [11 [22]] [vector? [map?]])
@@ -1570,7 +1590,11 @@
 
         (validate-collections [11 {:a 22}] [vector? {:is-map? map?}])
         [{:datum [11 {:a 22}], :valid? true, :path-predicate [0], :predicate vector?, :ordinal-path-datum [], :path-datum []}
-         {:datum {:a 22}, :valid? true, :path-predicate [1 :is-map?], :predicate map?, :ordinal-path-datum [0], :path-datum [1]}]))
+         {:datum {:a 22}, :valid? true, :path-predicate [1 :is-map?], :predicate map?, :ordinal-path-datum [0], :path-datum [1]}]
+
+        (validate-collections (subvec [11 (subvec [22] 0 1)] 0 2) (subvec [coll? (subvec [map?] 0 1)] 0 2))
+        [{:datum [11 [22]], :valid? true, :path-predicate [0], :predicate coll?, :ordinal-path-datum [], :path-datum []}
+         {:datum [22], :valid? false, :path-predicate [1 0], :predicate map?, :ordinal-path-datum [0], :path-datum [1]}]))
     (testing "multiple predicates applying to same collection"
       (are [x y] (= x y)
         (validate-collections [99] [vector? map?])

@@ -1,6 +1,6 @@
 {:date {:year 2024
-        :month nil
-        :day nil}
+        :month "November"
+        :day 11}
  :responsible {:name "Brad Losavio"
                :email "blosavio@sagevisuals.com"}
  :version 2
