@@ -161,7 +161,7 @@
                        'nil-out
                        'smash-data]}
 
-  {:description "Fixed ignored return collection validations in `valdiate-fn-with`."
+  {:description "Fixed ignored return collection validations in `validate-fn-with`."
    :date {:year 2024
           :month "August"
           :day 26}

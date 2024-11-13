@@ -4,7 +4,7 @@
  :responsible {:name "Brad Losavio"
                :email "blosavio@sagevisuals.com"}
  :version 4
- :comment "Added case study materials for documenation."
+ :comment "Added case study materials for documentation."
  :project-status :experimental
  :stable false
  :urgency :low
@@ -14,5 +14,5 @@
    :date {:year 2024
           :month "November"
           :day 13}
-   :change-type :documenation
+   :change-type :documentation
    :breaking? false}]}
