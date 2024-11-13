@@ -495,7 +495,7 @@
                  :datum scalar
                  :predicate predicate
                  :valid? (if (regex? predicate)
-                           (re-matches predicate scalar)
+                           (and (string? scalar) (re-matches predicate scalar))
                            (predicate scalar))}]
         short-notice "See *err* for details."
         long-notice "Validating 'bare' scalars with 'bare' predicates is an undocumented feature provided for convenience, but is not guarnanteed in future versions. Bind *notice-on-validation-bare-scalar* to false to suppress this notice and associated key-val of the returned map."]
@@ -531,7 +531,7 @@
                                            :datum datum
                                            :predicate predicate
                                            :valid? (if (regex? predicate)
-                                                     (re-matches predicate datum)
+                                                     (and (string? datum) (re-matches predicate datum))
                                                      (predicate datum))}))
                               acc))
             (validate-set-elements data spec)

@@ -1,0 +1,28 @@
+{:date {:year 2024
+        :month "November"
+        :day 13}
+ :responsible {:name "Brad Losavio"
+               :email "blosavio@sagevisuals.com"}
+ :version 5
+ :comment "Upgraded scalar validation so that regex predicates gracefully handle non-string scalars."
+ :project-status :active
+ :stable false
+ :urgency :medium
+ :breaking? false
+ :changes
+ [{:description "Adjusted changelog filename format from `vX.edn` to `xXYZ.edn`."
+   :date {:year 2024
+          :month "November"
+          :day 13}
+   :change-type :metadata
+   :breaking? false}
+
+  {:description "Adjusted regex-predicate+scalar evaluation to test for string before testing against the regex. Now, it doesn't throw an exception when supplied with a non-string scalar."
+   :date {:year 2024
+          :month "November"
+          :day 13}
+   :change-type :decreased-input-requirements
+   :reference {:source "GitHub Issue #10"
+               :url "https://github.com/blosavio/speculoos/issues/10"}
+   :altered-functions ['validate-scalars 'valid-scalars?]
+   :breaking? false}]}

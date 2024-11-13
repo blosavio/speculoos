@@ -908,7 +908,10 @@
         [{:path nil, :datum :red, :predicate #{:green :red :blue}, :valid? :red}]
 
         (validate-bare-scalar "abc" regex-pred-example) ;; regex objects apparently are not equable (= #"a.c" #"a.c") ;; => false
-        [{:path nil, :datum "abc", :predicate regex-pred-example, :valid? "abc"}]))))
+        [{:path nil, :datum "abc", :predicate regex-pred-example, :valid? "abc"}]
+
+        (validate-bare-scalar :foo regex-pred-example)
+        [{:path nil, :datum :foo, :predicate regex-pred-example, :valid? false}]))))
 
 
 (deftest validate-scalars-tests
@@ -990,7 +993,10 @@
   (testing "regexes as predicates"
     (are [x] (true? x)
       (valid-scalars? [42 :abc "foo"] [int? keyword? #"^foo$"])
-      (valid-scalars? {:a "baz" :b "qux"} {:a #"[abc]?.[xyz]+" :b #"[^Q].x"})))
+      (valid-scalars? {:a "baz" :b "qux"} {:a #"[abc]?.[xyz]+" :b #"[^Q].x"}))
+    (are [x] (false? x)
+      (valid-scalars? ["foo"] [#"a.c"])
+      (valid-scalars? [:foo] [#"a.c"])))
   (testing "other sequence types"
     (are [x] (true? x)
       (valid-scalars? (interleave [:a :b :c] [1 2 3]) (speculoos.utility/clamp-in* (cycle [keyword? int?]) [] 6))
