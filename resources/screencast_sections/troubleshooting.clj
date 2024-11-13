@@ -253,7 +253,7 @@
   (prettyfy-form-prettyfy-eval "(validate-scalars [[1 2 3]] [string?])")
 
   [:div.note
-   [:p [:code "validate-fn-with"] " passes through the value returned by " [:code "first"] " because " [:code "validate-fn-with"] " did not find any invalid results. Why not? In this example, " [:code "1"] " and " [:code "string?"] " do not share a path, and therefore " [:code "validate-fn-with"] " preformed zero validations. Let's take a look."]
+   [:p [:code "validate-fn-with"] " passes through the value returned by " [:code "first"] " because " [:code "validate-fn-with"] " did not find any invalid results. Why not? In this example, " [:code "1"] " and " [:code "string?"] " do not share a path, and therefore " [:code "validate-fn-with"] " performed zero validations. Let's take a look."]
 
    [:p "We  find " [:code "1"] " at path " [:code "[0 0]"] " in the " [:em "argument sequence"] ", while scalar predicate " [:code "string?"] " is located at path " [:code "[0]"] " in the scalar specification. The two do not share paths are not paired, thus no validation."]])
 

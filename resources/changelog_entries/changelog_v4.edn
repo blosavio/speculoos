@@ -1,0 +1,18 @@
+{:date {:year 2024
+        :month "November"
+        :day 13}
+ :responsible {:name "Brad Losavio"
+               :email "blosavio@sagevisuals.com"}
+ :version 4
+ :comment "Added case study materials for documenation."
+ :project-status :experimental
+ :stable false
+ :urgency :low
+ :breaking? false
+ :changes
+ [{:description "Added case study hiccup/html files and document generation scripts, plus specifications describing the `changelog.edn` structure, and validation scripts."
+   :date {:year 2024
+          :month "November"
+          :day 13}
+   :change-type :documenation
+   :breaking? false}]}

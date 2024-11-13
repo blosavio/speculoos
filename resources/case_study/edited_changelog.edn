@@ -1,0 +1,83 @@
+[{:date {:year 2024, :month "June", :day 6},
+  :breaking? false,
+  :project-status :experimental,
+  :stable false,
+  :urgency :low,
+  :responsible
+  {:name "Brad Losavio", :email "me_at_example.com"},
+  :comment "Initial public release.",
+  :changes [],
+  :version 0}
+
+ {:date {:year 2024, :month "July", :day 26},
+  :breaking? true,
+  :project-status "okay!",
+  :stable false,
+  :responsible
+  {:name "Brad Losavio", :email "me@example.com"},
+  :comment "Request for comments.",
+  :changes
+  [{:description
+    "Re-named functions for clarity, correctness, and conciseness.\nAlso updated documentation to correspond to new function names.",
+    :date {:year 2024, :month "July", :day 10},
+    :change-type :renamed-functions,
+    :breaking? true,
+    :renamed-functions
+    [{:old-function-name 'validate-scalar-spec,
+      :new-function-name 'validate-scalars}
+     {:old-function-name 'validate-collection-spec,
+      :new-function-name 'validate-collections}
+     {:old-function-name 'valid-scalar-spec?,
+      :new-function-name 'valid-scalars?}
+     {:old-function-name 'valid-collection-spec?,
+      :new-function-name 'valid-collections?}
+     {:old-function-name 'valid-macro-spec?,
+      :new-function-name 'valid-macro?}]}
+   {:description
+    "Upgraded `defpred` predicate definition macro that can inspect\n a function S-expression and create a random sample generator. Also added\n documentation and illustrations.",
+    :date {:year 2024, :month "July", :day 18},
+    :change-type :increased-return,
+    :altered-functions ['defpred],
+    :breaking? false}
+   {:description "Added `thoroughly-valid?` utility function.",
+    :date {:year 2024, :month "July", :day 19},
+    :change-type :added-functions,
+    :added-functions ['thoroughly-valid?],
+    :breaking? false}],
+  :version 1}
+
+ {:date {:year 2024, :month nil, :day 1},
+  :breaking? true,
+  :project-status :experimental,
+  :stable false,
+  :urgency :low,
+  :responsible
+  {:name "Brad Losavio", :email "me@example.com"},
+  :comment "Work on addressing comments.",
+  :changes
+  [{:description
+    "Upgraded `validate-collections` report so that entries now indicate the literal path to the collection datum, at keyword `:path-datum`.",
+    :date {:year 2024, :month "August", :day 32},
+    :change-type :increased-return,
+    :altered-functions ['validate-collections],
+    :breaking? false}
+   {:description
+    "Upgraded `validate-scalars` to accept 'bare' scalar and 'bare' predicate. This is intentionally undocumented behavior, but provided for convenience and least surprise.",
+    :date {:year 2024, :month "August", :day 13},
+    :reference
+    {:source "GitHub Issue #2",
+     :url "https://github.com/blosavio/speculoos/issues/2"},
+    :change-type :relaxed-input-requirements,
+    :altered-functions ['validate-scalars],
+    :breaking? false}
+   {:description
+    "Removed un-serious utility functions of dubious usefulness.",
+    :date {:year 2024, :month "August", :day 22},
+    :change-type :removed-function,
+    :breaking? true,
+    :removed-functions
+    ['bazooka-swatting-files
+     'bed-of-procrustes
+     'nil-out
+     :smash-data]}],
+  :version 99}]

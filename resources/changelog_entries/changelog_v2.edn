@@ -7,7 +7,7 @@
  :comment "Work on addressing comments."
  :project-status :experimental
  :stable false
- :urgency :low
+ :urgency :medium
  :breaking? true
  :changes
  [{:description "Added `thoroughly-valid-scalars?` and `thoroughly-valid-collections?` utilities."
@@ -45,7 +45,7 @@
    :date {:year 2024
           :month "August"
           :day 3}
-   :change-type :renamed-function
+   :change-type :renamed-functions
    :renamed-functions [{:old-function-name 'map-2
                         :new-function-name 'map*}
                        {:old-function-name 'reduce-2
@@ -90,7 +90,7 @@
    :date {:year 2024
           :month "August"
           :day 11}
-   :change-type :moved-function
+   :change-type :moved-functions
    :moved-functions ['recover-literal-path]
    :breaking? true}
 
@@ -128,7 +128,7 @@
           :day 13}
    :reference {:source "GitHub Issue #1"
                :url "https://github.com/blosavio/speculoos/issues/1"}
-   :change-type :changed-return
+   :change-type :altered-return
    :altered-functions ['validate-set-elements]
    :breaking? true}
 
@@ -146,7 +146,7 @@
    :date {:year 2024
           :month "August"
           :day 20}
-   :change-type :added-function
+   :change-type :added-functions
    :added-functions ['predicates-without-collections]
    :breaking? false}
   
@@ -154,7 +154,7 @@
    :date {:year 2024
           :month "August"
           :day 22}
-   :change-type :removed-function
+   :change-type :removed-functions
    :breaking? true
    :removed-functions ['bazooka-swatting-files
                        'bed-of-procrustes
@@ -195,7 +195,7 @@
           :day 28}
    :altered-fns ['validate-fn-with 'validate-fn-meta-spec 'instrument]
    :removed-fns ['dual-validate-scalars 'valid-dual-scalar-spec? 'dual-validate-collections 'valid-dual-collection-spec?]
-   :change-type :changed-return
+   :change-type :altered-return
    :breaking? true}
 
   {:description "Re-named `validate-fn-meta-spec` to `validate-fn`."
@@ -204,7 +204,7 @@
           :day 29}
    :renamed-functions [{:old-function-name 'validate-fn-meta-spec
                         :new-function-name 'validate-fn}]
-   :change-type :renamed-function
+   :change-type :renamed-functions
    :breaking? true}
 
   {:description "Added `:canonical` option to `exercise` and `exercise-fn` to use canonical values instead of randomly-generated values."
@@ -212,7 +212,7 @@
           :month "September"
           :day 2}
    :altered-fns ['exercise 'exercise-fn]
-   :change-type :function-argument
+   :change-type :function-arguments
    :breaking? false}
 
   {:description "Fixed `valid-collections?` to properly handle collection predicates that yield truthy/falsey values."

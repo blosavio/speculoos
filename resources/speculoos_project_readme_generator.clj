@@ -72,7 +72,7 @@
    {:section-name "Perhaps So" :section-href "https://blosavio.github.io/speculoos/perhaps_so.html" :skip-section-load? true}
    {:section-name "Recipes" :section-href "https://github.com/blosavio/speculoos/tree/main/doc/recipes.clj" :skip-section-load? true}
    {:section-name "Troubleshooting"}
-   #_{:section-name "Case Study" :section-href "case-study"}
+   {:section-name "Case Study" :section-href "https://blosavio.github.io/speculoos/case_study.html" :skip-section-load? true}
    {:section-name "Alternatives"}
    {:section-name "Glossary"}
    {:section-name "Contact" :section-href "https://github.com/blosavio" :skip-section-load? true}])
