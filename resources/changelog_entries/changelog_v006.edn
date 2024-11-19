@@ -1,0 +1,24 @@
+{:date {:year 2024
+        :month "November"
+        :day 19}
+ :responsible {:name "Brad Losavio"
+               :email "blosavio@sagevisuals.com"}
+ :version 6
+ :comment "Moved ReadMe-generating scripts to external lib. Requires new dev (non-breaking) dependency."
+ :project-status :active
+ :stable false
+ :urgency :low
+ :breaking? true
+ :changes
+ [{:description "Moved ReadMe generation into `ReadMoi` lib."
+   :date {:year 2024
+          :month "November"
+          :day 19}
+   :change-type :added-dependency
+   :breaking? false}
+  {:description "Now require `fn-in` lib version 3."
+   :date {:year 2024
+          :month "November"
+          :day 20}
+   :change-type :dependency-verion
+   :breaking? true}]}

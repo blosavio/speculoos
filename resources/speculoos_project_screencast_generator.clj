@@ -9,7 +9,15 @@
    [hiccup.element :as element]
    [hiccup.form :as form]
    [hiccup.util :as util]
-   [speculoos-hiccup :refer :all]
+   [readmoi.core :refer :all
+    #_[*wrap-at*
+       print-form-then-eval]
+    ]
+   [speculoos-hiccup :refer [page-ize
+                             screencast-template
+                             prettyfy-form-prettyfy-eval
+                             panel
+                             screencast-title]]
    [speculoos.core :refer [all-paths
                            expand-and-clamp-1
                            only-invalid
@@ -46,9 +54,9 @@
                                      validate-higher-order-fn]]))
 
 
-(alter-var-root #'speculoos-hiccup/*wrap-at* (constantly 80))
+(alter-var-root #'readmoi.core/*wrap-at* (constantly 80))
 (alter-var-root #'speculoos.utility/*such-that-max-tries* (constantly 100))
-(def ^:dynamic *eval-separator* ";; => ")
+#_(def ^:dynamic *separator* ";; => ")
 
 
 (def screencast-filename-bases

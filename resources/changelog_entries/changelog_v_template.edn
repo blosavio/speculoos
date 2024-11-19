@@ -5,9 +5,9 @@
                :email "blosavio@sagevisuals.com"}
  :version 
  :comment "."
- :project-status :experimental
- :stable false
- :urgency :low
+ :project-status :
+ :stable 
+ :urgency :
  :breaking? 
  :changes
  [{:description "."
@@ -15,4 +15,4 @@
           :month ""
           :day }
    :change-type :
-   :breaking? true}]}
+   :breaking? }]}

@@ -114,7 +114,7 @@
 ;; work in all known circumstances with *no* other changes (including changes in
 ;; deps); otherwise, the version is `breaking? true`.
 
-;; The following lists are not chiseled in stone. Use judgement, and err on the
+;; The following lists are not chiseled in stone. Use judgment, and err on the
 ;; side of caution. Think of other people!
 ;;
 ;; Examples:
@@ -126,7 +126,7 @@
 ;;     decreased return
 ;;     different default
 ;;   non-breaking:
-;;     all improvements (performance, memory, netword)
+;;     all improvements (performance, memory, network)
 ;;     removed dependencies
 ;;     added functions
 ;;     relaxed input requirements
@@ -152,7 +152,7 @@
 
 
 (def change-scalar-spec {:date date-spec
-                         :responsibe person-spec
+                         :responsible person-spec
                          :description string?
                          :reference reference-spec
                          :change-type change-kinds
@@ -218,7 +218,7 @@
 
 ;;; proper version incrementing
 
-"Someone might reasonably point out that that manually declaring the version number _inside_ a sequential collection is redundant and error-prone. But, I may change my mind in the future and swith to dotted version numbers, version letters, or some other format. Plus, the changelog is intended to be manchine- _and_ human-readable (with priority on the latter), and the subsections are split between differnt files. So it's more ergonomic to put in an explicit version number."
+"Someone might reasonably point out that that manually declaring the version number _inside_ a sequential collection is redundant and error-prone. But, I may change my mind in the future and switch to dotted version numbers, version letters, or some other format. Plus, the changelog is intended to be machine- _and_ human-readable (with priority on the latter), and the subsections are split between different files. So it's more ergonomic to put in an explicit version number."
 
 
 (defn properly-incrementing-versions?

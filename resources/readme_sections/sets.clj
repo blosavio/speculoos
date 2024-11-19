@@ -81,7 +81,7 @@
 
    [:p "In this scenario, we're validating scalars, so we're using a function with " [:code "scalar"] " in its name."]
 
-   [:pre [:code (speculoos-hiccup/prettyfy "(validate-scalars [42 :red] [int? #{:red :green :blue}])" 55 45)]]
+   [:pre [:code (prettyfy "(validate-scalars [42 :red] [int? #{:red :green :blue}])" 55 45)]]
 
    [:p "In the example above, we're testing a property of a scalar, keyword " [:code ":red"] ", the second element of the data (first argument, upper row). The set " [:code "#{:red :green :blue}"] " in the specification (lower row) is a predicate-like thing that tests membership."]]
 
@@ -89,7 +89,7 @@
 
    [:p "In this scenario, we're validating scalars, so we're using a scalar validation function, again " [:code "validate-scalars"] "."]
 
-   [:pre [:code (speculoos-hiccup/prettyfy "(validate-scalars [42 #{:chocolate :vanilla :strawberry}] [int? #{keyword?}])" 60 45)]]
+   [:pre [:code (prettyfy "(validate-scalars [42 #{:chocolate :vanilla :strawberry}] [int? #{keyword?}])" 60 45)]]
 
    [:p "This time, we're validating scalars " [:em "contained within a set"] " in the data (upper row), with scalar predicates contained within a set in the specification (lower row)."]]
 
@@ -97,7 +97,7 @@
 
    [:p "In this scenario, we're validating a property of a collection, so we're using " [:code "validate-collections"] "."]
 
-   [:pre [:code (speculoos-hiccup/prettyfy "(validate-collections [42 #{:puppy :kitten :goldfish}] [vector? #{set?}])" 55 45)]]
+   [:pre [:code (prettyfy "(validate-collections [42 #{:puppy :kitten :goldfish}] [vector? #{set?}])" 55 45)]]
 
    [:p "Collection predicates — targeting the nested set in the data (upper row) — are themselves contained in a set nested in the collection specification (lower row)."]]]
 

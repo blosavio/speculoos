@@ -212,12 +212,12 @@
     [:meta {"charset"  "utf-8"
             "name" "viewport"
             "content" "width=device-width, initial-scale=1"
-            "compile-date" (long-date)}]
-    (conj body [:p#page-footer
-                (copyright)
-                [:br]
-                (str "Compiled " (short-date) ".")
-                [:span#uuid [:br] uuid]])]))
+            "compile-date" (long-date)}]]
+   (conj body [:p#page-footer
+               (copyright)
+               [:br]
+               (str "Compiled " (short-date) ".")
+               [:span#uuid [:br] uuid]])))
 
 
 (defn section

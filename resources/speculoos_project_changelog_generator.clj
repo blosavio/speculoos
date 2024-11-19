@@ -14,7 +14,7 @@
    [speculoos-hiccup :refer :all]))
 
 
-(def changelog-data (load-file "changelog.edn"))
+(def changelog-data (load-file "resources/changelog_entries/changelog.edn"))
 (def changelog-webpage-UUID #uuid "d571f801-3b49-4fd9-a5f3-620e034d0a8d")
 
 
@@ -113,6 +113,17 @@
                           [:span#uuid [:br] changelog-webpage-UUID]])
 
 
+(spit "doc/changelog.html"
+      (page-template
+       "Speculoos library changelog"
+       changelog-webpage-UUID
+       (conj [:body
+              [:h1 "Speculoos library changelog"]
+              [:a {:href "#info"} "changelog meta"]]
+             (into (map #(generate-version-section %) (reverse changelog-data)))
+             (conj changelog-info))))
+
+
 (spit "changelog.md"
       (h2/html
        (vec (-> [:body
@@ -121,3 +132,9 @@
                 (into (map #(generate-version-section %) (reverse changelog-data)))
                 (conj changelog-info)
                 (conj changelog-md-footer)))))
+
+
+(defn -main
+  [& args]
+  {:UUIDv4 #uuid "214e9cdb-efa1-44f6-8fe0-5a77c4a9fdd2"}
+  (println "generated Speculoos changelog"))

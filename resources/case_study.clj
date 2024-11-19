@@ -41,7 +41,7 @@
     [:h1 "Case study: Specifying and validating the Speculoos library changelog"]
 
     [:section#intro
-     [:p "So what's it like to use " [:a {:href "https://github.com/blosavio/speculoos"} "Speculoos"] " on a task that's not merely a demonstration? Let's specify and validate the Speculoos library " [:a {:href "https://github.com/blosavio/speculoos/blob/main/changelog.edn"} [:code "changelog.edn"]] ". To begin, a few words about the changelog itself."]
+     [:p "So what's it like to use " [:a {:href "https://github.com/blosavio/speculoos"} "Speculoos"] " on a task that's not merely a demonstration? Let's specify and validate the Speculoos library " [:a {:href "https://github.com/blosavio/speculoos/tree/main/resources/changelog_entries/changelog.edn"} [:code "changelog.edn"]] ". To begin, a few words about the changelog itself."]
 
      [:p "Speculoos is an experimental library. Among the ideas I wanted to explore is a changelog published in Clojure " [:strong "e"] "xtensible " [:strong "d"] "ata " [:strong "n"] "otation (" [:a {:href "https://github.com/edn-format/edn"} "edn"] "). The goal is to have a single, canonical, human- and machine-readable document that describes the project's changes from one version to the next. That way, it would be straightforward to automatically generate a nicely-formatted changelog webpage and query the changelog data so that people can make informed decisions about changing versions."]
 
@@ -512,7 +512,7 @@
 
      [:p "Fun! A " [:code "clojure.lang/repeat"] " nested in a " [:code "clojure.lang/repeat"] ". Speculoos can handle that without a sweating. As long as there's not a repeat at the same path in the data. And there isn't. The changelog is hand-written, with each entry unique."]
 
-     [:p "So, I don't see any reason we shouldn't validate a changelog. This is Speculoos' actual " [:a {:href "https://github.com/blosavio/speculoos/blob/main/changelog.edn"} "operational changelog"] ". While writing the first draft of this case study, I validated it and corrected the errors (see the case study " [:a {:href "#conclusion"} "conclusion"] "). Therefore, validating the real changelog doesn't have any interesting errors to look at."]
+     [:p "So, I don't see any reason we shouldn't validate a changelog. This is Speculoos' actual " [:a {:href "https://github.com/blosavio/speculoos/tree/main/resources/changelog_entries/changelog.edn"} "operational changelog"] ". While writing the first draft of this case study, I validated it and corrected the errors (see the case study " [:a {:href "#conclusion"} "conclusion"] "). Therefore, validating the real changelog doesn't have any interesting errors to look at."]
 
      [:p "For our walk-through, I've cooked up a somewhat " [:a {:href "https://github.com/blosavio/speculoos/tree/main/resources/case_study/edited_changelog.edn"}  "fictitious changelog"] " to try out our scalar specification. I trimmed the Speculoos library changelog and added a few deliberate invalid scalars. We'll invoke " [:code "validate-scalars"] " with the changelog data in the upper row, and the scalar specification in the lower row."]
 

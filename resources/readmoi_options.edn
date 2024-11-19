@@ -1,0 +1,50 @@
+{:sections [{:section-name "Setup"}
+            ;; later ... #_{:section-name "Screencasts" :section-href "example.com" :skip-section-load? true}
+            {:section-name "API" :section-href "https://blosavio.github.io/speculoos/index.html" :skip-section-load? true}
+            {:section-name "Changelog" :section-href "https://github.com/blosavio/speculoos/blob/main/changelog.md" :skip-section-load? true}
+            {:section-name "Introduction" :section-href "intro"}
+            {:section-name "Mottos"}
+            {:section-name "Mechanics"}
+            {:section-name "Validating Scalars" :section-href "scalar-validation"}
+            {:section-name "Validating Collections" :section-href "collection-validation"}
+            {:section-name "Validation Summaries and Thorough Validations" :section-href "valid-thorough"}
+            {:section-name "Validating Functions" :section-href "function-validation"}
+            {:section-name "Generating Random Samples and Exercising" :section-href "exercising"}
+            {:section-name "Utilities"}
+            {:section-name "Predicates"}
+            {:section-name "Non-terminating Sequences" :section-href "non-terminating-sequences"}
+            {:section-name "Sets"}
+            {:section-name "Comparison to spec.alpha" :section-href "https://blosavio.github.io/speculoos/diff.html" :skip-section-load? true}
+            {:section-name "Perhaps So" :section-href "https://blosavio.github.io/speculoos/perhaps_so.html" :skip-section-load? true}
+            {:section-name "Recipes" :section-href "https://github.com/blosavio/speculoos/tree/main/doc/recipes.clj" :skip-section-load? true}
+            {:section-name "Troubleshooting"}
+            {:section-name "Case Study" :section-href "https://blosavio.github.io/speculoos/case_study.html" :skip-section-load? true}
+            {:section-name "Alternatives"}
+            {:section-name "Glossary"}
+            {:section-name "Contact" :section-href "https://github.com/blosavio" :skip-section-load? true}]
+
+ :clojars-badge? true
+ :copyright-holder "Brad Losavio"
+
+ ;; special directives to zprint on how to handle these functions
+ :fn-map-additions {"all-paths" :arg1
+                    "validate-scalars" :hang
+                    "valid-scalars?" :hang
+                    "validate-collections" :hang
+                    "valid-collections?" :hang}
+
+ :project-description "An experiment with Clojure specification literals"
+ :project-name-formatted "Speculoos"
+
+ :readme-UUID #uuid "b7613e59-3656-411e-8be6-f3cb8b5d8107"
+
+ :readme-html-directory "doc/"
+ :readme-html-filename "readme.html"
+
+ :readme-markdown-directory ""
+ :readme-markdown-filename "README.md"
+
+ :sections-directory "resources/readme_sections/"
+
+ :separator " => "
+ :wrap-at 80}
