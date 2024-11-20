@@ -9,7 +9,9 @@
    [hiccup.element :as element]
    [hiccup.form :as form]
    [hiccup.util :as util]
-   [speculoos-hiccup :refer :all]
+   [readmoi.core :refer [page-template
+                         prettyfy
+                         print-form-then-eval]]
    [speculoos.core :refer [only-invalid
                            valid-collections?
                            valid-scalars?
@@ -394,54 +396,67 @@
 
      [:p "Let's take a look at the first remaining blank. "[:em "Change type"] " may be one of an enumerated set of values. That term " [:em "set"] " is a clue to writing the predicate. We ought to use a set as a membership predicate if we can enumerate all possible valid values. I've jotted down the common cases I can think of."]
 
-     [:pre (print-form-then-eval "(def change-kinds #{:initial-release
+     [:div.no-display
+      ;; Need to deine a `change-kinds` set, but make an ordered version for readability.
 
-                                                       :security
+      (def change-kinds-ordered [:initial-release
 
-                                                       :performance-improvement
-                                                       :performance-regression
+                                 :security
 
-                                                       :memory-improvement
-                                                       :memory-regression
+                                 :performance-improvement
+                                 :performance-regression
 
-                                                       :network-resource-improvement
-                                                       :network-resource-regression
+                                 :memory-improvement
+                                 :memory-regression
 
-                                                       :added-dependency
-                                                       :removed-dependency
-                                                       :dependency-version
+                                 :network-resource-improvement
+                                 :network-resource-regression
 
-                                                       :added-functions
-                                                       :renamed-functions
-                                                       :moved-functions
-                                                       :removed-functions
-                                                       :altered-functions
+                                 :added-dependency
+                                 :removed-dependency
+                                 :dependency-version
 
-                                                       :function-arguments
-                                                       :relaxed-input-requirements
-                                                       :stricter-input-requirements
+                                 :added-functions
+                                 :renamed-functions
+                                 :moved-functions
+                                 :removed-functions
+                                 :altered-functions
 
-                                                       :increased-return
-                                                       :decreased-return
-                                                       :altered-return
+                                 :function-arguments
+                                 :relaxed-input-requirements
+                                 :stricter-input-requirements
 
-                                                       :defaults
+                                 :increased-return
+                                 :decreased-return
+                                 :altered-return
 
-                                                       :implementation
-                                                       :source-formatting
-                                                       :error-message
+                                 :defaults
 
-                                                       :tests
-                                                       :bug-fix
-                                                       :deprecated-something
+                                 :implementation
+                                 :source-formatting
+                                 :error-message
 
-                                                       :policy
-                                                       :meta-data
-                                                       :documentation
-                                                       :website
-                                                       :release-note
+                                 :tests
+                                 :bug-fix
+                                 :deprecated-something
 
-                                                       :other})")]
+                                 :policy
+                                 :meta-data
+                                 :documentation
+                                 :website
+                                 :release-note
+
+                                 :other])
+
+      ;; bind the operational symbol to a proper set; this value will be used during evaluation
+      (def change-kinds (set change-kinds-ordered))
+
+      ;; create a readable string that appears to be set with the desired ordering
+      (def change-kinds-str (-> (str "(def change-kinds " change-kinds-ordered ")")
+                                (clojure.string/replace #"\[" "#{")
+                                (clojure.string/replace #"\]" "}")))]
+
+     [:pre (prettyfy change-kinds-str 12)]
 
      [:p "Maybe this a good idea for validating changelog data, maybe it's not. But it's an experiment either way."]
 
@@ -758,4 +773,11 @@
       (page-template
        "Case study: Specifying and validating a library changelog"
        case-study-UUID
-       page-body))
+       page-body
+       "Brad Losavio"))
+
+
+(defn -main
+  [& args]
+  {:UUIDv4 #uuid "6de5cc17-c3ea-4609-bc03-bb23880b378e"}
+  (println "generated Speculoos case study\nWarning! This does not properly re-insert function objects!"))
