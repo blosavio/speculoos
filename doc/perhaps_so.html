@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><link href="speculoos.css" rel="stylesheet" type="text/css"><title>How Speculoos addresses Rich Hickey's 'Maybe Not' talk</title><meta charset="utf-8" compile-date="2024-10-23 09:58:35" content="width=device-width, initial-scale=1" name="viewport"><body><article><h1>Perhaps So</h1><h3><em>How Speculoos addresses issues raised in '<a href="https://www.youtube.com/watch?v=YR5WdGrpoug">Maybe Not</a>'</em></h3><section><p>Rich Hickey presented <a href="https://2018.clojure-conj.org/rich-hickey/">Maybe Not</a> at the 2018 <em>Clojure conj</em>. If I correctly understand his presentation, he identified some flaws in <code>clojure.spec.alpha</code>, the Clojure distribution's built-in library for specifying and validating data. Mr Hickey highlighted three issues.</p><ol><li><strong>Representing</strong> partial information in an aggregate data structure.</li><li><strong>Specifying</strong> partial information in an aggregate data structure.</li><li><strong>Validating</strong> partial information in an aggregate data structure.</li></ol><p>He was apparently not satisfied with the way <code>spec.alpha</code> handles these three issues.</p><p>The <a href="https://github.com/blosavio/speculoos">Speculoos library</a> is an experiment to see if it is possible to perform the same tasks as <code>spec.alpha</code> using literal specifications. Due to some of the implementation details and policies I chose, the library has some emergent properties that end up neatly handling those three issues.</p><p>Efficiently using Speculoos requires remembering three mottos.</p><ol><li>Validate scalars separately from validating collections.</li><li>Shape the specification to mimic the data.</li><li>Ignore un-paired predicates and un-paired datums.</li></ol><p>If we follow those three mottos, handling partial information is straightforward. Briefly, Speculoos specifies and validates scalars separately from specifying and validating collections. A scalar specification describes the properties of the datums themselves. The presence or absence of a scalar is a completely separate concern and falls under the jurisdiction of specifying and validating the collection. By separating the two concerns, Speculoos seamlessly handles partial information while avoiding the issues that befall <code>spec.alpha</code>.</p><p><em>Related:</em> <code>clojure.spec.alpha</code> <a href="https://blosavio.github.io/speculoos/diff.html">side-by-side comparison</a> to Speculoos.</p><p>Let's examine each issue in more detail.</p></section><section><h3>Representing partial information</h3><p>Representing partial data is not specifically the purview of the Speculoos library, but of Clojure itself. We'll discuss partial information only in order to supply us with examples for later.</p><p>Mr Hickey highlights the fact that idiomatic Clojure merely excludes missing information instead of 'holding a slot' with a <code>nil</code>. Imagine data about a person that could include their first name, last name, and and their age. Here's an example of 'complete' data.</p><pre><code>{:first-name "Albert"
+<html lang="en"><head><link href="project.css" rel="stylesheet" type="text/css"><title>How Speculoos addresses Rich Hickey's 'Maybe Not' talk</title><meta charset="utf-8" compile-date="2024-11-20 09:49:15" content="width=device-width, initial-scale=1" name="viewport"></head><body><article><h1>Perhaps So</h1><h3><em>How Speculoos addresses issues raised in '<a href="https://www.youtube.com/watch?v=YR5WdGrpoug">Maybe Not</a>'</em></h3><section><p>Rich Hickey presented <a href="https://2018.clojure-conj.org/rich-hickey/">Maybe Not</a> at the 2018 <em>Clojure conj</em>. If I correctly understand his presentation, he identified some flaws in <code>clojure.spec.alpha</code>, the Clojure distribution's built-in library for specifying and validating data. Mr Hickey highlighted three issues.</p><ol><li><strong>Representing</strong> partial information in an aggregate data structure.</li><li><strong>Specifying</strong> partial information in an aggregate data structure.</li><li><strong>Validating</strong> partial information in an aggregate data structure.</li></ol><p>He was apparently not satisfied with the way <code>spec.alpha</code> handles these three issues.</p><p>The <a href="https://github.com/blosavio/speculoos">Speculoos library</a> is an experiment to see if it is possible to perform the same tasks as <code>spec.alpha</code> using literal specifications. Due to some of the implementation details and policies I chose, the library has some emergent properties that end up neatly handling those three issues.</p><p>Efficiently using Speculoos requires remembering three mottos.</p><ol><li>Validate scalars separately from validating collections.</li><li>Shape the specification to mimic the data.</li><li>Ignore un-paired predicates and un-paired datums.</li></ol><p>If we follow those three mottos, handling partial information is straightforward. Briefly, Speculoos specifies and validates scalars separately from specifying and validating collections. A scalar specification describes the properties of the datums themselves. The presence or absence of a scalar is a completely separate concern and falls under the jurisdiction of specifying and validating the collection. By separating the two concerns, Speculoos seamlessly handles partial information while avoiding the issues that befall <code>spec.alpha</code>.</p><p><em>Related:</em> <code>clojure.spec.alpha</code> <a href="https://blosavio.github.io/speculoos/diff.html">side-by-side comparison</a> to Speculoos.</p><p>Let's examine each issue in more detail.</p></section><section><h3>Representing partial information</h3><p>Representing partial data is not specifically the purview of the Speculoos library, but of Clojure itself. We'll discuss partial information only in order to supply us with examples for later.</p><p>Mr Hickey highlights the fact that idiomatic Clojure merely excludes missing information instead of 'holding a slot' with a <code>nil</code>. Imagine data about a person that could include their first name, last name, and and their age. Here's an example of 'complete' data.</p><pre><code>{:first-name "Albert"
  :last-name "Einstein"
  :age 76}</code></pre><p>The following example of partial data, with <code>nil</code> associated to 'missing' <code>:age</code> information, is atypical.</p><pre><code>{:first-name "Isaac"
  :last-name "Newton"
@@ -38,7 +38,12 @@
 ;; => false</code></pre><p>The <code>string?</code> scalar predicates at <code>:first-name</code> and <code>:last-name</code> were both satisfied. Scalar predicate <code>int?</code> at <code>:age</code> was ignored because it was un-paired. However, collection predicate <code>has-age?</code> at <code>:foo</code> was not satisfied, so <code>valid?</code> returns <code>false</code>.</p><p>Specifying and validating scalar datums separately from specifying and validating collections completely isolates two concerns. The scalar predicates are entirely devoted to testing the properties of the scalars themselves. The collection predicates are devoted to properties of the collections, including the size of the collections, the presence/absence of elements, and relationships <em>between</em> elements. Using both, Speculoos can validate any facet of a heterogeneous, arbitrarily-nested data structure.</p></section><section><h3>When?!</h3><p>A portion of <em>Maybe Not</em> discusses <code>spec.alpha</code>'s issues with optionality. Mr Hickey contends it is a mistake to put optionality into aggregate specifications because doing so destroys a specification's re-usability. An entity that is optional in one context might not be optional in another context.</p><p>Speculoos does not suffer from this problem. Because of Motto #3, any predicate that is not paired with a datum is ignored. Any datum that is not paired with predicate is also ignored. Only when a datum is paired with a predicate is the pair considered in the validation result. Separately, if a particular context requires the presence of a datum, we can validate that with a collection validation.</p><p>Mr Hickey points out that validating arguments and return values of a function provide a built-in context: the context of the function itself. Speculoos validations themselves carry an inherent context: The context is the validation function combined with the specification, at the moment of invocation, such as we've seen with <code>valid-scalars?</code>.</p><p id="flexible">In addition to being straightforward to compose, Speculoos specifications are extremely flexible because they are plain Clojure data structures. Speculoos specifications can be manipulated using any Clojure tools, including the entire core library or any third-party library. Quite a lot of this flexibility can be demonstrated with merely <code>get</code>, <code>assoc</code>, <code>update</code>, and <code>dissoc</code>.</p><p>Let's pretend that a specification someone handed us requires the age datum to be an integer. If Professor Einstein's age is instead a floating-point double, the validation would fail.</p><pre><code>(valid-scalars? {:first-name "Albert", :last-name "Einstein", :age 76.0}
                 {:first-name string?, :last-name string?, :age int?})
 ;; => false</code></pre><p><code>76.0</code> is not an integer.</p><p>We can easily relax our specification to accept that the age be any kind of number.</p><pre><code>(assoc {:first-name string?, :last-name string?, :age int?} :age number?)
-;; => {:age number?, :first-name string?, :last-name string?}</code></pre><p>With that relaxed specification in hand, that data is now valid.</p><pre><code>(valid-scalars? {:first-name "Albert", :last-name "Einstein", :age 76.0}
+;; => {:age #object [clojure.core$number_QMARK_ 0x38a61c81
+;;                   "clojure.core$number_QMARK_@38a61c81"],
+;;     :first-name #object [clojure.core$string_QMARK___5494 0xc41709a
+;;                          "clojure.core$string_QMARK___5494@c41709a"],
+;;     :last-name #object [clojure.core$string_QMARK___5494 0xc41709a
+;;                         "clojure.core$string_QMARK___5494@c41709a"]}</code></pre><p>With that relaxed specification in hand, that data is now valid.</p><pre><code>(valid-scalars? {:first-name "Albert", :last-name "Einstein", :age 76.0}
                 (assoc {:first-name string?, :last-name string?, :age int?} :age number?))
 ;; => true</code></pre><p><code>76.0</code> satisfies scalar predicate <code>number?</code> which we <code>assoc</code>-ed into the specification on-the-fly.</p><p>The original specification is immutable, as it always was. During the validation, we associated a more permissive scalar predicate so that, in this context (while invoking <code>valid-scalars?</code>, with that particular specification), the data is valid.</p><p>Now, let's pretend someone handed us a collection specification that requires the presence of the age key-value, but in our little part of the world, our data doesn't have it, and our little machine doesn't need it. Without intervention, collection validation will fail.</p><pre><code>(valid-collections? {:first-name "Albert", :last-name "Einstein"}
                     {:foo has-age?})
@@ -111,11 +116,11 @@
 ;; => true</code></pre><p>Validating with an empty specification will always return <code>true</code>. That behavior is governed by ignoring un-paired scalars (i.e., there are no predicates to pair with), and zero un-satisfied predicates is considered <em>valid</em>. Speculoos is 'open' in the sense that Mr Hickey discusses: Extra information is okay. Speculoos merely ignores it if it isn't paired with a predicate.</p><p>Speculoos can generate valid test data if we supply it with a scalar specification.</p><pre><code>(require '[speculoos.utility :refer [exercise]])</code><br><br><br><code>(exercise {:sheep #{"Fred" "Ethel" "Lucy" "Ricky" "Little Ricky"},
            :helicopters pos-int?}
           5)
-;; => ([{:helicopters 31, :sheep "Ricky"} true]
-;;     [{:helicopters 16, :sheep "Ethel"} true]
-;;     [{:helicopters 15, :sheep "Ethel"} true]
-;;     [{:helicopters 6, :sheep "Fred"} true]
-;;     [{:helicopters 19, :sheep "Fred"} true])</code></pre><h4>Programmatically manipulating specifications</h4><p>We <a href="#flexible">discussed</a> this earlier. Speculoos specifications are plain Clojure data structures containing plain predicate functions. Slice and dice them however we want.</p><p>Extract a slice of a specification, perhaps just the address.</p><pre><code>(get {:id int?,
+;; => ([{:helicopters 24, :sheep "Ethel"} true]
+;;     [{:helicopters 30, :sheep "Ricky"} true]
+;;     [{:helicopters 26, :sheep "Ethel"} true]
+;;     [{:helicopters 11, :sheep "Little Ricky"} true]
+;;     [{:helicopters 17, :sheep "Lucy"} true])</code></pre><h4>Programmatically manipulating specifications</h4><p>We <a href="#flexible">discussed</a> this earlier. Speculoos specifications are plain Clojure data structures containing plain predicate functions. Slice and dice them however we want.</p><p>Extract a slice of a specification, perhaps just the address.</p><pre><code>(get {:id int?,
       :first-name string?,
       :last-name string?,
       :address {:street string?,
@@ -123,10 +128,23 @@
                 :zip int?,
                 :state keyword?}}
      :address)
-;; => {:city string?,
-;;     :state keyword?,
-;;     :street string?,
-;;     :zip int?}</code></pre><p>Alter a portion of a specification, perhaps by tightening the requirements of the ID.</p><pre><code>(assoc {:id int?,
+;; => {:city
+;;       #object
+;;        [clojure.core$string_QMARK___5494
+;;         0xc41709a
+;;         "clojure.core$string_QMARK___5494@c41709a"],
+;;     :state
+;;       #object
+;;        [clojure.core$keyword_QMARK_ 0x4f94547a
+;;         "clojure.core$keyword_QMARK_@4f94547a"],
+;;     :street
+;;       #object
+;;        [clojure.core$string_QMARK___5494
+;;         0xc41709a
+;;         "clojure.core$string_QMARK___5494@c41709a"],
+;;     :zip #object
+;;           [clojure.core$int_QMARK_ 0x1545b9da
+;;            "clojure.core$int_QMARK_@1545b9da"]}</code></pre><p>Alter a portion of a specification, perhaps by tightening the requirements of the ID.</p><pre><code>(assoc {:id int?,
         :first-name string?,
         :last-name string?,
         :address {:street string?,
@@ -134,10 +152,36 @@
                   :zip int?,
                   :state keyword?}}
   :id even?)
-;; => {:address {:city string?,
-;;               :state keyword?,
-;;               :street string?,
-;;               :zip int?},
-;;     :first-name string?,
-;;     :id even?,
-;;     :last-name string?}</code></pre><p>We could, on-the-fly, require <code>:id</code> to be a positive integer by invoking <code>valid-scalars?</code> with that <code>assoc</code>-ed specification. The original specification is immutable as always, and remains unchanged. But at that moment of validation, the requirements were tightened.</p><p>No need to write a macro. Just manipulate Clojure data with our favorite utilities.</p><h4>Function validation</h4><p>Speculoos has an <a href="https://blosavio.github.io/speculoos/speculoos.function-specs.html">entire namespace</a> dedicated to validating function arguments and return values. Function validation follows all the same principles we've been discussing about validating data. It's a lengthy topic, so I'll refer to the <a href="https://github.com/blosavio/speculoos?tab=readme-ov-file#function-validation">documentation on the subject</a>.</p><h4>Nail down everything!</h4><p>I hope at this point I've made a convincing case that Speculoos is open and permissive: Only specify what we're interested in, and Speculoos will ignore the rest. There is no requirement that we describe every possible facet of our data. Whatever small amount we <em>do</em> specify, can be used to validate our data, and generate test samples, etc.</p></section><section><h3>Final thoughts</h3><p>It's fortunate that Speculoos' implementation details combined with a few policy decisions resulted in being able to address most all of <em>Maybe Not</em>'s concerns. I don't claim that Speculoos is the only solution to these issues, but that the principles under which Speculoos operates provides one possible solution.</p><p><a href="https://github.com/blosavio">Let me know</a> what you think.</p></section></article><p id="page-footer">Copyright © 2024 Brad Losavio.<br>Compiled 2024 October 23.<span id="uuid"><br>f7794d40-96ff-4c8c-95cf-6b5cf0648e6f</span></p></body></head></html>
+;; => {:address
+;;       {:city
+;;          #object
+;;           [clojure.core$string_QMARK___5494
+;;            0xc41709a
+;;            "clojure.core$string_QMARK___5494@c41709a"],
+;;        :state
+;;          #object
+;;           [clojure.core$keyword_QMARK_
+;;            0x4f94547a
+;;            "clojure.core$keyword_QMARK_@4f94547a"],
+;;        :street
+;;          #object
+;;           [clojure.core$string_QMARK___5494
+;;            0xc41709a
+;;            "clojure.core$string_QMARK___5494@c41709a"],
+;;        :zip
+;;          #object
+;;           [clojure.core$int_QMARK_ 0x1545b9da
+;;            "clojure.core$int_QMARK_@1545b9da"]},
+;;     :first-name
+;;       #object
+;;        [clojure.core$string_QMARK___5494
+;;         0xc41709a
+;;         "clojure.core$string_QMARK___5494@c41709a"],
+;;     :id #object
+;;          [clojure.core$even_QMARK_ 0x71713254
+;;           "clojure.core$even_QMARK_@71713254"],
+;;     :last-name
+;;       #object
+;;        [clojure.core$string_QMARK___5494
+;;         0xc41709a
+;;         "clojure.core$string_QMARK___5494@c41709a"]}</code></pre><p>We could, on-the-fly, require <code>:id</code> to be a positive integer by invoking <code>valid-scalars?</code> with that <code>assoc</code>-ed specification. The original specification is immutable as always, and remains unchanged. But at that moment of validation, the requirements were tightened.</p><p>No need to write a macro. Just manipulate Clojure data with our favorite utilities.</p><h4>Function validation</h4><p>Speculoos has an <a href="https://blosavio.github.io/speculoos/speculoos.function-specs.html">entire namespace</a> dedicated to validating function arguments and return values. Function validation follows all the same principles we've been discussing about validating data. It's a lengthy topic, so I'll refer to the <a href="https://github.com/blosavio/speculoos?tab=readme-ov-file#function-validation">documentation on the subject</a>.</p><h4>Nail down everything!</h4><p>I hope at this point I've made a convincing case that Speculoos is open and permissive: Only specify what we're interested in, and Speculoos will ignore the rest. There is no requirement that we describe every possible facet of our data. Whatever small amount we <em>do</em> specify, can be used to validate our data, and generate test samples, etc.</p></section><section><h3>Final thoughts</h3><p>It's fortunate that Speculoos' implementation details combined with a few policy decisions resulted in being able to address most all of <em>Maybe Not</em>'s concerns. I don't claim that Speculoos is the only solution to these issues, but that the principles under which Speculoos operates provides one possible solution.</p><p><a href="https://github.com/blosavio">Let me know</a> what you think.</p></section></article><p id="page-footer">Copyright © 2024 Brad Losavio.<br>Compiled by <a href="https://github.com/blosavio/readmoi">ReadMoi</a> on 2024 November 20.<span id="uuid"><br>f7794d40-96ff-4c8c-95cf-6b5cf0648e6f</span></p></body></html>

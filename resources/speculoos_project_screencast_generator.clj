@@ -9,15 +9,14 @@
    [hiccup.element :as element]
    [hiccup.form :as form]
    [hiccup.util :as util]
-   [readmoi.core :refer :all
-    #_[*wrap-at*
-       print-form-then-eval]
-    ]
-   [speculoos-hiccup :refer [page-ize
-                             screencast-template
-                             prettyfy-form-prettyfy-eval
-                             panel
-                             screencast-title]]
+   #_[readmoi.core :refer [page-ize
+                         panel
+                         prettyfy-form-prettyfy-eval
+                         revert-fn-obj-rendering
+                         screencast-template
+                         screencast-title
+                         *wrap-at*]]
+   [speculoos-hiccup :refer :all]
    [speculoos.core :refer [all-paths
                            expand-and-clamp-1
                            only-invalid
@@ -76,7 +75,7 @@
    {:screencast-filename "troubleshooting" :screencast-title "Troubleshooting"                        :screencast-uuid #uuid "07d8a61d-9f9c-4167-9c03-adbf915eb2aa"}
    {:screencast-filename "compare"         :screencast-title "Comparing spec.alpha to Speculoos"      :screencast-uuid #uuid "0c99bbbe-b977-4e5b-8e37-32c2a8f07b0d"}
    {:screencast-filename "perhaps"         :screencast-title "Perhaps So"                             :screencast-uuid #uuid "7060304f-2f6e-4453-ab1c-7797821e7edf"}
-   #_"case-study"
+   {:screencast-filename "study"           :screencast-title "Case Study"                             :screencast-uuid #uuid "7c4ba802-9f14-46c2-aa8b-411a86629b44"}
    #_"glossary"])
 
 

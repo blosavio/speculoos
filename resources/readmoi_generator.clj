@@ -60,4 +60,4 @@
 (defn -main
   [& args]
   {:UUIDv4 #uuid "27ae0185-41a1-49d1-a7af-930a8d718c90"}
-  (println "generated Speculoos ReadMe docs"))
+  (println "generated Speculoos ReadMe docs;\nWarning! This does not properly de-render function objects!"))
