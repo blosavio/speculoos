@@ -1,4 +1,4 @@
-(defproject com.sagevisuals/speculoos "6"
+(defproject com.sagevisuals/speculoos "7-SNAPSHOT0"
   :description "A library for validating Clojure data."
   :url "https://blosavio.github.io/speculoos/home.html"
   :license {:name "MIT License"
@@ -22,6 +22,6 @@
           :output-path "doc"
           :doc-files []
           :source-uri "https://github.com/blosavio/speculoos/blob/main/{filepath}#L{line}"
-          :themes [:speculoos]
-          :project {:name "Speculoos" :version "version 6"}}
+          :html {:transforms [[:div.sidebar.primary] [:append [:ul.index-link [:li.depth-1 [:a {:href "https://github.com/blosavio/speculoos"} "Project home"]]]]]}
+          :project {:name "Speculoos" :version "version 7-SNAPSHOT0"}}
   :scm {:name "git" :url "https://github.com/blosavio/speculoos"})
