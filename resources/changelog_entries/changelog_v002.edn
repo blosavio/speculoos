@@ -68,7 +68,9 @@
           :month "August"
           :day 5}
    :change-type :implementation
-   :moved-functions ['reduce-indexed]
+   :moved-functions [{:fn-name 'reduce-indexed
+                      :old-location 'speculoos.fn-in
+                      :new-location 'fn-in.core}]
    :removed-functions ['map* 'map-indexed* 'reduce* 'reduce-indexed*]
    :breaking? false}
 
@@ -91,7 +93,9 @@
           :month "August"
           :day 11}
    :change-type :moved-functions
-   :moved-functions ['recover-literal-path]
+   :moved-functions [{:fn-name 'recover-literal-path
+                      :old-location 'speculoos.utility
+                      :new-location 'speculoos.core}]
    :breaking? true}
 
   {:description "Upgraded `validate-collections` report so that entries now indicate the literal path to the collection datum, at keyword `:path-datum`."

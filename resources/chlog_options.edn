@@ -1,0 +1,13 @@
+{:project-formatted-name "Speculoos"
+ :copyright-holder "Brad Losavio"
+
+ :changelog-UUID #uuid "d571f801-3b49-4fd9-a5f3-620e034d0a8d"
+
+ :changelog-html-directory "doc/"
+ :changelog-html-filename "changelog.html"
+
+ :changelog-markdown-directory ""
+ :changelog-markdown-filename "changelog.md"
+
+ :changelog-entries-directory "resources/changelog_entries/"
+ :changelog-data-file "changelog.edn"}

@@ -1,0 +1,24 @@
+{:date {:year 2024
+        :month "November"
+        :day 27}
+ :responsible {:name "Brad Losavio"
+               :email "blosavio@sagevisuals.com"}
+ :version 7
+ :comment "Moved changelog-generating scripts to external lib. Requires new dev (non-breaking) dependency."
+ :project-status :active
+ :stable false
+ :urgency :medium
+ :breaking? true
+ :changes
+ [{:description "Moved changelog generation into `Chlog` lib."
+   :date {:year 2024
+          :month "November"
+          :day 27}
+   :change-type :added-dependency
+   :breaking? false}
+  {:description "Removed `speculoos-project-changelog-generator` namespace."
+   :date {:year 2024
+          :month "November"
+          :day 27}
+   :change-type :removed-namespaces
+   :breaking? true}]}
