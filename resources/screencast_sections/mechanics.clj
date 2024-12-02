@@ -1,5 +1,9 @@
-(require '[speculoos-hiccup :refer [panel prettyfy-form-prettyfy-eval print-form-then-eval screencast-title]]
-         '[speculoos-project-screencast-generator :refer [whats-next-panel]])
+(require
+ '[readmoi.core :refer [print-form-then-eval]]
+ '[screedcast.core :refer [panel
+                           prettyfy-form-prettyfy-eval
+                           screencast-title
+                           whats-next-panel]])
 
 
 (def mechanics-index 1)

@@ -23,8 +23,8 @@
  :project-description "An experimental Clojure data validation library"
  :project-webpage-link "https://github.com/blosavio/speculoos"
 
- :screencast-html-directory "doc/screencast_slides_2/"
- :sections-directory "resources/screencast_sections_2/"
+ :screencast-html-directory "doc/screencast_slides/"
+ :sections-directory "resources/screencast_sections/"
 
  :separator " => "
  :wrap-at 80}

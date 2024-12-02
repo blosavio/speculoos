@@ -1,5 +1,7 @@
-(require '[speculoos-hiccup :refer [panel prettyfy-form-prettyfy-eval screencast-title]]
-         '[speculoos-project-screencast-generator :refer [whats-next-panel]])
+(require '[screedcast.core :refer [panel
+                                   prettyfy-form-prettyfy-eval
+                                   screencast-title
+                                   whats-next-panel]])
 
 
 (def collection-validation-advanced-index 4)

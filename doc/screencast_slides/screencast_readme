@@ -1,7 +1,0 @@
-viewing mode (default): all evaluations collapsed, speaker notes hidden
-presenter mode: all evaluations expanded, speaker notes visible
-
-click panel header: go to previous panel
-click panel footer: to to next panel
-click screencast footer (i.e., html body footer): engange presenter mode to expand all evaluations and show speaker notes
-click preformatted Clojure form: show evaluated return value
