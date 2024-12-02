@@ -9,14 +9,16 @@
    [hiccup.element :as element]
    [hiccup.form :as form]
    [hiccup.util :as util]
-   #_[readmoi.core :refer [page-ize
-                         panel
-                         prettyfy-form-prettyfy-eval
-                         revert-fn-obj-rendering
-                         screencast-template
-                         screencast-title
-                         *wrap-at*]]
-   [speculoos-hiccup :refer :all]
+   #_[readmoi.core :refer :all]
+   #_[screedcast :refer [panel
+                       prettyfy-form-prettyfy-eval
+                       screencast-title
+                       screencast-template]]
+   [speculoos-hiccup :refer [panel
+                             prettyfy-form-prettyfy-eval
+                             revert-fn-obj-rendering
+                             screencast-title
+                             screencast-template]]
    [speculoos.core :refer [all-paths
                            expand-and-clamp-1
                            only-invalid
@@ -53,7 +55,7 @@
                                      validate-higher-order-fn]]))
 
 
-(alter-var-root #'readmoi.core/*wrap-at* (constantly 80))
+(alter-var-root #'speculoos-hiccup/*wrap-at* (constantly 80))
 (alter-var-root #'speculoos.utility/*such-that-max-tries* (constantly 100))
 #_(def ^:dynamic *separator* ";; => ")
 

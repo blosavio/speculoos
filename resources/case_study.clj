@@ -47,6 +47,8 @@
 
      [:p "Speculoos is an experimental library. Among the ideas I wanted to explore is a changelog published in Clojure " [:strong "e"] "xtensible " [:strong "d"] "ata " [:strong "n"] "otation (" [:a {:href "https://github.com/edn-format/edn"} "edn"] "). The goal is to have a single, canonical, human- and machine-readable document that describes the project's changes from one version to the next. That way, it would be straightforward to automatically generate a nicely-formatted changelog webpage and query the changelog data so that people can make informed decisions about changing versions."]
 
+     [:p [:em "Note: Since publishing this case study, I've released a " [:a {:href "https://github.com/blosavio/chlog"} "separate library"] " that explores these principles."]]
+     
      [:p "Here's the info that I think would be useful for a changelog entry."]
 
      [:ul
@@ -673,7 +675,7 @@
                       [properly-incrementing-versions?])"]
       [:br]
       [:code
-";; => ({:datum [«data elided»],
+       ";; => ({:datum [«data elided»],
 ;;      :valid? false,
 ;;      :path-predicate [0],
 ;;      :predicate properly-incrementing-versions?,
@@ -701,7 +703,7 @@
                                     changelog-coll-spec))"]
       [:br]
       [:code
-";; => ({:datum [«data elided»],
+       ";; => ({:datum [«data elided»],
 ;;      :valid? false,
 ;;      :path-predicate [0],
 ;;      :predicate properly-incrementing-versions?,
