@@ -7,11 +7,11 @@
    [hiccup.element :as element]
    [hiccup.form :as form]
    [hiccup.util :as util]
-   [speculoos-hiccup :refer :all]))
+   [readmoi.core :refer :all]))
 
 
 (def checker-UUID #uuid "a3b33ff1-7dcd-4b9c-a34f-58b39042bbb5")
-(alter-var-root #'speculoos-hiccup/*wrap-at* (constantly 80))
+
 (def ^:dynamic *eval-separator* ";; => ")
 
 
@@ -96,7 +96,9 @@
       (page-template
        "Speculoos — check `prettyfy` settings"
        checker-UUID
-       (conj [:body] page-body)))
+       (conj [:body] page-body)
+       "Brad Losavio"
+       "Prettyfy checker script"))
 
 
 (spit "doc/prettyfy_check.md"

@@ -81,15 +81,15 @@
   [:table
    [:tr
     [:td "1. Set used as a predicate."]
-    [:td [:pre [:code (speculoos-hiccup/prettyfy "(validate-scalars [42 :red] [int? #{:red :green :blue}])" 55 45)]]]]
+    [:td [:pre [:code (readmoi.core/prettyfy "(validate-scalars [42 :red] [int? #{:red :green :blue}])" 55 45)]]]]
 
    [:tr
     [:td "2. Set used as a container for scalars."]
-    [:td [:pre [:code (speculoos-hiccup/prettyfy "(validate-scalars [42 #{:chocolate :vanilla :strawberry}] [int? #{keyword?}])" 60 45)]]]]
+    [:td [:pre [:code (readmoi.core/prettyfy "(validate-scalars [42 #{:chocolate :vanilla :strawberry}] [int? #{keyword?}])" 60 45)]]]]
 
    [:tr
     [:td "3. Set used as a collection."]
-    [:td [:pre [:code (speculoos-hiccup/prettyfy "(validate-collections [42 #{:puppy :kitten :goldfish}] [vector? #{set?}])" 55 45)]]]]]
+    [:td [:pre [:code (readmoi.core/prettyfy "(validate-collections [42 #{:puppy :kitten :goldfish}] [vector? #{set?}])" 55 45)]]]]]
 
   [:div.note
    [:p "When using Speculoos, we encounter sets in three scenarios. We'll briefly sketch the three scenarios, then later go into the details."]
