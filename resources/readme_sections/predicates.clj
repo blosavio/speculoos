@@ -111,7 +111,7 @@
 
  [:pre [:code "[{:path [0],\n  :datum 42,\n  :predicate #function[documentation/eval94717/fn--94718],\n  :valid? false}]"]]
 
- [:p "The function rendering is not terribly informative when the validation displays the predicate. Same problem with " [:code "(fn [v] (…))"] "."]
+ [:p "The function rendering is not terribly informative when the validation displays the predicate. Same problem with " [:code "(fn [v] (…))"] "."]
 
  [:p "One solution to this issue is to define our predicates with an informative name."]
 

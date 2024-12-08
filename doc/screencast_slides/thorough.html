@@ -1,27 +1,274 @@
 <!DOCTYPE html>
-<html lang="en"><head><link href="screedcast.css" rel="stylesheet" type="text/css"><script src="jquery-3.7.1.min.js" type="text/javascript"></script><script src="screedcast.js" type="text/javascript"></script><title>Speculoos — An experimental Clojure data validation library</title><meta charset="utf-8" compile-date="2024-12-03 08:38:52" content="width=device-width, initial-scale=1" name="viewport"><body><div class="panel"><div class="panel-header"></div><h1>Speculoos Screencast 7 — Validation Summaries and Thorough Validations</h1><pre><code class="form">(filter #(not (:valid? %))
+<html lang="en">
+  <head>
+    <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
+    <meta charset="utf-8" compile-date="2024-12-07 14:18:50" content="width=device-width, initial-scale=1" name="viewport">
+    <link href="screedcast.css" rel="stylesheet" type="text/css">
+    <script src="jquery-3.7.1.min.js" type="text/javascript"></script>
+    <script src="screedcast.js" type="text/javascript"></script>
+    <title>
+      Speculoos — An experimental Clojure data validation library
+    </title>
+  </head>
+  <body>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h1>
+        Speculoos Screencast 7 — Validation Summaries and Thorough Validations
+      </h1>
+      <pre><code class="form">(filter #(not (:valid? %))
   (validate-scalars [42 "abc" 22/7]
-                    [int? symbol? ratio?]))</code><br><code class="eval">;; => ({:datum "abc",
+                    [int? symbol? ratio?]))</code><br><code class="eval">;; =&gt; ({:datum "abc",
 ;;      :path [1],
 ;;      :predicate symbol?,
-;;      :valid? false})</code></pre><div class="vspace"></div><pre><code class="form">(empty? *1)</code><br><code class="eval">;; => false</code></pre><div class="note"><p>Up until now, we've been using <code>validate-scalars</code> and <code>validate-collections</code>, because they're verbose. For teaching and learning purposes (and for <a href="#troubleshooting">diagnosing problems</a>), it's useful to see all the information considered by the validators. However, in production, once we've got our specification shape nailed down, we'll want a cleaner <em>yes</em> or <em>no</em> answer on whether the data satisfied the specification. We could certainly pull out the non-truthy, invalid results ourselves…and then check for invalids ourselves.</p></div><div class="panel-footer"><span class="panel-number">1/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>High-level validation summaries</h3><pre><code>(require '[speculoos.core :refer [valid-scalars? valid-collections?]])</code></pre><div class="vspace"></div><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(valid-scalars? [42 "abc" 22/7]
-                [int? symbol? ratio?])</code><br><code class="eval">;; => false</code></pre></div><div class="side-by-side"><pre><code class="form">(valid-collections? [42 ["abc"]]
-                    [vector? [vector?]])</code><br><code class="eval">;; => true</code></pre></div></div><div class="note"><p>…but Speculoos provides a function that does exactly that, both for scalars for scalars and for collections. Whereas the <code>validate-…</code> functions return a detailed validation report of every predicate+datum pair they see, the <code>valid-…?</code> variants provide a plain <code>true/false</code>.</p></div><div class="panel-footer"><span class="panel-number">2/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Beware: un-paired predicates+datums, Motto #3</h3><pre><code class="form">(valid-scalars? {:a 42}
-                {:b string?})</code><br><code class="eval">;; => true</code></pre><div class="vspace"></div><pre><code class="form">(validate-scalars {:a 42}
-                  {:b string?})</code><br><code class="eval">;; => []</code></pre><div class="note"><p>Beware: Validation only considers paired predicates+datums (Motto #3). If your datum doesn't have a paired predicate, then it won't be validated. Observe.<code>42</code> does not share a path with <code>string?</code>, the lone predicate in the specification. Since there are zero invalid results, <code>valid-scalars?</code> returns <code>true</code>.</p></div><div class="panel-footer"><span class="panel-number">3/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h2><code>valid?</code> means <em> zero invalids.</em></h2><div class="panel-footer"><span class="panel-number">4/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validation with un-paired datums</h3><pre><code class="form">(valid-scalars? [42 "abc" 22/7]
-                [int?])</code><br><code class="eval">;; => true</code></pre><div class="note"><p>Motto #3 reminds us that data elements not paired with a predicate are ignored. For some tasks, we may want to ensure that all elements in the data are subjected to at least one predicate. Plain <code>valid?</code>  only reports if all datum+predicate pairs are <code>true</code>. In this example, only <code>42</code> and <code>int?</code> form a pair that is validated. <code>"abc"</code> and <code>22/7</code> are not paired with predicates, and therefore ignored.</p><p>The <em>thorough</em> function <a href="#fn-terminology">variants</a> require that all data elements be specified, otherwise, they return <code>false</code>. Thoroughly validating that same data with that same specification shows the difference.</p></div><div class="panel-footer"><span class="panel-number">5/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Thorough validation requires all datums be paired with predicates</h3><pre><code>(require '[speculoos.utility :refer [thoroughly-valid-scalars?]])</code></pre><div class="vspace"></div><pre><code class="form">(thoroughly-valid-scalars? [42 "abc" 22/7]
-                           [int?])</code><br><code class="eval">;; => false</code></pre><div class="note"><p>Whereas <code>valid-scalars?</code> ignored the un-paired <code>"abc"</code> and <code>22/7</code>, <code>thoroughly-valid-scalars?</code> notices that neither have a predicate. Even though <code>42</code> satisfied <code>int?</code>, the un-paired scalars mean that this validation is not thorough, and thus <code>thoroughly-valid-scalars?</code> returns <code>false</code>.</p><p>The <code>utility</code> <a href="#utilities">namespace</a> provides a thorough variant for collections, as well as a variant for <a href="#combo">combo</a> validations. <code>thoroughly-valid-collections?</code> works analogously to what we've just seen.</p></div><div class="panel-footer"><span class="panel-number">6/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Combo validation.</h3><pre><code>(require '[speculoos.core :refer [valid?]])</code></pre><div class="vspace"></div><pre><code class="form">(valid? [42 "abc" 22/7]
+;;      :valid? false})</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(empty? *1)</code><br><code class="eval">;; =&gt; false</code></pre>
+      <div class="note">
+        <p>
+          Up until now, we've been using <code>validate-scalars</code> and <code>validate-collections</code>, because they're verbose. For teaching and
+          learning purposes (and for <a href="#troubleshooting">diagnosing problems</a>), it's useful to see all the information considered by the validators.
+          However, in production, once we've got our specification shape nailed down, we'll want a cleaner <em>yes</em> or <em>no</em> answer on whether the
+          data satisfied the specification. We could certainly pull out the non-truthy, invalid results ourselves…and then check for invalids ourselves.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">1/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        High-level validation summaries
+      </h3>
+      <pre><code>(require '[speculoos.core :refer [valid-scalars? valid-collections?]])</code></pre>
+      <div class="vspace"></div>
+      <div class="side-by-side-container">
+        <div class="side-by-side">
+          <pre><code class="form">(valid-scalars? [42 "abc" 22/7]
+                [int? symbol? ratio?])</code><br><code class="eval">;; =&gt; false</code></pre>
+        </div>
+        <div class="side-by-side">
+          <pre><code class="form">(valid-collections? [42 ["abc"]]
+                    [vector? [vector?]])</code><br><code class="eval">;; =&gt; true</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          …but Speculoos provides a function that does exactly that, both for scalars for scalars and for collections. Whereas the <code>validate-…</code>
+          functions return a detailed validation report of every predicate+datum pair they see, the <code>valid-…?</code> variants provide a plain
+          <code>true/false</code>.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">2/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Beware: un-paired predicates+datums, Motto #3
+      </h3>
+      <pre><code class="form">(valid-scalars? {:a 42}
+                {:b string?})</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(validate-scalars {:a 42}
+                  {:b string?})</code><br><code class="eval">;; =&gt; []</code></pre>
+      <div class="note">
+        <p>
+          Beware: Validation only considers paired predicates+datums (Motto #3). If your datum doesn't have a paired predicate, then it won't be validated.
+          Observe.<code>42</code> does not share a path with <code>string?</code>, the lone predicate in the specification. Since there are zero invalid
+          results, <code>valid-scalars?</code> returns <code>true</code>.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">3/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h2>
+        <code>valid?</code> means <em>zero invalids.</em>
+      </h2>
+      <div class="panel-footer">
+        <span class="panel-number">4/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Validation with un-paired datums
+      </h3>
+      <pre><code class="form">(valid-scalars? [42 "abc" 22/7]
+                [int?])</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          Motto #3 reminds us that data elements not paired with a predicate are ignored. For some tasks, we may want to ensure that all elements in the data
+          are subjected to at least one predicate. Plain <code>valid?</code> only reports if all datum+predicate pairs are <code>true</code>. In this example,
+          only <code>42</code> and <code>int?</code> form a pair that is validated. <code>"abc"</code> and <code>22/7</code> are not paired with predicates,
+          and therefore ignored.
+        </p>
+        <p>
+          The <em>thorough</em> function <a href="#fn-terminology">variants</a> require that all data elements be specified, otherwise, they return
+          <code>false</code>. Thoroughly validating that same data with that same specification shows the difference.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">5/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Thorough validation requires all datums be paired with predicates
+      </h3>
+      <pre><code>(require '[speculoos.utility :refer [thoroughly-valid-scalars?]])</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(thoroughly-valid-scalars? [42 "abc" 22/7]
+                           [int?])</code><br><code class="eval">;; =&gt; false</code></pre>
+      <div class="note">
+        <p>
+          Whereas <code>valid-scalars?</code> ignored the un-paired <code>"abc"</code> and <code>22/7</code>, <code>thoroughly-valid-scalars?</code> notices
+          that neither have a predicate. Even though <code>42</code> satisfied <code>int?</code>, the un-paired scalars mean that this validation is not
+          thorough, and thus <code>thoroughly-valid-scalars?</code> returns <code>false</code>.
+        </p>
+        <p>
+          The <code>utility</code> <a href="#utilities">namespace</a> provides a thorough variant for collections, as well as a variant for <a href=
+          "#combo">combo</a> validations. <code>thoroughly-valid-collections?</code> works analogously to what we've just seen.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">6/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Combo validation.
+      </h3>
+      <pre><code>(require '[speculoos.core :refer [valid?]])</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid? [42 "abc" 22/7]
         [int?]
-        [vector?])</code><br><code class="eval">;; => true</code></pre><div class="note"><p>Let's look at a combo example. First, the 'plain' version. We validated the single vector, and only one out of the three scalars. <code>valid?</code> only considers paired elements+predicates, so it only validated <code>42</code> and the root vector. <code>valid?</code> ignored <code>"abc"</code> and <code>22/7</code>.</p></div><div class="panel-footer"><span class="panel-number">7/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Thorough combo validation</h3><pre><code>(require '[speculoos.utility :refer [thoroughly-valid?]])</code></pre><div class="vspace"></div><pre><code class="form">(thoroughly-valid? [42 "abc" 22/7]
+        [vector?])</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          Let's look at a combo example. First, the 'plain' version. We validated the single vector, and only one out of the three scalars. <code>valid?</code>
+          only considers paired elements+predicates, so it only validated <code>42</code> and the root vector. <code>valid?</code> ignored <code>"abc"</code>
+          and <code>22/7</code>.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">7/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Thorough combo validation
+      </h3>
+      <pre><code>(require '[speculoos.utility :refer [thoroughly-valid?]])</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(thoroughly-valid? [42 "abc" 22/7]
                    [int?]
-                   [vector?])</code><br><code class="eval">;; => false</code></pre><div class="note"><p>The thorough variant, <code>thoroughly-valid?</code>, however, does not ignore un-paired data elements. Even though both predicates, <code>int?</code> and <code>vector?</code>, were satisfied, <code>thoroughly-valid?</code> requires that all data elements be validated. Since <code>42</code> and <code>22/7</code> are un-paired, the entire validation returns <code>false</code>.</p></div><div class="panel-footer"><span class="panel-number">8/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>'Thorough' only means <em>every datum is paired with a predicate</em></h3><pre><code class="form">(thoroughly-valid? [42 "abc" 22/7]
+                   [vector?])</code><br><code class="eval">;; =&gt; false</code></pre>
+      <div class="note">
+        <p>
+          The thorough variant, <code>thoroughly-valid?</code>, however, does not ignore un-paired data elements. Even though both predicates,
+          <code>int?</code> and <code>vector?</code>, were satisfied, <code>thoroughly-valid?</code> requires that all data elements be validated. Since
+          <code>42</code> and <code>22/7</code> are un-paired, the entire validation returns <code>false</code>.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">8/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        'Thorough' only means <em>every datum is paired with a predicate</em>
+      </h3>
+      <pre><code class="form">(thoroughly-valid? [42 "abc" 22/7]
                    [any? any? any?]
-                   [any?])</code><br><code class="eval">;; => true</code></pre><div class="note"><p>Note: Thoroughly validating does not ensure any measure of correctness or rigor. 'Thorough' merely indicates that each element was exposed to <em>some</em> kind of predicate. That predicate could actually be trivially permissive. In this example, <code>any?</code> returns <code>true</code> for all values.</p><p>The only thing <code>thoroughly-valid?</code> tells us in this example is that the one vector and all three scalars were paired with a predicate, and that all four data elements satisfied a guaranteed-to-be-satisfied predicate.</p><p>Validation is only as good as the predicate. It's our responsibility to write a proper predicate.</p></div><div class="panel-footer"><span class="panel-number">9/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validating both scalars and collections</h3><pre><code class="form">(and (valid-scalars? [42] [int?])
-     (valid-collections? [42] [vector?]))</code><br><code class="eval">;; => true</code></pre><div class="note"><p>Validating scalars separately from validating collections is a core principle embodied by the Speculoos library. I believe that separating the two into distinct processes carries solid advantages because the specifications are more straightforward, the mental model is clearer, the implementation code is simpler, and it makes validation <em>à la carte</em>. Much of the time, you can probably get away with just a scalar specification.</p><p>All that said, it is not possible to specify and validate *every* aspect of your data with only scalar validation or only collection validation. When we really need to be strict and validate both scalars and collections, we could manually combine like this.</p></div><div class="panel-footer"><span class="panel-number">10/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Combo Validation</h3><pre><code>(require '[speculoos.core :refer [valid? validate]])</code></pre><div class="vspace"></div><pre><code class="form">(valid? [42]
+                   [any?])</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          Note: Thoroughly validating does not ensure any measure of correctness or rigor. 'Thorough' merely indicates that each element was exposed to
+          <em>some</em> kind of predicate. That predicate could actually be trivially permissive. In this example, <code>any?</code> returns <code>true</code>
+          for all values.
+        </p>
+        <p>
+          The only thing <code>thoroughly-valid?</code> tells us in this example is that the one vector and all three scalars were paired with a predicate, and
+          that all four data elements satisfied a guaranteed-to-be-satisfied predicate.
+        </p>
+        <p>
+          Validation is only as good as the predicate. It's our responsibility to write a proper predicate.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">9/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Validating both scalars and collections
+      </h3>
+      <pre><code class="form">(and (valid-scalars? [42] [int?])
+     (valid-collections? [42] [vector?]))</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          Validating scalars separately from validating collections is a core principle embodied by the Speculoos library. I believe that separating the two
+          into distinct processes carries solid advantages because the specifications are more straightforward, the mental model is clearer, the implementation
+          code is simpler, and it makes validation <em>à la carte</em>. Much of the time, you can probably get away with just a scalar specification.
+        </p>
+        <p>
+          All that said, it is not possible to specify and validate *every* aspect of your data with only scalar validation or only collection validation. When
+          we really need to be strict and validate both scalars and collections, we could manually combine like this.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">10/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Combo Validation
+      </h3>
+      <pre><code>(require '[speculoos.core :refer [valid? validate]])</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid? [42]
         [int?]
-        [vector?])</code><br><code class="eval">;; => true</code></pre><div class="note"><p>Speculoos provides a pre-made utility that does exactly that. We supply some data, then a scalar specification, then a collection specification.</p><p>Let me emphasize what <code>valid?</code> is doing here, because it is <em>not</em> violating the first Motto about separately validating scalars and collections. First, <code>valid?</code> performs a scalar validation on the data, and puts that result on the shelf. Then, in a completely distinct operation, it performs a collection validation. <code>valid?</code> then pulls the scalar validation results off the shelf and combines it with the collection validation results, and returns a singular <code>true/false</code>.  (Look back at the first example of this sub-section to see the separation.)</p><p>I reserved the shortest, most mnemonic function name, <code>valid?</code>, to signal how important it is to separate scalar and collection validation.</p></div><div class="panel-footer"><span class="panel-number">11/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Combo Validation with Detailed Results</h3><pre><code class="form">(validate [42 "abc" 22/7]
+        [vector?])</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          Speculoos provides a pre-made utility that does exactly that. We supply some data, then a scalar specification, then a collection specification.
+        </p>
+        <p>
+          Let me emphasize what <code>valid?</code> is doing here, because it is <em>not</em> violating the first Motto about separately validating scalars and
+          collections. First, <code>valid?</code> performs a scalar validation on the data, and puts that result on the shelf. Then, in a completely distinct
+          operation, it performs a collection validation. <code>valid?</code> then pulls the scalar validation results off the shelf and combines it with the
+          collection validation results, and returns a singular <code>true/false</code>. (Look back at the first example of this sub-section to see the
+          separation.)
+        </p>
+        <p>
+          I reserved the shortest, most mnemonic function name, <code>valid?</code>, to signal how important it is to separate scalar and collection
+          validation.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">11/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Combo Validation with Detailed Results
+      </h3>
+      <pre><code class="form">(validate [42 "abc" 22/7]
           [int? symbol? ratio?]
-          [vector?])</code><br><code class="eval">;; => ({:datum 42,
+          [vector?])</code><br><code class="eval">;; =&gt; ({:datum 42,
 ;;      :path [0],
 ;;      :predicate int?,
 ;;      :valid? true}
@@ -38,4 +285,271 @@
 ;;      :path-datum [],
 ;;      :path-predicate [0],
 ;;      :predicate vector?,
-;;      :valid? true})</code></pre><div class="note"><p>Speculoos also provides a variant that returns detailed validation results after performing distinct scalar validation and collection validation.</p><p><code>validate</code> gives us the exact results as if we had run <code>validate-scalars</code> and then immediately thereafter <code>validate-collections</code>. <code>validate</code> merely gives us the convenience of quickly running both in succession without having to re-type the data. With one invocation, we can validate <em>all</em> aspects of our data, both scalars and collections, and we never violated Motto #1.</p></div><div class="panel-footer"><span class="panel-number">12/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Function Naming Conventions</h3><p><code>validate-…</code></p><p><code>valid-…?</code></p><p><code>…-scalars</code></p><p><code>…-collections</code></p><p><code>thoroughly-…</code></p><div class="note"><ul><li><strong><code>validate-…</code></strong> functions return a detailed report for every datum+predicate pair.</li><li><strong><code>valid-…?</code></strong> functions return <code>true</code> if the predicate+datum pairs produce zero falsey results, <code>false</code> otherwise.</li><li><strong><code>…-scalars</code></strong> functions consider only non-collection datums.</li><li><strong><code>…-collections</code></strong> functions consider only non-scalar datums.</li><li><strong><code>thoroughly-…</code></strong> functions return <code>true</code> only if every element (scalar or collection, as the case may be) is paired with a predicate, and every element satisfies its predicate.</li></ul><p>Here are the general patterns regarding the function names.'Plain' functions (i.e., <code>validate</code>, <code>valid?</code>, and <code>thoroughly-valid?</code>) perform a scalar validation, followed by performing a distinct collection validation, and returns a single comprehensive response that merges the results of both.</p></div><div class="panel-footer"><span class="panel-number">13/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Function Naming Conventions, Summary Chart</h3><table><tr><th>function</th><th>checks…</th><th>returns…</th><th>note</th></tr><tr><td><code>validate-scalars</code></td><td>scalars only</td><td>detailed validation report</td><td></td></tr><tr><td><code>valid-scalars?</code></td><td>scalars only</td><td><code>true/false</code></td><td></td></tr><tr><td><code>thoroughly-valid-scalars?</code></td><td>scalars only</td><td><code>true/false</code></td><td>only <code>true</code> if all scalars paired with a predicate</td></tr><tr><td><code>validate-collections</code></td><td>collections only</td><td>detailed validation report</td><td></td></tr><tr><td><code>valid-collections?</code></td><td>collections only</td><td><code>true/false</code></td><td></td></tr><tr><td><code>thoroughly-valid-collections?</code></td><td>collections only</td><td><code>true/false</code></td><td>only <code>true</code> if all collections paired with a predicate</td></tr><tr><td><code>validate</code></td><td>scalars, then collections, separately</td><td>detailed validation report</td><td></td></tr><tr><td><code>valid?</code></td><td>scalars, then collections, separately</td><td><code>true/false</code></td><td></td></tr><tr><td><code>thoroughly-valid?</code></td><td>scalars, then collections separately</td><td><code>true/false</code></td><td>only <code>true</code> if all datums paired with a predicate</td></tr></table><div class="panel-footer"><span class="panel-number">14/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>What's next.</h3><ol class="de-highlight whats-next"><li>Introduction</li><li>Mechanics</li><li>Validating Scalars</li><li>Validating Collections, Basics</li><li>Validating Collections, Advanced</li><li>Validating Collections, Extras</li><li>Validation Summaries & Thoroughness</li><li class="highlight">Function Validation</li><li>Generating Random Samples & Exercising</li><li>Utilities</li><li>Predicates</li><li>Non-Terminating Sequences</li><li>Sets</li><li>Troubleshooting</li><li>Comparing spec.alpha to Speculoos</li><li>Perhaps So</li><li>Case Study</li></ol><div class="note">Our five screencasts so far have discussed how to specify and validate Clojure data: free-floating heterogeneous, arbitrarily-nested data structures. Our next screencast will also discuss how to specify and validate data, but in the context of invoking a function. We can validate arguments passed to a function, the function's return value, and the *relationships* between the arguments and the return value.</div><div class="panel-footer"><span class="panel-number">15/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><p id="page-footer">Copyright © 2024 Brad Losavio.<br>Compiled 2024 December 03.<div class="license"><p>This program and the accompanying materials are made available under the terms of the <a href="https://opensource.org/license/MIT">MIT License</a>.</p></div><span id="uuid"><br>d24219fb-c3b0-40d4-a3d2-ceb5d80384ba</span></p></body></head></html>
+;;      :valid? true})</code></pre>
+      <div class="note">
+        <p>
+          Speculoos also provides a variant that returns detailed validation results after performing distinct scalar validation and collection validation.
+        </p>
+        <p>
+          <code>validate</code> gives us the exact results as if we had run <code>validate-scalars</code> and then immediately thereafter
+          <code>validate-collections</code>. <code>validate</code> merely gives us the convenience of quickly running both in succession without having to
+          re-type the data. With one invocation, we can validate <em>all</em> aspects of our data, both scalars and collections, and we never violated Motto
+          #1.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">12/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Function Naming Conventions
+      </h3>
+      <p>
+        <code>validate-…</code>
+      </p>
+      <p>
+        <code>valid-…?</code>
+      </p>
+      <p>
+        <code>…-scalars</code>
+      </p>
+      <p>
+        <code>…-collections</code>
+      </p>
+      <p>
+        <code>thoroughly-…</code>
+      </p>
+      <div class="note">
+        <ul>
+          <li>
+            <strong><code>validate-…</code></strong> functions return a detailed report for every datum+predicate pair.
+          </li>
+          <li>
+            <strong><code>valid-…?</code></strong> functions return <code>true</code> if the predicate+datum pairs produce zero falsey results,
+            <code>false</code> otherwise.
+          </li>
+          <li>
+            <strong><code>…-scalars</code></strong> functions consider only non-collection datums.
+          </li>
+          <li>
+            <strong><code>…-collections</code></strong> functions consider only non-scalar datums.
+          </li>
+          <li>
+            <strong><code>thoroughly-…</code></strong> functions return <code>true</code> only if every element (scalar or collection, as the case may be) is
+            paired with a predicate, and every element satisfies its predicate.
+          </li>
+        </ul>
+        <p>
+          Here are the general patterns regarding the function names.'Plain' functions (i.e., <code>validate</code>, <code>valid?</code>, and
+          <code>thoroughly-valid?</code>) perform a scalar validation, followed by performing a distinct collection validation, and returns a single
+          comprehensive response that merges the results of both.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">13/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Function Naming Conventions, Summary Chart
+      </h3>
+      <table>
+        <tr>
+          <th>
+            function
+          </th>
+          <th>
+            checks…
+          </th>
+          <th>
+            returns…
+          </th>
+          <th>
+            note
+          </th>
+        </tr>
+        <tr>
+          <td>
+            <code>validate-scalars</code>
+          </td>
+          <td>
+            scalars only
+          </td>
+          <td>
+            detailed validation report
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <code>valid-scalars?</code>
+          </td>
+          <td>
+            scalars only
+          </td>
+          <td>
+            <code>true/false</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <code>thoroughly-valid-scalars?</code>
+          </td>
+          <td>
+            scalars only
+          </td>
+          <td>
+            <code>true/false</code>
+          </td>
+          <td>
+            only <code>true</code> if all scalars paired with a predicate
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>validate-collections</code>
+          </td>
+          <td>
+            collections only
+          </td>
+          <td>
+            detailed validation report
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <code>valid-collections?</code>
+          </td>
+          <td>
+            collections only
+          </td>
+          <td>
+            <code>true/false</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <code>thoroughly-valid-collections?</code>
+          </td>
+          <td>
+            collections only
+          </td>
+          <td>
+            <code>true/false</code>
+          </td>
+          <td>
+            only <code>true</code> if all collections paired with a predicate
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>validate</code>
+          </td>
+          <td>
+            scalars, then collections, separately
+          </td>
+          <td>
+            detailed validation report
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <code>valid?</code>
+          </td>
+          <td>
+            scalars, then collections, separately
+          </td>
+          <td>
+            <code>true/false</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <code>thoroughly-valid?</code>
+          </td>
+          <td>
+            scalars, then collections separately
+          </td>
+          <td>
+            <code>true/false</code>
+          </td>
+          <td>
+            only <code>true</code> if all datums paired with a predicate
+          </td>
+        </tr>
+      </table>
+      <div class="panel-footer">
+        <span class="panel-number">14/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        What's next.
+      </h3>
+      <ol class="de-highlight whats-next">
+        <li>Introduction
+        </li>
+        <li>Mechanics
+        </li>
+        <li>Validating Scalars
+        </li>
+        <li>Validating Collections, Basics
+        </li>
+        <li>Validating Collections, Advanced
+        </li>
+        <li>Validating Collections, Extras
+        </li>
+        <li>Validation Summaries & Thoroughness
+        </li>
+        <li class="highlight">Function Validation
+        </li>
+        <li>Generating Random Samples & Exercising
+        </li>
+        <li>Utilities
+        </li>
+        <li>Predicates
+        </li>
+        <li>Non-Terminating Sequences
+        </li>
+        <li>Sets
+        </li>
+        <li>Troubleshooting
+        </li>
+        <li>Comparing spec.alpha to Speculoos
+        </li>
+        <li>Perhaps So
+        </li>
+        <li>Case Study
+        </li>
+      </ol>
+      <div class="note">
+        Our five screencasts so far have discussed how to specify and validate Clojure data: free-floating heterogeneous, arbitrarily-nested data structures.
+        Our next screencast will also discuss how to specify and validate data, but in the context of invoking a function. We can validate arguments passed to
+        a function, the function's return value, and the *relationships* between the arguments and the return value.
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">15/15</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <p id="page-footer">
+      Copyright © 2024 Brad Losavio.<br>
+      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 07.
+    </p>
+    <div class="license">
+      <p>
+        This program and the accompanying materials are made available under the terms of the <a href="https://opensource.org/license/MIT">MIT License</a>.
+      </p>
+    </div><span id="uuid"><br>
+    d24219fb-c3b0-40d4-a3d2-ceb5d80384ba</span>
+    <p></p>
+  </body>
+</html>

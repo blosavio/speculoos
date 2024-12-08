@@ -120,7 +120,7 @@
   [:br]
   (print-form-then-eval "(expand-and-clamp-1 (range) [int? int? int?])")]
 
- [:p [:code "range"] " would have continued merrily on forever, but the clamp truncated it at three elements, the length of the second argument vector. That's why two non-terminating sequences at the same path are not permitted. Speculoos has no way of knowing how short or long the sequences ought to be, so instead of making a bad guess, it throws the issue back to us. The way " [:em "we"] " indicate how long it should be is by making the counterpart sequence a specific length. Where should Speculoos clamp that " [:code "(range)"] " in the above example? The answer is the length of the other sequential thing, " [:code "[int? int? int?]"] ", or three elements."]
+ [:p [:code "range"] " would have continued merrily on forever, but the clamp truncated it at three elements, the length of the second argument vector. That's why two non-terminating sequences at the same path are not permitted. Speculoos has no way of knowing how short or long the sequences ought to be, so instead of making a bad guess, it throws the issue back to us. The way " [:em "we"] " indicate how long it should be is by making the counterpart sequence a specific length. Where should Speculoos clamp that " [:code "(range)"] " in the above example? The answer is the length of the other sequential thing, " [:code "[int? int? int?]"] ", or three elements."]
 
  [:p "Speculoos' " [:a {:href "#utilities"} "utility"] " namespace provides a " [:code "clamp-in*"] " tool for us to clamp any sequence within a homogeneous, arbitrarily-nested data structure. We invoke it with a pattern of arguments similar to " [:code "clojure.core/assoc-in"] "."]
 

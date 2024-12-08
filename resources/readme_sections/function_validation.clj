@@ -183,7 +183,7 @@
 
  [:pre (print-form-then-eval "(validate-fn-with enhanced-sum-three {:speculoos/ret-scalar-spec [char? int? int? boolean?] :speculoos/ret-collection-spec [list?]} 1 20 300)")]
 
- [:p [:code "validate-fn-with"] "'s validation is substantially the same as the one " [:code "validate"] " produced in the previous example, except now, the data comes from invoking " [:code "enhanced-sum-three"] ". Two scalar invalids and one collection invalid. Integer " [:code "1"] " fails to satisfy scalar predicate " [:code "char?"] ", integer " [:code "321"] " fails to satisfy scalar predicate " [:code "boolean?"] ", and the entire return vector " [:code "[1 20 300 321]"] " fails to satisfy collection predicate " [:code "list?"] "."]
+ [:p [:code "validate-fn-with"] "'s validation is substantially the same as the one " [:code "validate"] " produced in the previous example, except now, the data comes from invoking " [:code "enhanced-sum-three"] ". Two scalar invalids and one collection invalid. Integer " [:code "1"] " fails to satisfy scalar predicate " [:code "char?"] ", integer " [:code "321"] " fails to satisfy scalar predicate " [:code "boolean?"] ", and the entire return vector " [:code "[1 20 300 321]"] " fails to satisfy collection predicate " [:code "list?"] "."]
 
  [:p "Okay. I think we're ready to put together all four different function validations we've so far seen. We've seen…"]
 
@@ -325,7 +325,7 @@
 
  [:p "Now that we've established a few relationships, we need to establish " [:em "where"] " to apply those relationship tests. Checking " [:code "broken-reverse"] "'s argument/return relationships with " [:code "same-length?"] ", " [:code "same-elements?"] ", and " [:code "reversed?"] " will be fairly straightforward: For each predicate, we'll pass the first argument (itself a collection), and the return value (also a collection). But some day, we might want to check a more sophisticated relationship that needs to extract some slice of the argument and/or slice of the return value. Therefore, we must declare a path to the slices we want to check. Of the return value, we'd like to check the root collection, so the return value's path is merely " [:code "[]"] "."]
 
- [:p "When we consider how to extract the arguments, there's one tricky detail we must accommodate. The " [:code "[11 22 33 44 55]"] " vector we're going to pass to " [:code "broken-reverse"] " is itself contained in the argument sequence. Take a look."]
+ [:p "When we consider how to extract the arguments, there's one tricky detail we must accommodate. The " [:code "[11 22 33 44 55]"] " vector we're going to pass to " [:code "broken-reverse"] " is itself contained in the argument sequence. Take a look."]
 
  [:pre
   (print-form-then-eval "(defn arg-passthrough [& args] args)")
@@ -337,7 +337,7 @@
 
  [:pre (print-form-then-eval "(nth (arg-passthrough [11 22 33 44 55]) 0)" 45 45)]
 
- [:p "When invoked with paths " [:code "[0]"] " and " [:code "[]"] ", respectively for the arguments and returns, " [:code "validate-argument-return-relationship"] " does something like this."]
+ [:p "When invoked with paths " [:code "[0]"] " and " [:code "[]"] ", respectively for the arguments and returns, " [:em "validate argument-return relationship"] " does something like this."]
 
  [:pre (print-form-then-eval "(same-length? (get-in [[11 22 33 44 55]] [0]) (get-in [11 22 33 44 55 9999] []))" 55 55)]
 

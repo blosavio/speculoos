@@ -9,7 +9,8 @@
     [hiccup.util :as util]
     [readmoi.core :refer [page-template
                           prettyfy
-                          print-form-then-eval]]))
+                          print-form-then-eval
+                          tidy-html-document]]))
 
 
 (def perhaps-UUID #uuid "f7794d40-96ff-4c8c-95cf-6b5cf0648e6f")
@@ -338,7 +339,7 @@
 
      [:pre (print-form-then-eval "(valid? {:make \"Acme Motor Cars\" :model \"Type 1\" :year 1905} car-scalar-specification car-collection-specification)")]
 
-     [:p "The values we supplied for " [:code ":make"] ", " [:code ":model"] ", and " [:code "year"] " all satisfied their respective scalar predicates. Furthermore, the " [:cde "car"] " map itself satisfied the collection specification's requirement that the map contain a key " [:code ":make"] "."]
+     [:p "The values we supplied for " [:code ":make"] ", " [:code ":model"] ", and " [:code "year"] " all satisfied their respective scalar predicates. Furthermore, the " [:code "car"] " map itself satisfied the collection specification's requirement that the map contain a key " [:code ":make"] "."]
 
      [:p "Now, let's validate some car data with partial information: " [:code ":model"] " and " [:code ":year"] " values are missing."]
 
@@ -598,13 +599,14 @@
     ]])
 
 
-(spit "doc/perhaps_so.html"
-      (page-template
-       "How Speculoos addresses Rich Hickey's 'Maybe Not' talk"
-       perhaps-UUID
-       page-body
-       "Brad Losavio"))
-
+(do
+  (spit "doc/perhaps_so.html"
+        (page-template
+         "How Speculoos addresses Rich Hickey's 'Maybe Not' talk"
+         perhaps-UUID
+         page-body
+         "Brad Losavio"))
+  (tidy-html-document "doc/perhaps_so.html"))
 
 (defn -main
   [& args]

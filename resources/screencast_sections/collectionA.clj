@@ -20,7 +20,6 @@
 
    [:p "However, we might need to specify some property of a collection itself, such as a vector's length, the presence of a key in a map, relationships " [:em "between"] " datums, etc. That is " [:em "collection validation"] "."]])
 
-
  (panel
   [:h3 "Scalars versus Collections"]
 
@@ -554,7 +553,7 @@
 
    [:tr
     [:td "predicate"]
-    [:td [:pred [:code "map?"]]]]
+    [:td [:pre [:code "map?"]]]]
 
    [:tr
     [:td [:div.vspace]]]
@@ -656,7 +655,7 @@
 
    [:tr
     [:td "predicate"]
-    [:td [:pred [:code "map?"]]]]
+    [:td [:pre [:code "map?"]]]]
 
    [:tr
     [:td [:div.vspace]]]
@@ -759,7 +758,7 @@
 
    [:tr
     [:td "predicate"]
-    [:td [:pred [:code "map?"]]]]
+    [:td [:pre [:code "map?"]]]]
 
    [:tr
     [:td [:div.vspace]]]

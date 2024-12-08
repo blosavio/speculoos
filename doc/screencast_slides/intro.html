@@ -1,7 +1,192 @@
 <!DOCTYPE html>
-<html lang="en"><head><link href="screedcast.css" rel="stylesheet" type="text/css"><script src="jquery-3.7.1.min.js" type="text/javascript"></script><script src="screedcast.js" type="text/javascript"></script><title>Speculoos — An experimental Clojure data validation library</title><meta charset="utf-8" compile-date="2024-12-03 08:38:51" content="width=device-width, initial-scale=1" name="viewport"><body><div class="panel"><div class="panel-header"></div><h1>Speculoos Screencast 1 — Introduction</h1><h4 class="subtitle"><em>An experiment with Clojure specification literals</em></h4><div class="side-by-side-container"><div class="side-by-side"><pre><code>[int? string? ratio?]</code></pre></div><div class="side-by-side"><pre><code>{:id int? :food string? :dept keyword?}</code></pre></div></div><div class="note"><p>Speculoos is an experimental library that tries to do the same tasks as spec.alpha, but with specifications composed of plain Clojure collections. These are specifications!</p><p>Imagine we'd like to know if <em>Our Clojure vector contains an integer, then a string, and finally a ratio</em>. One example of that specification vector might look like this. It's a vector containing three predicates, `int?`, `string?`, and `ratio?`.</p><p>This map on the right is also a specification. It is satisfied by a map containing an integer associated to keyword :ID, a string associated to keyword :food, and keyword associated to :dept.</p></div><div class="panel-footer"><span class="panel-number">1/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Specifications are shaped like the data</h3><pre><code>[42   "abc"   22/7  ]</code></pre><pre><code>[int? string? ratio?]</code></pre><div class="note"><p>One of Speculoos' core principles is 'specifications are shaped like the data.' Here, I've lined up that previous vector underneath another vector that contains an integer 42, a string 'abc', and a ratio 22/7. The specification on the lower line is *shaped* like that data: Each element lines up with a predicate.</p></div><div class="panel-footer"><span class="panel-number">2/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Speculoos can validate with that specification vector.</h3><pre><code>(require '[speculoos.core :refer [valid-scalars?]])</code></pre><div class="vspace"></div><pre><code class="form">(valid-scalars? [42 "abc" 22/7]
-                [int? string? ratio?])</code><br><code class="eval">;; => true</code></pre><div class="note"><p>Speculoos can validate our data vector, on the upper line, with that specification vector, on the lower line. Validation systematically applies each predicate to its corresponding scalar. 42 is an integer, 'abc' is a string, and 22/7 is a ratio, so the validation returns 'true'. What about maps?</p></div><div class="panel-footer"><span class="panel-number">3/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Map specification are shaped like the data.</h3><pre><code>{:id 7    :food "ice cream" :dept :dairy  }</code></pre><pre><code>{:id int? :food string?     :dept keyword?}</code></pre><div class="note"><p>The upper map is our data containing scalars, while the lower map, which we saw on an earlier screen, is our specification containing predicates. Each element in the upper map *can* be paired with a predicate in the lower map. 7 with `int?`, 'ice cream' with `string?`, and :dairy with `keyword?`.</p><p>The 'shape' is similar, in that they're the same kind of collection and the maps contain the same keys: :id, :species, and :dept.</p></div><div class="panel-footer"><span class="panel-number">4/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Speculoos validates maps, too.</h3><pre><code class="form">(valid-scalars? {:id 7, :food "ice cream", :dept :dairy}
-                {:id int?, :food string?, :dept keyword?})</code><br><code class="eval">;; => true</code></pre><div class="note"><p>Speculoos validates our data map, on the upper line, with our specification map, on the lower line, by systematically applying each predicate in the specification to its corresponding scalar in the data.</p><p>7 is an integer, 'ice cream' is a string, and :dairy is indeed a keyword. All the corresponding predicates are satisfied, so the validation returns 'true'.</p></div><div class="panel-footer"><span class="panel-number">5/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Any Clojure collection</h3><table><tr><td>Vectors</td><td><code>[int? string? ratio?]</code></td></tr><tr><td>Maps</td><td><code>{:id int? :food string? :dept keyword?}</code></td></tr><tr><td>Sequences</td><td><code>(repeat int?)</code></td></tr><tr><td>Lists</td><td><code>(list symbol? int? string?)</code></td></tr><tr><td>Sets</td><td><code>#{keyword?}</code></td></tr></table><div class="note"><p>Speculoos can handle *any* Clojure collection type, including sequences, lists, and sets. A specification for a vector is a vector. A specification for a map is a map. A specification for a list is a list. Etc.</p></div><div class="panel-footer"><span class="panel-number">6/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Speculoos can validate any heterogeneous, arbitrarily-nested data structure.</h3><pre><code>{:first-name string?
+<html lang="en">
+  <head>
+    <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
+    <meta charset="utf-8" compile-date="2024-12-07 14:18:49" content="width=device-width, initial-scale=1" name="viewport">
+    <link href="screedcast.css" rel="stylesheet" type="text/css">
+    <script src="jquery-3.7.1.min.js" type="text/javascript"></script>
+    <script src="screedcast.js" type="text/javascript"></script>
+    <title>
+      Speculoos — An experimental Clojure data validation library
+    </title>
+  </head>
+  <body>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h1>
+        Speculoos Screencast 1 — Introduction
+      </h1>
+      <h4 class="subtitle">
+        <em>An experiment with Clojure specification literals</em>
+      </h4>
+      <div class="side-by-side-container">
+        <div class="side-by-side">
+          <pre><code>[int? string? ratio?]</code></pre>
+        </div>
+        <div class="side-by-side">
+          <pre><code>{:id int? :food string? :dept keyword?}</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          Speculoos is an experimental library that tries to do the same tasks as spec.alpha, but with specifications composed of plain Clojure collections.
+          These are specifications!
+        </p>
+        <p>
+          Imagine we'd like to know if <em>Our Clojure vector contains an integer, then a string, and finally a ratio</em>. One example of that specification
+          vector might look like this. It's a vector containing three predicates, `int?`, `string?`, and `ratio?`.
+        </p>
+        <p>
+          This map on the right is also a specification. It is satisfied by a map containing an integer associated to keyword :ID, a string associated to
+          keyword :food, and keyword associated to :dept.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">1/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Specifications are shaped like the data
+      </h3>
+      <pre><code>[42   "abc"   22/7  ]</code></pre>
+      <pre><code>[int? string? ratio?]</code></pre>
+      <div class="note">
+        <p>
+          One of Speculoos' core principles is 'specifications are shaped like the data.' Here, I've lined up that previous vector underneath another vector
+          that contains an integer 42, a string 'abc', and a ratio 22/7. The specification on the lower line is *shaped* like that data: Each element lines up
+          with a predicate.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">2/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Speculoos can validate with that specification vector.
+      </h3>
+      <pre><code>(require '[speculoos.core :refer [valid-scalars?]])</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid-scalars? [42 "abc" 22/7]
+                [int? string? ratio?])</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          Speculoos can validate our data vector, on the upper line, with that specification vector, on the lower line. Validation systematically applies each
+          predicate to its corresponding scalar. 42 is an integer, 'abc' is a string, and 22/7 is a ratio, so the validation returns 'true'. What about maps?
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">3/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Map specification are shaped like the data.
+      </h3>
+      <pre><code>{:id 7    :food "ice cream" :dept :dairy  }</code></pre>
+      <pre><code>{:id int? :food string?     :dept keyword?}</code></pre>
+      <div class="note">
+        <p>
+          The upper map is our data containing scalars, while the lower map, which we saw on an earlier screen, is our specification containing predicates.
+          Each element in the upper map *can* be paired with a predicate in the lower map. 7 with `int?`, 'ice cream' with `string?`, and :dairy with
+          `keyword?`.
+        </p>
+        <p>
+          The 'shape' is similar, in that they're the same kind of collection and the maps contain the same keys: :id, :food, and :dept.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">4/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Speculoos validates maps, too.
+      </h3>
+      <pre><code class="form">(valid-scalars? {:id 7, :food "ice cream", :dept :dairy}
+                {:id int?, :food string?, :dept keyword?})</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          Speculoos validates our data map, on the upper line, with our specification map, on the lower line, by systematically applying each predicate in the
+          specification to its corresponding scalar in the data.
+        </p>
+        <p>
+          7 is an integer, 'ice cream' is a string, and :dairy is indeed a keyword. All the corresponding predicates are satisfied, so the validation returns
+          'true'.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">5/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Any Clojure collection
+      </h3>
+      <table>
+        <tr>
+          <td>
+            Vectors
+          </td>
+          <td>
+            <code>[int? string? ratio?]</code>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Maps
+          </td>
+          <td>
+            <code>{:id int? :food string? :dept keyword?}</code>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Sequences
+          </td>
+          <td>
+            <code>(repeat int?)</code>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Lists
+          </td>
+          <td>
+            <code>(list symbol? int? string?)</code>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Sets
+          </td>
+          <td>
+            <code>#{keyword?}</code>
+          </td>
+        </tr>
+      </table>
+      <div class="note">
+        <p>
+          Speculoos can handle *any* Clojure collection type, including sequences, lists, and sets. A specification for a vector is a vector. A specification
+          for a map is a map. A specification for a list is a list. Etc.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">6/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Speculoos can validate any heterogeneous, arbitrarily-nested data structure.
+      </h3>
+      <pre><code>{:first-name string?
  :last-name string?
  :phone int?
  :email string?
@@ -9,23 +194,277 @@
            :street-number [int? char?]
            :zip-code int?
            :city string?
-           :state keyword?}}</code></pre><div class="note"><p>And Speculoos is not limited to flat, one-level-deep collections. It can handle any depth of nesting, of any mixture of collection types. Here, we see a specification that includes a vector, nested in a map, nested in a map. But Speculoos can validate any heterogeneous, arbitrarily-nested data structure.</p><p>Because Speculoos specifications are plain Clojure collections, we gain lots of flexibility and control.</p></div><div class="panel-footer"><span class="panel-number">7/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Flexible</h3><div class="side-by-side-container"><div class="side-by-side"><p>Compose</p><pre><code class="form">(concat [int? string?]
-        [ratio?])</code><br><code class="eval">;; => (int? string? ratio?)</code></pre></div><div class="side-by-side"><p>Alter</p><pre><code class="form">(assoc {:id int?,
+           :state keyword?}}</code></pre>
+      <div class="note">
+        <p>
+          And Speculoos is not limited to flat, one-level-deep collections. It can handle any depth of nesting, of any mixture of collection types. Here, we
+          see a specification that includes a vector, nested in a map, nested in a map. But Speculoos can validate any heterogeneous, arbitrarily-nested data
+          structure.
+        </p>
+        <p>
+          Because Speculoos specifications are plain Clojure collections, we gain lots of flexibility and control.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">7/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Flexible
+      </h3>
+      <div class="side-by-side-container">
+        <div class="side-by-side">
+          <p>
+            Compose
+          </p>
+          <pre><code class="form">(concat [int? string?]
+        [ratio?])</code><br><code class="eval">;; =&gt; (int? string? ratio?)</code></pre>
+        </div>
+        <div class="side-by-side">
+          <p>
+            Alter
+          </p>
+          <pre><code class="form">(assoc {:id int?,
         :food string?,
         :dept keyword?}
-  :id number?)</code><br><code class="eval">;; => {:dept keyword?, :food string?, :id number?}</code></pre></div></div><div class="note"><p>Because they're plain Clojure collections, the specifications may be manipulated by any Clojure functions. At any time, we can put two specifications together with 'concat', or we could relax the 'id' requirement to accept any number type instead of a more restrictive integer. No macros required.</p><p>We can manipulate the specifications at any time, suited to that particular context. We could have two component specifications from two different sources that we put together. Or, maybe within a pipeline, for just that step in a pipeline, we'd like to relax our requirement...</p></div><div class="panel-footer"><span class="panel-number">8/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Permissive: validate only datums that are present</h3><pre><code class="form">(valid-scalars? [42 "abc" 22/7]
-                [int? string? ratio?])</code><code class="eval"> ;; => true</code></pre><div class="vspace"></div><pre><code class="form">(valid-scalars? [42 "abc"]
-                [int? string? ratio?])</code><code class="eval"> ;; => true</code></pre><div class="vspace"></div><pre><code class="form">(valid-scalars? [42]
-                [int? string? ratio?])</code><code class="eval"> ;; => true</code></pre><div class="vspace"></div><pre><code class="form">(valid-scalars? []
-                [int? string? ratio?])</code><code class="eval"> ;; => true</code></pre><div class="note"><p>Speculoos seamlessly consumes partial data. If we have a larger specification, it'll validate only what's present. This feature allows us write a single specification and apply it accreting data.</p><p>We could compose one, single specification vector to validate what will eventually be three elements, but starts empty. As our pipeline adds elements, we can use that one specification at each step.</p></div><div class="panel-footer"><span class="panel-number">9/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Permissive: validate with only predicates that are present</h3><pre><code class="form">(valid-scalars? {:id 7, :food "ice cream", :dept :dairy}
-                {:id int?, :food string?, :dept keyword?})</code><br><code class="eval">;; => true</code></pre><div class="vspace"></div><pre><code class="form">(valid-scalars? {:id 7, :food "ice cream", :dept :dairy}
-                {:id int?, :food string?})</code><br><code class="eval">;; => true</code></pre><div class="vspace"></div><pre><code class="form">(valid-scalars? {:id 7, :food "ice cream", :dept :dairy}
-                {:id int?})</code><br><code class="eval">;; => true</code></pre><div class="note"><p>In the other direction, Speculoos does not require us to validate all the data we have. We could have 'extra' data that we're merely passing through. It will happily validate using only the predicates we give it.</p><p>If we specify three key-values, it'll validate all three. If we specify only two, or only one, only those scalars are validated.</p><p>You might think this is weird, but there's a lot utility comes from this behavior. Particularly, it allows us pass through datums we'd prefer to ignore. Maybe at the moment, we only care that the :id is an integer, and we merely don't care about :food or :dept.</p><p>And Speculoos has better ways of ensuring presence of datums.</p></div><div class="panel-footer"><span class="panel-number">10/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validate collections</h3><pre><code>(require '[speculoos.core :refer [valid-collections?]])</code></pre><div class="vspace"></div><pre><code class="form">(valid-collections? [42 "abc" 22/7 :foo]
-                    [#(= 3 (count %))])</code><br><code class="eval">;; => false</code></pre><div class="vspace"></div><pre><code class="form">(valid-collections?
+  :id number?)</code><br><code class="eval">;; =&gt; {:dept keyword?, :food string?, :id number?}</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          Because they're plain Clojure collections, the specifications may be manipulated by any Clojure functions. At any time, we can put two specifications
+          together with 'concat', or we could relax the 'id' requirement to accept any number type instead of a more restrictive integer. No macros required.
+        </p>
+        <p>
+          We can manipulate the specifications at any time, suited to that particular context. We could have two component specifications from two different
+          sources that we put together. Or, maybe within a pipeline, for just that step in a pipeline, we'd like to relax our requirement...
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">8/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Permissive: validate only datums that are present
+      </h3>
+      <pre><code class="form">(valid-scalars? [42 "abc" 22/7]
+                [int? string? ratio?])</code><code class="eval"> ;; =&gt; true</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid-scalars? [42 "abc"]
+                [int? string? ratio?])</code><code class="eval"> ;; =&gt; true</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid-scalars? [42]
+                [int? string? ratio?])</code><code class="eval"> ;; =&gt; true</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid-scalars? []
+                [int? string? ratio?])</code><code class="eval"> ;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          Speculoos seamlessly consumes partial data. If we have a larger specification, it'll validate only what's present. This feature allows us write a
+          single specification and apply it accreting data.
+        </p>
+        <p>
+          We could compose one, single specification vector to validate what will eventually be three elements, but starts empty. As our pipeline adds
+          elements, we can use that one specification at each step.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">9/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Permissive: validate with only predicates that are present
+      </h3>
+      <pre><code class="form">(valid-scalars? {:id 7, :food "ice cream", :dept :dairy}
+                {:id int?, :food string?, :dept keyword?})</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid-scalars? {:id 7, :food "ice cream", :dept :dairy}
+                {:id int?, :food string?})</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid-scalars? {:id 7, :food "ice cream", :dept :dairy}
+                {:id int?})</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          In the other direction, Speculoos does not require us to validate all the data we have. We could have 'extra' data that we're merely passing through.
+          It will happily validate using only the predicates we give it.
+        </p>
+        <p>
+          If we specify three key-values, it'll validate all three. If we specify only two, or only one, only those scalars are validated.
+        </p>
+        <p>
+          You might think this is weird, but there's a lot utility comes from this behavior. Particularly, it allows us pass through datums we'd prefer to
+          ignore. Maybe at the moment, we only care that the :id is an integer, and we merely don't care about :food or :dept.
+        </p>
+        <p>
+          And Speculoos has better ways of ensuring presence of datums.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">10/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Validate collections
+      </h3>
+      <pre><code>(require '[speculoos.core :refer [valid-collections?]])</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid-collections? [42 "abc" 22/7 :foo]
+                    [#(= 3 (count %))])</code><br><code class="eval">;; =&gt; false</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid-collections?
   {:id 7, :food "ice cream", :dept :dairy}
-  {:baz #(contains? % :id)})</code><br><code class="eval">;; => true</code></pre><div class="note"><p>The first core principle was 'specifications are shaped like the data'.</p><p>Another core principle is that Speculoos strictly distinguishes validating scalars (like numbers and strings) versus validating the properties of the collections themselves, such as their length (oh, no, our vector isn't three long) or whether they contain an element (such as, our ice-cream map does not contain something about a violin). Because of this separation, the predicates are simpler, the mental concept is cleaner, and the validations are correctly compartmentalized: validating the properties of a string datum is a completely separate concern from whether that string exists in the data.</p><p>The collection specification pattern is a little bit different than the scalar, but not too much. More details in a later screencast on the subject.</p></div><div class="panel-footer"><span class="panel-number">11/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Niceties</h3><p>Predicate-like things</p><pre><code class="form">(re-find #"a.[cde]" "abc")</code><br><code class="eval">;; => "abc"</code></pre><div class="vspace"></div><pre><code class="form">(#{1 5 7} 7)</code><br><code class="eval">;; => 7</code></pre><div class="vspace"></div><pre><code class="form">(valid-scalars? [42 "abc" 22/7]
-                [int? #"a.[cde]" #{1 5 7}])</code><br><code class="eval">;; => false</code></pre><div class="note"><p>I've tried to make Speculoos pleasant to use. I hope you appreciate composing and manipulating specifications with plain Clojure data structures.</p><p>I've also tried to make specifications expressive. Speculoos can seamlessly consume predicate-like things, such as regular expressions (to validate string properties) and sets (to validate membership in a set). If we stuff those into a scalar specification, validation works just as we'd expect. 42 is an integer, 'abc' satisfies a-something-C-or-D-or-E, and 7 is a member of this set.</p><p>Speculoos also has utilities to write and inspect specifications, generate samples, and exercise functions...</p></div><div class="panel-footer"><span class="panel-number">12/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Validate functions: arguments, return values, and argument-return relationships</h3><pre><code class="form">(inc 99)</code><br><code class="eval">;; => 100</code></pre><pre><code class="form">(inc "abc")</code><br><code class="eval">;; => Unhandled java.lang.ClassCastException: class java.lang.String cannot be cast…</code></pre><div class="vspace"></div><pre><code>(require '[speculoos.function-specs :refer [validate-fn-with]])</code></pre><div class="vspace"></div><pre><code class="form">(validate-fn-with inc {:speculoos/arg-scalar-spec [int?]} "abc")</code><br><code class="eval">;; => ({:datum "abc",
+  {:baz #(contains? % :id)})</code><br><code class="eval">;; =&gt; true</code></pre>
+      <div class="note">
+        <p>
+          The first core principle was 'specifications are shaped like the data'.
+        </p>
+        <p>
+          Another core principle is that Speculoos strictly distinguishes validating scalars (like numbers and strings) versus validating the properties of the
+          collections themselves, such as their length (oh, no, our vector isn't three long) or whether they contain an element (such as, our ice-cream map
+          does not contain something about a violin). Because of this separation, the predicates are simpler, the mental concept is cleaner, and the
+          validations are correctly compartmentalized: validating the properties of a string datum is a completely separate concern from whether that string
+          exists in the data.
+        </p>
+        <p>
+          The collection specification pattern is a little bit different than the scalar, but not too much. More details in a later screencast on the subject.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">11/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Niceties
+      </h3>
+      <p>
+        Predicate-like things
+      </p>
+      <pre><code class="form">(re-find #"a.[cde]" "abc")</code><br><code class="eval">;; =&gt; "abc"</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(#{1 5 7} 7)</code><br><code class="eval">;; =&gt; 7</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(valid-scalars? [42 "abc" 22/7]
+                [int? #"a.[cde]" #{1 5 7}])</code><br><code class="eval">;; =&gt; false</code></pre>
+      <div class="note">
+        <p>
+          I've tried to make Speculoos pleasant to use. I hope you appreciate composing and manipulating specifications with plain Clojure data structures.
+        </p>
+        <p>
+          I've also tried to make specifications expressive. Speculoos can seamlessly consume predicate-like things, such as regular expressions (to validate
+          string properties) and sets (to validate membership in a set). If we stuff those into a scalar specification, validation works just as we'd expect.
+          42 is an integer, 'abc' satisfies a-something-C-or-D-or-E, and 7 is a member of this set.
+        </p>
+        <p>
+          Speculoos also has utilities to write and inspect specifications, generate samples, and exercise functions...
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">12/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Validate functions: arguments, return values, and argument-return relationships
+      </h3>
+      <pre><code class="form">(inc 99)</code><br><code class="eval">;; =&gt; 100</code></pre>
+      <pre><code class="form">(inc "abc")</code><br><code class=
+      "eval">;; =&gt; Unhandled java.lang.ClassCastException: class java.lang.String cannot be cast…</code></pre>
+      <div class="vspace"></div>
+      <pre><code>(require '[speculoos.function-specs :refer [validate-fn-with]])</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(validate-fn-with inc {:speculoos/arg-scalar-spec [int?]} "abc")</code><br><code class="eval">;; =&gt; ({:datum "abc",
 ;;      :fn-spec-type :speculoos/argument,
 ;;      :path [0],
 ;;      :predicate int?,
-;;      :valid? false})</code></pre><div class="note"><p>One of spec.alpha's tent-pole features is specifying and validating function arguments and return values. Speculoos imitates those facilities.</p><p>Here we see `inc` bumps 99 to 100, but it chokes on a string. But if we pull in one of several function validators and specify our expectations for the argument, we can see why exactly.</p><p>Don't get bogged down in the weeds. Just know that Speculoos has those facilities.</p></div><div class="panel-footer"><span class="panel-number">13/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>What's next.</h3><ol class="de-highlight whats-next"><li>Introduction</li><li class="highlight">Mechanics</li><li>Validating Scalars</li><li>Validating Collections, Basics</li><li>Validating Collections, Advanced</li><li>Validating Collections, Extras</li><li>Validation Summaries & Thoroughness</li><li>Function Validation</li><li>Generating Random Samples & Exercising</li><li>Utilities</li><li>Predicates</li><li>Non-Terminating Sequences</li><li>Sets</li><li>Troubleshooting</li><li>Comparing spec.alpha to Speculoos</li><li>Perhaps So</li><li>Case Study</li></ol><div class="note"><p>I've created over a dozen screencasts as a follow-along companion the text documentation, which is the ReadMe. Next-Up is a discussion of Speculoos' mechanics: Knowing how Speculoos validates a HANDS greatly helps understanding how to use it.</p></div><div class="panel-footer"><span class="panel-number">14/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><p id="page-footer">Copyright © 2024 Brad Losavio.<br>Compiled 2024 December 03.<div class="license"><p>This program and the accompanying materials are made available under the terms of the <a href="https://opensource.org/license/MIT">MIT License</a>.</p></div><span id="uuid"><br>09ec291a-23f7-400b-9c3b-694facdb64ae</span></p></body></head></html>
+;;      :valid? false})</code></pre>
+      <div class="note">
+        <p>
+          One of spec.alpha's tent-pole features is specifying and validating function arguments and return values. Speculoos imitates those facilities.
+        </p>
+        <p>
+          Here we see `inc` bumps 99 to 100, but it chokes on a string. But if we pull in one of several function validators and specify our expectations for
+          the argument, we can see why exactly.
+        </p>
+        <p>
+          Don't get bogged down in the weeds. Just know that Speculoos has those facilities.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">13/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        What's next.
+      </h3>
+      <ol class="de-highlight whats-next">
+        <li>Introduction
+        </li>
+        <li class="highlight">Mechanics
+        </li>
+        <li>Validating Scalars
+        </li>
+        <li>Validating Collections, Basics
+        </li>
+        <li>Validating Collections, Advanced
+        </li>
+        <li>Validating Collections, Extras
+        </li>
+        <li>Validation Summaries & Thoroughness
+        </li>
+        <li>Function Validation
+        </li>
+        <li>Generating Random Samples & Exercising
+        </li>
+        <li>Utilities
+        </li>
+        <li>Predicates
+        </li>
+        <li>Non-Terminating Sequences
+        </li>
+        <li>Sets
+        </li>
+        <li>Troubleshooting
+        </li>
+        <li>Comparing spec.alpha to Speculoos
+        </li>
+        <li>Perhaps So
+        </li>
+        <li>Case Study
+        </li>
+      </ol>
+      <div class="note">
+        <p>
+          I've created about a dozen-and-a-half screencasts as a follow-along companion the text documentation, which is the ReadMe. Next-Up is a discussion of
+          Speculoos' mechanics: Knowing how Speculoos validates a HANDS greatly helps understanding how to use it.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">14/14</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <p id="page-footer">
+      Copyright © 2024 Brad Losavio.<br>
+      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 07.
+    </p>
+    <div class="license">
+      <p>
+        This program and the accompanying materials are made available under the terms of the <a href="https://opensource.org/license/MIT">MIT License</a>.
+      </p>
+    </div><span id="uuid"><br>
+    09ec291a-23f7-400b-9c3b-694facdb64ae</span>
+    <p></p>
+  </body>
+</html>

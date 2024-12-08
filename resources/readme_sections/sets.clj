@@ -149,7 +149,7 @@
 
  [:pre (print-form-then-eval " (validate-scalars {:x 42 :y :red} {:x int? :y #{:red :green :blue}})" 55 45)]
 
- [:p "Scalar "[:code "42"] " pairs with predicate " [:code "int?"] " at path " [:code "[:x]"] " and scalar " [:code ":red"] " pairs with set-predicate " [:code "#{:red :green :blue}"] " at path " [:code "[:y]"] ". Speculoos validates scalars in the data that share paths with predicates in the specification. Since " [:code "#{:red :green :blue}"] " is considered a predicate, scalar " [:code ":red"] " is validated."]
+ [:p "Scalar "[:code "42"] " pairs with predicate " [:code "int?"] " at path " [:code "[:x]"] " and scalar " [:code ":red"] " pairs with set-predicate " [:code "#{:red :green :blue}"] " at path " [:code "[:y]"] ". Speculoos validates scalars in the data that share paths with predicates in the specification. Since " [:code "#{:red :green :blue}"] " is considered a predicate, scalar " [:code ":red"] " is validated."]
 
  [:h3 "2. Validate Scalars within Set"]
 
@@ -229,13 +229,13 @@
 
  [:pre (print-form-then-eval "(all-paths [vector? #{set?}])")]
 
- [:p "Notice the paths to the two predicates. Predicate " [:code "vector"] " is located at path " [:code "[0]"] ", while predicate " [:code "set?"] " is located at path " [:code "[1 set?]"] ". When validating collections, Speculoos only considers predicates within a specification."]
+ [:p "Notice the paths to the two predicates. Predicate " [:code "vector"] " is located at path " [:code "[0]"] ", while predicate " [:code "set?"] " is located at path " [:code "[1 set?]"] ". When validating collections, Speculoos only considers predicates within a specification."]
 
  [:p "Now, let's run a collection validation."]
 
  [:pre (print-form-then-eval "(validate-collections [42 #{:puppy :kitten :goldfish}] [vector? #{set?}])" 55 45)]
 
- [:p [:code "validate-collections"] " was able to pair two collections in the data with two predicates in the specification, and we received two validation results. Collection predicate " [:code "vector?"] " at path " [:code "[0]"] " in the specification was applied to whatever is at path " [:code "(drop-last [0])"] " in the data, which happens to be the root collection. Collection predicate " [:code "set?"] " at path " [:code "[1 set?]"] " in the specification was applied to path " [:code "(drop-last [1 set?])"] " in the data, which happens to be our nested set containing pet keywords. Both predicates were satisfied."]
+ [:p [:code "validate-collections"] " was able to pair two collections in the data with two predicates in the specification, and we received two validation results. Collection predicate " [:code "vector?"] " at path " [:code "[0]"] " in the specification was applied to whatever is at path " [:code "(drop-last [0])"] " in the data, which happens to be the root collection. Collection predicate " [:code "set?"] " at path " [:code "[1 set?]"] " in the specification was applied to path " [:code "(drop-last [1 set?])"] " in the data, which happens to be our nested set containing pet keywords. Both predicates were satisfied."]
 
   [:p "Remember: Scalar predicates apply to the scalar at their exact location. Collection predicates apply to the collection directly above their head."]
  ]

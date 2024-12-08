@@ -11,7 +11,8 @@
    [hiccup.util :as util]
    [readmoi.core :refer [page-template
                          prettyfy
-                         print-form-then-eval]]
+                         print-form-then-eval
+                         tidy-html-document]]
    [speculoos.core :refer [only-invalid
                            valid-collections?
                            valid-scalars?
@@ -771,12 +772,15 @@
 (def case-study-UUID #uuid "e3856cb2-b1d6-40cb-8659-8f2e7e56fcca")
 
 
-(spit "doc/case_study.html"
-      (page-template
-       "Case study: Specifying and validating a library changelog"
-       case-study-UUID
-       page-body
-       "Brad Losavio"))
+(do
+  (spit "doc/case_study.html"
+        (page-template
+         "Case study: Specifying and validating a library changelog"
+         case-study-UUID
+         page-body
+         "Brad Losavio"))
+
+  (tidy-html-document "doc/case_study.html"))
 
 
 (defn -main

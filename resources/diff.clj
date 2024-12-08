@@ -9,7 +9,8 @@
    [hiccup.util :as util]
    [readmoi.core :refer [page-template
                          prettyfy
-                         print-form-then-eval]]))
+                         print-form-then-eval
+                         tidy-html-document]]))
 
 
 (def diff-UUID #uuid "8a4f6c1d-cd36-4753-8fea-7afeb8faa049")
@@ -1340,11 +1341,15 @@
     ]])
 
 
-(spit "doc/diff.html"
-      (page-template "Speculoos Comparison to clojure.spec.alpha"
-                     diff-UUID
-                     page-body
-                     "Brad Losavio"))
+(do
+  (spit "doc/diff.html"
+        (page-template "Speculoos Comparison to clojure.spec.alpha"
+                       diff-UUID
+                       page-body
+                       "Brad Losavio"))
+
+  (tidy-html-document "doc/diff.html"))
+
 
 (defn -main
   [& args]

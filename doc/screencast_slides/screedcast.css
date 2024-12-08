@@ -133,7 +133,7 @@ code.eval {
 }
 
 .note {
-    /* display: none; */
+    display: none;
     color: darkorange;
     font-size: 18pt;
 }

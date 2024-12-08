@@ -55,7 +55,7 @@
   [:div.note
    [:p "The upper map is our data containing scalars, while the lower map, which we saw on an earlier screen, is our specification containing predicates. Each element in the upper map *can* be paired with a predicate in the lower map. 7 with `int?`, 'ice cream' with `string?`, and :dairy with `keyword?`."]
 
-   [:p "The 'shape' is similar, in that they're the same kind of collection and the maps contain the same keys: :id, :species, and :dept."]])
+   [:p "The 'shape' is similar, in that they're the same kind of collection and the maps contain the same keys: :id, :food, and :dept."]])
 
 
  (panel
@@ -233,5 +233,5 @@
  (whats-next-panel
   intro-index
   [:div.note
-   [:p "I've created over a dozen screencasts as a follow-along companion the text documentation, which is the ReadMe. Next-Up is a discussion of Speculoos' mechanics: Knowing how Speculoos validates a HANDS greatly helps understanding how to use it."]])
+   [:p "I've created about a dozen-and-a-half screencasts as a follow-along companion the text documentation, which is the ReadMe. Next-Up is a discussion of Speculoos' mechanics: Knowing how Speculoos validates a HANDS greatly helps understanding how to use it."]])
  ]

@@ -394,7 +394,7 @@
   [:div.note
    [:p "Let's validate with all the specified values."]
 
-   [:p "The values we supplied for " [:code ":make"] ", " [:code ":model"] ", and " [:code "year"] " all satisfied their respective scalar predicates. Furthermore, the " [:cde "car"] " map itself satisfied the collection specification's requirement that the map contain a key " [:code ":make"] "."]])
+   [:p "The values we supplied for " [:code ":make"] ", " [:code ":model"] ", and " [:code "year"] " all satisfied their respective scalar predicates. Furthermore, the " [:code "car"] " map itself satisfied the collection specification's requirement that the map contain a key " [:code ":make"] "."]])
 
 
  (panel

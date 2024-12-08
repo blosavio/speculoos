@@ -276,7 +276,7 @@
 
  [:pre (print-form-then-eval "(all-paths [len-3? [len-2?]])")]
 
- [:p "Four total elements: two collections, the root vector at path " [:code "[]"] " and a nested vector at path " [:code "[1]"] ", and two functions, predicate " [:code "len-3?"] " in the top-level at path " [:code "[0]"] " and predicate " [:code "len-2?"] " in the lower-level at path " [:code "[1 0]"] "."]
+ [:p "Four total elements: two collections, the root vector at path " [:code "[]"] " and a nested vector at path " [:code "[1]"] ", and two functions, predicate " [:code "len-3?"] " in the top-level at path " [:code "[0]"] " and predicate " [:code "len-2?"] " in the lower-level at path " [:code "[1 0]"] "."]
 
  [:p "Next, we remove all scalar elements from the data, keeping only the elements that are collections."]
 
@@ -305,7 +305,7 @@
 
  [:p "In the previous " [:a {:href "#scalar-validation"} "section"] " when we were validating scalars, we followed the principle that validation only proceeds when a predicate in the specification shares the " [:em "exact"] " path as the scalar in the data. However, we can now see an issue if we try to apply that principle here. The nested vector of the data is located at path " [:code "[1]"] ". The nested " [:code "len-2?"] " predicate in the specification is located at path " [:code "[1 0]"] ", nearly same except for the trailing " [:code "0"] ". The root vector of the data is located at path " [:code "[]"] " while the " [:code "len-3?"] " predicate is located at path " [:code "[0]"] " of the specification, again, nearly the same except for the trailing " [:code "0"] ". Clojure has a nice core function that performs that transformation."]
 
- [:p "The slightly modified rule for validating collections is " [:em "Collection predicates in the specification are applied to the collection in the data that correspond to their parent."] " In other words, the predicate at path " [:code "pth"] " in the collection specification is applied to the collection at path " [:code "(drop-last pth)"] " in the data. So we pair predicate " [:code "len-3?"] " with the root collection " [:code "[42 [\"abc\" 22/7]]"] " and we pair predicate " [:code "len-2?"] " with the nested vector " [:code "[\"abc\" 22/7]"] "."]
+ [:p "The slightly modified rule for validating collections is " [:em "Collection predicates in the specification are applied to the collection in the data that correspond to their parent."] " In other words, the predicate at path " [:code "pth"] " in the collection specification is applied to the collection at path " [:code "(drop-last pth)"] " in the data. So we pair predicate " [:code "len-3?"] " with the root collection " [:code "[42 [\"abc\" 22/7]]"] " and we pair predicate " [:code "len-2?"] " with the nested vector " [:code "[\"abc\" 22/7]"] "."]
 
  [:p "We can now perform the validation by hand. There are two vectors to validate, each with its own predicate."]
 
@@ -429,7 +429,7 @@
 
  [:pre (print-form-then-eval "(drop-last [:foo])")]
 
- [:p "Fortunately, that evaluates to a path, " [:code "()"] ", which in the data, corresponds to a collection. Because the " [:code "(drop-last [:foo])"] " path of the predicate in the specification corresponds to the path of a collection in the data, we can form a validation pair."]
+ [:p "Fortunately, that evaluates to a path, " [:code "()"] ", which in the data, corresponds to a collection. Because the " [:code "(drop‑last [:foo])"] " path of the predicate in the specification corresponds to the path of a collection in the data, we can form a validation pair."]
 
  [:pre (print-form-then-eval "(map? {:x 42})")]
 
@@ -533,7 +533,7 @@
 
  [:pre (print-form-then-eval "(validate-collections [42] [vector? map? list? set? coll?])" 55 80)]
 
- [:p "All five collection predicates were located at a single-element path, so for each of those five cases, " [:code "(drop-last [" [:em "0 through 4"] "])"]  " evaluated to " [:code "()"] ", which is the path to the data's root collection. " [:code "validate-collections"] " was therefore able to make five pairs, and we see five validation results."]
+ [:p "All five collection predicates were located at a single-element path, so for each of those five cases, " [:code "(drop‑last [" [:em "0 through 4"] "])"]  " evaluated to " [:code "()"] ", which is the path to the data's root collection. " [:code "validate-collections"] " was therefore able to make five pairs, and we see five validation results."]
 
  [:p "That feature can be useful, but it raises an issue. How would we specify the collections of this data?"]
 
@@ -551,7 +551,7 @@
 
  [:pre (print-form-then-eval "(all-paths [coll? vector? {:foo map?}])")]
 
- [:p "Two predicates, " [:code "coll?"] " and " [:code "vector?"] ", apply to the root collection, because " [:code "(drop-last [0])"] " and " [:code "(drop-last [1])"] " both resolve the root collection's path. But somehow, we have to tell " [:code "validate-collections"] " how to target that " [:code "map?"] " predicate towards the nested map. We can see that " [:code "map?"] " is located at path " [:code "[2 :foo]"] ", and " [:code "(drop-last [2 :foo])"] " evaluates to " [:code "[2]"] ". The data's nested map " [:code "{:y \"abc\"}"] " is located at path " [:code "[1]"] ", which doesn't 'match'."]
+ [:p "Two predicates, " [:code "coll?"] " and " [:code "vector?"] ", apply to the root collection, because " [:code "(drop-last [0])"] " and " [:code "(drop-last [1])"] " both resolve the root collection's path. But somehow, we have to tell " [:code "validate-collections"] " how to target that " [:code "map?"] " predicate towards the nested map. We can see that " [:code "map?"] " is located at path " [:code "[2 :foo]"] ", and " [:code "(drop-last [2 :foo])"] " evaluates to " [:code "[2]"] ". The data's nested map " [:code "{:y \"abc\"}"] " is located at path " [:code "[1]"] ", which doesn't 'match'."]
 
  [:p  "If " [:strong "any"] " number of predicates apply to the parent collection, there might be zero to infinity predicates before we encounter a nested collection in that sequence. How, then, does " [:code "validate-collections"] " determine where to apply the predicate inside a nested collection?"]
 
@@ -593,7 +593,7 @@
 
  [:pre (print-form-then-eval "(validate-collections [42 {:y \"abc\"}] [coll? vector? {:foo map?}])" 50 50)]
 
- [:p [:code "validate-collections"] " found three predicates in the specification on the lower row that it could pair with a collection in the data in the upper row. Both " [:code "coll?"] " and " [:code "vector?"] " predicates pair with the root collection because their paths, when right-trimmed with " [:code "drop-last"] " correspond to " [:code "[]"] ", which targets the root collection. Predicate " [:code "map?"] " was paired with the nested map " [:code "{:y \"abc\"}"] " in the data because " [:code "map?"] " was located in the first nested collection of the specification, and " [:code "{:y \"abc\"}"] " is the first (and only) nested collection in the data. We can see how " [:code "validate-collections"] " calculated the nested map's path because " [:code ":ordinal-path-datum"] " is " [:code "[0]"] ". The ordinal path reports the path into the 'pruned' collections, as if the sequentials in the data and the sequentials in the specification contained zero scalars."]
+ [:p [:code "validate-collections"] " found three predicates in the specification on the lower row that it could pair with a collection in the data in the upper row. Both " [:code "coll?"] " and " [:code "vector?"] " predicates pair with the root collection because their paths, when right-trimmed with " [:code "drop-last"] " correspond to " [:code "[]"] ", which targets the root collection. Predicate " [:code "map?"] " was paired with the nested map " [:code "{:y \"abc\"}"] " in the data because " [:code "map?"] " was located in the first nested collection of the specification, and " [:code "{:y \"abc\"}"] " is the first (and only) nested collection in the data. We can see how " [:code "validate-collections"] " calculated the nested map's path because " [:code ":ordinal-path-datum"] " is " [:code "[0]"] ". The ordinal path reports the path into the 'pruned' collections, as if the sequentials in the data and the sequentials in the specification contained zero scalars."]
 
  [:p "Let's do another example that really exercises this principle. First, we'll make some example data composed of a parent vector, containing a nested map, a nested list, and a nested set, with a couple of interleaved integers."]
 
@@ -672,7 +672,7 @@
 
  [:pre (print-form-then-eval "(validate-collections [{:a 11} 22 (list 33) 44 #{55}] [{} (list list?) #{}])" 55 80)]
 
- [:p "We inserted only a single " [:code "list?"] " predicate into the specification, so, at most, we could receive only one collection+predicate pair. The data's nested list, " [:code "(list 33)"] " is the second nested collection within the sequential, so its ordinal path is " [:code "[1]"] ". The " [:code "list?"] " predicate is contained in the specification's second nested collection, so its ordinal path is also " [:code "[1]"] ". Since the " [:code "list?"] " predicate's container and the thing in the data share an ordinal path, " [:code "validate-collection"] " formed a collection+predicate pair. The " [:code "list?"] " predicate was satisfied because " [:code "(list 33)"] " is indeed a list."]
+ [:p "We inserted only a single " [:code "list?"] " predicate into the specification, so, at most, we could receive only one collection+predicate pair. The data's nested list, " [:code "(list 33)"] " is the second nested collection within the sequential, so its ordinal path is " [:code "[1]"] ". The " [:code "list?"] " predicate is contained in the specification's second nested collection, so its ordinal path is also " [:code "[1]"] ". Since the " [:code "list?"] " predicate's container and the thing in the data share an ordinal path, " [:code "validate-collection"] " formed a collection+predicate pair. The " [:code "list?"] " predicate was satisfied because " [:code "(list 33)"] " is indeed a list."]
 
  [:p "Let's clear the slate and specify that nested set at the end. We start with the full data…"]
 
@@ -778,7 +778,7 @@
 
  [:pre (print-form-then-eval "(validate-collections [{:a 11} 22 (list 33) 44 #{55}] [vector? {} () #{}])" 55 80)]
 
- [:p "Technically, we could put that particular predicate anywhere in the top-level vector as long " [:code "(drop-last " [:em "path"] ")"] " evaluates to " [:code "[]"] ". All the following yield substantially the same results."]
+ [:p "Technically, we could put that particular predicate anywhere in the top-level vector as long " [:code "(drop-last " [:em "path"] ")"] " evaluates to " [:code "[]"] ". All the following yield substantially the same results."]
 
  [:pre
   [:code "(validate-collections [{:a 11} 22 (list 33) 44 #{55}] [vector? {} () #{}])"]
@@ -919,7 +919,7 @@
 
  [:p "We inserted four predicates — " [:code "vector?"] ", "  [:code "sequential?"] ", "  [:code "coll?"] ", and "  [:code "any?"] " — directly into the specification's top level, interleaved among the nested map, list, and set. Because they're in the top level, those predicates apply to the collection that contains them, the root collection. The outer, parent vector satisfies all four predicates because it is indeed a vector, is sequential, is a collection, and it trivially satisfies " [:code "any?"] "."]
 
- [:p "In addition, " [:code "validate-collections"] " validated the data's three nested collections, each with the particular predicate they contained. Map " [:code "{:a 11}"] " is the first nested collection, so its " [:code "map?"] " predicate is found at ordinal path " [:code "[0]"] ". List " [:code "(list 33)"] "is the second nested collection, so its " [:code "list?"] " predicate is found at ordinal path " [:code "[1]"]  ", skipping over the intervening scalar " [:code "22"] ". Set " [:code "#{55}"] " is the third nested collection, paired with the " [:code "set?"] " predicate at ordinal path " [:code "[2]"] ", skipping over the intervening scalars " [:code "22"] " and " [:code "44"] ". All three nested collections satisfied their respective predicates."]
+ [:p "In addition, " [:code "validate-collections"] " validated the data's three nested collections, each with the particular predicate they contained. Map " [:code "{:a 11}"] " is the first nested collection, so its " [:code "map?"] " predicate is found at ordinal path " [:code "[0]"] ". List " [:code "(list 33)"] "is the second nested collection, so its " [:code "list?"] " predicate is found at ordinal path " [:code "[1]"]  ", skipping over the intervening scalar " [:code "22"] ". Set " [:code "#{55}"] " is the third nested collection, paired with the " [:code "set?"] " predicate at ordinal path " [:code "[2]"] ", skipping over the intervening scalars " [:code "22"] " and " [:code "44"] ". All three nested collections satisfied their respective predicates."]
 
  [:p "Collections nested within a map do not involve that kind of skipping because they're not sequential. To demonstrate that, let's make this our example data."]
 
@@ -1070,7 +1070,7 @@
    [:br]
    [:code "(imaginary-validate-collection [42 [\"abc\" 22/7]]\n                               len-3?\n                               len-2?)\n;; => true"]]
 
-  [:p "Because the " [:code "len-3?"] " predicate absorbs the " [:code "[]"] " path to root, and because predicates are not themselves collections and cannot 'contain' something else, the second predicate, " [:code "len-2?"] ", needs to also be free-floating at the tail of the argument list. Our " [:code "imaginary-validate-collections"] " would have to somehow figure out that predicate " [:code "len-3?"] " ought to be paired with the root collection, " [:code "[42 [\"abc\" 22/7]"] " and predicate " [:code "len-2?"] " ought to be paired with the nested vector " [:code "[\"abc\" 22/7]"] "."]
+  [:p "Because the " [:code "len-3?"] " predicate absorbs the " [:code "[]"] " path to root, and because predicates are not themselves collections and cannot 'contain' something else, the second predicate, " [:code "len-2?"] ", needs to also be free-floating at the tail of the argument list. Our " [:code "imaginary-validate-collections"] " would have to somehow figure out that predicate " [:code "len-3?"] " ought to be paired with the root collection, " [:code "[42 [\"abc\" 22/7]"] " and predicate " [:code "len-2?"] " ought to be paired with the nested vector " [:code "[\"abc\" 22/7]"] "."]
 
   [:p "It gets even worse if we have another level of nesting. How about three vectors, each nested within another?"]
 

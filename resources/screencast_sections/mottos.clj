@@ -3,8 +3,8 @@
 
  [:ol.side-by-side-by-side-container
 
-  [:div.side-by-side-by-side
-   [:li "Validate scalars separately from validating collections."]
+  [:li.div.side-by-side-by-side
+   "Validate scalars separately from validating collections."
    [:div.vspace]
    [:p "scalars:"
     [:br]
@@ -19,11 +19,9 @@
      [:ol
       [:li "Simpler. No mini-language that mixes identities and quantities. Specs Cloj data structures w/functions. Manipulate specs w/anything, e.g. "[:code "assoc-in"] " No macros."]
       [:li "Mental clarity. Validation only applies to scalar, or to collection, never both. Predicate doesn't have to know anything about the quantity or location of the element."]
-      [:li "Only specify as much, or as little, as necessary. If only a few scalars, won't be forced to specify a property concerning a collection."]]]
-]]
+      [:li "Only specify as much, or as little, as necessary. If only a few scalars, won't be forced to specify a property concerning a collection."]]]]]
 
-  [:div.side-by-side-by-side
-   [:li "Shape the specification to mimic the data."]
+  [:li.side-by-side-by-side "Shape the specification to mimic the data."
    [:div "data"]
    [:div "↓"]
    [:pre
@@ -34,11 +32,9 @@
    [:div "specification"]
 
    [:div.note
-    [:p "Composing specs straightforward; mimic shape of data. Arrangement of nested vectors, lists, maps, sequences, and sets that contain predicates. Pattern instruct the validation functions where to apply the predicates. Spec for a vector is a vector. Spec for a map, is a map. ~1-to-1 correspondence b/t shape of data and shape of specific. Strategy: copy-paste data, delete contents,  use as a template, replace elements with predicates. Peek at by eye — merely eval them at " [:span.small-caps "repl"] " — easy alteration: any Clojure data wrangling functions to tighten, relax, or remove portions of spec. " [:code "assoc-in"] ", " [:code "update-in"] ", & " [:code "dissoc"] "."]
-]]
+    [:p "Composing specs straightforward; mimic shape of data. Arrangement of nested vectors, lists, maps, sequences, and sets that contain predicates. Pattern instruct the validation functions where to apply the predicates. Spec for a vector is a vector. Spec for a map, is a map. ~1-to-1 correspondence b/t shape of data and shape of specific. Strategy: copy-paste data, delete contents,  use as a template, replace elements with predicates. Peek at by eye — merely eval them at " [:span.small-caps "repl"] " — easy alteration: any Clojure data wrangling functions to tighten, relax, or remove portions of spec. " [:code "assoc-in"] ", " [:code "update-in"] ", & " [:code "dissoc"] "."]]]
 
-  [:div.side-by-side-by-side
-   [:li "Ignore un-paired predicates and un-paired datums."]
+  [:li.side-by-side-by-side "Ignore un-paired predicates and un-paired datums."
    [:div "data"]
    [:div "↓"]
    [:pre

@@ -1,5 +1,22 @@
 <!DOCTYPE html>
-<html lang="en"><head><link href="screedcast.css" rel="stylesheet" type="text/css"><script src="jquery-3.7.1.min.js" type="text/javascript"></script><script src="screedcast.js" type="text/javascript"></script><title>Speculoos — An experimental Clojure data validation library</title><meta charset="utf-8" compile-date="2024-12-03 08:38:52" content="width=device-width, initial-scale=1" name="viewport"><body><div class="panel"><div class="panel-header"></div><h1>Speculoos Screencast 2 — Mechanics</h1><pre><code>{:first-name string?
+<html lang="en">
+  <head>
+    <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
+    <meta charset="utf-8" compile-date="2024-12-07 14:18:49" content="width=device-width, initial-scale=1" name="viewport">
+    <link href="screedcast.css" rel="stylesheet" type="text/css">
+    <script src="jquery-3.7.1.min.js" type="text/javascript"></script>
+    <script src="screedcast.js" type="text/javascript"></script>
+    <title>
+      Speculoos — An experimental Clojure data validation library
+    </title>
+  </head>
+  <body>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h1>
+        Speculoos Screencast 2 — Mechanics
+      </h1>
+      <pre><code>{:first-name string?
  :last-name string?
  :phone int?
  :email string?
@@ -7,56 +24,626 @@
            :street-number [int? char?]
            :zip-code int?
            :city string?
-           :state keyword?}}</code></pre><div class="note"><p>Knowing a *little* bit about how Speculoos does its job will greatly help us understand how to use it. First, we need to know on how to address elements contained within a heterogeneous, arbitrarily-nested data structure, like this person specification. Speculoos follows the conventions set by <code>clojure.core/get-in</code>, and extends those conventions where necessary.</p></div><div class="panel-footer"><span class="panel-number">1/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Vectors are addressed by zero-indexed integers.</h3><pre><code>           [100 101 102 103]</code><br><code>indexes --> 0   1   2   3</code></pre><div class="panel-footer"><span class="panel-number">2/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Same for lists…</h3><pre><code>          '(97 98 99 100)</code><br><code>indexes --> 0  1  2  3</code></pre><div class="panel-footer"><span class="panel-number">3/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>…and same for sequences, like <code>range</code>.</h3><pre><code>(range 29 33) ;; => (29 30 31 32)</code><br><code>indexes -----------> 0  1  2  3</code></pre><div class="note"><p>This also applies to clojure.lang.{cycle,iterate,lazy-seq,range,repeat}</p></div><div class="panel-footer"><span class="panel-number">4/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Maps are addressed by their keys.</h3><pre><code>        {:a 1 :foo "bar" :hello 'world}</code><br><code>keys --> :a   :foo       :hello</code></pre><div class="note"><p>...which are often keywords, like this.</p></div><div class="panel-footer"><span class="panel-number">5/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>But maps may be keyed by <em>any</em> value, including integers…</h3><pre><code>        {0 "zero" 1 "one" 99 "ninety-nine"}</code><br><code>keys --> 0        1       99</code></pre><div class="panel-footer"><span class="panel-number">6/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>…or some other scalars…</h3><pre><code>        {"a" :value-at-str-key-a 'b :value-at-sym-key-b \c :value-at-char-key-c}</code><br><code>keys --> "a"                     'b                     \c</code></pre><div class="note"><p>Like a string, a symbol, a character, or...</p></div><div class="panel-footer"><span class="panel-number">7/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>…even composite values.</h3><pre><code>        {[0] :val-at-vec-0 [1 2 3] :val-at-vec-1-2-3 {} :val-at-empty-map}</code><br><code>keys --> [0]               [1 2 3]                   {}</code></pre><div class="panel-footer"><span class="panel-number">8/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Set elements are addressed by their identities, so they are located at themselves.</h3><pre><code>             #{42 :foo true 22/7}</code><br><code>identities --> 42 :foo true 22/7</code></pre><div class="panel-footer"><span class="panel-number">9/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Paths</h3><p>Let's play <em>Get the <code>102</code>!</em></p><div class="vspace"></div><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(get-in [100 101 102 103]
-        [2])</code><br><code class="eval">;; => 102</code></pre></div><div class="side-by-side"><pre><code>(get-in* <em>coll
-         path</em>)</code></pre></div></div><div class="note"><p>First, we'll define 'path'. A <em>path</em> is a sequence of indexes, keys, or identities that allow us refer to a single element buried within a nested data structure. For each level of nesting, we add an element to the path sequence. <code>clojure.core/get-in</code> illustrates how this works.</p><p>The 102 is the third element of a vector, which we've seen is addressed by zero-indexed integers. So, zero-one-two... 102 is get-ed by a path of one element, [2].</p><p>For a vector containing only integers, each element is addressed by a path of length one. To locate integer <code>102</code>, the path is <code>[2]</code>. If we consider a vector nested within a vector…</p></div><div class="panel-footer"><span class="panel-number">10/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Nesting</h3><p><em>Get the <code>102</code>!</em></p><div class="vspace"></div><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(get-in [100 101 [102 103]]
-        [2])</code><br><code class="eval">;; => [102 103]</code></pre><div class="vspace"></div><pre><code class="form">(get-in [102 103]
-        [0])</code><br><code class="eval">;; => 102</code></pre></div><div class="side-by-side"><pre><code class="form">(get-in [100 101 [102 103]]
-        [2 0])</code><br><code class="eval">;; => 102</code></pre></div></div><div class="note"><p>…that same path <code>[2]</code> now locates the nested vector. Then, within that nested vector, 102 is at index 0.</p><p>So to navigate to the 102 contained within the nested vector requires a path of length two: <code>[2 0]</code> where the <code>2</code> addresses the nested vector <code>[102 103]</code> and the <code>0</code> addresses the <code>102</code>'s position within the nested vector.</p></div><div class="panel-footer"><span class="panel-number">11/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Deeper nesting</h3><p><em>Get the <code>102</code>!</em></p><div class="vspace"></div><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(get-in [100 [101 [102]]]
-        [1])</code><br><code class="eval">;; => [101 [102]]</code></pre><div class="vspace"></div><pre><code class="form">(get-in [101 [102]]
-        [1])</code><br><code class="eval">;; => [102]</code></pre><div class="vspace"></div><pre><code class="form">(get-in [102]
-        [0])</code><br><code class="eval">;; => 102</code></pre></div><div class="side-by-side"><pre><code class="form">(get-in [100 [101 [102]]]
-        [1 1 0])</code><br><code class="eval">;; => 102</code></pre></div></div><div class="note"><p>Let's extend that idea: If our 102 is contained within a vector, contained within a vector, contained within a vector, we'd use a path of length three to get that integer.</p><p>Index 1 gets us this nested vector, index 1 gets us this nested vector, and index 0 gets us our 102. We assemble our three-element path 1-1-0, and that gets us the 102 buried within the original collection.</p><p>The <code>102</code> is buried three levels deep, so we use a path with three entries.</p></div><div class="panel-footer"><span class="panel-number">12/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Paths to nested maps.</h3><p><em>Get the <code>102</code>!</em></p><div class="vspace"></div><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(get-in {:x 100,
+           :state keyword?}}</code></pre>
+      <div class="note">
+        <p>
+          Knowing a *little* bit about how Speculoos does its job will greatly help us understand how to use it. First, we need to know on how to address
+          elements contained within a heterogeneous, arbitrarily-nested data structure, like this person specification. Speculoos follows the conventions set
+          by <code>clojure.core/get-in</code>, and extends those conventions where necessary.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">1/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Vectors are addressed by zero-indexed integers.
+      </h3>
+      <pre><code>           [100 101 102 103]</code><br><code>indexes --&gt; 0   1   2   3</code></pre>
+      <div class="panel-footer">
+        <span class="panel-number">2/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Same for lists…
+      </h3>
+      <pre><code>          '(97 98 99 100)</code><br><code>indexes --&gt; 0  1  2  3</code></pre>
+      <div class="panel-footer">
+        <span class="panel-number">3/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        …and same for sequences, like <code>range</code>.
+      </h3>
+      <pre><code>(range 29 33) ;; =&gt; (29 30 31 32)</code><br><code>indexes -----------&gt; 0  1  2  3</code></pre>
+      <div class="note">
+        <p>
+          This also applies to clojure.lang.{cycle,iterate,lazy-seq,range,repeat}
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">4/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Maps are addressed by their keys.
+      </h3>
+      <pre><code>        {:a 1 :foo "bar" :hello 'world}</code><br><code>keys --&gt; :a   :foo       :hello</code></pre>
+      <div class="note">
+        <p>
+          ...which are often keywords, like this.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">5/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        But maps may be keyed by <em>any</em> value, including integers…
+      </h3>
+      <pre><code>        {0 "zero" 1 "one" 99 "ninety-nine"}</code><br><code>keys --&gt; 0        1       99</code></pre>
+      <div class="panel-footer">
+        <span class="panel-number">6/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        …or some other scalars…
+      </h3>
+      <pre><code>        {"a" :value-at-str-key-a 'b :value-at-sym-key-b \c :value-at-char-key-c}</code><br><code>keys --&gt; "a"                     'b                     \c</code></pre>
+      <div class="note">
+        <p>
+          Like a string, a symbol, a character, or...
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">7/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        …even composite values.
+      </h3>
+      <pre><code>        {[0] :val-at-vec-0 [1 2 3] :val-at-vec-1-2-3 {} :val-at-empty-map}</code><br><code>keys --&gt; [0]               [1 2 3]                   {}</code></pre>
+      <div class="panel-footer">
+        <span class="panel-number">8/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Set elements are addressed by their identities, so they are located at themselves.
+      </h3>
+      <pre><code>             #{42 :foo true 22/7}</code><br><code>identities --&gt; 42 :foo true 22/7</code></pre>
+      <div class="panel-footer">
+        <span class="panel-number">9/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Paths
+      </h3>
+      <p>
+        Let's play <em>Get the <code>102</code>!</em>
+      </p>
+      <div class="vspace"></div>
+      <div class="side-by-side-container">
+        <div class="side-by-side">
+          <pre><code class="form">(get-in [100 101 102 103]
+        [2])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+        <div class="side-by-side">
+          <pre><code>(get-in* <em>coll
+         path</em>)</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          First, we'll define 'path'. A <em>path</em> is a sequence of indexes, keys, or identities that allow us refer to a single element buried within a
+          nested data structure. For each level of nesting, we add an element to the path sequence. <code>clojure.core/get-in</code> illustrates how this
+          works.
+        </p>
+        <p>
+          The 102 is the third element of a vector, which we've seen is addressed by zero-indexed integers. So, zero-one-two... 102 is get-ed by a path of one
+          element, [2].
+        </p>
+        <p>
+          For a vector containing only integers, each element is addressed by a path of length one. To locate integer <code>102</code>, the path is
+          <code>[2]</code>. If we consider a vector nested within a vector…
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">10/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Nesting
+      </h3>
+      <p>
+        <em>Get the <code>102</code>!</em>
+      </p>
+      <div class="vspace"></div>
+      <div class="side-by-side-container">
+        <div class="side-by-side">
+          <pre><code class="form">(get-in [100 101 [102 103]]
+        [2])</code><br><code class="eval">;; =&gt; [102 103]</code></pre>
+          <div class="vspace"></div>
+          <pre><code class="form">(get-in [102 103]
+        [0])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+        <div class="side-by-side">
+          <pre><code class="form">(get-in [100 101 [102 103]]
+        [2 0])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          …that same path <code>[2]</code> now locates the nested vector. Then, within that nested vector, 102 is at index 0.
+        </p>
+        <p>
+          So to navigate to the 102 contained within the nested vector requires a path of length two: <code>[2 0]</code> where the <code>2</code> addresses the
+          nested vector <code>[102 103]</code> and the <code>0</code> addresses the <code>102</code>'s position within the nested vector.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">11/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Deeper nesting
+      </h3>
+      <p>
+        <em>Get the <code>102</code>!</em>
+      </p>
+      <div class="vspace"></div>
+      <div class="side-by-side-container">
+        <div class="side-by-side">
+          <pre><code class="form">(get-in [100 [101 [102]]]
+        [1])</code><br><code class="eval">;; =&gt; [101 [102]]</code></pre>
+          <div class="vspace"></div>
+          <pre><code class="form">(get-in [101 [102]]
+        [1])</code><br><code class="eval">;; =&gt; [102]</code></pre>
+          <div class="vspace"></div>
+          <pre><code class="form">(get-in [102]
+        [0])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+        <div class="side-by-side">
+          <pre><code class="form">(get-in [100 [101 [102]]]
+        [1 1 0])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          Let's extend that idea: If our 102 is contained within a vector, contained within a vector, contained within a vector, we'd use a path of length
+          three to get that integer.
+        </p>
+        <p>
+          Index 1 gets us this nested vector, index 1 gets us this nested vector, and index 0 gets us our 102. We assemble our three-element path 1-1-0, and
+          that gets us the 102 buried within the original collection.
+        </p>
+        <p>
+          The <code>102</code> is buried three levels deep, so we use a path with three entries.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">12/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Paths to nested maps.
+      </h3>
+      <p>
+        <em>Get the <code>102</code>!</em>
+      </p>
+      <div class="vspace"></div>
+      <div class="side-by-side-container">
+        <div class="side-by-side">
+          <pre><code class="form">(get-in {:x 100,
          :y 101,
          :z {:w 102}}
-        [:z])</code><br><code class="eval">;; => {:w 102}</code></pre><div class="vspace"></div><pre><code class="form">(get-in {:w 102}
-        [:w])</code><br><code class="eval">;; => 102</code></pre></div><div class="side-by-side"><pre><code class="form">(get-in {:x 100,
+        [:z])</code><br><code class="eval">;; =&gt; {:w 102}</code></pre>
+          <div class="vspace"></div>
+          <pre><code class="form">(get-in {:w 102}
+        [:w])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+        <div class="side-by-side">
+          <pre><code class="form">(get-in {:x 100,
          :y 101,
          :z {:w 102}}
-        [:z :w])</code><br><code class="eval">;; => 102</code></pre></div></div><div class="note"><p>This pattern works similarly for maps. In this example, <code>102</code> is located with a path composed of a single key, keyword <code>:z</code>. If we now consider a map nested within another map, we need a path with two elements: key <code>:z</code> navigates us to the nested <code>{:w 102}</code> map, and then key <code>:w</code> navigates us to the <code>102</code> within that nested map.</p><p>A two element path of :z :w gets us our 102.</p></div><div class="panel-footer"><span class="panel-number">13/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Heterogeneous nesting #1</h3><p><em>Get the <code>102</code>!</em></p><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(get-in [100 101 {:x 102}]
-        [2])</code><br><code class="eval">;; => {:x 102}</code></pre><div class="vspace"></div><pre><code class="form">(get-in {:x 102}
-        [:x])</code><br><code class="eval">;; => 102</code></pre></div><div class="side-by-side"><pre><code class="form">(get-in [100 101 {:x 102}]
-        [2 :x])</code><br><code class="eval">;; => 102</code></pre></div></div><div class="note"><p>There's no restriction on what may be nested in what. So we can nest a map within a vector. An index 2 gets us the nested map, then a key :x gets us the 102. Assembling the two-element path 2 :x gets us the 102. Also...</p></div><div class="panel-footer"><span class="panel-number">14/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Heterogeneous nesting #2</h3><p><em>Get the <code>102</code>!</em></p><div class="side-by-side-container"><div class="side-by-side"><pre><code class="form">(get-in {:x 100, :y {:z [101 102]}}
-        [:y])</code><br><code class="eval">;; => {:z [101 102]}</code></pre><div class="vspace"></div><pre><code class="form">(get-in {:z [101 102]}
-        [:z])</code><br><code class="eval">;; => [101 102]</code></pre><div class="vspace"></div><pre><code class="form">(get-in [101 102]
-        [1])</code><br><code class="eval">;; => 102</code></pre></div><div class="side-by-side"><pre><code class="form">(get-in {:x 100, :y {:z [101 102]}}
-        [:y :z 1])</code><br><code class="eval">;; => 102</code></pre></div></div><div class="note"><p>Nest a vector within a map. Key :y gets us this nested map, key :z get us the nested vector, and index 1 gets us our 102. Assembling the three-element path :y :z 1 gets our 102.</p></div><div class="panel-footer"><span class="panel-number">15/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Special <code>get-in</code> for all Clojure data types</h3><p><em>Get the <code>102</code>!</em></p><pre><code class="form">(clojure.core/get-in '(100 101 {:x [102]})
-                     [2 :x 0])</code><br><code class="eval">;; => nil</code></pre><div class="vspace"></div><pre><code>(require '[fn-in.core :refer [get-in*]])</code></pre><div class="vspace"></div><pre><code class="form">(get-in* '(100 101 {:x [102]})
-         [2 :x 0])</code><br><code class="eval">;; => 102</code></pre><div class="note"><p>Perhaps we stumble upon a vector nested within a map nested within a list. clojure.core struggles with that. `nil` isn't what we'd like.</p><p>I've made a supplementary library, <a href="https://github.com/blosavio/fn-in">modified version</a> of <code>clojure.core/get-in</code> that can seamlessly handle all Clojure collections.<a href="https://github.com/blosavio/fn-in"><code>fn-in</code></a> can inspect, update, exchange, and remove elements from any heterogeneous, arbitrarily-nested Clojure data structures.</p><p><code>102</code> is contained in three levels of nesting, so its path is assembled of three pieces.</p></div><div class="panel-footer"><span class="panel-number">16/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>Utility function that enumerates all the paths.</h3><pre><code>(require '[speculoos.core :refer [all-paths]])</code></pre><div class="vspace"></div><pre><code class="form">(all-paths [100 101 102])</code><br><code class="eval">;; => [{:path [], :value [100 101 102]}
+        [:z :w])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          This pattern works similarly for maps. In this example, <code>102</code> is located with a path composed of a single key, keyword <code>:z</code>. If
+          we now consider a map nested within another map, we need a path with two elements: key <code>:z</code> navigates us to the nested <code>{:w
+          102}</code> map, and then key <code>:w</code> navigates us to the <code>102</code> within that nested map.
+        </p>
+        <p>
+          A two element path of :z :w gets us our 102.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">13/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Heterogeneous nesting #1
+      </h3>
+      <p>
+        <em>Get the <code>102</code>!</em>
+      </p>
+      <div class="side-by-side-container">
+        <div class="side-by-side">
+          <pre><code class="form">(get-in [100 101 {:x 102}]
+        [2])</code><br><code class="eval">;; =&gt; {:x 102}</code></pre>
+          <div class="vspace"></div>
+          <pre><code class="form">(get-in {:x 102}
+        [:x])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+        <div class="side-by-side">
+          <pre><code class="form">(get-in [100 101 {:x 102}]
+        [2 :x])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          There's no restriction on what may be nested in what. So we can nest a map within a vector. An index 2 gets us the nested map, then a key :x gets us
+          the 102. Assembling the two-element path 2 :x gets us the 102. Also...
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">14/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Heterogeneous nesting #2
+      </h3>
+      <p>
+        <em>Get the <code>102</code>!</em>
+      </p>
+      <div class="side-by-side-container">
+        <div class="side-by-side">
+          <pre><code class="form">(get-in {:x 100, :y {:z [101 102]}}
+        [:y])</code><br><code class="eval">;; =&gt; {:z [101 102]}</code></pre>
+          <div class="vspace"></div>
+          <pre><code class="form">(get-in {:z [101 102]}
+        [:z])</code><br><code class="eval">;; =&gt; [101 102]</code></pre>
+          <div class="vspace"></div>
+          <pre><code class="form">(get-in [101 102]
+        [1])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+        <div class="side-by-side">
+          <pre><code class="form">(get-in {:x 100, :y {:z [101 102]}}
+        [:y :z 1])</code><br><code class="eval">;; =&gt; 102</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <p>
+          Nest a vector within a map. Key :y gets us this nested map, key :z get us the nested vector, and index 1 gets us our 102. Assembling the
+          three-element path :y :z 1 gets our 102.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">15/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Special <code>get-in</code> for all Clojure data types
+      </h3>
+      <p>
+        <em>Get the <code>102</code>!</em>
+      </p>
+      <pre><code class="form">(clojure.core/get-in '(100 101 {:x [102]})
+                     [2 :x 0])</code><br><code class="eval">;; =&gt; nil</code></pre>
+      <div class="vspace"></div>
+      <pre><code>(require '[fn-in.core :refer [get-in*]])</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(get-in* '(100 101 {:x [102]})
+         [2 :x 0])</code><br><code class="eval">;; =&gt; 102</code></pre>
+      <div class="note">
+        <p>
+          Perhaps we stumble upon a vector nested within a map nested within a list. clojure.core struggles with that. `nil` isn't what we'd like.
+        </p>
+        <p>
+          I've made a supplementary library, <a href="https://github.com/blosavio/fn-in">modified version</a> of <code>clojure.core/get-in</code> that can
+          seamlessly handle all Clojure collections.<a href="https://github.com/blosavio/fn-in"><code>fn-in</code></a> can inspect, update, exchange, and
+          remove elements from any heterogeneous, arbitrarily-nested Clojure data structures.
+        </p>
+        <p>
+          <code>102</code> is contained in three levels of nesting, so its path is assembled of three pieces.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">16/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        Utility function that enumerates all the paths.
+      </h3>
+      <pre><code>(require '[speculoos.core :refer [all-paths]])</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(all-paths [100 101 102])</code><br><code class="eval">;; =&gt; [{:path [], :value [100 101 102]}
 ;;     {:path [0], :value 100}
 ;;     {:path [1], :value 101}
-;;     {:path [2], :value 102}]</code></pre><div class="note"><p>Speculoos provides a little machine to wrangle paths for us. When supplied with a heterogeneous, arbitrarily-nested data structure, <code>speculoos.core/all-paths</code> returns a sequence of <code>{:path … :value …}</code> for every element, both scalars and collections.</p><p>Notice that for this three-element vector, we receive paths for four items: the three integers, plus a path to the outer container itself. The root collection always has a path <code>[]</code>. The integer elements each have a path of a single, zero-indexed integer that locates them within the parent vector. Here's how it works with a map.</p></div><div class="panel-footer"><span class="panel-number">17/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>All-paths of a map.</h3><pre><pre><code class="form">(all-paths {:x 100, :y 101, :z 102})</code><br><code class="eval">;; => [{:path [], :value {:x 100, :y 101, :z 102}}
+;;     {:path [2], :value 102}]</code></pre>
+      <div class="note">
+        <p>
+          Speculoos provides a little machine to wrangle paths for us. When supplied with a heterogeneous, arbitrarily-nested data structure,
+          <code>speculoos.core/all-paths</code> returns a sequence of <code>{:path … :value …}</code> for every element, both scalars and collections.
+        </p>
+        <p>
+          Notice that for this three-element vector, we receive paths for four items: the three integers, plus a path to the outer container itself. The root
+          collection always has a path <code>[]</code>. The integer elements each have a path of a single, zero-indexed integer that locates them within the
+          parent vector. Here's how it works with a map.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">17/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        All-paths of a map.
+      </h3>
+      <pre></pre>
+      <pre><code class="form">(all-paths {:x 100, :y 101, :z 102})</code><br><code class="eval">;; =&gt; [{:path [], :value {:x 100, :y 101, :z 102}}
 ;;     {:path [:x], :value 100}
 ;;     {:path [:y], :value 101}
-;;     {:path [:z], :value 102}]</code></pre></pre><div class="note"><p>Each of the three integers has a path with a key --- :x, :y, and :z --- that locates them within the parent map, and the parent map has a path of <code>[]</code> because it's the root collection.</p></div><div class="panel-footer"><span class="panel-number">18/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>All-paths of a nested data structure, example #1.</h3><pre><code class="form">(all-paths [100 101 [102 103]])</code><br><code class="eval">;; => [{:path [], :value [100 101 [102 103]]}
+;;     {:path [:z], :value 102}]</code></pre>
+      <pre></pre>
+      <div class="note">
+        <p>
+          Each of the three integers has a path with a key --- :x, :y, and :z --- that locates them within the parent map, and the parent map has a path of
+          <code>[]</code> because it's the root collection.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">18/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        All-paths of a nested data structure, example #1.
+      </h3>
+      <pre><code class="form">(all-paths [100 101 [102 103]])</code><br><code class="eval">;; =&gt; [{:path [], :value [100 101 [102 103]]}
 ;;     {:path [0], :value 100}
 ;;     {:path [1], :value 101}
 ;;     {:path [2], :value [102 103]}
 ;;     {:path [2 0], :value 102}
-;;     {:path [2 1], :value 103}]</code></pre><div class="note"><p>If we supply a nested data structure, the paths reflect that nesting.</p><p>Now, we have six elements to consider: each of the four integers --- 100 to 103 --- have a path, and both of the collections have a path. The outer parent vector has path <code>[]</code> because it's the root, and the nested collection is located at path <code>[2]</code>, the third element of the root vector.</p><p>Let's look at all the paths of nested maps.</p></div><div class="panel-footer"><span class="panel-number">19/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>All-paths of a nested data structure, example #2.</h3><pre><code class="form">(all-paths {:x 100, :y 101, :z {:w 102}})</code><br><code class="eval">;; => [{:path [], :value {:x 100, :y 101, :z {:w 102}}}
+;;     {:path [2 1], :value 103}]</code></pre>
+      <div class="note">
+        <p>
+          If we supply a nested data structure, the paths reflect that nesting.
+        </p>
+        <p>
+          Now, we have six elements to consider: each of the four integers --- 100 to 103 --- have a path, and both of the collections have a path. The outer
+          parent vector has path <code>[]</code> because it's the root, and the nested collection is located at path <code>[2]</code>, the third element of the
+          root vector.
+        </p>
+        <p>
+          Let's look at all the paths of nested maps.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">19/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        All-paths of a nested data structure, example #2.
+      </h3>
+      <pre><code class="form">(all-paths {:x 100, :y 101, :z {:w 102}})</code><br><code class="eval">;; =&gt; [{:path [], :value {:x 100, :y 101, :z {:w 102}}}
 ;;     {:path [:x], :value 100}
 ;;     {:path [:y], :value 101}
 ;;     {:path [:z], :value {:w 102}}
-;;     {:path [:z :w], :value 102}]</code></pre><div class="note"><p>Again, each of the three integers --- 100, 101, and 102 --- has a path, and both of the maps have a path, for a total of five paths.</p></div><div class="panel-footer"><span class="panel-number">20/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>All-paths of a sequence.</h3><pre><code class="form">(cycle [:foo :bar :baz])</code><br><code class="eval">;; => (:foo :bar :baz :foo :bar :baz :foo…)</code></pre><div class="vspace"></div><pre><code class="form">(all-paths (vec (take 3 (cycle [:foo :bar :baz]))))</code><br><code class="eval">;; => [{:path [], :value [:foo :bar :baz]}
+;;     {:path [:z :w], :value 102}]</code></pre>
+      <div class="note">
+        <p>
+          Again, each of the three integers --- 100, 101, and 102 --- has a path, and both of the maps have a path, for a total of five paths.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">20/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        All-paths of a sequence.
+      </h3>
+      <pre><code class="form">(cycle [:foo :bar :baz])</code><br><code class="eval">;; =&gt; (:foo :bar :baz :foo :bar :baz :foo…)</code></pre>
+      <div class="vspace"></div>
+      <pre><code class="form">(all-paths (vec (take 3 (cycle [:foo :bar :baz]))))</code><br><code class="eval">;; =&gt; [{:path [], :value [:foo :bar :baz]}
 ;;     {:path [0], :value :foo}
 ;;     {:path [1], :value :bar}
-;;     {:path [2], :value :baz}]</code></pre><div class="note"><p>Sequences are an important collection type. clojure.lang.cycle, here for example, generates a non-terminating pattern of :foo-:bar-:baz.</p><p>Elements of a sequence are located by integer indexes, so :foo :bar and :baz are at 0, 1, and 2, with the root collection at [].</p><p>Note that `all-paths` requires a terminating sequential thingy, so we must convert the clojure.lang.cycle to a vector so that `all-paths` can inspect it. Most of Speculoos' other functions will take care of that for us without having to do that conversion.</p></div><div class="panel-footer"><span class="panel-number">21/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>All-paths of a list.</h3><pre><code class="form">(all-paths (list 'foo 'bar 'baz))</code><br><code class="eval">;; => [{:path [], :value (foo bar baz)}
+;;     {:path [2], :value :baz}]</code></pre>
+      <div class="note">
+        <p>
+          Sequences are an important collection type. clojure.lang.cycle, here for example, generates a non-terminating pattern of :foo-:bar-:baz.
+        </p>
+        <p>
+          Elements of a sequence are located by integer indexes, so :foo :bar and :baz are at 0, 1, and 2, with the root collection at [].
+        </p>
+        <p>
+          Note that `all-paths` requires a terminating sequential thingy, so we must convert the clojure.lang.cycle to a vector so that `all-paths` can inspect
+          it. Most of Speculoos' other functions will take care of that for us without having to do that conversion.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">21/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        All-paths of a list.
+      </h3>
+      <pre><code class="form">(all-paths (list 'foo 'bar 'baz))</code><br><code class="eval">;; =&gt; [{:path [], :value (foo bar baz)}
 ;;     {:path [0], :value foo}
 ;;     {:path [1], :value bar}
-;;     {:path [2], :value baz}]</code></pre><div class="note"><p>If we ever find ourselves with a nested list on our hands, <code>all-paths</code> has got you covered.</p><p>List elements are located by indexes, similar to vectors and sequences.</p></div><div class="panel-footer"><span class="panel-number">22/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>All-paths of a set.</h3><pre><code class="form">(all-paths #{:chocolate :vanilla :strawberry})</code><br><code class="eval">;; => [{:path [], :value #{:chocolate :strawberry :vanilla}}
+;;     {:path [2], :value baz}]</code></pre>
+      <div class="note">
+        <p>
+          If we ever find ourselves with a nested list on our hands, <code>all-paths</code> has got you covered.
+        </p>
+        <p>
+          List elements are located by indexes, similar to vectors and sequences.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">22/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        All-paths of a set.
+      </h3>
+      <pre><code class="form">(all-paths #{:chocolate :vanilla :strawberry})</code><br><code class=
+      "eval">;; =&gt; [{:path [], :value #{:chocolate :strawberry :vanilla}}
 ;;     {:path [:strawberry], :value :strawberry}
 ;;     {:path [:chocolate], :value :chocolate}
-;;     {:path [:vanilla], :value :vanilla}]</code></pre><div class="note"><p>Sets are indispensable in some situations, so <code>all-paths</code> can handle it.</p><p>Admittedly, addressing elements in a set can be a little like herding cats, but it's still useful to have the capability. Wrangling sets merits its own <a href="#sets">dedicated screencast</a>.</p><p>Briefly, each element of the set is located at itself --- :chocolate, :vanilla, :strawberry --- while the root collection --- the set --- is located at path [].</p><p>Note: This ordering is an implementation detail. It's not guaranteed for a set, or any other collection type, for that matter.</p></div><div class="panel-footer"><span class="panel-number">23/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>All-paths when the elements are functions.</h3><pre><code class="form">(all-paths [int? string? ratio?])</code><br><code class="eval">;; => [{:path [], :value [int? string? ratio?]}
+;;     {:path [:vanilla], :value :vanilla}]</code></pre>
+      <div class="note">
+        <p>
+          Sets are indispensable in some situations, so <code>all-paths</code> can handle it.
+        </p>
+        <p>
+          Admittedly, addressing elements in a set can be a little like herding cats, but it's still useful to have the capability. Wrangling sets merits its
+          own <a href="#sets">dedicated screencast</a>.
+        </p>
+        <p>
+          Briefly, each element of the set is located at itself --- :chocolate, :vanilla, :strawberry --- while the root collection --- the set --- is located
+          at path [].
+        </p>
+        <p>
+          Note: This ordering is an implementation detail. It's not guaranteed for a set, or any other collection type, for that matter.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">23/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        All-paths when the elements are functions.
+      </h3>
+      <pre><code class="form">(all-paths [int? string? ratio?])</code><br><code class="eval">;; =&gt; [{:path [], :value [int? string? ratio?]}
 ;;     {:path [0], :value int?}
 ;;     {:path [1], :value string?}
-;;     {:path [2], :value ratio?}]</code></pre><div class="note"><p>There is nothing special about integers. <code>all-paths</code> will treat any element, scalar or collection, the same way. <em>Every element has a path.</em> We could replace those integers with functions, un-nested in a vector --- like this: four elements, four paths. Three scalars (`int?`, `string?`, `ratio?`, functions in this example, plus one collection. Or, we could have nested them in a map, and so on.</p><p>The important principle to remember is this: Every element --- scalar and collection --- of a heterogeneous, arbitrarily-nested data structure, can be assigned an unambiguous path, regardless of its container type.</p></div><div class="panel-footer"><span class="panel-number">24/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><div class="panel"><div class="panel-header"></div><h3>What's next.</h3><ol class="de-highlight whats-next"><li>Introduction</li><li>Mechanics</li><li class="highlight">Validating Scalars</li><li>Validating Collections, Basics</li><li>Validating Collections, Advanced</li><li>Validating Collections, Extras</li><li>Validation Summaries & Thoroughness</li><li>Function Validation</li><li>Generating Random Samples & Exercising</li><li>Utilities</li><li>Predicates</li><li>Non-Terminating Sequences</li><li>Sets</li><li>Troubleshooting</li><li>Comparing spec.alpha to Speculoos</li><li>Perhaps So</li><li>Case Study</li></ol><div class="note"><p>So what does all this paths business have to do with validation? Speculoos inspects the path of a predicate within a specification in an attempt to pair it with an element in the data. If it <em>can</em> pair a predicate with a datum, it applies the predicate to that datum.</p><p>Now that we've got a system for referring to every element within a data structure, we can discuss how to validate scalars, the topic of the next screencast.</p></div><div class="panel-footer"><span class="panel-number">25/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span></div></div><p id="page-footer">Copyright © 2024 Brad Losavio.<br>Compiled 2024 December 03.<div class="license"><p>This program and the accompanying materials are made available under the terms of the <a href="https://opensource.org/license/MIT">MIT License</a>.</p></div><span id="uuid"><br>a230a730-7d15-43a0-abd1-e3cce92ca598</span></p></body></head></html>
+;;     {:path [2], :value ratio?}]</code></pre>
+      <div class="note">
+        <p>
+          There is nothing special about integers. <code>all-paths</code> will treat any element, scalar or collection, the same way. <em>Every element has a
+          path.</em> We could replace those integers with functions, un-nested in a vector --- like this: four elements, four paths. Three scalars (`int?`,
+          `string?`, `ratio?`, functions in this example, plus one collection. Or, we could have nested them in a map, and so on.
+        </p>
+        <p>
+          The important principle to remember is this: Every element --- scalar and collection --- of a heterogeneous, arbitrarily-nested data structure, can
+          be assigned an unambiguous path, regardless of its container type.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">24/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"></div>
+      <h3>
+        What's next.
+      </h3>
+      <ol class="de-highlight whats-next">
+        <li>Introduction
+        </li>
+        <li>Mechanics
+        </li>
+        <li class="highlight">Validating Scalars
+        </li>
+        <li>Validating Collections, Basics
+        </li>
+        <li>Validating Collections, Advanced
+        </li>
+        <li>Validating Collections, Extras
+        </li>
+        <li>Validation Summaries & Thoroughness
+        </li>
+        <li>Function Validation
+        </li>
+        <li>Generating Random Samples & Exercising
+        </li>
+        <li>Utilities
+        </li>
+        <li>Predicates
+        </li>
+        <li>Non-Terminating Sequences
+        </li>
+        <li>Sets
+        </li>
+        <li>Troubleshooting
+        </li>
+        <li>Comparing spec.alpha to Speculoos
+        </li>
+        <li>Perhaps So
+        </li>
+        <li>Case Study
+        </li>
+      </ol>
+      <div class="note">
+        <p>
+          So what does all this paths business have to do with validation? Speculoos inspects the path of a predicate within a specification in an attempt to
+          pair it with an element in the data. If it <em>can</em> pair a predicate with a datum, it applies the predicate to that datum.
+        </p>
+        <p>
+          Now that we've got a system for referring to every element within a data structure, we can discuss how to validate scalars, the topic of the next
+          screencast.
+        </p>
+      </div>
+      <div class="panel-footer">
+        <span class="panel-number">25/25</span><span class="footer-link">https://github.com/blosavio/speculoos</span>
+      </div>
+    </div>
+    <p id="page-footer">
+      Copyright © 2024 Brad Losavio.<br>
+      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 07.
+    </p>
+    <div class="license">
+      <p>
+        This program and the accompanying materials are made available under the terms of the <a href="https://opensource.org/license/MIT">MIT License</a>.
+      </p>
+    </div><span id="uuid"><br>
+    a230a730-7d15-43a0-abd1-e3cce92ca598</span>
+    <p></p>
+  </body>
+</html>
