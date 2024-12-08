@@ -282,7 +282,7 @@
 
  [:pre (print-form-then-eval "(defpred pos-even-int? (fn [i] (and (int? i) (pos? i) (even? i))))")]
 
- [:p "…relying on " [:code "defpred"] "'s predicate inspection machinery to infer a generator. After making our " [:code "pos-even-int?"] " predicate, we'll make a predicate satisfied by a three-character string, " [:code "(fn [s] (and (string? s) (= 3 (count s))))"] ". The generator which " [:code "defpred"] " would create for that predicate is kinda naive."]
+ [:p "…relying on " [:code "defpred"] "'s predicate inspection machinery to infer a generator. After making our " [:code "pos-even-int?"] " predicate, we'll make a predicate satisfied by a three-character string, " [:code "(fn [s] (and (string? s) (= 3 (count s))))"] ". The generator which " [:code "defpred"] " would create for that predicate is kinda naive."]
 
  [:pre
   [:code "(inspect-fn '(fn [s] (and (string? s) (= 3 (count s)))))"]

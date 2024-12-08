@@ -551,7 +551,7 @@
 
  [:pre (print-form-then-eval "(all-paths [coll? vector? {:foo map?}])")]
 
- [:p "Two predicates, " [:code "coll?"] " and " [:code "vector?"] ", apply to the root collection, because " [:code "(drop-last [0])"] " and " [:code "(drop-last [1])"] " both resolve the root collection's path. But somehow, we have to tell " [:code "validate-collections"] " how to target that " [:code "map?"] " predicate towards the nested map. We can see that " [:code "map?"] " is located at path " [:code "[2 :foo]"] ", and " [:code "(drop-last [2 :foo])"] " evaluates to " [:code "[2]"] ". The data's nested map " [:code "{:y \"abc\"}"] " is located at path " [:code "[1]"] ", which doesn't 'match'."]
+ [:p "Two predicates, " [:code "coll?"] " and " [:code "vector?"] ", apply to the root collection, because " [:code "(drop‑last [0])"] " and " [:code "(drop‑last [1])"] " both resolve the root collection's path. But somehow, we have to tell " [:code "validate-collections"] " how to target that " [:code "map?"] " predicate towards the nested map. We can see that " [:code "map?"] " is located at path " [:code "[2 :foo]"] ", and " [:code "(drop‑last [2 :foo])"] " evaluates to " [:code "[2]"] ". The data's nested map " [:code "{:y \"abc\"}"] " is located at path " [:code "[1]"] ", which doesn't 'match'."]
 
  [:p  "If " [:strong "any"] " number of predicates apply to the parent collection, there might be zero to infinity predicates before we encounter a nested collection in that sequence. How, then, does " [:code "validate-collections"] " determine where to apply the predicate inside a nested collection?"]
 

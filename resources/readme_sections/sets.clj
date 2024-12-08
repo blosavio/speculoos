@@ -143,14 +143,15 @@
 
  [:pre (print-form-then-eval "(validate-scalars [42 :red] [int? #{:red :green :blue}])" 55 45)]
 
- [:p "When Speculoos validates scalars, it treats the set in the specification as a predicate because the corresponding element in the data is a scalar, not a set. In this example, "[:code ":red"] " is a member of the " [:code "#{:red :green :blue}"] " set-predicate."]
+ [:p "When Speculoos validates scalars, it treats the set in the specification as a predicate because the corresponding element in the data is a scalar, not a set. In this example, "[:code ":red"] " is a member of the " [:code "#{:red :green :blue}"] " set-predicate."]
 
  [:p "The same principles hold when validating elements of a map containing a set-predicate. When a set in the specification contains a set that shares a path with a scalar in the data, that set is treated as a membership predicate."]
 
  [:pre (print-form-then-eval " (validate-scalars {:x 42 :y :red} {:x int? :y #{:red :green :blue}})" 55 45)]
 
- [:p "Scalar "[:code "42"] " pairs with predicate " [:code "int?"] " at path " [:code "[:x]"] " and scalar " [:code ":red"] " pairs with set-predicate " [:code "#{:red :green :blue}"] " at path " [:code "[:y]"] ". Speculoos validates scalars in the data that share paths with predicates in the specification. Since " [:code "#{:red :green :blue}"] " is considered a predicate, scalar " [:code ":red"] " is validated."]
+ [:p "Scalar "[:code "42"] " pairs with predicate " [:code "int?"] " at path " [:code "[:x]"] " and scalar " [:code ":red"] " pairs with set-predicate " [:code "#{:red :green :blue}"] " at path " [:code "[:y]"] ". Speculoos validates scalars in the data that share paths with predicates in the specification. Since " [:code "#{:red :green :blue}"] " is considered a predicate, scalar " [:code ":red"] " is validated."]
 
+ 
  [:h3 "2. Validate Scalars within Set"]
 
  [:p "Sometimes the scalars in our data are contained in a set. Speculoos can validate scalars within a set during a scalar validation operation. Validating a set's scalar members follows all the same principles as validating a vector's scalar members, except for one wrinkle: Since elements of a set have no inherent location, i.e., sets are unordered, sets in our data are validated against " [:em "all"] " predicates contained in the corresponding set at the same path in the specification. An example shows this better than words."]

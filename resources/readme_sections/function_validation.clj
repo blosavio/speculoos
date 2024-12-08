@@ -492,7 +492,7 @@
 
  [:p "We can specify a couple of relationships to show that " [:code "pull-n-whoops"] " produces a return value that does not validate. In a correctly-working implementation, the scalars aren't transformed, " [:em "per se"] ", merely moved to another location. So our relationship function will merely be equality, and the paths will do all the work."]
 
- [:p "Phone number " [:code "555-FILK"] " at argument path " [:code "[2 :phone]"] " ought to appear at return path " [:code "[:phone-numbers 2]"] ". That relationship specification looks like this."]
+ [:p "Phone number " [:code "555-FILK"] " at argument path " [:code "[2 :phone]"] " ought to appear at return path " [:code "[:phone-numbers 2]"] ". That relationship specification looks like this."]
 
  [:pre [:code "{:path-argument [2 :phone]\n :path-return [:phone-numbers 2]\n :relationship-fn =}"]]
 

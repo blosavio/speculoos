@@ -1616,10 +1616,10 @@
 ;;     {:path [2], :value {:foo map?}}
 ;;     {:path [2 :foo], :value map?}]</code></pre>
       <p>
-        Two predicates, <code>coll?</code> and <code>vector?</code>, apply to the root collection, because <code>(drop-last&nbsp;[0])</code> and
-        <code>(drop-last&nbsp;[1])</code> both resolve the root collection&apos;s path. But somehow, we have to tell <code>validate-collections</code> how to
+        Two predicates, <code>coll?</code> and <code>vector?</code>, apply to the root collection, because <code>(drop‑last&nbsp;[0])</code> and
+        <code>(drop‑last&nbsp;[1])</code> both resolve the root collection&apos;s path. But somehow, we have to tell <code>validate-collections</code> how to
         target that <code>map?</code> predicate towards the nested map. We can see that <code>map?</code> is located at path <code>[2&nbsp;:foo]</code>, and
-        <code>(drop-last&nbsp;[2&nbsp;:foo])</code> evaluates to <code>[2]</code>. The data&apos;s nested map <code>{:y&nbsp;&quot;abc&quot;}</code> is located
+        <code>(drop‑last&nbsp;[2&nbsp;:foo])</code> evaluates to <code>[2]</code>. The data&apos;s nested map <code>{:y&nbsp;&quot;abc&quot;}</code> is located
         at path <code>[1]</code>, which doesn&apos;t &apos;match&apos;.
       </p>
       <p>
@@ -3888,8 +3888,8 @@
         equality, and the paths will do all the work.
       </p>
       <p>
-        Phone number <code>555-FILK</code> at argument path <code>[2 :phone]</code> ought to appear at return path <code>[:phone-numbers 2]</code>. That
-        relationship specification looks like this.
+        Phone number <code>555-FILK</code> at argument path <code>[2&nbsp;:phone]</code> ought to appear at return path <code>[:phone-numbers&nbsp;2]</code>.
+        That relationship specification looks like this.
       </p>
       <pre><code>{:path-argument [2 :phone]
 &nbsp;:path-return [:phone-numbers 2]
@@ -4426,7 +4426,8 @@
       <p>
         Starting with a quick demonstration, Speculoos can generate valid data when given a scalar specification.
       </p>
-      <pre><code>(require &apos;[speculoos.utility :refer [data-from-spec]])</code><br><br><code>(data-from-spec [int? string? keyword?] :random) ;; =&gt; [1 &quot;ado2qLdE9&quot; :Fa!8?2]</code></pre>
+      <pre><code>(require &apos;[speculoos.utility :refer [data-from-spec]])</code><br><br><code>(data-from-spec [int? string? keyword?] :random)
+;; =&gt; [-468 &quot;6cO4j0U6P83B03vYBD5&quot; :CM]</code></pre>
       <p>
         When dealing with the basic <code>clojure.core</code> predicates, such as <code>int?</code>, <code>string?</code>, <code>keyword?</code>, etc.,
         Speculoos provides pre-made random sample generators that satisfy those predicates. (There are a few exceptions, due to the fact that there is not a
@@ -4436,7 +4437,7 @@
         Speculoos can also generate random scalar samples from predicate-like things, such as regular expressions and sets.
       </p>
       <pre><code>      built-in               v--- regex        v--- set-as-a-predicate</code><br><code>      predicate ----v</code><br><code>(data-from-spec {:x int?, :y #&quot;fo{3,6}bar&quot;, :z #{:red :green :blue}} :random)
-;; =&gt; {:x -72, :y &quot;fooobar&quot;, :z :green}</code></pre>
+;; =&gt; {:x 39, :y &quot;foooobar&quot;, :z :red}</code></pre>
       <p>
         When we use either a &apos;basic&apos; scalar predicate, such as <code>int?</code>, a regex, or a set-as-a-predicate, Speculoos knows how to generate a
         valid random sample that satisfies that predicate-like thing. Within the context of generating samples or exercising, basic predicate <code>int?</code>
@@ -4455,7 +4456,7 @@
       <p>
         <code>clojure.test.check</code> provides a group of powerful, flexible, generators.
       </p>
-      <pre><code>(require &apos;[clojure.test.check.generators :as gen])</code><br><br><code>(gen/generate (gen/large-integer* {:min 700, :max 999})) ;; =&gt; 857</code><br><br><code>(gen/generate gen/keyword) ;; =&gt; :u0?-zq</code><br><br><code>(gen/generate gen/string-alphanumeric) ;; =&gt; &quot;J7fZnzSnCfAbB6ABR88&quot;</code></pre>
+      <pre><code>(require &apos;[clojure.test.check.generators :as gen])</code><br><br><code>(gen/generate (gen/large-integer* {:min 700, :max 999})) ;; =&gt; 751</code><br><br><code>(gen/generate gen/keyword) ;; =&gt; :Q</code><br><br><code>(gen/generate gen/string-alphanumeric) ;; =&gt; &quot;8wUd0e&quot;</code></pre>
       <p>
         Speculoos leans heavily on these generators.
       </p>
@@ -4475,13 +4476,13 @@
         Second, we write our generator.
       </p>
       <pre><code>;; produce ten samples with `gen/sample`</code><br><br><code>(gen/sample (gen/large-integer* {:min 90, :max 99}))
-;; =&gt; (91 90 92 91 95 97 91 96 98 97)</code><br><br><br><code>;; produce one sample with `gen/generate`</code><br><br><code>(gen/generate (gen/large-integer* {:min 90, :max 99})) ;; =&gt; 96</code></pre>
+;; =&gt; (90 90 91 92 94 96 90 91 99 91)</code><br><br><br><code>;; produce one sample with `gen/generate`</code><br><br><code>(gen/generate (gen/large-integer* {:min 90, :max 99})) ;; =&gt; 97</code></pre>
       <p>
         To make the generator invocable, we&apos;ll wrap it in a function.
       </p>
       <pre><code>(defn generate-nineties
 &nbsp; []
-&nbsp; (gen/generate (gen/large-integer* {:min 90, :max 99})))</code><br><br><br><code>;; invoke the generator</code><br><br><code>(generate-nineties) ;; =&gt; 95</code></pre>
+&nbsp; (gen/generate (gen/large-integer* {:min 90, :max 99})))</code><br><br><br><code>;; invoke the generator</code><br><br><code>(generate-nineties) ;; =&gt; 97</code></pre>
       <p>
         Third, we need to associate that generator into the predicate&apos;s metadata. We have a couple of options. The manual option uses
         <code>with-meta</code> when we bind a name to the function body. We&apos;ll associate <code>generate-nineties</code> to the predicate&apos;s <a href=
@@ -4538,7 +4539,7 @@
       <pre><code>(binding [speculoos.utility/*such-that-max-tries* 1000]
 &nbsp; (let [possible-gen-90 (:speculoos/predicate-&gt;generator (meta auto-nineties?))]
 &nbsp;   (possible-gen-90)))
-;; =&gt; 92</code></pre>
+;; =&gt; 95</code></pre>
       <p>
         Yup! Since it is not-so-likely that a random integer generator would produce a value in the nineties, we bound the <code>max-tries</code> to a high
         count to give the generator lots of attempts. We then pulled out the generator from predicate <code>auto-nineties?</code>&apos;s metadata and bound it
@@ -4605,15 +4606,15 @@
 &nbsp;                :h combined-pred,
 &nbsp;                :i combined-pred}
 &nbsp;               :random)
-;; =&gt; {:a &quot;MR0kwL7SMN8W&quot;,
-;;     :b 12/31,
-;;     :c 27/26,
-;;     :d 4/13,
-;;     :e -17,
-;;     :f 9,
-;;     :g &quot;FQ8Q&quot;,
-;;     :h 3,
-;;     :i 29}</code></pre>
+;; =&gt; {:a -13,
+;;     :b -17,
+;;     :c 19/7,
+;;     :d &quot;RQpLoM42D622pif17Mh6Qznb&quot;,
+;;     :e 3/4,
+;;     :f 19/27,
+;;     :g -27,
+;;     :h 23/28,
+;;     :i -11}</code></pre>
       <p>
         We&apos;re kinda abusing <code>data-from-spec</code> here to generate nine samples. Inferring from <code>combined-pred</code>&apos;s predicate
         structure, <code>defpred</code>&apos;s automatically-created random sample generator emits one of three elements with equal probability: an odd
@@ -4636,13 +4637,13 @@
       <pre><code>(require &apos;[speculoos.utility :refer [validate-predicate-&gt;generator]])</code><br><br><br><code>(defpred pred-with-incorrect-generator
 &nbsp;        (fn [i] (int? i))
 &nbsp;        #(gen/generate gen/ratio))</code><br><br><br><code>(validate-predicate-&gt;generator pred-with-incorrect-generator)
-;; =&gt; ([13/5 false]
-;;     [1/3 false]
-;;     [2/9 false]
-;;     [-11/31 false]
-;;     [12 true]
-;;     [10 true]
-;;     [-3/17 false])</code></pre>
+;; =&gt; ([9/10 false]
+;;     [-11/24 false]
+;;     [-21/31 false]
+;;     [3/4 false]
+;;     [-5/4 false]
+;;     [-24/11 false]
+;;     [-7/6 false])</code></pre>
       <p>
         We defined scalar predicate <code>pred-with-incorrect-generator</code> to require an integer, but, using <code>defpred</code>, we manually created a
         generator that emits ratio values. Each of the generated samples fails to satisfy the <code>int?</code> predicate.
@@ -4653,13 +4654,13 @@
       <pre><code>(defpred pred-with-good-generator
 &nbsp;        (fn [i] (int? i))
 &nbsp;        #(gen/generate gen/small-integer))</code><br><br><br><code>(validate-predicate-&gt;generator pred-with-good-generator)
-;; =&gt; ([-3 true]
-;;     [13 true]
-;;     [-24 true]
-;;     [-23 true]
-;;     [-28 true]
-;;     [-15 true]
-;;     [-22 true])</code></pre>
+;; =&gt; ([27 true]
+;;     [-4 true]
+;;     [-16 true]
+;;     [-5 true]
+;;     [0 true]
+;;     [-22 true]
+;;     [-21 true])</code></pre>
       <p>
         In this particular case, we could have relied on <code>defpred</code> to <a href="#auto-sample">create a sample generator</a> for us.
       </p>
@@ -4709,7 +4710,7 @@
         floating-point number. We&apos;ve seen <a href="#scalar-validation">how to compose that scalar specification</a>. Let&apos;s give that scalar
         specification to <code>data-from-spec</code>.
       </p>
-      <pre><code>(require &apos;[speculoos.utility :refer [data-from-spec]])</code><br><br><br><code>(data-from-spec [int? ratio? double?] :random) ;; =&gt; [-683 1/2 80.0]</code></pre>
+      <pre><code>(require &apos;[speculoos.utility :refer [data-from-spec]])</code><br><br><br><code>(data-from-spec [int? ratio? double?] :random) ;; =&gt; [121 8/13 0.060546875]</code></pre>
       <p>
         That scalar specification contains three predicates, and each of those predicates targets a basic Clojure numeric type, so Speculoos automatically
         refers to <code>test.check</code>&apos;s generators to produce a random sample.
@@ -4722,9 +4723,9 @@
 &nbsp;                :y #{:red :green :blue},
 &nbsp;                :z #&quot;fo{3,5}bar&quot;}
 &nbsp;               :random)
-;; =&gt; {:x \1,
-;;     :y :red,
-;;     :z &quot;foooobar&quot;}</code></pre>
+;; =&gt; {:x \7,
+;;     :y :green,
+;;     :z &quot;fooooobar&quot;}</code></pre>
       <p>
         Again, without any further assistance, <code>data-from-spec</code> knew how to find or create a random sample generator for each predicate in the
         scalar specification. <code>char?</code> targets a basic Clojure type, so it generated a random character. Sets in a scalar specification, in this
@@ -4740,8 +4741,9 @@
       <pre><code>(defpred pos-even-int? (fn [i] (and (int? i) (pos? i) (even? i))))</code></pre>
       <p>
         …relying on <code>defpred</code>&apos;s predicate inspection machinery to infer a generator. After making our <code>pos-even-int?</code> predicate,
-        we&apos;ll make a predicate satisfied by a three-character string, <code>(fn [s] (and (string? s) (= 3 (count s))))</code>. The generator which
-        <code>defpred</code> would create for that predicate is kinda naive.
+        we&apos;ll make a predicate satisfied by a three-character string,
+        <code>(fn&nbsp;[s]&nbsp;(and&nbsp;(string?&nbsp;s)&nbsp;(=&nbsp;3&nbsp;(count&nbsp;s))))</code>. The generator which <code>defpred</code> would create
+        for that predicate is kinda naive.
       </p>
       <pre><code>(inspect-fn &apos;(fn [s] (and (string? s) (= 3 (count s)))))</code><br><code>;; =&gt; (gen/such-that (fn [s] (and (= 3 (count s)))) gen/string-alphanumeric)</code><br><br><code>;; (…output elided…)</code></pre>
       <p>
@@ -4756,7 +4758,7 @@
         Now that we have two scalar predicates with custom sample generators — one created by <code>defpred</code>, one created by us — we&apos;ll bring them
         together into a single scalar specification and invoke <code>data-from-spec</code>.
       </p>
-      <pre><code>(data-from-spec [pos-even-int? three-char-string?] :random) ;; =&gt; [8 &quot;Fmd&quot;]</code></pre>
+      <pre><code>(data-from-spec [pos-even-int? three-char-string?] :random) ;; =&gt; [6 &quot;e6w&quot;]</code></pre>
       <p>
         <code>data-from-spec</code> generates a valid data set whose randomly-generated scalars satisfy the scalar specification. In fact, we can feed the
         generated data back into the specification and it ought to validate <code>true</code>. We provide <code>valid-scalars?</code> with the generated data
@@ -4770,16 +4772,16 @@
         the specification to see if it validates. Don&apos;t go off and write your own utility. Speculoos can <em>exercise</em> a scalar specification.
       </p>
       <pre><code>(require &apos;[speculoos.utility :refer [exercise]])</code><br><br><br><code>(exercise [int? ratio? double?])
-;; =&gt; ([[-228 15/8 1.7276296615600586] true]
-;;     [[-399 26/5 -40.0] true]
-;;     [[-67 -23/3 -268.875] true]
-;;     [[885 7/5 0.123046875] true]
-;;     [[-995 17/7 0.03337690234184265] true]
-;;     [[-323 -5/7 -15.99365234375] true]
-;;     [[75 -3/5 0.13064593449234962] true]
-;;     [[530 -11/5 -9.269633769989014] true]
-;;     [[311 7/27 464.07066345214844] true]
-;;     [[513 -19/6 0.004556675092317164] true])</code></pre>
+;; =&gt; ([[-402 13/22 -0.43067091424018145] true]
+;;     [[-98 -12/11 0.06884765625] true]
+;;     [[-485 3/8 -11.0] true]
+;;     [[308 -26/27 -0.16015625] true]
+;;     [[856 17/2 -0.00390625] true]
+;;     [[-458 -8/19 106.3984375] true]
+;;     [[-253 5/12 -0.21517092362046242] true]
+;;     [[-118 14/25 -0.014876946806907654] true]
+;;     [[233 3/2 0.004025876522064209] true]
+;;     [[-841 1/25 -0.055728793144226074] true])</code></pre>
       <p>
         Ten times, <code>exercise</code> generated a vector containing an integer, ratio, and double-precision numbers, then performed a scalar validation
         using those random samples as the data and the original scalar specification. In each of those ten runs, we see that <code>exercise</code> generated
@@ -4802,16 +4804,16 @@
         exercise <code>sum-three</code>.
       </p>
       <pre><code>(require &apos;[speculoos.function-specs :refer [exercise-fn]])</code><br><br><br><code>(exercise-fn sum-three)
-;; =&gt; ([[1 -28/25 0.03481459617614746] -0.08518540382385253]
-;;     [[843 10/9 -0.29670238494873047] 843.8144087261624]
-;;     [[-968 1/8 -0.16128158569335938] -968.0362815856934]
-;;     [[-243 13/22 ##Inf] ##Inf]
-;;     [[423 10/13 -0.011962890625] 423.7572678786058]
-;;     [[780 25/9 -5.966187119483948] 776.8115906582939]
-;;     [[975 -24/29 -224.0] 750.1724137931034]
-;;     [[-48 16/13 0.03125] -46.73798076923077]
-;;     [[-539 9/26 -1.583801031112671] -540.2376471849589]
-;;     [[-473 -20/23 -0.5390625] -474.4086277173913])</code></pre>
+;; =&gt; ([[613 7/9 0.008155947551131248] 613.785933725329]
+;;     [[36 3/11 56.8125] 93.08522727272728]
+;;     [[88 -5/11 -3.701171875] 83.84428267045455]
+;;     [[37 17/30 -0.049961259588599205] 37.51670540707807]
+;;     [[805 -1/5 6.850051432847977] 811.6500514328479]
+;;     [[867 -25/11 -0.42737817764282227] 864.2998945496299]
+;;     [[813 -9/29 -4.0] 808.6896551724138]
+;;     [[-1000 -17/3 6.96826171875] -998.698404947917]
+;;     [[405 -8/31 0.011204272508621216] 404.7531397563796]
+;;     [[-990 3/20 0.0191650390625] -989.8308349609375])</code></pre>
       <p>
         <code>int?</code>, <code>ratio?</code>, and <code>double?</code> all have built-in generators, so we didn&apos;t have to create any custom generators.
         <code>exercise-fn</code> extracted <code>sum-three</code>&apos;s argument scalar specification, then, ten times, generated a data set from random
@@ -4964,9 +4966,9 @@ spec: [_ {:a _, :b [_ string?]} int?]
 ;;     (double? char?)]</code><br><br><br><code>(data-from-spec
 &nbsp; {:x int?, :y [ratio? boolean?], :z (list char? neg-int?)}
 &nbsp; :random)
-;; =&gt; {:x -838,
-;;     :y [-1/3 false],
-;;     :z (\l -4)}</code></pre>
+;; =&gt; {:x -432,
+;;     :y [-3/8 true],
+;;     :z (\A -19)}</code></pre>
       <p>
         I hope their names give good indications of what they do. The generated specification contains only basic predicates, that is, merely <em>Is it an
         integer?</em>, not <em>Is it an even integer greater than 25, divisible by 3?</em>. But it&apos;s convenient raw material to start crafting a tighter
@@ -5536,7 +5538,7 @@ spec: [_ {:a _, :b [_ string?]} int?]
 ;;      :valid? true}]</code></pre>
       <p>
         When Speculoos validates scalars, it treats the set in the specification as a predicate because the corresponding element in the data is a scalar, not
-        a set. In this example, <code>:red</code> is a member of the <code>#{:red :green :blue}</code> set-predicate.
+        a set. In this example, <code>:red</code> is a member of the <code>#{:red&nbsp;:green&nbsp;:blue}</code> set-predicate.
       </p>
       <p>
         The same principles hold when validating elements of a map containing a set-predicate. When a set in the specification contains a set that shares a
@@ -5554,7 +5556,7 @@ spec: [_ {:a _, :b [_ string?]} int?]
 ;;      :valid? true}]</code></pre>
       <p>
         Scalar <code>42</code> pairs with predicate <code>int?</code> at path <code>[:x]</code> and scalar <code>:red</code> pairs with set-predicate
-        <code>#{:red :green :blue}</code> at path <code>[:y]</code>. Speculoos validates scalars in the data that share paths with predicates in the
+        <code>#{:red&nbsp;:green&nbsp;:blue}</code> at path <code>[:y]</code>. Speculoos validates scalars in the data that share paths with predicates in the
         specification. Since <code>#{:red&nbsp;:green&nbsp;:blue}</code> is considered a predicate, scalar <code>:red</code> is validated.
       </p>
       <h3>
