@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
-    <meta charset="utf-8" compile-date="2024-12-07 14:18:51" content="width=device-width, initial-scale=1" name="viewport">
+    <meta charset="utf-8" compile-date="2024-12-11 09:38:55" content="width=device-width, initial-scale=1" name="viewport">
     <link href="screedcast.css" rel="stylesheet" type="text/css">
     <script src="jquery-3.7.1.min.js" type="text/javascript"></script>
     <script src="screedcast.js" type="text/javascript"></script>
@@ -20,7 +20,7 @@
         Quick demo of built-ins
       </p>
       <pre><code>(require '[speculoos.utility :refer [data-from-spec]])</code></pre>
-      <pre><code class="form">(data-from-spec [int? string? keyword?] :random)</code><br><code class="eval">;; =&gt; [225 "Rk8ePK3swh" :_X-!P?V]</code></pre>
+      <pre><code class="form">(data-from-spec [int? string? keyword?] :random)</code><br><code class="eval">;; =&gt; [-851 "K8FZy5h" :N]</code></pre>
       <div class="note">
         <p>
           Before we have some fun with random samples, we must create random sample generators and put them where Speculoos can find them. Random sample
@@ -60,7 +60,7 @@
       </ul>
       <div class="vspace"></div>
       <pre><code class="form">(data-from-spec {:x int?, :y #"fo{3,6}bar", :z #{:red :green :blue}} :random)</code><br><code class=
-      "eval">;; =&gt; {:x 853, :y "foooobar", :z :blue}</code></pre>
+      "eval">;; =&gt; {:x 739, :y "foooooobar", :z :green}</code></pre>
       <div class="note">
         <p>
           Speculoos can also generate random scalar samples from predicate-like things, such as regular expressions and sets.
@@ -83,11 +83,11 @@
       </h3>
       <pre><code>(require '[clojure.test.check.generators :as gen])</code></pre>
       <div class="vspace"></div>
-      <pre><code class="form">(gen/generate (gen/large-integer* {:min 700, :max 999}))</code><br><code class="eval">;; =&gt; 864</code></pre>
+      <pre><code class="form">(gen/generate (gen/large-integer* {:min 700, :max 999}))</code><br><code class="eval">;; =&gt; 925</code></pre>
       <div class="vspace"></div>
-      <pre><code class="form">(gen/generate gen/keyword)</code><br><code class="eval">;; =&gt; :?j</code></pre>
+      <pre><code class="form">(gen/generate gen/keyword)</code><br><code class="eval">;; =&gt; :d09+10d</code></pre>
       <div class="vspace"></div>
-      <pre><code class="form">(gen/generate gen/string-alphanumeric)</code><br><code class="eval">;; =&gt; "c2196K5SStORUKI2csQXnaH80aHD34"</code></pre>
+      <pre><code class="form">(gen/generate gen/string-alphanumeric)</code><br><code class="eval">;; =&gt; "bJs8Fh643"</code></pre>
       <div class="note">
         <p>
           During our screencasts, we've been using 'basic' predicates like <code>int?</code> and <code>string?</code> because they're short to type and
@@ -110,9 +110,9 @@
       <pre><code>(fn [n] (and (int? n) (&lt;= 90 n 99)))</code></pre>
       <div class="vspace"></div>
       <pre><code class="form">(gen/sample (gen/large-integer* {:min 90, :max 99}))</code><br><code class=
-      "eval">;; =&gt; (91 90 91 91 91 92 93 95 91 98)</code></pre>
+      "eval">;; =&gt; (91 90 90 90 91 93 97 91 90 90)</code></pre>
       <div class="vspace"></div>
-      <pre><code class="form">(gen/generate (gen/large-integer* {:min 90, :max 99}))</code><br><code class="eval">;; =&gt; 91</code></pre>
+      <pre><code class="form">(gen/generate (gen/large-integer* {:min 90, :max 99}))</code><br><code class="eval">;; =&gt; 98</code></pre>
       <div class="note">
         <p>
           The custom generators we discussed in the previous subsection are merely floating around in the ether. To use them for exercising, we need to put
@@ -139,7 +139,7 @@
   []
   (gen/generate (gen/large-integer* {:min 90, :max 99})))</code></pre>
       <div class="vspace"></div>
-      <pre><code class="form">(generate-nineties)</code><br><code class="eval">;; =&gt; 95</code></pre>
+      <pre><code class="form">(generate-nineties)</code><br><code class="eval">;; =&gt; 97</code></pre>
       <div class="note">
         <p>
           To make the generator invocable, we'll wrap it in a function.
@@ -401,15 +401,15 @@
                  :g combined-pred,
                  :h combined-pred,
                  :i combined-pred}
-                :random)</code><br><code class="eval">;; =&gt; {:a 18/23,
-;;     :b "075bG2zOBEdU6qTxNKrUE02KuQfo94",
-;;     :c "2Y8554IX4WbLI",
-;;     :d "3f9QbCX35wXs",
-;;     :e "KnxDH8956EoCYEPc32g0S4Sy",
-;;     :f 3,
-;;     :g 32/31,
-;;     :h 13,
-;;     :i 20/17}</code></output></pre>
+                :random)</code><br><code class="eval">;; =&gt; {:a 14/31,
+;;     :b 15/4,
+;;     :c 1/4,
+;;     :d "Y8h7W7NSdnu68VFwJsLBy",
+;;     :e 6/25,
+;;     :f 23,
+;;     :g -29,
+;;     :h -23,
+;;     :i "vz4u70"}</code></output></pre>
       <div class="note">
         <output elided="" for="" brevity=""></output>
         <p>
@@ -448,13 +448,13 @@
         <output elided="" for="" brevity=""></output>
       </div>
       <pre><output elided="" for="" brevity=""><code class="form">(validate-predicate-&gt;generator pred-with-incorrect-generator)</code><br><code class=
-      "eval">;; =&gt; ([-7/4 false]
-;;     [-20/3 false]
-;;     [-3/23 false]
-;;     [11/8 false]
-;;     [0 true]
-;;     [26/31 false]
-;;     [-4/9 false])</code></output></pre>
+      "eval">;; =&gt; ([-2 true]
+;;     [7/4 false]
+;;     [30/29 false]
+;;     [-1/11 false]
+;;     [25/19 false]
+;;     [-25/11 false]
+;;     [-19/24 false])</code></output></pre>
       <div class="note">
         <output elided="" for="" brevity=""></output>
         <p>
@@ -488,13 +488,13 @@
         <output elided="" for="" brevity=""></output>
       </div>
       <pre><output elided="" for="" brevity=""><code class="form">(validate-predicate-&gt;generator pred-with-good-generator)</code><br><code class=
-      "eval">;; =&gt; ([19 true]
-;;     [-10 true]
-;;     [25 true]
-;;     [7 true]
-;;     [-25 true]
-;;     [6 true]
-;;     [28 true])</code></output></pre>
+      "eval">;; =&gt; ([-3 true]
+;;     [-20 true]
+;;     [-15 true]
+;;     [9 true]
+;;     [-7 true]
+;;     [-2 true]
+;;     [15 true])</code></output></pre>
       <div class="note">
         <output elided="" for="" brevity=""></output>
         <p>
@@ -630,7 +630,7 @@
         <output elided="" for="" brevity=""></output>
       </div>
       <pre><output elided="" for="" brevity=""><code class="form">(data-from-spec [int? ratio? double?] :random)</code><br><code class=
-      "eval">;; =&gt; [524 -5/3 0.060504913330078125]</code></output></pre>
+      "eval">;; =&gt; [823 8/25 0.41497692093253136]</code></output></pre>
       <div class="note">
         <output elided="" for="" brevity=""></output>
         <p>
@@ -659,8 +659,8 @@
       <pre><output elided="" for="" brevity=""><code class="form">(data-from-spec {:x char?,
                  :y #{:red :green :blue},
                  :z #"fo{3,5}bar"}
-                :random)</code><br><code class="eval">;; =&gt; {:x \9,
-;;     :y :blue,
+                :random)</code><br><code class="eval">;; =&gt; {:x \y,
+;;     :y :red,
 ;;     :z "fooooobar"}</code></output></pre>
       <div class="note">
         <output elided="" for="" brevity=""></output>
@@ -733,7 +733,7 @@
         <output elided="" for="" brevity="">Generating samples with custom generators</output>
       </h3>
       <pre><output elided="" for="" brevity=""><code class="form">(data-from-spec [pos-even-int? three-char-string?] :random)</code><br><code class=
-      "eval">;; =&gt; [22 "a4E"]</code></output></pre>
+      "eval">;; =&gt; [6 "xEw"]</code></output></pre>
       <div class="note">
         <output elided="" for="" brevity=""></output>
         <p>
@@ -781,16 +781,16 @@
         <output elided="" for="" brevity=""></output>
       </div>
       <pre><output elided="" for="" brevity=""><code class="form">(exercise [int? ratio? double?])</code><br><code class=
-      "eval">;; =&gt; ([[-302 -20/7 0.6364093124866486] true]
-;;     [[586 -2/9 ##-Inf] true]
-;;     [[534 6/7 0.004481252282857895] true]
-;;     [[260 17/6 0.02189469337463379] true]
-;;     [[-718 11/23 0.009765625] true]
-;;     [[64 -1/2 0.005339751951396465] true]
-;;     [[-510 -13/18 2.5411376953125] true]
-;;     [[454 12/5 -287.7680721282959] true]
-;;     [[864 1/17 -3.2734375] true]
-;;     [[-838 -17/7 -0.13580608367919922] true])</code></output></pre>
+      "eval">;; =&gt; ([[-542 10/31 83.578125] true]
+;;     [[192 -29/16 -506.0] true]
+;;     [[-203 -15/19 -256.0] true]
+;;     [[-259 -10/9 0.016967598276096396] true]
+;;     [[634 3/10 0.7653202321380377] true]
+;;     [[791 -8/9 -0.05259927362203598] true]
+;;     [[44 22/17 -0.00628662109375] true]
+;;     [[-621 -6/7 -4.5] true]
+;;     [[-441 10/7 -0.007598519325256348] true]
+;;     [[133 -1/2 -0.09083938598632812] true])</code></output></pre>
       <div class="note">
         <output elided="" for="" brevity=""></output>
         <p>
@@ -825,16 +825,16 @@
       </div>
       <pre><output elided="" for="" brevity=""><code>(require '[speculoos.function-specs :refer [exercise-fn]])</code></output></pre>
       <pre><output elided="" for="" brevity=""><code class="form">(exercise-fn sum-three)</code><br><code class=
-      "eval">;; =&gt; ([[222 11/6 -0.1470947265625] 223.6862386067708]
-;;     [[-482 7/22 16.004332587122917] -465.67748559469527]
-;;     [[-866 1/8 0.109375] -865.765625]
-;;     [[430 7/3 5.0] 437.3333333333333]
-;;     [[738 -25/4 -0.10427045822143555] 731.6457295417786]
-;;     [[-555 -6/29 -21.25] -576.4568965517241]
-;;     [[189 -22/27 253.94140625] 442.1265914351852]
-;;     [[740 -3/25 -0.8798060417175293] 739.0001939582825]
-;;     [[-928 -23/20 -0.00537109375] -929.15537109375]
-;;     [[379 -8/7 ##-Inf] ##-Inf])</code></output></pre>
+      "eval">;; =&gt; ([[-80 7/13 176.0] 96.53846153846153]
+;;     [[62 -8/5 0.004409432411193848] 60.40440943241119]
+;;     [[581 4/25 -13.75] 567.41]
+;;     [[549 -4/5 -1.5288899717852473] 546.6711100282148]
+;;     [[681 -19/30 0.0] 680.3666666666667]
+;;     [[-707 7/15 89.912109375] -616.6212239583333]
+;;     [[-698 -7/2 -83.265380859375] -784.765380859375]
+;;     [[-973 19/7 2.327880859375] -967.9578334263393]
+;;     [[-2 -25/22 -5.25] -8.386363636363637]
+;;     [[-639 9/2 4.0] -630.5])</code></output></pre>
       <div class="note">
         <output elided="" for="" brevity=""></output>
         <p>
@@ -1040,7 +1040,7 @@
     </div>
     <p id="page-footer">
       <output elided="" for="" brevity="">Copyright © 2024 Brad Losavio.<br>
-      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 07.</output>
+      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 11.</output>
     </p>
     <div class="license">
       <output elided="" for="" brevity=""></output>

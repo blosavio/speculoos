@@ -13,7 +13,7 @@
 
  [:pre (print-form-then-eval "(valid-scalars? [42 \"abc\" 22/7] [int? string? ratio?])" 40 80)]
 
- [:p "Notice now the specification's predicate functions in the the lower row line up with the data's values in the upper row. Integer " [:code "42"] " pairs with predicate " [:code "int?"] ", string " [:code "\"abc\""] " pairs with predicate " [:code "string?"] ", and ratio " [:code "22/7"] " pairs with predicate " [:code "ratio?"] ". All three scalar values satisfy their respective predicates, so the validation returns " [:code "true"] "."]
+ [:p "Notice how the specification's predicate functions in the the lower row line up with the data's values in the upper row. Integer " [:code "42"] " pairs with predicate " [:code "int?"] ", string " [:code "\"abc\""] " pairs with predicate " [:code "string?"] ", and ratio " [:code "22/7"] " pairs with predicate " [:code "ratio?"] ". All three scalar values satisfy their respective predicates, so the validation returns " [:code "true"] "."]
 
  [:p "Now imagine we'd like ensure our " [:em "Clojure hash-map contains an integer at key " [:code ":x"] " and a ratio at key " [:code ":y"]] ". Something like this."]
 

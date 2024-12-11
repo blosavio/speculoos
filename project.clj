@@ -12,9 +12,9 @@
   :plugins []
   :profiles {:dev {:dependencies [[hiccup "2.0.0-RC3"]
                                   [zprint "1.2.9"]
-                                  [com.sagevisuals/chlog "1-SNAPSHOT0"]
-                                  [com.sagevisuals/readmoi "3-SNAPSHOT0"]
-                                  [com.sagevisuals/screedcast "1-SNAPSHOT0"]]
+                                  [com.sagevisuals/chlog "1"]
+                                  [com.sagevisuals/readmoi "3"]
+                                  [com.sagevisuals/screedcast "2-SNAPSHOT1"]]
                    :plugins [[dev.weavejester/lein-cljfmt "0.12.0"]
                              [lein-codox "0.10.8"]]}
              :repl {}}

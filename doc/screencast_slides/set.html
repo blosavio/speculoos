@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
-    <meta charset="utf-8" compile-date="2024-12-07 14:18:51" content="width=device-width, initial-scale=1" name="viewport">
+    <meta charset="utf-8" compile-date="2024-12-11 09:38:55" content="width=device-width, initial-scale=1" name="viewport">
     <link href="screedcast.css" rel="stylesheet" type="text/css">
     <script src="jquery-3.7.1.min.js" type="text/javascript"></script>
     <script src="screedcast.js" type="text/javascript"></script>
@@ -382,12 +382,12 @@
       <pre><code class="form">(validate-scalars #{:chocolate}
                   #{keyword? qualified-keyword?})</code><br><code class="eval">;; =&gt; ({:datums-set #{:chocolate},
 ;;      :path [],
-;;      :predicate qualified-keyword?,
-;;      :valid? false}
+;;      :predicate keyword?,
+;;      :valid? true}
 ;;     {:datums-set #{:chocolate},
 ;;      :path [],
-;;      :predicate keyword?,
-;;      :valid? true})</code></pre>
+;;      :predicate qualified-keyword?,
+;;      :valid? false})</code></pre>
       <div class="note">
         <p>
           One of the defining features of Clojure sets is that they're amorphous bags of items, without any inherent ordering. Within the context of a set, it
@@ -412,12 +412,12 @@
       <pre><code class="form">(validate-scalars #{:chocolate :vanilla :strawberry}
                   #{keyword? qualified-keyword?})</code><br><code class="eval">;; =&gt; ({:datums-set #{:chocolate :strawberry :vanilla},
 ;;      :path [],
-;;      :predicate qualified-keyword?,
-;;      :valid? false}
+;;      :predicate keyword?,
+;;      :valid? true}
 ;;     {:datums-set #{:chocolate :strawberry :vanilla},
 ;;      :path [],
-;;      :predicate keyword?,
-;;      :valid? true})</code></pre>
+;;      :predicate qualified-keyword?,
+;;      :valid? false})</code></pre>
       <div class="note">
         <p>
           Validation applies <code>keyword?</code> and <code>simple-keyword?</code>, in turn, to every scalar member of the data set. Speculoos tells us that
@@ -668,7 +668,7 @@
     </div>
     <p id="page-footer">
       Copyright © 2024 Brad Losavio.<br>
-      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 07.
+      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 11.
     </p>
     <div class="license">
       <p>

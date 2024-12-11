@@ -1,20 +1,20 @@
-{:screencast-filename-bases [{:screencast-filename "intro"           :screencast-title "Introduction"                           :screencast-uuid #uuid "09ec291a-23f7-400b-9c3b-694facdb64ae"}
-                             {:screencast-filename "mechanics"       :screencast-title "Mechanics"                              :screencast-uuid #uuid "a230a730-7d15-43a0-abd1-e3cce92ca598"}
-                             {:screencast-filename "scalar"          :screencast-title "Validating Scalars"                     :screencast-uuid #uuid "8d2be8eb-1e1b-46a1-9038-c9042bd96b79"}
-                             {:screencast-filename "collectionA"     :screencast-title "Validating Collections, Basics"         :screencast-uuid #uuid "f7ab1ff8-766b-4e56-b47a-3aa10010a29a"}
-                             {:screencast-filename "collectionB"     :screencast-title "Validating Collections, Advanced"       :screencast-uuid #uuid "a1b90c85-fc65-4065-a21a-8f5baba2e05d"}
-                             {:screencast-filename "collectionC"     :screencast-title "Validating Collections, Extras"         :screencast-uuid #uuid "e0a713c4-ff30-4f33-b8ba-d7f6f13734f3"}
-                             {:screencast-filename "thorough"        :screencast-title "Validation Summaries & Thoroughness"    :screencast-uuid #uuid "d24219fb-c3b0-40d4-a3d2-ceb5d80384ba"}
-                             {:screencast-filename "function"        :screencast-title "Function Validation"                    :screencast-uuid #uuid "688bb1c8-1158-4ab8-a478-46986c0ff340"}
-                             {:screencast-filename "exercising"      :screencast-title "Generating Random Samples & Exercising" :screencast-uuid #uuid "af1affe5-9d7e-4adb-9593-543309993bad"}
-                             {:screencast-filename "utility"         :screencast-title "Utilities"                              :screencast-uuid #uuid "6ec60ee9-1a10-4975-a270-1263256c8245"}
-                             {:screencast-filename "predicate"       :screencast-title "Predicates"                             :screencast-uuid #uuid "553e7bfd-5e43-4774-b9ff-b5334a4ac821"}
-                             {:screencast-filename "sequence"        :screencast-title "Non-Terminating Sequences"              :screencast-uuid #uuid "3b8a296e-9837-4ea8-9d53-40e9f82024c1"}
-                             {:screencast-filename "set"             :screencast-title "Sets"                                   :screencast-uuid #uuid "5cebfc31-4519-4bbc-9de9-8fac2841a8ef"}
-                             {:screencast-filename "troubleshooting" :screencast-title "Troubleshooting"                        :screencast-uuid #uuid "07d8a61d-9f9c-4167-9c03-adbf915eb2aa"}
-                             {:screencast-filename "compare"         :screencast-title "Comparing spec.alpha to Speculoos"      :screencast-uuid #uuid "0c99bbbe-b977-4e5b-8e37-32c2a8f07b0d"}
-                             {:screencast-filename "perhaps"         :screencast-title "Perhaps So"                             :screencast-uuid #uuid "7060304f-2f6e-4453-ab1c-7797821e7edf"}
-                             {:screencast-filename "study"           :screencast-title "Case Study"                             :screencast-uuid #uuid "7c4ba802-9f14-46c2-aa8b-411a86629b44"}
+{:screencast-filename-bases [{:screencast-filename "intro"           :screencast-title "Introduction"                           :screencast-uuid #uuid "09ec291a-23f7-400b-9c3b-694facdb64ae" :video-slug "foo"}
+                             {:screencast-filename "mechanics"       :screencast-title "Mechanics"                              :screencast-uuid #uuid "a230a730-7d15-43a0-abd1-e3cce92ca598" :video-slug "foo"}
+                             {:screencast-filename "scalar"          :screencast-title "Validating Scalars"                     :screencast-uuid #uuid "8d2be8eb-1e1b-46a1-9038-c9042bd96b79" :video-slug "foo"}
+                             {:screencast-filename "collectionA"     :screencast-title "Validating Collections, Basics"         :screencast-uuid #uuid "f7ab1ff8-766b-4e56-b47a-3aa10010a29a" :video-slug "foo"}
+                             {:screencast-filename "collectionB"     :screencast-title "Validating Collections, Advanced"       :screencast-uuid #uuid "a1b90c85-fc65-4065-a21a-8f5baba2e05d" :video-slug "foo"}
+                             {:screencast-filename "collectionC"     :screencast-title "Validating Collections, Extras"         :screencast-uuid #uuid "e0a713c4-ff30-4f33-b8ba-d7f6f13734f3" :video-slug "foo"}
+                             {:screencast-filename "thorough"        :screencast-title "Validation Summaries & Thoroughness"    :screencast-uuid #uuid "d24219fb-c3b0-40d4-a3d2-ceb5d80384ba" :video-slug "foo"}
+                             {:screencast-filename "function"        :screencast-title "Function Validation"                    :screencast-uuid #uuid "688bb1c8-1158-4ab8-a478-46986c0ff340" :video-slug "foo"}
+                             {:screencast-filename "exercising"      :screencast-title "Generating Random Samples & Exercising" :screencast-uuid #uuid "af1affe5-9d7e-4adb-9593-543309993bad" :video-slug "foo"}
+                             {:screencast-filename "utility"         :screencast-title "Utilities"                              :screencast-uuid #uuid "6ec60ee9-1a10-4975-a270-1263256c8245" :video-slug "foo"}
+                             {:screencast-filename "predicate"       :screencast-title "Predicates"                             :screencast-uuid #uuid "553e7bfd-5e43-4774-b9ff-b5334a4ac821" :video-slug "foo"}
+                             {:screencast-filename "sequence"        :screencast-title "Non-Terminating Sequences"              :screencast-uuid #uuid "3b8a296e-9837-4ea8-9d53-40e9f82024c1" :video-slug "foo"}
+                             {:screencast-filename "set"             :screencast-title "Sets"                                   :screencast-uuid #uuid "5cebfc31-4519-4bbc-9de9-8fac2841a8ef" :video-slug "foo"}
+                             {:screencast-filename "troubleshooting" :screencast-title "Troubleshooting"                        :screencast-uuid #uuid "07d8a61d-9f9c-4167-9c03-adbf915eb2aa" :video-slug "foo"}
+                             {:screencast-filename "compare"         :screencast-title "Comparing spec.alpha to Speculoos"      :screencast-uuid #uuid "0c99bbbe-b977-4e5b-8e37-32c2a8f07b0d" :video-slug "foo"}
+                             {:screencast-filename "perhaps"         :screencast-title "Perhaps So"                             :screencast-uuid #uuid "7060304f-2f6e-4453-ab1c-7797821e7edf" :video-slug "foo"}
+                             {:screencast-filename "study"           :screencast-title "Case Study"                             :screencast-uuid #uuid "7c4ba802-9f14-46c2-aa8b-411a86629b44" :video-slug "foo"}
                              #_"glossary"]
 
 
@@ -29,4 +29,10 @@
  :separator " => "
  :wrap-at 80
 
- :tidy-html? true}
+ :tidy-html? true
+
+ :toc? true
+ :toc-uuid #uuid "2226fc72-38b6-47ec-b760-7fab9d33b9b8"
+ :toc-panel-url-base "https://blosavio.github.io/speculoos/screencast_slides/"
+ :toc-video-url-base "https://www.youtube.com/channel/"
+ :toc-preamble [:p "The following screencasts are intended to " [:em "supplement"] " the Speculoos project documentation. The " [:a {:href "https://github.com/blosavio/speculoos"} "text documents"] " are the canonical, up-to-date references."]}
