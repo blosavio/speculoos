@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
+    <meta charset="utf-8" compile-date="2025-10-31 13:38:06" content="width=device-width, initial-scale=1" name="viewport">
+    <script src="jquery-3.7.1.min.js" type="text/javascript"></script>
+    <script src="fastester.js" type="text/javascript"></script>
+    <link href="project.css" rel="stylesheet" type="text/css">
+    <title>
+      all-paths performance
+    </title>
+  </head>
+  <body>
+    <h1>
+      all-paths performance
+    </h1>
+    <div>
+      <a href="#group-0">Hashmaps</a><br>
+      <a href="#group-1">Lists</a><br>
+      <a href="#group-2">Sequences</a><br>
+      <a href="#group-3">Vectors</a>
+    </div>
+    <div>
+      <p>
+        For the moment, this page illustrates the baseline performance of <code>all-paths</code> before any attempt to optimize performance. See analagous
+        benchmarks for <a href="https://blosavio.github.io/speculoos/valid_scalars_performance.html"><code>valid-scalars?</code></a> and <a href=
+        "https://blosavio.github.io/speculoos/valid_collections_performance.html"><code>valid-collections?</code></a>.
+      </p>
+      <p>
+        The sample data structures and specifications are defined in the <a href=
+        "https://github.com/blosavio/speculoos/blob/main/test/speculoos/performance/benchmark_structures.clj">benchmarks structures namespace</a> while the
+        benchmarks themselves are defines in the <a href=
+        "https://github.com/blosavio/speculoos/blob/main/test/speculoos/performance/all_paths_benchmarks.clj">definitions namespace</a>.
+      </p>
+      <p>
+        For each of the collection types (hashmaps, lists, sequences, and vectors), we see benchmark results different lengths of 'flat' collections, and
+        different lenghts+depths of nested collections. In general, <code>n</code> is an exponenet to ten, i.e., the lengths increase exponentially.
+      </p>
+    </div>
+    <section>
+      <h3 id="group-0">
+        Hashmaps
+      </h3>
+      <div>
+        <p>
+          v7 nested maps demonstrate anamalous performance for <code>n</code> of five and six.
+        </p>
+      </div>
+      <div>
+        <h4 id="group-0-fexpr-0">
+          (fn [n] (all-paths (into (hash-map) (nested-map n))))
+        </h4><img alt=
+        "Benchmark measurements for expression `(fn [n] (all-paths (into (hash-map) (nested-map n))))`, time versus &apos;n&apos; arguments, comparing different versions."
+        src="img_all_paths/group-0-fexpr-0.svg"><button class="collapser" type="button">Show details</button>
+        <div class="collapsable">
+          <table>
+            <caption>
+              times in seconds, <em>mean±std</em>
+            </caption>
+            <thead>
+              <tr>
+                <td></td>
+                <th colspan="7">
+                  arg, n
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  version
+                </th>
+                <th>
+                  0
+                </th>
+                <th>
+                  1
+                </th>
+                <th>
+                  2
+                </th>
+                <th>
+                  3
+                </th>
+                <th>
+                  4
+                </th>
+                <th>
+                  5
+                </th>
+                <th>
+                  6
+                </th>
+              </tr>
+            </thead>
+            <tr>
+              <td>
+                7
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-24.edn">2.0e-05±6.7e-08</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-25.edn">4.0e-05±8.6e-08</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-26.edn">1.4e-04±3.4e-07</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-27.edn">8.2e-04±5.4e-06</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-28.edn">7.1e-03±1.8e-05</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-29.edn">8.3e-02±3.0e-04</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-30.edn">1.3e+00±2.1e-01</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <h4 id="group-0-fexpr-1">
+          (fn [n] (all-paths (map-of-n-key-vals n)))
+        </h4><img alt=
+        "Benchmark measurements for expression `(fn [n] (all-paths (map-of-n-key-vals n)))`, time versus &apos;n&apos; arguments, comparing different versions."
+        src="img_all_paths/group-0-fexpr-1.svg"><button class="collapser" type="button">Show details</button>
+        <div class="collapsable">
+          <table>
+            <caption>
+              times in seconds, <em>mean±std</em>
+            </caption>
+            <thead>
+              <tr>
+                <td></td>
+                <th colspan="4">
+                  arg, n
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  version
+                </th>
+                <th>
+                  1
+                </th>
+                <th>
+                  10
+                </th>
+                <th>
+                  100
+                </th>
+                <th>
+                  1000
+                </th>
+              </tr>
+            </thead>
+            <tr>
+              <td>
+                7
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-20.edn">3.9e-05±1.7e-07</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-21.edn">2.1e-04±2.0e-06</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-22.edn">1.9e-03±4.7e-06</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-23.edn">1.9e-02±8.2e-05</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <hr>
+      <h3 id="group-1">
+        Lists
+      </h3>
+      <div>
+        <p>
+          Lists comments...
+        </p>
+      </div>
+      <div>
+        <h4 id="group-1-fexpr-0">
+          (fn [n] (all-paths (list-of-n-rand-ints n)))
+        </h4><img alt=
+        "Benchmark measurements for expression `(fn [n] (all-paths (list-of-n-rand-ints n)))`, time versus &apos;n&apos; arguments, comparing different versions."
+        src="img_all_paths/group-1-fexpr-0.svg"><button class="collapser" type="button">Show details</button>
+        <div class="collapsable">
+          <table>
+            <caption>
+              times in seconds, <em>mean±std</em>
+            </caption>
+            <thead>
+              <tr>
+                <td></td>
+                <th colspan="4">
+                  arg, n
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  version
+                </th>
+                <th>
+                  1
+                </th>
+                <th>
+                  10
+                </th>
+                <th>
+                  100
+                </th>
+                <th>
+                  1000
+                </th>
+              </tr>
+            </thead>
+            <tr>
+              <td>
+                7
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-16.edn">3.6e-05±6.5e-07</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-17.edn">2.0e-04±3.2e-06</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-18.edn">1.8e-03±2.8e-05</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-19.edn">1.8e-02±3.7e-04</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <h4 id="group-1-fexpr-1">
+          (fn [n] (all-paths (nested-list n)))
+        </h4><img alt=
+        "Benchmark measurements for expression `(fn [n] (all-paths (nested-list n)))`, time versus &apos;n&apos; arguments, comparing different versions." src=
+        "img_all_paths/group-1-fexpr-1.svg"><button class="collapser" type="button">Show details</button>
+        <div class="collapsable">
+          <table>
+            <caption>
+              times in seconds, <em>mean±std</em>
+            </caption>
+            <thead>
+              <tr>
+                <td></td>
+                <th colspan="5">
+                  arg, n
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  version
+                </th>
+                <th>
+                  0
+                </th>
+                <th>
+                  1
+                </th>
+                <th>
+                  2
+                </th>
+                <th>
+                  3
+                </th>
+                <th>
+                  4
+                </th>
+              </tr>
+            </thead>
+            <tr>
+              <td>
+                7
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-0.edn">1.3e-07±2.1e-09</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-1.edn">3.6e-05±3.4e-07</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-2.edn">1.3e-04±5.5e-07</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-3.edn">7.5e-04±6.5e-06</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-4.edn">6.4e-03±5.4e-05</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <hr>
+      <h3 id="group-2">
+        Sequences
+      </h3>
+      <div>
+        <p>
+          Seq comments...
+        </p>
+      </div>
+      <div>
+        <h4 id="group-2-fexpr-0">
+          (fn [n] (all-paths (nested-seq n)))
+        </h4><img alt=
+        "Benchmark measurements for expression `(fn [n] (all-paths (nested-seq n)))`, time versus &apos;n&apos; arguments, comparing different versions." src=
+        "img_all_paths/group-2-fexpr-0.svg"><button class="collapser" type="button">Show details</button>
+        <div class="collapsable">
+          <table>
+            <caption>
+              times in seconds, <em>mean±std</em>
+            </caption>
+            <thead>
+              <tr>
+                <td></td>
+                <th colspan="7">
+                  arg, n
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  version
+                </th>
+                <th>
+                  0
+                </th>
+                <th>
+                  1
+                </th>
+                <th>
+                  2
+                </th>
+                <th>
+                  3
+                </th>
+                <th>
+                  4
+                </th>
+                <th>
+                  5
+                </th>
+                <th>
+                  6
+                </th>
+              </tr>
+            </thead>
+            <tr>
+              <td>
+                7
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-31.edn">1.6e-07±4.3e-10</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-32.edn">5.9e-07±1.4e-09</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-33.edn">1.3e-04±3.5e-07</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-34.edn">7.5e-04±1.4e-06</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-35.edn">6.4e-03±1.9e-05</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-36.edn">7.6e-02±3.5e-04</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-37.edn">1.2e+00±2.0e-01</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <h4 id="group-2-fexpr-1">
+          (fn [n] (all-paths (seq-of-n-rand-ints n)))
+        </h4><img alt=
+        "Benchmark measurements for expression `(fn [n] (all-paths (seq-of-n-rand-ints n)))`, time versus &apos;n&apos; arguments, comparing different versions."
+        src="img_all_paths/group-2-fexpr-1.svg"><button class="collapser" type="button">Show details</button>
+        <div class="collapsable">
+          <table>
+            <caption>
+              times in seconds, <em>mean±std</em>
+            </caption>
+            <thead>
+              <tr>
+                <td></td>
+                <th colspan="4">
+                  arg, n
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  version
+                </th>
+                <th>
+                  1
+                </th>
+                <th>
+                  10
+                </th>
+                <th>
+                  100
+                </th>
+                <th>
+                  1000
+                </th>
+              </tr>
+            </thead>
+            <tr>
+              <td>
+                7
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-5.edn">5.8e-07±6.1e-09</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-6.edn">5.9e-07±4.1e-09</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-7.edn">6.0e-07±3.9e-09</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-8.edn">6.3e-07±6.7e-09</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <hr>
+      <h3 id="group-3">
+        Vectors
+      </h3>
+      <div>
+        <p>
+          Vectors comments...
+        </p>
+      </div>
+      <div>
+        <h4 id="group-3-fexpr-0">
+          (fn [n] (all-paths (nested-vec n)))
+        </h4><img alt=
+        "Benchmark measurements for expression `(fn [n] (all-paths (nested-vec n)))`, time versus &apos;n&apos; arguments, comparing different versions." src=
+        "img_all_paths/group-3-fexpr-0.svg"><button class="collapser" type="button">Show details</button>
+        <div class="collapsable">
+          <table>
+            <caption>
+              times in seconds, <em>mean±std</em>
+            </caption>
+            <thead>
+              <tr>
+                <td></td>
+                <th colspan="7">
+                  arg, n
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  version
+                </th>
+                <th>
+                  0
+                </th>
+                <th>
+                  1
+                </th>
+                <th>
+                  2
+                </th>
+                <th>
+                  3
+                </th>
+                <th>
+                  4
+                </th>
+                <th>
+                  5
+                </th>
+                <th>
+                  6
+                </th>
+              </tr>
+            </thead>
+            <tr>
+              <td>
+                7
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-9.edn">1.7e-07±1.8e-09</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-10.edn">5.7e-05±3.6e-07</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-11.edn">2.0e-04±1.1e-06</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-12.edn">1.2e-03±2.3e-05</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-13.edn">9.7e-03±4.8e-05</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-14.edn">1.1e-01±1.0e-03</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-15.edn">1.8e+00±1.8e-01</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <h4 id="group-3-fexpr-1">
+          (fn [n] (all-paths (vec-of-n-rand-ints n)))
+        </h4><img alt=
+        "Benchmark measurements for expression `(fn [n] (all-paths (vec-of-n-rand-ints n)))`, time versus &apos;n&apos; arguments, comparing different versions."
+        src="img_all_paths/group-3-fexpr-1.svg"><button class="collapser" type="button">Show details</button>
+        <div class="collapsable">
+          <table>
+            <caption>
+              times in seconds, <em>mean±std</em>
+            </caption>
+            <thead>
+              <tr>
+                <td></td>
+                <th colspan="4">
+                  arg, n
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  version
+                </th>
+                <th>
+                  1
+                </th>
+                <th>
+                  10
+                </th>
+                <th>
+                  100
+                </th>
+                <th>
+                  1000
+                </th>
+              </tr>
+            </thead>
+            <tr>
+              <td>
+                7
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-38.edn">5.5e-05±9.3e-08</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-39.edn">3.0e-04±1.9e-06</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-40.edn">2.8e-03±1.3e-05</a>
+              </td>
+              <td>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-41.edn">2.8e-02±4.4e-05</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <hr>
+    </section>
+    <p id="page-footer">
+      Copyright © 2024–2025 Brad Losavio.<br>
+      Compiled by <a href="https://github.com/blosavio/fastester">Fastester</a> on 2025 October 31.<span id="uuid"><br>
+      625df6c8-95f5-4319-8f43-539129650467</span>
+    </p>
+  </body>
+</html>

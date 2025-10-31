@@ -1,0 +1,119 @@
+{:overhead 1.6418386272872216E-9,
+ :samples
+ (999402884
+  998713904
+  999229289
+  1001877800
+  1003144586
+  1002019913
+  1001724679
+  1004435894
+  1005171859
+  1003052585
+  1002028849
+  1003007970
+  1001230506
+  1003274663
+  1002532484
+  1002302809
+  1000077542
+  1002526618
+  1002044194
+  1002607514
+  1004552128
+  1004917748
+  1002599905
+  1003911287
+  1003362382
+  1008603606
+  1004733976
+  1008937114
+  1002567775
+  1003071982
+  1003470456
+  1004276327
+  1000980095
+  1000575129
+  1003667562
+  1002136281
+  1002814300
+  1002239566
+  1001437162
+  1001308225
+  1005324048
+  1017868371
+  1001460995
+  1000207336
+  999780546
+  1005747358
+  1002864313
+  1005321675
+  1017567853
+  1032389297
+  1044250422
+  1041238552
+  1011052729
+  1013985387
+  1014803667
+  1015983579
+  1009708679
+  1015297104
+  1015068661
+  1015817440),
+ :runtime-details
+ {:spec-vendor "Oracle Corporation",
+  :spec-name "Java Virtual Machine Specification",
+  :clojure-version-string "1.12.0",
+  :java-version "11.0.28",
+  :vm-name "OpenJDK 64-Bit Server VM",
+  :vm-vendor "Ubuntu",
+  :clojure-version
+  {:major 1, :minor 12, :incremental 0, :qualifier nil},
+  :spec-version "11",
+  :sun-arch-data-model "64"},
+ :mean
+ [2.1056809644077253E-4 (2.1017457755351045E-4 2.1121410848497528E-4)],
+ :final-gc-time 567952631,
+ :execution-count 4781,
+ :variance
+ [3.823285526563211E-12 (1.6737718598808813E-12 7.79215466464866E-12)],
+ :os-details
+ {:arch "amd64",
+  :available-processors 1,
+  :name "Linux",
+  :version "5.15.0-160-generic"},
+ :tail-quantile 0.025,
+ :outlier-variance 0.016388888888888932,
+ :outliers {:low-severe 0, :low-mild 0, :high-mild 6, :high-severe 3},
+ :warmup-time 11595938783,
+ :lower-q
+ [2.0900006044760513E-4 (2.0889226186990173E-4 2.091448690859653E-4)],
+ :warmup-executions 55081,
+ :sample-count 60,
+ :upper-q
+ [2.169075833246183E-4 (2.1267837750470615E-4 2.1841673750261454E-4)],
+ :fastester/metadata
+ {:fexpr "(fn [n] (all-paths (map-of-n-key-vals n)))",
+  :date {:year 2025, :month "October", :day 31},
+  :group "Hashmaps",
+  :index 21,
+  :ns "speculoos.performance.all-paths-benchmarks",
+  :UUIDv4 #uuid "b634a9c4-f315-486a-b52a-4ea997c99961",
+  :name "flat-maps",
+  :testing-thoroughness :default,
+  :arg 10,
+  :version "7",
+  :parallel? false},
+ :total-time 60.39630756,
+ :sample-variance [3.6231931090020105E-12 (0.0 0.0)],
+ :options
+ {:max-gc-attempts 100,
+  :samples 60,
+  :target-execution-time 1000000000,
+  :warmup-jit-period 10000000000,
+  :tail-quantile 0.025,
+  :bootstrap-size 1000,
+  :overhead 1.6418386272872216E-9},
+ :sample-mean
+ [2.1054279983267102E-4 (2.04832393719178E-4 2.16253205946164E-4)],
+ :results :fastester/benchmark-fn-results-elided}

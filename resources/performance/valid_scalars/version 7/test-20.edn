@@ -1,0 +1,120 @@
+{:overhead 1.667925205773082E-9,
+ :samples
+ (999556136
+  1000461064
+  999186475
+  999704569
+  999876156
+  1000403280
+  1002322279
+  1001855542
+  1002317744
+  1000610793
+  999084428
+  998115648
+  999356085
+  997458349
+  1000182353
+  1001683523
+  1001218096
+  1000166708
+  1002329701
+  1000759344
+  1001177333
+  1000781124
+  1004809835
+  1000101281
+  998471323
+  999847653
+  1000521213
+  1001813028
+  998698840
+  999247469
+  997019383
+  998532811
+  998998342
+  1000176929
+  1002123271
+  1000611802
+  1003134098
+  998299981
+  999697648
+  1000023334
+  1004615364
+  1002031547
+  1000248436
+  1001838067
+  1002831856
+  1000908786
+  1000629488
+  1000092015
+  999810996
+  1001900667
+  1001417301
+  1001221046
+  1001276077
+  1000234600
+  1001766619
+  1001891955
+  999087816
+  1005522255
+  1000176643
+  1000128210),
+ :runtime-details
+ {:spec-vendor "Oracle Corporation",
+  :spec-name "Java Virtual Machine Specification",
+  :clojure-version-string "1.12.0",
+  :java-version "11.0.28",
+  :vm-name "OpenJDK 64-Bit Server VM",
+  :vm-vendor "Ubuntu",
+  :clojure-version
+  {:major 1, :minor 12, :incremental 0, :qualifier nil},
+  :spec-version "11",
+  :sun-arch-data-model "64"},
+ :mean
+ [4.6454931836118857E-4 (4.643623361111112E-4 4.6475647421077073E-4)],
+ :final-gc-time 541996510,
+ :execution-count 2154,
+ :variance
+ [6.089003376793811E-13 (4.001700579865179E-13 8.904413014355554E-13)],
+ :os-details
+ {:arch "amd64",
+  :available-processors 1,
+  :name "Linux",
+  :version "5.15.0-160-generic"},
+ :tail-quantile 0.025,
+ :outlier-variance 0.016388888888888887,
+ :outliers {:low-severe 0, :low-mild 0, :high-mild 1, :high-severe 0},
+ :warmup-time 10835034447,
+ :lower-q
+ [4.630725854224699E-4 (4.628687943361189E-4 4.6350109955896015E-4)],
+ :warmup-executions 23257,
+ :sample-count 60,
+ :upper-q
+ [4.6644264683147637E-4 (4.6545651456592394E-4 4.6681627437325914E-4)],
+ :fastester/metadata
+ {:fexpr
+  "(fn [n] (valid-scalars? (nested-map n) (nested-map-spec n)))",
+  :date {:year 2025, :month "October", :day 31},
+  :group "Hashmaps",
+  :index 20,
+  :ns "speculoos.performance.valid-scalars-benchmarks",
+  :UUIDv4 #uuid "a2e746d9-8269-4919-b2d6-8287bb6496a3",
+  :name "nested-maps",
+  :testing-thoroughness :default,
+  :arg 1,
+  :version "7",
+  :parallel? false},
+ :total-time 60.038364715,
+ :sample-variance [5.886434398592469E-13 (0.0 0.0)],
+ :options
+ {:max-gc-attempts 100,
+  :samples 60,
+  :target-execution-time 1000000000,
+  :warmup-jit-period 10000000000,
+  :tail-quantile 0.025,
+  :bootstrap-size 1000,
+  :overhead 1.667925205773082E-9},
+ :sample-mean
+ [4.645494020040236E-4 (4.6224770894048677E-4 4.6685109506756033E-4)],
+ :results :fastester/benchmark-fn-results-elided}

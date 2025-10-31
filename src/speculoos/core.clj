@@ -30,7 +30,7 @@
    [fn-in.core :refer [get-in* assoc-in*]]))
 
 
-(load "/fn_in/collection_hierarchy")
+(load "collection_hierarchy")
 
 
 (defn assoc-vector-tail

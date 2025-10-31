@@ -4,7 +4,7 @@
       Speculoos library changelog
     </h1><a href="https://github.com/blosavio/chlog">changelog info</a>
     <section>
-      <h3>
+      <h3 id="v7">
         version 7
       </h3>
       <p>
@@ -41,7 +41,7 @@
       <hr>
     </section>
     <section>
-      <h3>
+      <h3 id="v6">
         version 6
       </h3>
       <p>
@@ -78,7 +78,7 @@
       <hr>
     </section>
     <section>
-      <h3>
+      <h3 id="v5">
         version 5
       </h3>
       <p>
@@ -119,7 +119,7 @@
       <hr>
     </section>
     <section>
-      <h3>
+      <h3 id="v4">
         version 4
       </h3>
       <p>
@@ -151,7 +151,7 @@
       <hr>
     </section>
     <section>
-      <h3>
+      <h3 id="v3">
         version 3
       </h3>
       <p>
@@ -198,7 +198,7 @@
       <hr>
     </section>
     <section>
-      <h3>
+      <h3 id="v2">
         version 2
       </h3>
       <p>
@@ -399,7 +399,7 @@
       <hr>
     </section>
     <section>
-      <h3>
+      <h3 id="v1">
         version 1
       </h3>
       <p>
@@ -514,7 +514,7 @@
       <hr>
     </section>
     <section>
-      <h3>
+      <h3 id="v0">
         version 0
       </h3>
       <p>
@@ -539,8 +539,8 @@
       <hr>
     </section>
     <p id="page-footer">
-      Copyright © 2024 Brad Losavio.<br>
-      Compiled by <a href="https://github.com/blosavio/chlog">Chlog</a> on 2024 December 07.<span id="uuid"><br>
+      Copyright © 2024–2025 Brad Losavio.<br>
+      Compiled by <a href="https://github.com/blosavio/chlog">Chlog</a> on 2025 October 27.<span id="uuid"><br>
       d571f801-3b49-4fd9-a5f3-620e034d0a8d</span>
     </p>
   </body>

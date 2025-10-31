@@ -1,0 +1,119 @@
+{:responsible {:name "Brad Losavio"
+               :email "blosavio@sagevisuals.com"}
+
+ :copyright-holder "Brad Losavio"
+
+ :preferred-version-info :lein
+
+ :html-directory "doc/"
+ :markdown-directory "doc/"
+ :results-url "https://github.com/blosavio/speculoos/blob/master/"
+
+ :verbose? true
+ :testing-thoroughness :default
+ :parallel? false
+ :save-benchmark-fn-results? false
+
+ :sort-comparator #(> (Integer/parseInt %1) (Integer/parseInt %2))
+
+ :tidy-html? true
+
+ :title "all-paths performance"
+
+ :fastester-UUID #uuid "625df6c8-95f5-4319-8f43-539129650467"
+
+ :benchmarks {'speculoos.performance.all-paths-benchmarks
+              #{'flat-lists
+                'flat-maps
+                'flat-seqs
+                'flat-vecs
+
+                'nested-lists
+                'nested-maps
+                'nested-seqs
+                'nested-vecs}}
+
+ :html-filename "all_paths_performance.html"
+ :img-subdirectory "img_all_paths/"
+ :markdown-filename "all_paths_performance.md"
+ :results-directory "resources/performance/all_paths/"
+
+ :preamble
+ [:div
+  [:p "For the moment, this page illustrates the baseline performance
+ of "
+   [:code "all-paths"]
+   " before any attempt to optimize performance. See analagous
+ benchmarks for "
+   [:a {:href "https://blosavio.github.io/speculoos/valid_scalars_performance.html"}
+    [:code "valid-scalars?"]]
+   " and "
+   [:a {:href "https://blosavio.github.io/speculoos/valid_collections_performance.html"}
+    [:code "valid-collections?"]]
+   "."]
+
+  [:p "The sample data structures and specifications are defined in
+ the "
+   [:a {:href "https://github.com/blosavio/speculoos/blob/main/test/speculoos/performance/benchmark_structures.clj"}
+    "benchmarks structures namespace"]
+   " while the benchmarks themselves are defines in the "
+   [:a {:href "https://github.com/blosavio/speculoos/blob/main/test/speculoos/performance/all_paths_benchmarks.clj"}
+    " definitions namespace"]
+   "."]
+
+  [:p "For each of the collection types (hashmaps, lists, sequences,
+ and vectors), we see benchmark results different lengths of 'flat' collections,
+ and different lenghts+depths of nested collections. In general, "
+   [:code "n"]
+   " is an exponenet to ten, i.e., the lengths increase
+ exponentially."]]
+
+ :comments
+ {"Sequences"
+  [:div
+   [:p "Seq comments..."]]
+
+  "Hashmaps"
+  [:div
+   [:p "v7 nested maps demonstrate anamalous performance for "
+    [:code "n"]
+    " of five and six."]]
+
+  "Lists"
+  [:div
+   [:p "Lists comments..."]]
+
+  "Vectors"
+  [:div
+   [:p "Vectors comments..."]]}
+
+
+ :chart-settings
+ {"(fn [n] (all-paths (seq-of-n-rand-ints n)))"
+  {:x-axis-logarithmic? true
+   :y-axis-logarithmic? false}
+
+  "(fn [n] (all-paths (nested-seq n)))"
+  {:x-axis-logarithmic? false
+   :y-axis-logarithmic? true}
+
+  "(fn [n] (all-paths (vec-of-n-rand-ints n)))"
+  {:x-axis-logarithmic? true
+   :y-axis-logarithmic? true}
+
+  "(fn [n] (all-paths (nested-vec n)))"
+  {:x-axis-logarithmic? false
+   :y-axis-logarithmic? true}
+
+  "(fn [n] (all-paths (map-of-n-key-vals n)))"
+  {:x-axis-logarithmic? true
+   :y-axis-logarithmic? true}
+
+  "(fn [n] (all-paths (list-of-n-rand-ints n)))"
+  {:x-axis-logarithmic? true
+   :y-axis-logarithmic? true}
+
+  "(fn [n] (all-paths (nested-list n)))"
+  {:x-axis-logarithmic? false
+   :y-axis-logarithmic? true}}}
+

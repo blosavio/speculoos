@@ -1,0 +1,121 @@
+{:overhead 1.6653218545828796E-9,
+ :samples
+ (1007795164
+  1006957658
+  1000590348
+  1001279943
+  1001519489
+  1002188342
+  1001121808
+  1004098054
+  1003776992
+  1001525957
+  1002636912
+  1002382218
+  1005446358
+  1000949023
+  1001979884
+  1000026182
+  999613775
+  1005649900
+  1005145456
+  1002805627
+  1001619079
+  1003052614
+  1004031343
+  1003252915
+  1002684737
+  1001633641
+  1000807894
+  1003023260
+  1003459660
+  1001281746
+  1003000521
+  1003024203
+  1002155105
+  1001058002
+  1002422445
+  1019872972
+  1002279440
+  1002780119
+  1001232805
+  1002602885
+  1001905394
+  1001971689
+  1002042898
+  1001541097
+  1002460611
+  1002491958
+  1002695261
+  1003296440
+  1003977418
+  1002735994
+  1001047172
+  1005103429
+  1006628525
+  1003061119
+  1007083035
+  1002145132
+  1006169211
+  1003408394
+  1002543768
+  1003223916),
+ :runtime-details
+ {:spec-vendor "Oracle Corporation",
+  :spec-name "Java Virtual Machine Specification",
+  :clojure-version-string "1.12.0",
+  :java-version "11.0.28",
+  :vm-name "OpenJDK 64-Bit Server VM",
+  :vm-vendor "Ubuntu",
+  :clojure-version
+  {:major 1, :minor 12, :incremental 0, :qualifier nil},
+  :spec-version "11",
+  :sun-arch-data-model "64"},
+ :mean
+ [3.776898057856426E-4 (3.7748935010040164E-4 3.780826112198795E-4)],
+ :final-gc-time 546328688,
+ :execution-count 2656,
+ :variance
+ [1.1417468338740769E-12
+  (3.830478846635514E-13 4.129918871662699E-12)],
+ :os-details
+ {:arch "amd64",
+  :available-processors 1,
+  :name "Linux",
+  :version "5.15.0-160-generic"},
+ :tail-quantile 0.025,
+ :outlier-variance 0.01638888888888889,
+ :outliers {:low-severe 0, :low-mild 0, :high-mild 5, :high-severe 1},
+ :warmup-time 10739259868,
+ :lower-q
+ [3.765158817771085E-4 (3.763606080572289E-4 3.768102010542169E-4)],
+ :warmup-executions 28447,
+ :sample-count 60,
+ :upper-q
+ [3.792911704254519E-4 (3.7882876920180723E-4 3.8398831777108433E-4)],
+ :fastester/metadata
+ {:fexpr
+  "(fn [n] (valid-collections? (nested-seq n) (nested-seq-coll-spec n)))",
+  :date {:year 2025, :month "October", :day 31},
+  :group "Sequences",
+  :index 24,
+  :ns "speculoos.performance.valid-collections-benchmarks",
+  :UUIDv4 #uuid "277cf3a0-27b0-4c29-b0a7-36448ebadb95",
+  :name "nested-seqs",
+  :testing-thoroughness :default,
+  :arg 2,
+  :version "7",
+  :parallel? false},
+ :total-time 60.188296937,
+ :sample-variance [1.112489807576155E-12 (0.0 0.0)],
+ :options
+ {:max-gc-attempts 100,
+  :samples 60,
+  :target-execution-time 1000000000,
+  :warmup-jit-period 10000000000,
+  :tail-quantile 0.025,
+  :bootstrap-size 1000,
+  :overhead 1.6653218545828796E-9},
+ :sample-mean
+ [3.776876062813755E-4 (3.745233673099662E-4 3.8085184525278484E-4)],
+ :results :fastester/benchmark-fn-results-elided}

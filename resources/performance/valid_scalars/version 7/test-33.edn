@@ -1,0 +1,117 @@
+{:overhead 1.667925205773082E-9,
+ :samples
+ (1300096452
+  1299764206
+  1299184905
+  1303402081
+  1298742471
+  1297800782
+  1302527745
+  1300241938
+  1302329986
+  1302414664
+  1303606676
+  1308607347
+  1297264188
+  1300262451
+  1302713439
+  1301471824
+  1300718403
+  1302245590
+  1297614313
+  1300971075
+  1301246685
+  1298988535
+  1295852041
+  1302101892
+  1300395976
+  1301876283
+  1298635933
+  1302156776
+  1299478652
+  1300549700
+  1302280787
+  1297121656
+  1296861282
+  1298443140
+  1303403298
+  1302520231
+  1299008668
+  1296602138
+  1297462805
+  1294849002
+  1304140328
+  1297443291
+  1299366985
+  1299393945
+  1301368093
+  1299805599
+  1299939508
+  1298228616
+  1298683081
+  1299178504
+  1303663913
+  1296479604
+  1303833721
+  1305052269
+  1305302097
+  1299377999
+  1306197945
+  1305993235
+  1297896125
+  1301855106),
+ :runtime-details
+ {:spec-vendor "Oracle Corporation",
+  :spec-name "Java Virtual Machine Specification",
+  :clojure-version-string "1.12.0",
+  :java-version "11.0.28",
+  :vm-name "OpenJDK 64-Bit Server VM",
+  :vm-vendor "Ubuntu",
+  :clojure-version
+  {:major 1, :minor 12, :incremental 0, :qualifier nil},
+  :spec-version "11",
+  :sun-arch-data-model "64"},
+ :mean [0.3251464121291667 (0.3249780645625 0.3253240419916667)],
+ :final-gc-time 547046563,
+ :execution-count 4,
+ :variance
+ [5.024534470702684E-7 (3.5761698555713033E-7 7.245156422763564E-7)],
+ :os-details
+ {:arch "amd64",
+  :available-processors 1,
+  :name "Linux",
+  :version "5.15.0-160-generic"},
+ :tail-quantile 0.025,
+ :outlier-variance 0.016388888888888887,
+ :outliers {:low-severe 0, :low-mild 0, :high-mild 1, :high-severe 0},
+ :warmup-time 10073291810,
+ :lower-q [0.32396301025 (0.3237122505 0.324196144675)],
+ :warmup-executions 31,
+ :sample-count 60,
+ :upper-q [0.32649830875 (0.326118364675 0.32715183675000004)],
+ :fastester/metadata
+ {:fexpr
+  "(fn [n] (valid-scalars? (vec-of-n-rand-ints n) (vec-spec n)))",
+  :date {:year 2025, :month "October", :day 31},
+  :group "Vectors",
+  :index 33,
+  :ns "speculoos.performance.valid-scalars-benchmarks",
+  :UUIDv4 #uuid "fcd52e5e-d03b-4ba3-926f-1c21683ff47a",
+  :name "flat-vecs",
+  :testing-thoroughness :default,
+  :arg 1000,
+  :version "7",
+  :parallel? false},
+ :total-time 78.03501598,
+ :sample-variance [4.927653323594003E-7 (0.0 0.0)],
+ :options
+ {:max-gc-attempts 100,
+  :samples 60,
+  :target-execution-time 1000000000,
+  :warmup-jit-period 10000000000,
+  :tail-quantile 0.025,
+  :bootstrap-size 1000,
+  :overhead 1.667925205773082E-9},
+ :sample-mean
+ [0.3251458999166667 (0.32303998254145116 0.32725181729188224)],
+ :results :fastester/benchmark-fn-results-elided}

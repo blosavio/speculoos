@@ -17,11 +17,14 @@
    [:div.side-by-side [:pre [:code "{:id int? :food string? :dept keyword?}"]]]]
 
   [:div.note
-   [:p "Speculoos is an experimental library that tries to do the same tasks as spec.alpha, but with specifications composed of plain Clojure collections. These are specifications!"]
+   [:p "Speculoos is an experimental Clojure library that tries to do the same tasks as spec.alpha. Basically, it's a utility that answers the question " [:em "Does our data look the way we expect it to?"]]
 
-   [:p "Imagine we'd like to know if " [:em "Our Clojure vector contains an integer, then a string, and finally a ratio"] ". One example of that specification vector might look like this. It's a vector containing three predicates, `int?`, `string?`, and `ratio?`."]
 
-   [:p "This map on the right is also a specification. It is satisfied by a map containing an integer associated to keyword :ID, a string associated to keyword :food, and keyword associated to :dept."]])
+   [:p "Imagine we'd like to know " [:em "Does our vector contains an integer, then a string, and finally a ratio?"] " The way to express that question is this. There's nothing new there. No new object type, or anything like that. It's a bog-standard Clojure vector containing three standard predicate functions, `int?`, `string?`, and `ratio?`. That's a Speculoos specification!"]
+
+   [:p "This map on the right is also a Speculoos specification. It asks the question " [:em "Is the `:ID` an integer, is `:food` a string, and is the value associated to `:dept` a keyword."]]
+
+   [:p "Again, nothing is new. Merely a Clojure map containing predicate functions."]])
 
 
  (panel

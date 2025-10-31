@@ -13,6 +13,12 @@
                          tidy-html-document]]))
 
 
+(alter-var-root #'readmoi.core/*def-patterns* #(conj % "s/def"
+                                                     "defpred"
+                                                     "defmethod"
+                                                     "defmulti"))
+
+
 (def diff-UUID #uuid "8a4f6c1d-cd36-4753-8fea-7afeb8faa049")
 
 
@@ -1341,17 +1347,19 @@
     ]])
 
 
-(do
-  (spit "doc/diff.html"
-        (page-template "Speculoos Comparison to clojure.spec.alpha"
-                       diff-UUID
-                       page-body
-                       "Brad Losavio"))
-
-  (tidy-html-document "doc/diff.html"))
-
-
 (defn -main
   [& args]
   {:UUIDv4 #uuid "8510d07d-aafa-484d-b864-22bf3a9fff4a"}
-  (println "generated Speculoos comparison to spec.alpha\nWarning! This does not properly de-render function objects!"))
+  (do
+    (spit "doc/diff.html"
+          (page-template "Speculoos Comparison to clojure.spec.alpha"
+                         diff-UUID
+                         page-body
+                         "Brad Losavio"))
+    (tidy-html-document "doc/diff.html"))
+  (when (not *repl*)
+    (System/exit 0)))
+
+
+#_(-main)
+

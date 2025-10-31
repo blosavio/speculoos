@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
-    <meta charset="utf-8" compile-date="2024-12-11 09:38:58" content="width=device-width, initial-scale=1" name="viewport">
+    <meta charset="utf-8" compile-date="2024-12-12 09:39:30" content="width=device-width, initial-scale=1" name="viewport">
     <link href="screedcast.css" rel="stylesheet" type="text/css">
     <script src="jquery-3.7.1.min.js" type="text/javascript"></script>
     <script src="screedcast.js" type="text/javascript"></script>
@@ -762,9 +762,7 @@
       <h3>
         Specification registry
       </h3>
-      <div class="no-display">
-        #'speculoos.core/speculoos-registry
-      </div>
+      <div class="no-display"></div>
       <pre><code>(defonce speculoos-registry (atom {:speculoos/specification-2 [int? string? ratio?]
                                    :speculoos/specification-3 {:first-name string?
                                                                :last-name  string?
@@ -1326,11 +1324,11 @@
       <div class="vspace"></div>
       <pre><code class="form">(exercise {:sheep #{"Fred" "Ethel" "Lucy" "Ricky" "Little Ricky"},
            :helicopters pos-int?}
-          5)</code><br><code class="eval">;; =&gt; ([{:helicopters 18, :sheep "Little Ricky"} true]
-;;     [{:helicopters 14, :sheep "Ricky"} true]
+          5)</code><br><code class="eval">;; =&gt; ([{:helicopters 2, :sheep "Ricky"} true]
+;;     [{:helicopters 25, :sheep "Lucy"} true]
 ;;     [{:helicopters 19, :sheep "Little Ricky"} true]
-;;     [{:helicopters 26, :sheep "Ricky"} true]
-;;     [{:helicopters 20, :sheep "Fred"} true])</code></pre>
+;;     [{:helicopters 24, :sheep "Fred"} true]
+;;     [{:helicopters 16, :sheep "Little Ricky"} true])</code></pre>
       <div class="note">
         <p>
           Speculoos can generate valid test data if we supply it with a scalar specification.
@@ -1490,7 +1488,7 @@
     </div>
     <p id="page-footer">
       Copyright © 2024 Brad Losavio.<br>
-      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 11.
+      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 12.
     </p>
     <div class="license">
       <p>

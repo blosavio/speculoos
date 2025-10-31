@@ -36,6 +36,8 @@
  :project-description "An experiment with Clojure specification literals"
  :project-name-formatted "Speculoos"
 
+ :preferred-project-metadata :lein
+
  :readme-UUID #uuid "b7613e59-3656-411e-8be6-f3cb8b5d8107"
 
  :readme-html-directory "doc/"
@@ -48,5 +50,10 @@
 
  :separator " => "
  :wrap-at 80
+ :def-patterns #{"def"
+                 "defn"
+                 "defmacro"
+                 "s/def"
+                 "defpred"}
 
  :tidy-html? true}

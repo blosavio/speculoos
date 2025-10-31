@@ -1,5 +1,5 @@
 (ns readmoi-generator
-  "Script to load options and perform actions.
+  "Script to load functions and generate ReadMe html and markdown docs.
 
   CIDER eval buffer C-c C-k generates an html page and a markdown chunk."
   {:no-doc true}
@@ -8,7 +8,7 @@
    [readmoi.core :refer [*project-group*
                          *project-name*
                          *project-version*
-                         generate-all
+                         -main
                          prettyfy
                          print-form-then-eval]]
    [speculoos.core :refer [all-paths
@@ -50,14 +50,5 @@
 (alter-var-root #'speculoos.utility/*such-that-max-tries* (constantly 100))
 
 
-(def project-metadata (read-string (slurp "project.clj")))
-(def readmoi-options (load-file "resources/readmoi_options.edn"))
+(-main)
 
-
-(generate-all project-metadata readmoi-options)
-
-
-(defn -main
-  [& args]
-  {:UUIDv4 #uuid "27ae0185-41a1-49d1-a7af-930a8d718c90"}
-  (println "generated Speculoos ReadMe docs;\nWarning! This does not properly de-render function objects!"))

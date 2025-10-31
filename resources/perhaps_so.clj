@@ -599,7 +599,10 @@
     ]])
 
 
-(do
+(defn -main
+  [& args]
+  {:UUIDv4 #uuid "a5c2b950-e55f-4554-bacb-00796d11ae6e"}
+  (do
   (spit "doc/perhaps_so.html"
         (page-template
          "How Speculoos addresses Rich Hickey's 'Maybe Not' talk"
@@ -607,8 +610,9 @@
          page-body
          "Brad Losavio"))
   (tidy-html-document "doc/perhaps_so.html"))
+  (when (not *repl*)
+    (System/exit 0)))
 
-(defn -main
-  [& args]
-  {:UUIDv4 #uuid "a5c2b950-e55f-4554-bacb-00796d11ae6e"}
-  (println "generated Speculoos 'Perhaps So' document"))
+
+#_(-main)
+

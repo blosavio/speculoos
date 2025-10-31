@@ -59,7 +59,7 @@
                            expand-and-clamp recover-literal-path]]))
 
 
-(load "/fn_in/collection_hierarchy")
+(load "collection_hierarchy")
 
 
 (defn only-values

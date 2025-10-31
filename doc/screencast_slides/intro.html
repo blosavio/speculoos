@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
-    <meta charset="utf-8" compile-date="2024-12-11 09:38:53" content="width=device-width, initial-scale=1" name="viewport">
+    <meta charset="utf-8" compile-date="2024-12-12 09:39:25" content="width=device-width, initial-scale=1" name="viewport">
     <link href="screedcast.css" rel="stylesheet" type="text/css">
     <script src="jquery-3.7.1.min.js" type="text/javascript"></script>
     <script src="screedcast.js" type="text/javascript"></script>
@@ -29,16 +29,20 @@
       </div>
       <div class="note">
         <p>
-          Speculoos is an experimental library that tries to do the same tasks as spec.alpha, but with specifications composed of plain Clojure collections.
-          These are specifications!
+          Speculoos is an experimental Clojure library that tries to do the same tasks as spec.alpha. Basically, it's a utility that answers the question
+          <em>Does our data look the way we expect it to?</em>
         </p>
         <p>
-          Imagine we'd like to know if <em>Our Clojure vector contains an integer, then a string, and finally a ratio</em>. One example of that specification
-          vector might look like this. It's a vector containing three predicates, `int?`, `string?`, and `ratio?`.
+          Imagine we'd like to know if <em>Does our vector contains an integer, then a string, and finally a ratio?</em> The way to express that question is
+          this. There's nothing new there. No new object type, or anything like that. It's a bog-standard Clojure vector containing three standard predicate
+          functions, `int?`, `string?`, and `ratio?`. That's a Speculoos specification!
         </p>
         <p>
-          This map on the right is also a specification. It is satisfied by a map containing an integer associated to keyword :ID, a string associated to
-          keyword :food, and keyword associated to :dept.
+          This map on the right is also a Speculoos specification. It asks the question <em>Is the `:ID` an integer, is `:food` a string, and is the value
+          associated to `:dept` a keyword.</em>
+        </p>
+        <p>
+          Again, nothing is new. Merely a Clojure map containing predicate functions.
         </p>
       </div>
       <div class="panel-footer">
@@ -457,7 +461,7 @@
     </div>
     <p id="page-footer">
       Copyright © 2024 Brad Losavio.<br>
-      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 11.
+      Compiled by <a href="https://github.com/blosavio/screedcast">Screedcast</a> on 2024 December 12.
     </p>
     <div class="license">
       <p>

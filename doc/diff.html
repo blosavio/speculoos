@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
-    <meta charset="utf-8" compile-date="2024-12-07 14:09:54" content="width=device-width, initial-scale=1" name="viewport">
+    <meta charset="utf-8" compile-date="2025-10-15 14:28:45" content="width=device-width, initial-scale=1" name="viewport">
     <link href="project.css" rel="stylesheet" type="text/css">
     <title>
       Speculoos Comparison to clojure.spec.alpha
@@ -329,13 +329,11 @@
             <p>
               <code>spec.alpha</code> has the capability to dispatch validation paths according to an in-band key. Here's the <em>Guide</em>'s demo.
             </p>
-            <pre><code>(s/def :event/type keyword?)</code><br><code>(s/def :event/timestamp int?)</code><br><code>(s/def :search/url string?)</code><br><code>(s/def :error/message string?)</code><br><code>(s/def :error/code int?)</code><br><br><br><code>(defmulti event-type :event/type) ;; =&gt; nil</code><br><br><br><code>(defmethod event-type :event/search
+            <pre><code>(s/def :event/type keyword?)</code><br><code>(s/def :event/timestamp int?)</code><br><code>(s/def :search/url string?)</code><br><code>(s/def :error/message string?)</code><br><code>(s/def :error/code int?)</code><br><br><br><code>(defmulti event-type :event/type)</code><br><br><br><code>(defmethod event-type :event/search
   [_]
-  (s/keys :req [:event/type :event/timestamp :search/url]))
-;; =&gt; #multifn [event-type 0x5804b323]</code><br><br><br><code>(defmethod event-type :event/error
+  (s/keys :req [:event/type :event/timestamp :search/url]))</code><br><br><br><code>(defmethod event-type :event/error
   [_]
-  (s/keys :req [:event/type :event/timestamp :error/message :error/code]))
-;; =&gt; #multifn [event-type 0x5804b323]</code><br><br><br><code>(s/def :event/event (s/multi-spec event-type :event/type))</code><br><br><br><code>(s/valid? :event/event
+  (s/keys :req [:event/type :event/timestamp :error/message :error/code]))</code><br><br><br><code>(s/def :event/event (s/multi-spec event-type :event/type))</code><br><br><br><code>(s/valid? :event/event
           {:event/type :event/search,
            :event/timestamp 1463970123000,
            :search/url "https://clojure.org"})
@@ -352,16 +350,14 @@
               separate predicates, for brevity, I'll inject them directly into the specification definition, but Speculoos could handle any level of
               indirection.
             </p>
-            <pre><code>(defmulti event-type :event/type) ;; =&gt; nil</code><br><br><br><code>(defmethod event-type :event/search
+            <pre><code>(defmulti event-type :event/type)</code><br><br><br><code>(defmethod event-type :event/search
   [_]
-  {:event/type keyword?, :event/timestamp int?, :search/url string?})
-;; =&gt; #multifn [event-type 0x5804b323]</code><br><br><br><code>(defmethod event-type :event/error
+  {:event/type keyword?, :event/timestamp int?, :search/url string?})</code><br><br><br><code>(defmethod event-type :event/error
   [_]
   {:event/type keyword?,
    :event/timestamp int?,
    :error/message string?,
-   :error/code int?})
-;; =&gt; #multifn [event-type 0x5804b323]</code><br><br><br><code>(def event-1
+   :error/code int?})</code><br><br><br><code>(def event-1
   {:event/type :event/search,
    :event/timestamp 1463970123000,
    :event/url "https://clojure.org"})</code><br><br><br><code>(valid-scalars? event-1 (event-type event-1)) ;; =&gt; true</code><br><br><br><code>(def event-2
@@ -767,7 +763,7 @@
                    :speculoos/ret-scalar-spec int?}
                   2
                   12)
-;; =&gt; 6</code></pre>
+;; =&gt; 5</code></pre>
             <p>
               Here, we'll intentionally violate the function's argument collection specification by reversing the order of the arguments, and observe the
               report.
@@ -1017,30 +1013,38 @@
               Next, we'll see a few examples of these capabilities by generating sample data from the card game specs.
             </p>
             <pre><code>(gen/sample (s/gen #{:club :diamond :heart :spade}))
-;; =&gt; (:heart :heart
-;;            :spade :heart
-;;            :club :spade
-;;            :heart :spade
-;;            :heart :club)</code><br><br><br><code>(gen/sample (s/gen (s/cat :k keyword?
+;; =&gt; (:diamond :spade
+;;              :diamond :club
+;;              :club :diamond
+;;              :spade :club
+;;              :diamond :diamond)</code><br><br><br><code>(gen/sample (s/gen (s/cat :k keyword?
                           :ns (s/+ number?))))
-;; =&gt; ((:D/P 0)
-;;      (:v3/?N 0.5 0.5)
-;;      (:Y-/L -2.0 -1.5 -2)
-;;      (:q3/? 2.5 -0.75 1.5 0)
-;;      (:pB/ug -2.0 -1.5 -1 -1.5)
-;;      (:c26/yWq -3.0 1 1.75)
-;;      (:g/.j 1.84375 0.84375
-;;             -1 0.65625
-;;             -4 1.125)
-;;      (:n!a/je -5)
-;;      (:!_!6/T19 -9)
-;;      (:U-f8/Z -0.5 25 -8 -1))</code><br><br><br><code>(gen/generate (s/gen :game/player))
-;; =&gt; #:game{:hand ([:king :club]
+;; =&gt; ((:y/+ -0.5)
+;;      (:L/F -1)
+;;      (:G4/C. -1 -1.0 0.5)
+;;      (:G/CH 3 -1 0.6875)
+;;      (:d0w/_*k 7)
+;;      (:s/I 0 -0.75 ##Inf -3 -2.9375 1.0)
+;;      (:G9/z -1.5 -6 ##NaN 1.0)
+;;      (:CT+_/?jR! -13 -10 -15 -1)
+;;      (:.6/* -97
+;;             -3.0625 -0.5625
+;;             -0.25 -0.875
+;;             -0.890625 -7)
+;;      (:V_-/v1. 1 0.3671875
+;;                3.0625 -1.6875
+;;                4 1.65625
+;;                0 -1
+;;                25 1))</code><br><br><br><code>(gen/generate (s/gen :game/player))
+;; =&gt; #:game{:hand ([7 :heart]
+;;                  [3 :diamond]
 ;;                  [:jack :heart]
-;;                  [7 :spade]
-;;                  [8 :diamond]),
-;;           :name "r50Brw6BQm8A1dopguD",
-;;           :score -3919}</code></pre>
+;;                  [2 :diamond]
+;;                  [:ace :spade]
+;;                  [:queen :club]
+;;                  [2 :spade]),
+;;           :name "D6x2L0eEeUuy5v6Lmw1EMp",
+;;           :score 1151025}</code></pre>
           </div>
           <div class="side-by-side">
             <p>
@@ -1049,34 +1053,33 @@
               instances automatically pull apart a compound predicate such as <code>#(and (int? %) (&lt; % 10))</code> in order to compose a generator.
             </p>
             <pre><code>(require '[speculoos.utility :refer [data-from-spec]])</code><br><br><br><code>(data-from-spec game-spec :random)
-;; =&gt; [[[:jack :club] [:king :club]
-;;      [:ace :diamond] [:king :spade]
-;;      [:queen :heart]]
-;;     [{:hand [[7 :spade] [10 :spade]
-;;              [6 :spade] [6 :club]
-;;              [9 :diamond]],
-;;       :name "Cqbw99Y8r2Q2C4D4A8Y2Ih07rtk",
-;;       :score -690}
-;;      {:hand [[:queen :club] [:ace :heart]
-;;              [:king :heart] [4 :spade]
-;;              [7 :spade]],
-;;       :name "Ml",
-;;       :score 186}
-;;      {:hand [[:king :spade] [9 :heart]
-;;              [:ace :club] [:jack :diamond]
-;;              [:queen :spade]],
-;;       :name "ZGgk0tUjd21Q6S0Hx",
-;;       :score 346}
-;;      {:hand [[8 :spade] [:king :spade]
-;;              [10 :heart] [5 :diamond]
-;;              [8 :diamond]],
-;;       :name "",
-;;       :score 435}
-;;      {:hand [[5 :heart] [7 :diamond]
-;;              [:queen :diamond]
-;;              [:queen :spade] [5 :spade]],
-;;       :name "iIXzRJZrC8lsv5585b7R5g",
-;;       :score 457}]]</code></pre>
+;; =&gt; [[[2 :heart] [10 :club] [5 :heart]
+;;      [:king :club] [4 :diamond]]
+;;     [{:hand [[5 :diamond] [9 :club]
+;;              [:ace :diamond] [4 :spade]
+;;              [:ace :diamond]],
+;;       :name "X",
+;;       :score 550}
+;;      {:hand [[:queen :spade] [4 :spade]
+;;              [9 :diamond] [:jack :spade]
+;;              [10 :club]],
+;;       :name "xoCEWZ2pMhcke1wBeow",
+;;       :score 554}
+;;      {:hand [[8 :diamond] [2 :club]
+;;              [:queen :club] [5 :spade]
+;;              [:jack :heart]],
+;;       :name "6WE",
+;;       :score 253}
+;;      {:hand [[6 :club] [3 :heart]
+;;              [6 :heart] [9 :heart]
+;;              [:ace :spade]],
+;;       :name "Db5g0ZD95886Rz8Orne6CFo",
+;;       :score 895}
+;;      {:hand [[4 :heart] [9 :diamond]
+;;              [5 :heart] [:ace :heart]
+;;              [5 :diamond]],
+;;       :name "2x8O",
+;;       :score -733}]]</code></pre>
             <p>
               Automatically setting up generators and property-based testing is the main area where Speculoos lags <code>spec.alpha</code>. I do not yet have a
               great idea on how to automatically pull apart compound, composed predicates. See the <a href=
@@ -1087,23 +1090,24 @@
             <p>
               Let's follow along as best as we can…
             </p>
-            <pre><code>(data-from-spec [int?] :random) ;; =&gt; [-318]</code><br><code>(data-from-spec [nil?]) ;; =&gt; [nil]</code><br><br><br><code>(repeatedly 5 #(data-from-spec [string?] :random))
-;; =&gt; (["10GV0SE3xSZje7J9"]
-;;     ["X557A3saf683Mz"]
-;;     ["KR9bO2H9u14Wq0kjpA0WB4KEX8St7"]
-;;     ["8tk5z24V63"]
-;;     ["0W1NhrL86yA5A"])</code><br><br><br><code>(repeatedly 3 #(data-from-spec (into [keyword?] (repeat 3 double?)) :random))
-;; =&gt; ([:i*a+fZs. -85.18569898605347
-;;      0.32627391815185547 -8.01513671875]
-;;     [:h+75s5 -0.5 -54.2578125
-;;      -0.27275848388671875]
-;;     [:E ##Inf 0.01953125
-;;      -0.030541788786649704])</code><br><br><br><code>(data-from-spec player-spec :random)
-;; =&gt; {:hand [[9 :club] [10 :spade]
-;;            [10 :diamond] [:queen :spade]
-;;            [5 :diamond]],
-;;     :name "H2JxNQ6IfRM3HibO0uZbk9nB",
-;;     :score 167}</code></pre>
+            <pre><code>(data-from-spec [int?] :random) ;; =&gt; [-230]</code><br><code>(data-from-spec [nil?]) ;; =&gt; [nil]</code><br><br><br><code>(repeatedly 5 #(data-from-spec [string?] :random))
+;; =&gt; (["DV7"]
+;;     ["49MLhYWX2L5eZoFYI0Y97RM"]
+;;     ["5vx9Hy2u"]
+;;     ["mve1B26V30y34WOS59zw30NjMVi8"]
+;;     ["7fo0"])</code><br><br><br><code>(repeatedly 3 #(data-from-spec (into [keyword?] (repeat 3 double?)) :random))
+;; =&gt; ([:*M9e -0.023681640625
+;;      -491.26576232910156 0.12353515625]
+;;     [:HL+ep5 ##Inf 0.0234375
+;;      1.7612152099609375]
+;;     [:R- -17.94537353515625
+;;      0.02571164141409099
+;;      0.11539734899997711])</code><br><br><br><code>(data-from-spec player-spec :random)
+;; =&gt; {:hand [[10 :spade] [9 :spade]
+;;            [2 :heart] [2 :diamond]
+;;            [:queen :heart]],
+;;     :name "m6ijzH1l8eO7us8pn3YOhUUTryl",
+;;     :score -589}</code></pre>
             <p>
               The card game specifications refer to earlier sections.
             </p>
@@ -1122,52 +1126,51 @@
             <pre><code>(s/exercise (s/cat :k keyword?
                    :ns (s/+ number?))
             5)
-;; =&gt; ([(:?/- 2.0) {:k :?/-, :ns [2.0]}]
-;;     [(:X/U ##NaN -1)
-;;      {:k :X/U, :ns [##NaN -1]}]
-;;     [(:h/+ -1 -3.0)
-;;      {:k :h/+, :ns [-1 -3.0]}]
-;;     [(:?/z+ 2.0) {:k :?/z+, :ns [2.0]}]
-;;     [(:iT/++ -0.5 -3.5 1 3 3)
-;;      {:k :iT/++, :ns [-0.5 -3.5 1 3 3]}])</code><br><br><br><code>(s/exercise (s/or :k keyword?
+;; =&gt; ([(:c/U 1.0) {:k :c/U, :ns [1.0]}]
+;;     [(:NR/! 2.0) {:k :NR/!, :ns [2.0]}]
+;;     [(:RF/_ -3.5) {:k :RF/_, :ns [-3.5]}]
+;;     [(:u_/wb 0.0 -1.0)
+;;      {:k :u_/wb, :ns [0.0 -1.0]}]
+;;     [(:N/- 0 -1.5 0.875)
+;;      {:k :N/-, :ns [0 -1.5 0.875]}])</code><br><br><br><code>(s/exercise (s/or :k keyword?
                   :s string?
                   :n number?)
             5)
-;; =&gt; ([0 [:n 0]]
-;;     [:?/_ [:k :?/_]]
-;;     ["bd" [:s "bd"]]
-;;     [-1 [:n -1]]
-;;     [-1 [:n -1]])</code><br><br><br><code>(s/exercise-fn `ranged-rand)
+;; =&gt; ([-2.0 [:n -2.0]]
+;;     [:m/t4 [:k :m/t4]]
+;;     ["" [:s ""]]
+;;     [-1.25 [:n -1.25]]
+;;     [:Hc-/KJj [:k :Hc-/KJj]])</code><br><br><br><code>(s/exercise-fn `ranged-rand)
 ;; =&gt; ([(-1 0) -1]
+;;     [(-1 1) 0]
 ;;     [(-1 0) -1]
-;;     [(-14 -1) -5]
-;;     [(-124 6) -60]
-;;     [(-7 -5) -7]
-;;     [(-10 1) -2]
-;;     [(0 3) 1]
-;;     [(6 34) 18]
-;;     [(-9 3) 2]
-;;     [(-40 -5) -16])</code></pre>
+;;     [(-4 1) -1]
+;;     [(-3 -2) -3]
+;;     [(-16 8) -12]
+;;     [(-31 11) 5]
+;;     [(-14 0) -5]
+;;     [(-2 14) 13]
+;;     [(-55 -43) -47])</code></pre>
           </div>
           <div class="side-by-side">
             <p>
               Speculoos mimics the <code>exercise</code> function, but (for now) only exercises a scalar specification.
             </p>
             <pre><code>(require '[speculoos.utility :refer [exercise]])</code><br><br><br><code>(exercise [int? string? boolean? char?] 5)
-;; =&gt; ([[989 "Xk274iCeWJpohG69" false \d] true]
-;;     [[452 "K" false \R] true]
-;;     [[995 "N287X9d1g224" false \9] true]
-;;     [[-694 "L0o47h3Z8fK9830eOw" true \D] true]
-;;     [[566 "ipshes9S06hGkRy2TYU" false \3] true])</code></pre>
+;; =&gt; ([[-55 "0d2g2798xBkH4" false \p] true]
+;;     [[933 "j2Yb01N38Gy47awK7gG" false \R] true]
+;;     [[-506 "94diy161gV4H5321Lmbpv3o" false \1] true]
+;;     [[-143 "9onxt" false \q] true]
+;;     [[-369 "8Vly1VnMTJI8r3Ao8MI0" false \8] true])</code></pre>
             <p>
               Speculoos also mimics <code>spec.alpha</code>'s <code>exercise-fn</code>, again only for scalar specifications, on the function's arguments.
             </p>
             <pre><code>(require '[speculoos.function-specs :refer [exercise-fn]])</code><br><br><br><code>(inject-specs! ranged-rand {:speculoos/arg-scalar-spec [int? int?]}) ;; =&gt; nil</code><br><br><br><code>(exercise-fn ranged-rand 5)
-;; =&gt; ([[461 207] 386]
-;;     [[-473 -525] -503]
-;;     [[954 313] 734]
-;;     [[-63 -402] -292]
-;;     [[-681 916] -532])</code></pre>
+;; =&gt; ([[436 89] 306]
+;;     [[-6 -461] -288]
+;;     [[271 -137] 225]
+;;     [[-271 -334] -296]
+;;     [[-819 734] 160])</code></pre>
           </div>
         </div>
       </section>
@@ -1182,10 +1185,10 @@
               divisible by three, less than 31, greater than 12.</em> The generators are not likely to be able to produce multiple conforming samples using
               only <code>(s/gen int?)</code>, so we construct predicates with <code>spec.alpha</code>'s <code>and</code>.
             </p>
-            <pre><code>(gen/generate (s/gen (s/and int? even?))) ;; =&gt; 16</code><br><br><br><code>(defn divisible-by [n] #(zero? (mod % n)))</code><br><br><br><code>(gen/sample (s/gen (s/and int?
+            <pre><code>(gen/generate (s/gen (s/and int? even?))) ;; =&gt; -33442</code><br><br><br><code>(defn divisible-by [n] #(zero? (mod % n)))</code><br><br><br><code>(gen/sample (s/gen (s/and int?
                           #(&gt; % 0)
                           (divisible-by 3))))
-;; =&gt; (18 585 4467 3 3 6 27 4485 1405797 72)</code></pre>
+;; =&gt; (45 3 3 3 3 51 6 114 348 6)</code></pre>
           </div>
           <div class="side-by-side">
             <p>
@@ -1205,26 +1208,26 @@
             <pre><code>(defpred pred-2
          #(and (int? %) (&gt; % 0) ((divisible-by 3) %))
          gen-int-pos-div-by-3)</code><br><br><br><code>;; verify that the samples produced by generator satisfy the predicate</code><br><br><code>(validate-predicate-&gt;generator pred-1 5)
-;; =&gt; ([24 true]
-;;     [147 true]
-;;     [63 true]
-;;     [141 true]
-;;     [132 true])</code><br><br><br><code>(validate-predicate-&gt;generator pred-2 5)
-;; =&gt; ([54 true]
-;;     [87 true]
+;; =&gt; ([108 true]
+;;     [90 true]
+;;     [114 true]
 ;;     [18 true]
-;;     [27 true]
-;;     [117 true])</code></pre>
+;;     [69 true])</code><br><br><br><code>(validate-predicate-&gt;generator pred-2 5)
+;; =&gt; ([84 true]
+;;     [63 true]
+;;     [129 true]
+;;     [96 true]
+;;     [6 true])</code></pre>
             <p>
               However, if we write our predicate in a way that conforms to <code>defpred</code>'s assumptions, it <em>will</em> compose a generator
               automatically.
             </p>
             <pre><code>(defpred pred-3 #(and (int? %) (pos? %) ((divisible-by 3) %)))</code><br><br><br><code>(validate-predicate-&gt;generator pred-3 5)
-;; =&gt; ([30 true]
-;;     [39 true]
-;;     [24 true]
-;;     [24 true]
-;;     [6 true])</code></pre>
+;; =&gt; ([9 true]
+;;     [9 true]
+;;     [33 true]
+;;     [33 true]
+;;     [12 true])</code></pre>
             <p>
               This is another area where <code>spec.alpha</code>'s approach outclasses Speculoos. Because we write a <code>spec.alpha</code> spec in an already
               'pulled-apart' state, it can compose a generator starting with the first branch of that compound predicate and then use the following predicates
@@ -1263,10 +1266,11 @@
   (s/with-gen (s/and keyword? #(= (namespace %) "my.domain"))
               #(s/gen #{:my.domain/name :my.domain/occupation :my.domain/id})))</code><br><br><br><code>(s/valid? :ex/kws :my.domain/name) ;; =&gt; true</code><br><br><br><code>(gen/sample (s/gen :ex/kws))
 ;; =&gt; (:my.domain/id
-;;      :my.domain/name
+;;      :my.domain/id
+;;      :my.domain/id :my.domain/id
 ;;      :my.domain/id :my.domain/name
-;;      :my.domain/name :my.domain/id
-;;      :my.domain/name :my.domain/occupation
+;;      :my.domain/occupation
+;;        :my.domain/occupation
 ;;      :my.domain/id :my.domain/id)</code></pre>
           </div>
           <div class="side-by-side">
@@ -1276,10 +1280,10 @@
             </p>
             <pre><code>(def kw-pred
   (into #{} (map #(keyword "my.domain" %) ["name" "occupation" "id"])))</code><br><br><br><code>(valid-scalars? [:my.domain/name] [kw-pred]) ;; =&gt; true</code><br><br><br><code>(exercise [kw-pred] 5)
-;; =&gt; ([[:my.domain/id] true]
+;; =&gt; ([[:my.domain/name] true]
+;;     [[:my.domain/id] true]
+;;     [[:my.domain/id] true]
 ;;     [[:my.domain/name] true]
-;;     [[:my.domain/name] true]
-;;     [[:my.domain/occupation] true]
 ;;     [[:my.domain/occupation] true])</code></pre>
           </div>
         </div>
@@ -1324,31 +1328,31 @@
                          (gen/tuple (gen/string-alphanumeric)
                                     (gen/string-alphanumeric)))))</code><br><br><br><code>(gen/sample (s/gen :ex/hello))
 ;; =&gt; ("hello"
-;;     "9hello"
-;;     "helloU2"
-;;     "yGhelloRs7"
-;;     "k4mYhelloB0"
-;;     "hellokN4J"
-;;     "tSRZK1hello4dS"
-;;     "o4hello"
-;;     "zLlpZD3hello30e"
-;;     "zJrhelloS8")</code></pre>
+;;     "Xhelloo"
+;;     "hello"
+;;     "helloUy"
+;;     "helloX1"
+;;     "hello"
+;;     "578y0hello6"
+;;     "Zm5F4khelloY4"
+;;     "fdSb09hello"
+;;     "Shello3v0q")</code></pre>
           </div>
           <div class="side-by-side">
             <p>
               We could certainly copy-paste that generator and use it as is. Speculoos could also generate a sample string via a regular expression predicate.
             </p>
             <pre><code>(exercise [#"\w{0,3}hello\w{1,5}"])
-;; =&gt; ([["fWkhellooR"] true]
-;;     [["hellocT85T"] true]
-;;     [["JLyhellow9H1"] true]
-;;     [["hellou"] true]
-;;     [["oC5helloXW9Ec"] true]
-;;     [["ijhelloFtw2k"] true]
-;;     [["pqhelloD"] true]
-;;     [["helloiRr4f"] true]
-;;     [["40BhelloK2dr"] true]
-;;     [["BOhelloIvTX2"] true])</code></pre>
+;; =&gt; ([["KbhelloWmjf5"] true]
+;;     [["g9YhelloV5d7o"] true]
+;;     [["fqhelloWtPJe"] true]
+;;     [["phellooK"] true]
+;;     [["kndhelloJPH"] true]
+;;     [["uhellojE"] true]
+;;     [["lhelloEPK"] true]
+;;     [["dhelloj"] true]
+;;     [["q1hellopHaVT"] true]
+;;     [["chellocH"] true])</code></pre>
           </div>
         </div>
       </section>
@@ -1361,7 +1365,7 @@
             <p>
               Spec-ing and generating a range of integers in <code>spec.alpha</code>.
             </p>
-            <pre><code>(s/def :bowling/roll (s/int-in 0 11))</code><br><br><br><code>(gen/sample (s/gen :bowling/roll)) ;; =&gt; (0 1 0 1 1 0 2 7 8 7)</code></pre>
+            <pre><code>(s/def :bowling/roll (s/int-in 0 11))</code><br><br><br><code>(gen/sample (s/gen :bowling/roll)) ;; =&gt; (1 0 1 0 1 0 0 2 10 8)</code></pre>
           </div>
           <div class="side-by-side">
             <p>
@@ -1370,37 +1374,37 @@
             <pre><code>(defpred bowling-roll
          #(and (int? %) (&lt;= 0 % 10))
          #(last (gen/sample (gen/large-integer* {:min 0, :max 10}))))</code><br><br><br><code>(validate-predicate-&gt;generator bowling-roll)
-;; =&gt; ([5 true]
-;;     [8 true]
+;; =&gt; ([6 true]
+;;     [7 true]
 ;;     [4 true]
-;;     [5 true]
-;;     [2 true]
-;;     [5 true]
-;;     [5 true])</code></pre>
+;;     [7 true]
+;;     [1 true]
+;;     [6 true]
+;;     [8 true])</code></pre>
             <p>
               But for integers, nothing beats the succinctness of <code>rand-int</code>.
             </p>
             <pre><code>(defpred bowling-roll-2 #(and (int? %) (&lt;= 0 % 10)) #(rand-int 11))</code><br><br><br><code>(validate-predicate-&gt;generator bowling-roll-2)
 ;; =&gt; ([4 true]
+;;     [7 true]
 ;;     [10 true]
-;;     [3 true]
+;;     [1 true]
 ;;     [0 true]
-;;     [0 true]
-;;     [6 true]
-;;     [2 true])</code></pre>
+;;     [2 true]
+;;     [3 true])</code></pre>
             <p>
               For small group sizes, a set-as-predicate might feel more natural.
             </p>
             <pre><code>(exercise [(set (range 11))])
-;; =&gt; ([[3] true]
-;;     [[6] true]
+;; =&gt; ([[0] true]
 ;;     [[4] true]
-;;     [[5] true]
-;;     [[0] true]
+;;     [[10] true]
+;;     [[3] true]
 ;;     [[8] true]
+;;     [[4] true]
 ;;     [[1] true]
+;;     [[4] true]
 ;;     [[8] true]
-;;     [[6] true]
 ;;     [[4] true])</code></pre>
           </div>
         </div>
@@ -1410,11 +1414,11 @@
               <code>spec.alpha</code> does a range of <code>instant</code>s.
             </p>
             <pre><code>(s/def :ex/the-aughts (s/inst-in #inst "2000" #inst "2010"))</code><br><br><br><code>(drop 50 (gen/sample (s/gen :ex/the-aughts) 55))
-;; =&gt; (#inst "2000-04-02T22:46:33.327-00:00"
-;;     #inst "2000-01-01T00:00:01.463-00:00"
-;;     #inst "2000-01-01T00:00:00.027-00:00"
-;;     #inst "2009-12-08T14:49:09.055-00:00"
-;;     #inst "2005-04-09T22:07:41.203-00:00")</code></pre>
+;; =&gt; (#inst "2009-10-19T05:54:00.636-00:00"
+;;     #inst "2000-01-02T13:23:15.583-00:00"
+;;     #inst "2000-01-01T00:00:00.001-00:00"
+;;     #inst "2000-03-14T16:40:07.410-00:00"
+;;     #inst "2000-01-01T16:47:09.634-00:00")</code></pre>
           </div>
           <div class="side-by-side">
             <p>
@@ -1424,15 +1428,15 @@
             <pre><code>(defpred the-aughts
          #(instance? java.util.Date %)
          #(last (gen/sample (s/gen :ex/the-aughts) 55)))</code><br><br><br><code>(validate-predicate-&gt;generator the-aughts 5)
-;; =&gt; ([#inst "2009-12-20T17:43:03.699-00:00"
+;; =&gt; ([#inst "2000-01-01T00:00:35.658-00:00"
 ;;      true]
-;;     [#inst "2008-03-12T14:47:54.795-00:00"
+;;     [#inst "2000-01-01T00:00:00.004-00:00"
 ;;      true]
-;;     [#inst "2000-01-02T07:50:40.689-00:00"
+;;     [#inst "2000-01-01T00:00:21.765-00:00"
 ;;      true]
-;;     [#inst "2000-01-01T23:08:05.686-00:00"
+;;     [#inst "2000-02-28T11:28:54.302-00:00"
 ;;      true]
-;;     [#inst "2004-08-06T11:52:10.332-00:00"
+;;     [#inst "2000-01-01T00:03:25.066-00:00"
 ;;      true])</code></pre>
           </div>
         </div>
@@ -1443,16 +1447,16 @@
             </p>
             <pre><code>(s/def :ex/dubs
   (s/double-in :min -100.0 :max 100.0 :NaN? false :infinite? false))</code><br><br><br><code>(s/valid? :ex/dubs 2.9) ;; =&gt; true</code><br><br><br><code>(s/valid? :ex/dubs Double/POSITIVE_INFINITY) ;; =&gt; false</code><br><br><br><code>(gen/sample (s/gen :ex/dubs))
-;; =&gt; (-1.0
+;; =&gt; (0.5
+;;     2.0
+;;     3.0
 ;;     0.5
-;;     2.0
-;;     2.0
-;;     -3.0
-;;     2.75
-;;     1.0
-;;     1.53125
-;;     -1.5
-;;     -3.8828125)</code></pre>
+;;     -0.75
+;;     -3.5
+;;     0.0
+;;     -0.0
+;;     -0.25
+;;     0.0)</code></pre>
           </div>
           <div class="side-by-side">
             <p>
@@ -1462,16 +1466,16 @@
          #(and (&lt;= -100 % 100) (not (NaN? %)) (not (infinite? %)))
          #(gen/generate
             (gen/double* {:min -100, :max 100, :infinite? false, "NaN?" true})))</code><br><br><br><code>(validate-predicate-&gt;generator dubs 10)
-;; =&gt; ([2.2470703125 true]
-;;     [0.14453125 true]
-;;     [-17.93651592731476 true]
-;;     [-0.06201171875 true]
-;;     [-2.2873458862304688 true]
-;;     [-0.056640625 true]
-;;     [20.711181640625 true]
-;;     [-1.49560546875 true]
-;;     [0.06982755474746227 true]
-;;     [32.0 true])</code></pre>
+;; =&gt; ([0.0703125 true]
+;;     [0.017171822488307953 true]
+;;     [-0.0045166015625 true]
+;;     [-0.009072840213775635 true]
+;;     [0.19189834594726562 true]
+;;     [0.25 true]
+;;     [6.639378413558006 true]
+;;     [7.90875244140625 true]
+;;     [0.26005086302757263 true]
+;;     [3.5772705078125 true])</code></pre>
           </div>
         </div>
       </section>
@@ -1491,8 +1495,8 @@
       </section>
     </article>
     <p id="page-footer">
-      Copyright © 2024 Brad Losavio.<br>
-      Compiled by <a href="https://github.com/blosavio/readmoi">ReadMoi</a> on 2024 December 07.<span id="uuid"><br>
+      Copyright © 2024–2025 Brad Losavio.<br>
+      Compiled by <a href="https://github.com/blosavio/readmoi">ReadMoi</a> on 2025 October 15.<span id="uuid"><br>
       8a4f6c1d-cd36-4753-8fea-7afeb8faa049</span>
     </p>
   </body>

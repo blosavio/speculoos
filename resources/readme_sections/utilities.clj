@@ -52,7 +52,7 @@
   [:code ";; to *out*"]
   [:br]
   [:br]
-  [:code (clojure.string/replace sore-thumb-example-eval "\"" "")]]
+  [:code (readmoi.core/revert-fn-obj-rendering (clojure.string/replace sore-thumb-example-eval "\"" ""))]]
 
  [:p "I've found it handy for quickly pin-pointing the unsatisfied scalar-predicate pairs in a large, deeply-nested data structure."]
 
