@@ -7,7 +7,7 @@
   :dependencies [[org.clojure/clojure "1.12.0"]
                  [org.clojure/test.check "1.1.1"]
                  [re-rand "0.1.0"]
-                 [com.sagevisuals/fn-in "5"]]
+                 [com.sagevisuals/fn-in "4"]]
   :repl-options {:init-ns speculoos.core}
   :plugins []
   :profiles {:dev {:dependencies [[hiccup "2.0.0-RC3"]

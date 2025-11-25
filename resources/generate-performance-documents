@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Generate Fastester performance documents.
+
+set -eu
+
+lein run -m fastester.core :documents resources/all_paths_benchmark_options.edn
+lein run -m fastester.core :documents resources/valid_scalars_benchmark_options.edn
+lein run -m fastester.core :documents resources/valid_collections_benchmark_options.edn
+
+echo "All docs generated."
+
+exit 0
+

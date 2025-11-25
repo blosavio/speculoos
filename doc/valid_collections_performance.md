@@ -76,16 +76,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-15.edn">1.3e-04±4.9e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-15.edn">1.2e-04±1.6e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-16.edn">2.9e-04±5.4e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-16.edn">2.9e-04±5.6e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-17.edn">2.0e-03±7.4e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-17.edn">2.0e-03±2.6e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-18.edn">1.9e-02±4.7e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-18.edn">1.9e-02±4.3e-05</a>
               </td>
             </tr>
           </table>
@@ -130,16 +130,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-19.edn">1.2e-04±2.7e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-19.edn">1.2e-04±2.0e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-20.edn">3.2e-04±8.1e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-20.edn">3.2e-04±6.4e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-21.edn">1.2e-03±2.2e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-21.edn">1.2e-03±3.0e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-22.edn">7.9e-03±2.9e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-22.edn">8.0e-03±1.7e-05</a>
               </td>
             </tr>
           </table>
@@ -192,13 +192,13 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-12.edn">1.1e-04±2.4e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-12.edn">1.1e-04±2.2e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-13.edn">2.8e-04±3.9e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-13.edn">2.7e-04±5.2e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-14.edn">1.9e-03±1.4e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-14.edn">1.9e-03±7.5e-06</a>
               </td>
             </tr>
           </table>
@@ -243,16 +243,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-0.edn">1.1e-04±3.9e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-0.edn">1.1e-04±1.7e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-1.edn">3.7e-04±5.9e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-1.edn">3.7e-04±5.5e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-2.edn">1.9e-03±4.1e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-2.edn">1.9e-03±4.2e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-3.edn">1.5e-02±3.4e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-3.edn">1.5e-02±2.1e-05</a>
               </td>
             </tr>
           </table>
@@ -308,16 +308,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-23.edn">2.0e-04±2.8e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-23.edn">2.0e-04±3.3e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-24.edn">3.8e-04±1.1e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-24.edn">3.7e-04±8.4e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-25.edn">1.9e-03±4.1e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-25.edn">1.9e-03±6.5e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-26.edn">1.5e-02±3.2e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-26.edn">1.5e-02±1.7e-05</a>
               </td>
             </tr>
           </table>
@@ -362,16 +362,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-4.edn">2.0e-04±4.9e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-4.edn">2.0e-04±3.6e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-5.edn">2.0e-04±3.1e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-5.edn">2.0e-04±3.2e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-6.edn">2.0e-04±5.8e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-6.edn">2.0e-04±2.9e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-7.edn">2.0e-04±4.7e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-7.edn">2.0e-04±3.1e-07</a>
               </td>
             </tr>
           </table>
@@ -427,16 +427,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-8.edn">1.7e-04±2.9e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-8.edn">1.7e-04±3.1e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-9.edn">5.5e-04±9.3e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-9.edn">5.6e-04±1.1e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-10.edn">2.7e-03±1.1e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-10.edn">2.8e-03±4.6e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-11.edn">2.1e-02±4.2e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-11.edn">2.1e-02±3.4e-05</a>
               </td>
             </tr>
           </table>
@@ -481,16 +481,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-27.edn">1.7e-04±2.4e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-27.edn">1.7e-04±2.5e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-28.edn">4.2e-04±2.7e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-28.edn">4.2e-04±8.7e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-29.edn">2.9e-03±6.1e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-29.edn">2.9e-03±3.6e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-30.edn">2.8e-02±6.4e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/valid_collections/version 7/test-30.edn">2.8e-02±3.3e-05</a>
               </td>
             </tr>
           </table>
@@ -500,7 +500,7 @@
     </section>
     <p id="page-footer">
       Copyright © 2024–2025 Brad Losavio.<br>
-      Compiled by <a href="https://github.com/blosavio/Fastester">Fastester</a> on 2025 October 31.<span id="uuid"><br>
+      Compiled by <a href="https://github.com/blosavio/Fastester">Fastester</a> on 2025 November 25.<span id="uuid"><br>
       2019ccd0-cae8-4259-9077-f927caeb2d98</span>
     </p>
   </body>
