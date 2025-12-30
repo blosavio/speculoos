@@ -85,25 +85,25 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-24.edn">2.0e-05±8.2e-08</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-24.edn">2.0e-05±8.2e-08</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-25.edn">4.1e-05±1.1e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-25.edn">4.1e-05±1.1e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-26.edn">1.4e-04±3.6e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-26.edn">1.4e-04±3.6e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-27.edn">8.4e-04±4.4e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-27.edn">8.4e-04±4.4e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-28.edn">7.2e-03±1.3e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-28.edn">7.2e-03±1.3e-05</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-29.edn">8.5e-02±3.4e-04</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-29.edn">8.5e-02±3.4e-04</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-30.edn">1.3e+00±2.2e-01</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-30.edn">1.3e+00±2.2e-01</a>
               </td>
             </tr>
           </table>
@@ -148,16 +148,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-20.edn">4.0e-05±1.5e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-20.edn">4.0e-05±1.5e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-21.edn">2.2e-04±9.0e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-21.edn">2.2e-04±9.0e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-22.edn">2.0e-03±4.1e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-22.edn">2.0e-03±4.1e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-23.edn">2.0e-02±6.6e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-23.edn">2.0e-02±6.6e-05</a>
               </td>
             </tr>
           </table>
@@ -213,16 +213,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-16.edn">3.6e-05±7.8e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-16.edn">3.6e-05±7.8e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-17.edn">2.0e-04±2.3e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-17.edn">2.0e-04±2.3e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-18.edn">1.8e-03±2.6e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-18.edn">1.8e-03±2.6e-05</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-19.edn">1.8e-02±3.3e-04</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-19.edn">1.8e-02±3.3e-04</a>
               </td>
             </tr>
           </table>
@@ -270,19 +270,19 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-0.edn">1.3e-07±2.7e-09</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-0.edn">1.3e-07±2.7e-09</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-1.edn">3.6e-05±6.2e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-1.edn">3.6e-05±6.2e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-2.edn">1.3e-04±1.1e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-2.edn">1.3e-04±1.1e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-3.edn">7.5e-04±1.3e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-3.edn">7.5e-04±1.3e-05</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-4.edn">6.4e-03±1.1e-04</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-4.edn">6.4e-03±1.1e-04</a>
               </td>
             </tr>
           </table>
@@ -347,25 +347,25 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-31.edn">1.8e-07±4.1e-10</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-31.edn">1.8e-07±4.1e-10</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-32.edn">9.0e-07±5.9e-09</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-32.edn">9.0e-07±5.9e-09</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-33.edn">1.3e-04±2.8e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-33.edn">1.3e-04±2.8e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-34.edn">7.6e-04±1.2e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-34.edn">7.6e-04±1.2e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-35.edn">6.5e-03±3.5e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-35.edn">6.5e-03±3.5e-05</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-36.edn">7.7e-02±4.3e-04</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-36.edn">7.7e-02±4.3e-04</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-37.edn">1.2e+00±2.0e-01</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-37.edn">1.2e+00±2.0e-01</a>
               </td>
             </tr>
           </table>
@@ -410,16 +410,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-5.edn">9.0e-07±2.5e-08</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-5.edn">9.0e-07±2.5e-08</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-6.edn">9.1e-07±1.7e-08</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-6.edn">9.1e-07±1.7e-08</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-7.edn">9.4e-07±2.4e-08</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-7.edn">9.4e-07±2.4e-08</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-8.edn">9.4e-07±1.4e-08</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-8.edn">9.4e-07±1.4e-08</a>
               </td>
             </tr>
           </table>
@@ -484,25 +484,25 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-9.edn">1.8e-07±2.5e-09</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-9.edn">1.8e-07±2.5e-09</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-10.edn">5.4e-05±5.3e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-10.edn">5.4e-05±5.3e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-11.edn">1.9e-04±2.5e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-11.edn">1.9e-04±2.5e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-12.edn">1.1e-03±9.2e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-12.edn">1.1e-03±9.2e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-13.edn">9.6e-03±9.5e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-13.edn">9.6e-03±9.5e-05</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-14.edn">1.1e-01±1.8e-03</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-14.edn">1.1e-01±1.8e-03</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-15.edn">1.7e+00±1.8e-01</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-15.edn">1.7e+00±1.8e-01</a>
               </td>
             </tr>
           </table>
@@ -547,16 +547,16 @@
                 7
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-38.edn">5.6e-05±1.3e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-38.edn">5.6e-05±1.3e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-39.edn">3.1e-04±4.5e-07</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-39.edn">3.1e-04±4.5e-07</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-40.edn">2.8e-03±3.6e-06</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-40.edn">2.8e-03±3.6e-06</a>
               </td>
               <td>
-                <a href="https://github.com/blosavio/speculoos/blob/master/resources/performance/all_paths/version 7/test-41.edn">2.8e-02±5.5e-05</a>
+                <a href="https://github.com/blosavio/speculoos/blob/main/resources/performance/all_paths/version 7/test-41.edn">2.8e-02±5.5e-05</a>
               </td>
             </tr>
           </table>
@@ -566,7 +566,7 @@
     </section>
     <p id="page-footer">
       Copyright © 2024–2025 Brad Losavio.<br>
-      Compiled by <a href="https://github.com/blosavio/Fastester">Fastester</a> on 2025 November 25.<span id="uuid"><br>
+      Compiled by <a href="https://github.com/blosavio/Fastester">Fastester</a> on 2025 December 30.<span id="uuid"><br>
       625df6c8-95f5-4319-8f43-539129650467</span>
     </p>
   </body>

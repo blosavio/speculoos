@@ -7,7 +7,7 @@
 
  :html-directory "doc/"
  :markdown-directory "doc/"
- :results-url "https://github.com/blosavio/speculoos/blob/master/"
+ :results-url "https://github.com/blosavio/speculoos/blob/main/"
 
  :verbose? true
  :testing-thoroughness :default
