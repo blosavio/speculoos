@@ -34,11 +34,11 @@
       <h3>
         Leiningen/Boot
       </h3>
-      <pre><code>[com.sagevisuals/speculoos &quot;8-SNAPSHOT0&quot;]</code></pre>
+      <pre><code>[com.sagevisuals/speculoos &quot;7-SNAPSHOT0&quot;]</code></pre>
       <h3>
         Clojure CLI/deps.edn
       </h3>
-      <pre><code>com.sagevisuals/speculoos {:mvn/version &quot;8-SNAPSHOT0&quot;}</code></pre>
+      <pre><code>com.sagevisuals/speculoos {:mvn/version &quot;7-SNAPSHOT0&quot;}</code></pre>
       <h3>
         Require
       </h3>
@@ -4426,8 +4426,7 @@
       <p>
         Starting with a quick demonstration, Speculoos can generate valid data when given a scalar specification.
       </p>
-      <pre><code>(require &apos;[speculoos.utility :refer [data-from-spec]])</code><br><br><code>(data-from-spec [int? string? keyword?] :random)
-;; =&gt; [558 &quot;nZND6abiQFdL9685o0K&quot; :ju++W]</code></pre>
+      <pre><code>(require &apos;[speculoos.utility :refer [data-from-spec]])</code><br><br><code>(data-from-spec [int? string? keyword?] :random) ;; =&gt; [-795 &quot;oO&quot; :T?]</code></pre>
       <p>
         When dealing with the basic <code>clojure.core</code> predicates, such as <code>int?</code>, <code>string?</code>, <code>keyword?</code>, etc.,
         Speculoos provides pre-made random sample generators that satisfy those predicates. (There are a few exceptions, due to the fact that there is not a
@@ -4437,7 +4436,7 @@
         Speculoos can also generate random scalar samples from predicate-like things, such as regular expressions and sets.
       </p>
       <pre><code>      built-in               v--- regex        v--- set-as-a-predicate</code><br><code>      predicate ----v</code><br><code>(data-from-spec {:x int?, :y #&quot;fo{3,6}bar&quot;, :z #{:red :green :blue}} :random)
-;; =&gt; {:x 601, :y &quot;fooooobar&quot;, :z :green}</code></pre>
+;; =&gt; {:x -601, :y &quot;foooooobar&quot;, :z :red}</code></pre>
       <p>
         When we use either a &apos;basic&apos; scalar predicate, such as <code>int?</code>, a regex, or a set-as-a-predicate, Speculoos knows how to generate a
         valid random sample that satisfies that predicate-like thing. Within the context of generating samples or exercising, basic predicate <code>int?</code>
@@ -4456,7 +4455,7 @@
       <p>
         <code>clojure.test.check</code> provides a group of powerful, flexible, generators.
       </p>
-      <pre><code>(require &apos;[clojure.test.check.generators :as gen])</code><br><br><code>(gen/generate (gen/large-integer* {:min 700, :max 999})) ;; =&gt; 905</code><br><br><code>(gen/generate gen/keyword) ;; =&gt; :*z.+g</code><br><br><code>(gen/generate gen/string-alphanumeric) ;; =&gt; &quot;h4LkZAS5O&quot;</code></pre>
+      <pre><code>(require &apos;[clojure.test.check.generators :as gen])</code><br><br><code>(gen/generate (gen/large-integer* {:min 700, :max 999})) ;; =&gt; 701</code><br><br><code>(gen/generate gen/keyword) ;; =&gt; :l</code><br><br><code>(gen/generate gen/string-alphanumeric) ;; =&gt; &quot;LJyLqZ8Nu&quot;</code></pre>
       <p>
         Speculoos leans heavily on these generators.
       </p>
@@ -4476,13 +4475,13 @@
         Second, we write our generator.
       </p>
       <pre><code>;; produce ten samples with `gen/sample`</code><br><br><code>(gen/sample (gen/large-integer* {:min 90, :max 99}))
-;; =&gt; (90 90 91 92 92 95 90 93 91 90)</code><br><br><br><code>;; produce one sample with `gen/generate`</code><br><br><code>(gen/generate (gen/large-integer* {:min 90, :max 99})) ;; =&gt; 96</code></pre>
+;; =&gt; (90 91 90 92 91 93 92 91 92 92)</code><br><br><br><code>;; produce one sample with `gen/generate`</code><br><br><code>(gen/generate (gen/large-integer* {:min 90, :max 99})) ;; =&gt; 90</code></pre>
       <p>
         To make the generator invocable, we&apos;ll wrap it in a function.
       </p>
       <pre><code>(defn generate-nineties
 &nbsp; []
-&nbsp; (gen/generate (gen/large-integer* {:min 90, :max 99})))</code><br><br><br><code>;; invoke the generator</code><br><br><code>(generate-nineties) ;; =&gt; 99</code></pre>
+&nbsp; (gen/generate (gen/large-integer* {:min 90, :max 99})))</code><br><br><br><code>;; invoke the generator</code><br><br><code>(generate-nineties) ;; =&gt; 98</code></pre>
       <p>
         Third, we need to associate that generator into the predicate&apos;s metadata. We have a couple of options. The manual option uses
         <code>with-meta</code> when we bind a name to the function body. We&apos;ll associate <code>generate-nineties</code> to the predicate&apos;s <a href=
@@ -4539,7 +4538,7 @@
       <pre><code>(binding [speculoos.utility/*such-that-max-tries* 1000]
 &nbsp; (let [possible-gen-90 (:speculoos/predicate-&gt;generator (meta auto-nineties?))]
 &nbsp;   (possible-gen-90)))
-;; =&gt; 90</code></pre>
+;; =&gt; 96</code></pre>
       <p>
         Yup! Since it is not-so-likely that a random integer generator would produce a value in the nineties, we bound the <code>max-tries</code> to a high
         count to give the generator lots of attempts. We then pulled out the generator from predicate <code>auto-nineties?</code>&apos;s metadata and bound it
@@ -4606,15 +4605,15 @@
 &nbsp;                :h combined-pred,
 &nbsp;                :i combined-pred}
 &nbsp;               :random)
-;; =&gt; {:a &quot;TGl0k4Gf61h8N7Y5&quot;,
-;;     :b 1/8,
-;;     :c &quot;xM4&quot;,
-;;     :d 5/11,
-;;     :e 13,
-;;     :f -27,
-;;     :g 5,
-;;     :h &quot;0y1Y1Dw&quot;,
-;;     :i 11/17}</code></pre>
+;; =&gt; {:a &quot;stVPj9By5480J24T4JFk7nOIs1jK&quot;,
+;;     :b -15,
+;;     :c -11,
+;;     :d 4/5,
+;;     :e 18/35,
+;;     :f 7,
+;;     :g 11/5,
+;;     :h -31,
+;;     :i 29/13}</code></pre>
       <p>
         We&apos;re kinda abusing <code>data-from-spec</code> here to generate nine samples. Inferring from <code>combined-pred</code>&apos;s predicate
         structure, <code>defpred</code>&apos;s automatically-created random sample generator emits one of three elements with equal probability: an odd
@@ -4637,13 +4636,13 @@
       <pre><code>(require &apos;[speculoos.utility :refer [validate-predicate-&gt;generator]])</code><br><br><br><code>(defpred pred-with-incorrect-generator
 &nbsp;        (fn [i] (int? i))
 &nbsp;        #(gen/generate gen/ratio))</code><br><br><br><code>(validate-predicate-&gt;generator pred-with-incorrect-generator)
-;; =&gt; ([-11/6 false]
-;;     [-5/11 false]
-;;     [7/10 false]
-;;     [18/31 false]
-;;     [1/2 false]
-;;     [13/29 false]
-;;     [-1/3 false])</code></pre>
+;; =&gt; ([-5/4 false]
+;;     [17/25 false]
+;;     [19/22 false]
+;;     [-8/5 false]
+;;     [9/10 false]
+;;     [-5/3 false]
+;;     [25/26 false])</code></pre>
       <p>
         We defined scalar predicate <code>pred-with-incorrect-generator</code> to require an integer, but, using <code>defpred</code>, we manually created a
         generator that emits ratio values. Each of the generated samples fails to satisfy the <code>int?</code> predicate.
@@ -4654,13 +4653,13 @@
       <pre><code>(defpred pred-with-good-generator
 &nbsp;        (fn [i] (int? i))
 &nbsp;        #(gen/generate gen/small-integer))</code><br><br><br><code>(validate-predicate-&gt;generator pred-with-good-generator)
-;; =&gt; ([3 true]
-;;     [-2 true]
+;; =&gt; ([29 true]
+;;     [18 true]
+;;     [11 true]
 ;;     [-16 true]
-;;     [-22 true]
-;;     [9 true]
-;;     [16 true]
-;;     [23 true])</code></pre>
+;;     [-17 true]
+;;     [-30 true]
+;;     [4 true])</code></pre>
       <p>
         In this particular case, we could have relied on <code>defpred</code> to <a href="#auto-sample">create a sample generator</a> for us.
       </p>
@@ -4710,7 +4709,8 @@
         floating-point number. We&apos;ve seen <a href="#scalar-validation">how to compose that scalar specification</a>. Let&apos;s give that scalar
         specification to <code>data-from-spec</code>.
       </p>
-      <pre><code>(require &apos;[speculoos.utility :refer [data-from-spec]])</code><br><br><br><code>(data-from-spec [int? ratio? double?] :random) ;; =&gt; [4 5/7 -81.25]</code></pre>
+      <pre><code>(require &apos;[speculoos.utility :refer [data-from-spec]])</code><br><br><br><code>(data-from-spec [int? ratio? double?] :random)
+;; =&gt; [123 29/26 0.019927978515625]</code></pre>
       <p>
         That scalar specification contains three predicates, and each of those predicates targets a basic Clojure numeric type, so Speculoos automatically
         refers to <code>test.check</code>&apos;s generators to produce a random sample.
@@ -4723,8 +4723,8 @@
 &nbsp;                :y #{:red :green :blue},
 &nbsp;                :z #&quot;fo{3,5}bar&quot;}
 &nbsp;               :random)
-;; =&gt; {:x \e,
-;;     :y :red,
+;; =&gt; {:x \4,
+;;     :y :blue,
 ;;     :z &quot;fooobar&quot;}</code></pre>
       <p>
         Again, without any further assistance, <code>data-from-spec</code> knew how to find or create a random sample generator for each predicate in the
@@ -4758,7 +4758,7 @@
         Now that we have two scalar predicates with custom sample generators — one created by <code>defpred</code>, one created by us — we&apos;ll bring them
         together into a single scalar specification and invoke <code>data-from-spec</code>.
       </p>
-      <pre><code>(data-from-spec [pos-even-int? three-char-string?] :random) ;; =&gt; [20 &quot;Q08&quot;]</code></pre>
+      <pre><code>(data-from-spec [pos-even-int? three-char-string?] :random) ;; =&gt; [34 &quot;Y2k&quot;]</code></pre>
       <p>
         <code>data-from-spec</code> generates a valid data set whose randomly-generated scalars satisfy the scalar specification. In fact, we can feed the
         generated data back into the specification and it ought to validate <code>true</code>. We provide <code>valid-scalars?</code> with the generated data
@@ -4772,16 +4772,16 @@
         the specification to see if it validates. Don&apos;t go off and write your own utility. Speculoos can <em>exercise</em> a scalar specification.
       </p>
       <pre><code>(require &apos;[speculoos.utility :refer [exercise]])</code><br><br><br><code>(exercise [int? ratio? double?])
-;; =&gt; ([[-66 1/3 14.265625] true]
-;;     [[-202 9/7 -5.1875] true]
-;;     [[230 -1/3 -1.248046875] true]
-;;     [[-528 15/13 -0.007460108361556195] true]
-;;     [[-536 -23/9 504.0] true]
-;;     [[-107 -1/20 -2.830322265625] true]
-;;     [[-377 19/16 27.78857421875] true]
-;;     [[430 13/12 -0.19128751754760742] true]
-;;     [[396 1/4 0.0062255859375] true]
-;;     [[809 -5/13 0.0050643086433410645] true])</code></pre>
+;; =&gt; ([[783 2/3 18.014404296875] true]
+;;     [[699 17/13 -0.0098876953125] true]
+;;     [[754 -11/14 0.00652114674448967] true]
+;;     [[-890 -16/21 -0.009206123650074005] true]
+;;     [[-562 7/25 -0.05568885803222656] true]
+;;     [[-9 6/11 -0.015860557556152344] true]
+;;     [[33 1/18 3.482845574617386] true]
+;;     [[568 11/20 2.75] true]
+;;     [[91 19/29 113.88525390625] true]
+;;     [[-121 10/9 1.872802734375] true])</code></pre>
       <p>
         Ten times, <code>exercise</code> generated a vector containing an integer, ratio, and double-precision numbers, then performed a scalar validation
         using those random samples as the data and the original scalar specification. In each of those ten runs, we see that <code>exercise</code> generated
@@ -4804,16 +4804,16 @@
         exercise <code>sum-three</code>.
       </p>
       <pre><code>(require &apos;[speculoos.function-specs :refer [exercise-fn]])</code><br><br><br><code>(exercise-fn sum-three)
-;; =&gt; ([[13 29/7 -409.796875] -392.6540178571429]
-;;     [[108 15/22 -0.3604910373687744] 108.32132714444943]
-;;     [[-294 12/11 -374.3125] -667.2215909090909]
-;;     [[778 31/25 13.893636703491211] 793.1336367034912]
-;;     [[627 21/20 0.2788581848144531] 628.3288581848144]
-;;     [[-962 1/24 0.7944180322811007] -961.1639153010522]
-;;     [[-907 -19/24 -0.5] -908.2916666666667]
-;;     [[309 23/5 7.555908203125] 321.155908203125]
-;;     [[-254 22/9 76.7666015625] -174.7889539930556]
-;;     [[602 -30/23 -3.114831507205963] 597.580820666707])</code></pre>
+;; =&gt; ([[-660 -5/14 -0.71875] -661.0758928571429]
+;;     [[-894 -5/8 16.0] -878.625]
+;;     [[504 2/27 0.301592618227005] 504.3756666923011]
+;;     [[-669 -21/13 0.12322998046875] -670.4921546349159]
+;;     [[-253 -11/3 -19.448503494262695] -276.1151701609294]
+;;     [[-603 1/10 -0.03125] -602.93125]
+;;     [[-333 -11/12 -63.16060209274292] -397.0772687594096]
+;;     [[-212 -17/6 9.26953125] -205.5638020833333]
+;;     [[-544 7/6 -0.02294921875] -542.8562825520833]
+;;     [[559 -5/31 -0.5974242091178894] 558.2412854683015])</code></pre>
       <p>
         <code>int?</code>, <code>ratio?</code>, and <code>double?</code> all have built-in generators, so we didn&apos;t have to create any custom generators.
         <code>exercise-fn</code> extracted <code>sum-three</code>&apos;s argument scalar specification, then, ten times, generated a data set from random
@@ -4966,9 +4966,9 @@ spec: [_ {:a _, :b [_ string?]} int?]
 ;;     (double? char?)]</code><br><br><br><code>(data-from-spec
 &nbsp; {:x int?, :y [ratio? boolean?], :z (list char? neg-int?)}
 &nbsp; :random)
-;; =&gt; {:x 186,
-;;     :y [10/29 false],
-;;     :z (\q -2)}</code></pre>
+;; =&gt; {:x -540,
+;;     :y [-4/31 true],
+;;     :z (\7 -23)}</code></pre>
       <p>
         I hope their names give good indications of what they do. The generated specification contains only basic predicates, that is, merely <em>Is it an
         integer?</em>, not <em>Is it an even integer greater than 25, divisible by 3?</em>. But it&apos;s convenient raw material to start crafting a tighter
@@ -6041,7 +6041,7 @@ spec: [_ {:a _, :b [_ string?]} int?]
             [A] Clojure library to describe the structure of data and functions.
           </p><br>
         </li>
-        <li>Clojure&apos;s <a href="https://github.com/clojure/spec-alpha2"><code>spec-alpha2</code> or <code>alpha.spec</code></a>
+        <li>Clojure&apos;s <a href="https://github.com/clojure/spec-alpha2"><code>spec-alpha2</code></a>, also known as <code>alpha.spec</code>
           <p>
             [A]n evolution from spec.alpha as well as work towards several new features. Note: Alex Miller considers it <a href=
             "https://ask.clojure.org/index.php/9397/clarify-usage-on-the-spec-alpha2-github-page?show=9398#a9398">a work in progress</a> as of 2020 June 20.
@@ -6061,7 +6061,40 @@ spec: [_ {:a _, :b [_ string?]} int?]
         <li>Peter Taoussanis&apos; <a href="https://github.com/taoensso/truss">Truss</a>
           <p>
             A tiny library that provides fast and flexible runtime assertions with terrific error messages.
+          </p>
+        </li>
+      </ul>
+      <h3>
+        Pattern-matching alternatives
+      </h3>
+      <ul>
+        <li>Ivan Grishaev&apos;s <a href="https://github.com/igrishaev/alike">alike</a>
+          <p>
+            A library to match values in tests.
+          </p>and <a href="https://github.com/igrishaev/any">any</a>
+          <p>
+            Objects for testing equality.
           </p><br>
+        </li>
+        <li>Sean Corfield&apos;s <a href="https://github.com/clojure-expectations/clojure-test">clojure-expectations</a>
+          <p>
+            A <code>clojure.test</code>-compatible version of the classic <a href="https://clojure-expectations.github.io/">Expectations</a> testing library.
+          </p><br>
+        </li>
+        <li>nubank&apos;s <a href="https://github.com/nubank/matcher-combinators">matcher-combinators</a>
+          <p>
+            Library for making assertions about nested data structures.
+          </p><br>
+        </li>
+        <li>Nikolai Ryzhikov&apos;s <a href="https://github.com/niquola/matcho">matcho</a>
+          <p>
+            One file library for data driven tests
+          </p><br>
+        </li>
+        <li>Kirill Chernyshov&apos;s <a href="https://github.com/xapix-io/matchete">machette</a>
+          <p>
+            Yet another pattern matching library for Clojure(Script).
+          </p>
         </li>
       </ul>
     </section>
@@ -6179,8 +6212,8 @@ spec: [_ {:a _, :b [_ string?]} int?]
     </p>
     <p></p>
     <p id="page-footer">
-      Copyright © 2024–2025 Brad Losavio.<br>
-      Compiled by <a href="https://github.com/blosavio/readmoi">ReadMoi</a> on 2025 October 27.<span id="uuid"><br>
+      Copyright © 2024–2026 Brad Losavio.<br>
+      Compiled by <a href="https://github.com/blosavio/readmoi">ReadMoi</a> on 2026 May 07.<span id="uuid"><br>
       b7613e59-3656-411e-8be6-f3cb8b5d8107</span>
     </p>
   </body>

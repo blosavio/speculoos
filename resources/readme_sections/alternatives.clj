@@ -9,7 +9,6 @@
    [:p  "A schema language for Clojure data for documenting and validating."]
    [:br]]
 
-
   [:li "Metosin " [:a {:href "https://github.com/metosin/malli"} "Malli"]
    [:p "Data-driven schemas incorporating the best parts of existing libs, mixed with their own tools."]
    [:br]]
@@ -30,7 +29,7 @@
    [:p "[A] Clojure library to describe the structure of data and functions."]
    [:br]]
 
-  [:li "Clojure's " [:a {:href "https://github.com/clojure/spec-alpha2"} [:code "spec-alpha2"] " or " [:code "alpha.spec"]]
+  [:li "Clojure's " [:a {:href "https://github.com/clojure/spec-alpha2"} [:code "spec-alpha2"]] ", also known as " [:code "alpha.spec"]
    [:p "[A]n evolution from spec.alpha as well as work towards several new features. Note: Alex Miller considers it "
     [:a {:href "https://ask.clojure.org/index.php/9397/clarify-usage-on-the-spec-alpha2-github-page?show=9398#a9398"} "a work in progress"]
     " as of 2020 June 20."]
@@ -45,5 +44,35 @@
    [:br]]
 
   [:li "Peter Taoussanis' " [:a {:href "https://github.com/taoensso/truss"} "Truss"]
-   [:p "A tiny library that provides fast and flexible runtime assertions with terrific error messages."]
-   [:br]]]]
+   [:p "A tiny library that provides fast and flexible runtime assertions with terrific error messages."]]]
+
+ [:h3 "Pattern-matching alternatives"]
+
+ [:ul
+  [:li "Ivan Grishaev's "
+   [:a {:href "https://github.com/igrishaev/alike"} "alike"]
+   [:p "A library to match values in tests."]
+   " and "
+   [:a {:href "https://github.com/igrishaev/any"} "any"]
+   [:p "Objects for testing equality."]
+   [:br]]
+
+  [:li "Sean Corfield's " [:a {:href "https://github.com/clojure-expectations/clojure-test"} "clojure-expectations"]
+   [:p "A "
+    [:code "clojure.test"]
+    "-compatible version of the classic "
+    [:a {:href "https://clojure-expectations.github.io/"} "Expectations"]
+    " testing library."]
+   [:br]]
+
+  [:li "nubank's " [:a {:href "https://github.com/nubank/matcher-combinators"} "matcher-combinators"]
+   [:p "Library for making assertions about nested data structures."]
+   [:br]]
+
+  [:li "Nikolai Ryzhikov's " [:a {:href "https://github.com/niquola/matcho"} "matcho"]
+   [:p "One file library for data driven tests"]
+   [:br]]
+
+  [:li "Kirill Chernyshov's " [:a {:href "https://github.com/xapix-io/matchete"} "machette"]
+   [:p "Yet another pattern matching library for Clojure(Script)."]]]]
+

@@ -1,4 +1,4 @@
-(defproject com.sagevisuals/speculoos "7"
+(defproject com.sagevisuals/speculoos "7-SNAPSHOT0"
   :description "A library for validating Clojure data."
   :url "https://github.com/blosavio/speculoos"
   :license {:name "MIT License"
@@ -7,7 +7,7 @@
   :dependencies [[org.clojure/clojure "1.12.0"]
                  [org.clojure/test.check "1.1.1"]
                  [re-rand "0.1.0"]
-                 [com.sagevisuals/fn-in "6"]]
+                 [com.sagevisuals/fn-in "7"]]
   :repl-options {:init-ns speculoos.core}
   :plugins []
   :profiles {:dev {:dependencies [[hiccup "2.0.0-RC3"]
